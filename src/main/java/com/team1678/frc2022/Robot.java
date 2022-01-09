@@ -2,7 +2,11 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot;
+package com.team1678.frc2022;
+
+import com.team1678.frc2022.loops.Looper;
+import com.team1678.frc2022.subsystems.Limelight;
+import com.team1678.frc2022.subsystems.Swerve;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 
@@ -17,6 +21,18 @@ public class Robot extends TimedRobot {
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
    */
+
+  /* Declare necessary class objects */
+	public static CTREConfigs ctreConfigs;
+
+  // subsystem instances
+  private final Swerve mSwerve = Swerve.getInstance();
+  private final Limelight mLimelight = Limelight.getInstance(); 
+
+  // instantiate enabled and disabled loopers
+  private final Looper mEnabledLooper = new Looper();
+  private final Looper mDisabledLooper = new Looper();
+
   @Override
   public void robotInit() {}
 
