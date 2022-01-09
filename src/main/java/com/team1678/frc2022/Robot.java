@@ -4,6 +4,7 @@
 
 package com.team1678.frc2022;
 
+import com.team1678.frc2022.loops.CrashTracker;
 import com.team1678.frc2022.loops.Looper;
 import com.team1678.frc2022.subsystems.Limelight;
 import com.team1678.frc2022.subsystems.Swerve;
@@ -32,6 +33,10 @@ public class Robot extends TimedRobot {
   // instantiate enabled and disabled loopers
   private final Looper mEnabledLooper = new Looper();
   private final Looper mDisabledLooper = new Looper();
+
+  public Robot() {
+    CrashTracker.logRobotConstruction();
+  }
 
   @Override
   public void robotInit() {}
