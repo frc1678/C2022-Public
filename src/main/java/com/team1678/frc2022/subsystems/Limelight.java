@@ -71,6 +71,7 @@ public class Limelight extends Subsystem {
                 final double start = Timer.getFPGATimestamp();
                 
                 synchronized (this) {
+                    outputTelemetry();
                     startLogging();
                 }
 
@@ -197,7 +198,6 @@ public class Limelight extends Subsystem {
         }
     }
 
-    @Override
     public synchronized void outputTelemetry() {
         SmartDashboard.putBoolean(mConstants.kName + ": Has Target", mSeesTarget);
         SmartDashboard.putBoolean("Limelight Ok", mPeriodicIO.has_comms);
