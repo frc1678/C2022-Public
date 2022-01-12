@@ -28,8 +28,8 @@ public class Constants {
         public static final boolean invertGyro = false; // Always ensure Gyro is CCW+ CW-
 
         /* Drivetrain Constants */
-        public static final double trackWidth = Units.inchesToMeters(29.5); // TODO: Check value
-		public static final double wheelBase = Units.inchesToMeters(29.5); // TODO: Check value
+        public static final double trackWidth = Units.inchesToMeters(20.75); // TODO: Check value
+		public static final double wheelBase = Units.inchesToMeters(20.75); // TODO: Check value
 
         public static final double wheelDiameter = Units.inchesToMeters(4.0);
         public static final double wheelCircumference = wheelDiameter * Math.PI;
@@ -37,8 +37,8 @@ public class Constants {
         public static final double openLoopRamp = 0.25;
         public static final double closedLoopRamp = 0.0;
 
-        public static final double driveGearRatio = 6.86; // TODO: Check value
-        public static final double angleGearRatio = 12.8; // TODO: Check value
+        public static final double driveGearRatio = 6.92307; // TODO: Check value
+        public static final double angleGearRatio = 11.57142; // TODO: Check value
 
         public static final SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(
                 new edu.wpi.first.math.geometry.Translation2d(wheelBase / 2.0, trackWidth / 2.0),
@@ -83,15 +83,15 @@ public class Constants {
         public static final NeutralMode driveNeutralMode = NeutralMode.Brake;
 
         /* Motor Inverts */
-        public static final boolean driveMotorInvert = false; // TODO: Check value
-        public static final boolean angleMotorInvert = false;
+        public static final boolean driveMotorInvert = true; // TODO: Check value
+        public static final boolean angleMotorInvert = true;
 
         /* Angle Encoder Invert */
         public static final boolean canCoderInvert = false;
 
         /* Controller Invert */
-        public static final boolean invertXAxis = false; // TODO: Check value 
-        public static final boolean invertYAxis = false; // TODO: Check value
+        public static final boolean invertXAxis = true; // TODO: Check value 
+        public static final boolean invertYAxis = true; // TODO: Check value
         public static final boolean invertRAxis = false; // TODO: Check value
 
 
@@ -99,28 +99,28 @@ public class Constants {
         
 		/* Front Left Module - Module 0 */
         public static final class Mod0 {
-            public static final double angleOffset = 144;
+            public static final double angleOffset = 234;
             public static final SwerveModuleConstants constants =
                 new SwerveModuleConstants(Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER, angleOffset);
         }
 
         /* Front Right Module - Module 1 */
         public static final class Mod1 {
-            public static final double angleOffset = 44;
+            public static final double angleOffset = 3;
             public static final SwerveModuleConstants constants =
                 new SwerveModuleConstants(Ports.FR_DRIVE, Ports.FR_ROTATION, Ports.FR_CANCODER, angleOffset);
         }
 
         /* Back Left Module - Module 2 */
         public static final class Mod2 {
-            public static final double angleOffset = 289;
+            public static final double angleOffset = 37;
             public static final SwerveModuleConstants constants =
                 new SwerveModuleConstants(Ports.BL_DRIVE, Ports.BL_ROTATION, Ports.BL_CANCODER, angleOffset);
         }
 
         /* Back Right Module - Module 3 */
         public static final class Mod3 {
-            public static final double angleOffset = 60;
+            public static final double angleOffset = 155;
             public static final SwerveModuleConstants constants =
                 new SwerveModuleConstants(Ports.BR_DRIVE, Ports.BR_ROTATION, Ports.BR_CANCODER, angleOffset);
         }

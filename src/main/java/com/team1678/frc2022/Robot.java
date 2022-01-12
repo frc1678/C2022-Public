@@ -79,7 +79,9 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void robotPeriodic() {}
+  public void robotPeriodic() {
+    mShuffleBoardInteractions.update();
+  }
 
   @Override
   public void autonomousInit() {
