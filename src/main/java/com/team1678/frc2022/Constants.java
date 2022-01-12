@@ -191,7 +191,9 @@ public class Constants {
     }
 
     public static final class HopperConstants {
-        
+        public static final double kIdleVoltage = 2;
+        public static final double kIntakingVoltage = 6;
+        public static final double kOuttakingVoltage = -6;
     }
 
     public static final class ElevatorConstants {
