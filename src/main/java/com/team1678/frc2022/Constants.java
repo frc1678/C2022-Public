@@ -184,6 +184,28 @@ public class Constants {
 		public static final double kImageCaptureLatency = 11.0 / 1000.0; // seconds
 	}
 
+    /*** SUBSYSTEM CONSTANTS ***/
+    public static final class IntakeConstants {
+        public static final double kIntakingVoltage = 5;
+        public static final double kOuttakingVoltage = -5;
+    }
+
+    public static final class HopperConstants {
+        
+    }
+
+    public static final class ElevatorConstants {
+        
+    }
+
+    public static final class ShooterConstants {
+        
+    }
+
+    public static final class ClimberConstants {
+        
+    }
+
 	// Timeout constants
 	public static final int kLongCANTimeoutMs = 100;
 	public static final int kCANTimeoutMs = 10;

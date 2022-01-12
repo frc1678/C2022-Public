@@ -10,23 +10,38 @@ public class Ports {
         3 4
     */
 
-    public static final int FL_DRIVE = 4; 
-    public static final int FL_ROTATION = 8;
-    public static final int FL_CANCODER = 1; 
+    public static final int FL_DRIVE = 0; 
+    public static final int FL_ROTATION = 1;
+    public static final int FL_CANCODER = 0; 
 
-    public static final int FR_DRIVE = 13; 
-    public static final int FR_ROTATION = 9;
-    public static final int FR_CANCODER = 0; 
+    public static final int FR_DRIVE = 2; 
+    public static final int FR_ROTATION = 3;
+    public static final int FR_CANCODER = 1; 
 
-    public static final int BL_DRIVE = 1;
+    public static final int BL_DRIVE = 4;
     public static final int BL_ROTATION = 5;
     public static final int BL_CANCODER = 2; 
 
-    public static final int BR_DRIVE = 16;
-    public static final int BR_ROTATION = 12;
+    public static final int BR_DRIVE = 6;
+    public static final int BR_ROTATION = 7;
     public static final int BR_CANCODER = 3; 
 
     // Pigeon
-    public static final int PIGEON = 16;
+    public static final int PIGEON = 20;
+
+    /*** SUBSYSTEM IDS ***/
+    public static final int INTAKE_ID = 8;
+    public static final int DEPLOY_SOLENOID_ID = 9;
+
+    public static final int HOPPER_ID = 10;
+    public static final int ELEVATOR_ID = 11;
+    public static final int ELEVATOR_SENSOR = 0;
+
+    public static final int FLYWHEEL_ID = 12;
+    public static final int HOOD_ID = 13;
+
+    public static final int CLIMBER_ID = 14;
+    public static final int CLIMBER_PIVOT_SOLENOID = 15;
+
 
 }
