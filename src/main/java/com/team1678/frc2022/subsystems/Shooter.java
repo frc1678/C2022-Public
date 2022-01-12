@@ -88,7 +88,8 @@ public class Shooter extends Subsystem {
         if (mIsOpenLoop) {
             mMain.set(ControlMode.PercentOutput, mPeriodicIO.flywheel_demand);
         } else {
-            mMain.set(ControlMode.Velocity, 0.0);
+            mMain.set(ControlMode.Velocity,
+                    mPeriodicIO.flywheel_demand / Constants.ShooterConstants.kFlywheelVelocityConversion);
         }
     }
 
