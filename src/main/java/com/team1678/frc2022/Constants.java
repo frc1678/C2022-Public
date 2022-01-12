@@ -199,7 +199,13 @@ public class Constants {
     }
 
     public static final class ShooterConstants {
-        
+        public static final double kFlywheelVelocityConversion = 100/2048; // TODO Change to actual ratio, remember velo is measured in ticks/100ms
+        public static final double kFlywheelTolerance = 200;
+        public static final double kShooterP = 0.25; // TODO Retune these
+		public static final double kShooterI = 0.00004;
+		public static final double kShooterD = 0.0;
+		public static final double kShooterF = 0.05;
+        public static final double kClosedLoopRamp = 0.1;
     }
 
     public static final class ClimberConstants {
