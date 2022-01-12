@@ -69,7 +69,7 @@ public class Shooter extends Subsystem {
 
             @Override
             public void onStop(double timestamp) {
-
+                stop();
             }
         });
     }
