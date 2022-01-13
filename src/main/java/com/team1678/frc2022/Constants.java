@@ -184,25 +184,48 @@ public class Constants {
 		public static final double kImageCaptureLatency = 11.0 / 1000.0; // seconds
 	}
 
-    public static final class ElevatorConstants {
-        public static final int kIndexerMotorId = 32;
+        /*** SUBSYSTEM CONSTANTS ***/
+        public static final class IntakeConstants {
+            public static final double kIntakingVoltage = 5;
+            public static final double kOuttakingVoltage = -5;
+        }
+    
+        public static final class HopperConstants {
+            
+        }
+    
+        public static final class ElevatorConstants {
+            public static final int kIndexerMotorId = 32;
 
-        //TODO: find actual values
-        public static final double kIndexerKp = 0.2;
-        public static final double kIndexerKi = 0.;
-        public static final double kIndexerKd = 0.;
-        public static final double kIndexerKf = .05;
-        public static final double kIndexerVelocityKp = 0.05;
-        public static final double kIndexerVelocityKi = 0.;
-        public static final double kIndexerVelocityKd = 0.;
-        public static final double kIndexerVelocityKf = .05;
-        public static final int kIndexerMaxVelocity = 20000;
-        public static final int kIndexerMaxAcceleration = 40000;
-        
-        public static final int kBottomBeamBreak = 1;
-        public static final int kTopBeamBreak = 0;
-    }
+            //TODO: find actual values
+            public static final double kIndexerKp = 0.2;
+            public static final double kIndexerKi = 0.;
+            public static final double kIndexerKd = 0.;
+            public static final double kIndexerKf = .05;
+            public static final double kIndexerVelocityKp = 0.05;
+            public static final double kIndexerVelocityKi = 0.;
+            public static final double kIndexerVelocityKd = 0.;
+            public static final double kIndexerVelocityKf = .05;
+            public static final int kIndexerMaxVelocity = 20000;
+            public static final int kIndexerMaxAcceleration = 40000;
+            
+            public static final int kBottomBeamBreak = 1;
+            public static final int kTopBeamBreak = 0;
 
+            public static final double kIndexingVoltage = 7.0;
+            public static final double kReversingVoltage = -7.0;
+            public static final double kShootingVoltage = 9.0;
+            
+        }
+    
+        public static final class ShooterConstants {
+            
+        }
+    
+        public static final class ClimberConstants {
+            
+        }
+    
 	// Timeout constants
 	public static final int kLongCANTimeoutMs = 100;
 	public static final int kCANTimeoutMs = 10;

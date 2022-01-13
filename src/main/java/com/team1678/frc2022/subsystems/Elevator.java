@@ -4,6 +4,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
+import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
 import com.team254.lib.drivers.TalonFXFactory;
@@ -15,10 +16,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Elevator extends Subsystem{
 
     private final TalonFX mIndexer;
-
-    private static double kIndexingVoltage = 7.0;
-    private static double kReversingVoltage = -7.0;
-    private static double kShootingVoltage = 9.0;
 
     private static Elevator mInstance;
     private static PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -63,7 +60,7 @@ public class Elevator extends Subsystem{
     }
 
     private Elevator() {
-        mIndexer = TalonFXFactory.createDefaultTalon(Constants.ElevatorConstants.kIndexerMotorId);
+        mIndexer = TalonFXFactory.createDefaultTalon(Ports.ELEVATOR_ID);
 
         mIndexer.config_kP(0, Constants.ElevatorConstants.kIndexerKp, Constants.kLongCANTimeoutMs);
         mIndexer.config_kI(0, Constants.ElevatorConstants.kIndexerKi, Constants.kLongCANTimeoutMs);
@@ -167,20 +164,20 @@ public class Elevator extends Subsystem{
                 if (mBallCount == 2) {
                     System.out.println("Elevator is full!!");
                 } else if (mBallCount < 2 && mBallCount > 0) {
-                    spinMotor(kIndexingVoltage);
+                    spinMotor(Constants.ElevatorConstants.kIndexingVoltage);
                 }
                 break;
             case SHOOTING:
-                spinMotor(kShootingVoltage);
+                spinMotor(Constants.ElevatorConstants.kShootingVoltage);
                 break;
             case OUTTAKING_TOP:
                 mTopBeamBreak.get();
                 if(false){
-                    spinMotor(kIndexingVoltage);
-                    mPeriodicIO.indexer_demand = kIndexingVoltage;
+                    spinMotor(Constants.ElevatorConstants.kIndexingVoltage);
+                    mPeriodicIO.indexer_demand = Constants.ElevatorConstants.kIndexingVoltage;
                 }if (true) {
-                    spinMotor(kReversingVoltage);
-                    mPeriodicIO.indexer_demand = kReversingVoltage; 
+                    spinMotor(Constants.ElevatorConstants.kReversingVoltage);
+                    mPeriodicIO.indexer_demand = Constants.ElevatorConstants.kReversingVoltage; 
                     mBallCount = mBallCount - 1;
                     mBottomBeamBreak.get();
                     if (true) {
@@ -190,8 +187,8 @@ public class Elevator extends Subsystem{
                 break;
             }
             case OUTTAKING_BOTTOM:
-                spinMotor(kReversingVoltage);
-                mPeriodicIO.indexer_demand = kReversingVoltage;
+                spinMotor(Constants.ElevatorConstants.kReversingVoltage);
+                mPeriodicIO.indexer_demand = Constants.ElevatorConstants.kReversingVoltage;
                 mBallCount = mBallCount - 1;
                 break;
 
