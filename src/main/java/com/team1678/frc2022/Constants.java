@@ -186,14 +186,6 @@ public class Constants {
 
     /*** SUBSYSTEM CONSTANTS ***/
     public static final class IntakeConstants {
-        public static final double kIntakingVoltage = 5;
-        public static final double kIdleVoltage = 0;
-        public static final double kSpittingVoltage = -7;
-
-        //none of these are final, and i have no idea i just picked random numbers
-        public static int kMasterIntakeRollerId = 9;
-        public static int kSlaverIntakeRollerId = 6;
-        public static int kDeploySolenoidId = 4;
     
     }
 
