@@ -47,16 +47,18 @@ public class Elevator extends Subsystem{
         NONE,
         INDEX,
         SHOOT,
-        OUTTAKE_TOP,
-        OUTTAKE_BOTTOM
+        REVERSE,
+        /*OUTTAKE_TOP,
+        OUTTAKE_BOTTOM*/
     }
 
     public enum State {
         IDLE, 
         INDEXING, 
-        SHOOTING, 
-        OUTTAKING_TOP,
-        OUTTAKING_BOTTOM
+        SHOOTING,
+        REVERSING,
+        /*OUTTAKING_TOP,
+        OUTTAKING_BOTTOM*/
     }
 
     private Elevator() {
@@ -123,6 +125,7 @@ public class Elevator extends Subsystem{
             public void onLoop(double timestamp) {
                 synchronized (Elevator.this){
                     runStateMachine();
+                    outputTelemetry();
                 }
             }
 
@@ -146,12 +149,15 @@ public class Elevator extends Subsystem{
             case SHOOT:
                 mState = State.SHOOTING;
                 break;
-            case OUTTAKE_TOP:
+            case REVERSE:
+                mState = State.REVERSING;
+                break;
+            /*case OUTTAKE_TOP:
                 mState = State.OUTTAKING_TOP;
                 break;
             case OUTTAKE_BOTTOM:
                 mState = State.OUTTAKING_BOTTOM;
-                break;
+                break;*/
         }
     }
 
@@ -161,6 +167,7 @@ public class Elevator extends Subsystem{
                 spinMotor(0);
                 break;
             case INDEXING:
+                updateSlots();
                 if (mBallCount == 2) {
                     System.out.println("Elevator is full!!");
                 } else if (mBallCount < 2 && mBallCount > 0) {
@@ -170,7 +177,11 @@ public class Elevator extends Subsystem{
             case SHOOTING:
                 spinMotor(Constants.ElevatorConstants.kShootingVoltage);
                 break;
-            case OUTTAKING_TOP:
+            case REVERSING:
+                spinMotor(Constants.ElevatorConstants.kReversingVoltage);
+                break;
+            //Logic for beam breaks, will probably be moved to superstructure
+            /*case OUTTAKING_TOP:
                 mTopBeamBreak.get();
                 if(false){
                     spinMotor(Constants.ElevatorConstants.kIndexingVoltage);
@@ -190,7 +201,7 @@ public class Elevator extends Subsystem{
                 spinMotor(Constants.ElevatorConstants.kReversingVoltage);
                 mPeriodicIO.indexer_demand = Constants.ElevatorConstants.kReversingVoltage;
                 mBallCount = mBallCount - 1;
-                break;
+                break;*/
 
         }
     }
