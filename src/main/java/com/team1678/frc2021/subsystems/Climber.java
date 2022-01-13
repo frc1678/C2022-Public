@@ -1,7 +1,7 @@
 package com.team1678.frc2021.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.loops.ILooper;
@@ -9,6 +9,7 @@ import com.team1678.frc2022.loops.Loop;
 import com.team1678.frc2022.Ports;
 import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.util.TimeDelayedBoolean;
+import com.team254.lib.drivers.TalonFXFactory;
 
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -25,7 +26,7 @@ public class Climber extends Subsystem {
 
     private Climber() {
         mShiftSolenoid = null;
-        mClimber = new TalonFX(Ports.HOPPER_ID);
+        mClimber = TalonFXFactory.createDefaultTalon(Ports.CLIMBER_ID);
     }
 
     public enum WantedAction {
@@ -36,7 +37,6 @@ public class Climber extends Subsystem {
         IDLE, EXTENDING, RETRACTING,
     }
 
-    public StatorCurrentLimitConfiguration STATOR_CURRENT_LIMIT = new StatorCurrentLimitConfiguration(true, 80, 80, 1.0);
     private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
 
     private State mState = State.IDLE;
