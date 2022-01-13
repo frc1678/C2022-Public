@@ -36,8 +36,8 @@ public class Elevator extends Subsystem{
     }
 
     private void updateSlots() {
-        mHasBall = mPeriodicIO.lightBeamBreakSensor[0];
-        mSlotsClean = mPeriodicIO.lightBeamBreakSensor[1];
+        mHasBall = mPeriodicIO.topLightBeamBreakSensor;
+        mSlotsClean = mPeriodicIO.bottomLightBeamBreakSensor;
         if (mBallCount != 0) {
             mSlotsClean = false;
         }
@@ -104,8 +104,8 @@ public class Elevator extends Subsystem{
     @Override
     public synchronized void readPeriodicInputs() {
         mPeriodicIO.timestamp = Timer.getFPGATimestamp();
-        mPeriodicIO.lightBeamBreakSensor[0] = mBottomBeamBreak.get();
-        mPeriodicIO.lightBeamBreakSensor[1] = mTopBeamBreak.get();
+        mPeriodicIO.topLightBeamBreakSensor = mBottomBeamBreak.get();
+        mPeriodicIO.bottomLightBeamBreakSensor = mTopBeamBreak.get();
     }
 
     @Override 
@@ -232,7 +232,8 @@ public class Elevator extends Subsystem{
         public double timestamp;
         public double elevator_voltage;
         public double elevator_current;
-        private boolean[] lightBeamBreakSensor;
+        private boolean topLightBeamBreakSensor;
+        private boolean bottomLightBeamBreakSensor;
 
         //OUTPUTS
         public double indexer_demand;
