@@ -17,31 +17,31 @@ public class Intake extends Subsystem {
     private static double kIntakingVoltage = 5;
     private static double kIdleVoltage = 0;
     public static double kSpittingVoltage = -7;
+    private static double mCurrent;
+    private TimeDelayedBoolean mIntakeSolenoidTimer = new TimeDelayedBoolean();
 
     //Lists wanted actions
     public enum WantedAction {
-        IDLE, INTAKE, REVERSE, RETRACT, SPIT
+        NONE, INTAKE, REVERSE, RETRACT, SPIT
     }
 
     //Lists corresponding states
     public enum State {
-        IDLING, INTAKING, REVERSING, RETRACTING, SPITTING_OUT
+        IDLE, INTAKING, REVERSING, RETRACTING, SPITTING_OUT
     }
 
     private State mState = State.IDLE;
     private static PeriodicIO mPeriodicIO = new PeriodicIO();
     private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
 
-    //creates two Talon FX motors and a single Solenoid
-    private final TalonFX mMaster;
-    private final TalonFX mSlave;
+    //creates a Talon FX motor and a single Solenoid
+    private final TalonFX mMotor;
     private Solenoid mSolenoid;
 
     private Intake() {
-        mMaster = TalonFXFactory.createDefaultTalon(Constants.kMasterIntakeRollerId);
-        mDeploySolenoid = Constants.makeSolenoidForId(Constants.kDeploySolenoidId);
-        mSlave = TalonFXFactory.createPermanentSlaveTalon(Constants.kSlaverIntakeRollerId, Constants.kMasterIntakeRollerId);
-        //mSlave.setInverted(true); This line will be uncommented if our motor(s) is inverted on the robot
+        mMotor = TalonFXFactory.createDefaultTalon(Ports.INTAKE_ID);
+        mSolenoid = Constants.makeSolenoidForId(Ports.DEPLOY_SOLENOID_ID);
+        //mMotor.setInverted(true); This line will be uncommented if our motor(s) is inverted on the robot
     }
 
     //Tells us the State the Intake is currently in
@@ -52,18 +52,9 @@ public class Intake extends Subsystem {
         return mInstance;
     }
 
-    public void writeToLog() {
-    }
-
     @Override
     public void stop() {
         mMaster.set(ControlMode.PercentOutput, 0);
-    }
-
-    public void zeroSensors() {
-    }
-
-    public void registerEnabledLoops(ILooper enabledLooper) {
     }
 
     public boolean checkSystem() {
@@ -74,9 +65,9 @@ public class Intake extends Subsystem {
 
     public void runStateMachine() {
         switch (mState) {
-            case IDLING:
-            mPeriodicIO.demand = kIdleVoltage;
-            mPeriodicIO.deploy = false;
+            case IDLE:
+                mPeriodicIO.demand = kIdleVoltage;
+                mPeriodicIO.deploy = false;
             break;
             case INTAKING:
                 if (mPeriodicIO.intake_out) {
@@ -113,8 +104,8 @@ public class Intake extends Subsystem {
     //sets states
     public void setState(WantedAction wanted_state) {
         switch (wanted_state) {
-            case IDLE:
-                mState = State.IDLING;
+            case NONE:
+                mState = State.IDLE;
                 break;
             case INTAKE:
                 mState = State.INTAKING;
@@ -155,10 +146,17 @@ public class Intake extends Subsystem {
                 mCSVWriter.write();
             }
         }
+    
+        @Override
+        public void registerEnabledLoops(ILooper enabledLooper) {
+            enabledLooper.register(new Loop() {
+                 @Override
+                 public void onStart(double timestamp) {
+                    mState = State.IDLE;
+            }
 
         public static class PeriodicIO {
             // INPUTS
-            public double timestamp;
             public double current;
             public boolean intake_out;
     
