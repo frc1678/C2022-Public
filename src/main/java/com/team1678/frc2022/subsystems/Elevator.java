@@ -46,7 +46,6 @@ public class Elevator extends Subsystem{
     public enum WantedAction {
         NONE,
         INDEX,
-        SHOOT,
         REVERSE,
         /*OUTTAKE_TOP,
         OUTTAKE_BOTTOM*/
@@ -55,7 +54,6 @@ public class Elevator extends Subsystem{
     public enum State {
         IDLE, 
         INDEXING, 
-        SHOOTING,
         REVERSING,
         /*OUTTAKING_TOP,
         OUTTAKING_BOTTOM*/
@@ -146,9 +144,6 @@ public class Elevator extends Subsystem{
             case INDEX:
                 mState = State.INDEXING;
                 break;
-            case SHOOT:
-                mState = State.SHOOTING;
-                break;
             case REVERSE:
                 mState = State.REVERSING;
                 break;
@@ -173,9 +168,6 @@ public class Elevator extends Subsystem{
                 } else if (mBallCount < 2 && mBallCount > 0) {
                     spinMotor(Constants.ElevatorConstants.kIndexingVoltage);
                 }
-                break;
-            case SHOOTING:
-                spinMotor(Constants.ElevatorConstants.kShootingVoltage);
                 break;
             case REVERSING:
                 spinMotor(Constants.ElevatorConstants.kReversingVoltage);

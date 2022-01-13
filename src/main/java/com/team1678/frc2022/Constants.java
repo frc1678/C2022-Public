@@ -214,7 +214,6 @@ public class Constants {
 
             public static final double kIndexingVoltage = 7.0;
             public static final double kReversingVoltage = -7.0;
-            public static final double kShootingVoltage = 9.0;
             
         }
     
