@@ -123,6 +123,7 @@ public class Elevator extends Subsystem{
             public void onLoop(double timestamp) {
                 synchronized (Elevator.this){
                     runStateMachine();
+                    updateSlots();
                     outputTelemetry();
                 }
             }
@@ -162,7 +163,6 @@ public class Elevator extends Subsystem{
                 spinMotor(0);
                 break;
             case INDEXING:
-                updateSlots();
                 if (mBallCount == 2) {
                     System.out.println("Elevator is full!!");
                 } else if (mBallCount < 2 && mBallCount > 0) {
