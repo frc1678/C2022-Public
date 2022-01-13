@@ -3,7 +3,7 @@ package com.team1678.frc2022.auto;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.Trajectory; 
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.DriverStation;

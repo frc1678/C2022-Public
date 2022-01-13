@@ -1,21 +1,20 @@
 package com.team1678.frc2022.auto.modes;
 
-import java.io.IOException;
-import java.nio.file.Path;
+import java.util.List;
 
 import com.team1678.frc2022.auto.AutoModeEndedException;
 import com.team1678.frc2022.Constants;
-import com.team1678.frc2022.auto.WaypointReader;
 import com.team1678.frc2022.auto.actions.LambdaAction;
 import com.team1678.frc2022.auto.actions.SwerveTrajectoryAction;
 import com.team1678.frc2022.subsystems.Swerve;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.math.geometry.Translation2d;
 
 public class TestPathMode extends AutoModeBase {
     
@@ -30,27 +29,32 @@ public class TestPathMode extends AutoModeBase {
 	SwerveTrajectoryAction testTrajectoryAction;
 
     public TestPathMode() {
-    
-        try {
 
-          Path traj_path = Filesystem.getDeployDirectory().toPath().resolve(path);
-          TrajectoryGenerator.ControlVectorList cv_one = WaypointReader.getControlVectors(traj_path);
-		  testTrajectory = TrajectoryGenerator.generateTrajectory(cv_one, Constants.AutoConstants.defaultConfig);
-		  
-        } catch (IOException ex) {
-		  DriverStation.reportError("Unable to open trajectory: " + path, ex.getStackTrace());
-		}
-		
-        var thetaController = new ProfiledPIDController(Constants.AutoConstants.kPThetaController, 0, 0,
-                Constants.AutoConstants.kThetaControllerConstraints);
+        var thetaController =
+            new ProfiledPIDController(
+                Constants.AutoConstants.kPThetaController, 0, 0, Constants.AutoConstants.kThetaControllerConstraints);
+
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
-        testTrajectoryAction = new SwerveTrajectoryAction(testTrajectory,
-                s_Swerve::getPose, Constants.SwerveConstants.swerveKinematics,
+    
+        Trajectory testTrajectory =
+            TrajectoryGenerator.generateTrajectory(
+                new Pose2d(0, 0, Rotation2d.fromDegrees(0.0)),
+                List.of(new Translation2d(1.5, 0)),
+                new Pose2d(3, 0, Rotation2d.fromDegrees(0.0)),
+                Constants.AutoConstants.defaultConfig);
+
+        testTrajectoryAction =
+            new SwerveTrajectoryAction(
+                testTrajectory,
+                s_Swerve::getPose,
+                Constants.SwerveConstants.swerveKinematics,
                 new PIDController(Constants.AutoConstants.kPXController, 0, 0),
-                new PIDController(Constants.AutoConstants.kPYController, 0, 0), thetaController,
+                new PIDController(Constants.AutoConstants.kPYController, 0, 0),
+                thetaController,
+                () -> Rotation2d.fromDegrees(0),
                 s_Swerve::setModuleStates);
-				
+        		
     }
 
     @Override

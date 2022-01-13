@@ -1,5 +1,7 @@
 package com.team1678.frc2022.auto.modes;
 
+import java.io.IOException;
+
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.auto.AutoModeEndedException;
 import com.team1678.frc2022.auto.AutoTrajectoryReader;
@@ -9,7 +11,9 @@ import com.team1678.frc2022.subsystems.Swerve;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.DriverStation;
 
 public class FiveBallMode extends AutoModeBase {
     
@@ -19,7 +23,7 @@ public class FiveBallMode extends AutoModeBase {
     // required PathWeaver file paths
     String file_path_a = "paths/FiveBallPaths/5 Ball A.path";
     String file_path_b = "paths/FiveBallPaths/5 Ball B.path";
-    String file_path_c = "paths/FiveBallPaths/5 Ball c.path";
+    String file_path_c = "paths/FiveBallPaths/5 Ball C.path";
     
 	// trajectory actions
 	SwerveTrajectoryAction driveToIntakeFirstTwoAndShoot;
@@ -34,12 +38,13 @@ public class FiveBallMode extends AutoModeBase {
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
     
         // read trajectories from PathWeaver and generate trajectory actions
-		Trajectory traj_path_a = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_a, Constants.AutoConstants.defaultConfig);
+        Trajectory traj_path_a = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_a, Constants.AutoConstants.defaultConfig);
         driveToIntakeFirstTwoAndShoot = new SwerveTrajectoryAction(traj_path_a,
                                                             s_Swerve::getPose, Constants.SwerveConstants.swerveKinematics,
                                                             new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                             new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                             thetaController,
+                                                            () -> Rotation2d.fromDegrees(0.0),
                                                             s_Swerve::setModuleStates);
 
         Trajectory traj_path_b = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_b, Constants.AutoConstants.defaultConfig);
@@ -57,7 +62,7 @@ public class FiveBallMode extends AutoModeBase {
                                                             new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                             thetaController,
                                                             s_Swerve::setModuleStates);
-				
+    
     }
 
     @Override
@@ -68,8 +73,8 @@ public class FiveBallMode extends AutoModeBase {
         runAction(new LambdaAction(() -> s_Swerve.resetOdometry(driveToIntakeFirstTwoAndShoot.getInitialPose())));
 
         runAction(driveToIntakeFirstTwoAndShoot);
-        runAction(driveToIntakeAtTerminal);
-        runAction(driveToShootFromTerminal);
+        // runAction(driveToIntakeAtTerminal);
+        // runAction(driveToShootFromTerminal);
         
         System.out.println("Finished auto!");
     }
