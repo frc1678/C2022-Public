@@ -102,7 +102,7 @@ public class Intake extends Subsystem {
     }
 
     //sets states
-    public void setState(WantedAction wanted_state) {
+   public void setState(WantedAction wanted_state) {
         switch (wanted_state) {
             case NONE:
                 mState = State.IDLE;
@@ -120,7 +120,7 @@ public class Intake extends Subsystem {
                 mState = State.SPITTING_OUT;
                 break;
         }
-        }
+   }
 
 
         @Override
