@@ -15,19 +15,21 @@ public class Hopper extends Subsystem {
     private static Hopper mInstance;
     private static PeriodicIO mPeriodicIO = new PeriodicIO();
 
-    private State mState = State.IDLE;
+    private State mState = State.SLOW_INDEXING;
 
     private TalonFX mHopper;
 
     public enum WantedAction {
         INDEX,
         REVERSE,
+        SLOW_INDEX,
         NONE
     }
 
     public enum State {
         INDEXING,
         REVERSING,
+        SLOW_INDEXING,
         IDLE,
     }
 
@@ -57,7 +59,7 @@ public class Hopper extends Subsystem {
         enabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
-                mState = State.IDLE;
+                mState = State.SLOW_INDEXING;
             }
 
             @Override
@@ -70,7 +72,7 @@ public class Hopper extends Subsystem {
 
             @Override
             public void onStop(double timestamp) {
-                mState = State.IDLE;
+                mState = State.SLOW_INDEXING;
                 stop();
             }
         });
@@ -78,14 +80,17 @@ public class Hopper extends Subsystem {
 
     public void setState(WantedAction wanted_state) {
         switch (wanted_state) {
-            case NONE:
-                mState = State.IDLE;
+            case SLOW_INDEX:
+                mState = State.SLOW_INDEXING;
                 break;
             case INDEX:
                 mState = State.INDEXING;
                 break;
             case REVERSE:
                 mState = State.REVERSING;
+                break;
+            case NONE:
+                mState = State.IDLE;
                 break;
         }
 
@@ -97,17 +102,20 @@ public class Hopper extends Subsystem {
                 mPeriodicIO.hopper_demand = Constants.HopperConstants.kIntakingVoltage;
                 break;
             case REVERSING:
-                mPeriodicIO.hopper_demand = Constants.HopperConstants.kIntakingVoltage;
+                mPeriodicIO.hopper_demand = -Constants.HopperConstants.kIntakingVoltage;
+                break;
+            case SLOW_INDEXING:
+                mPeriodicIO.hopper_demand = Constants.HopperConstants.kIdleVoltage;
                 break;
             case IDLE:
-                mPeriodicIO.hopper_demand = Constants.HopperConstants.kIdleVoltage;
+                mPeriodicIO.hopper_demand = 0;
                 break;
         }
     }
 
     @Override
     public void stop() {
-        setState(WantedAction.NONE);
+        setState(WantedAction.SLOW_INDEX);
         mHopper.set(ControlMode.PercentOutput, 0);
     }
 
