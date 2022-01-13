@@ -92,7 +92,7 @@ public class Constants {
         /* Controller Invert */
         public static final boolean invertXAxis = true; // TODO: Check value 
         public static final boolean invertYAxis = true; // TODO: Check value
-        public static final boolean invertRAxis = false; // TODO: Check value
+        public static final boolean invertRAxis = true; // TODO: Check value
 
 
         /*** MODULE SPECIFIC CONSTANTS ***/
