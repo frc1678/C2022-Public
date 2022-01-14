@@ -144,8 +144,8 @@ public class Constants {
     }
 
     public static final class AutoConstants {
-        public static final double kMaxSpeedMetersPerSecond = 1.0; // TODO: Revise this
-        public static final double kMaxAccelerationMetersPerSecondSquared = 2.0 // TODO: Revise this
+        public static final double kMaxSpeedMetersPerSecond = 2.5; // TODO: Revise this
+        public static final double kMaxAccelerationMetersPerSecondSquared = 3.0 // TODO: Revise this
         ; // TODO: Revise this
         public static final double kMaxAngularSpeedRadiansPerSecond = 2.0*Math.PI; // TODO: Revise this
         public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.pow(kMaxAngularSpeedRadiansPerSecond, 2); // TODO: Revise this
@@ -160,11 +160,33 @@ public class Constants {
 				kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
 				
 		// Trajectory Speed Configs
-		public static final TrajectoryConfig defaultConfig = 
-		new TrajectoryConfig(
-				Constants.AutoConstants.kMaxSpeedMetersPerSecond,
-				Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared)
-			.setKinematics(Constants.SwerveConstants.swerveKinematics);
+		public static final TrajectoryConfig defaultSpeedConfig = 
+            new TrajectoryConfig(
+                    Constants.AutoConstants.kMaxSpeedMetersPerSecond,
+                    Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared)
+                .setKinematics(Constants.SwerveConstants.swerveKinematics);
+        public static final TrajectoryConfig zeroToDefaultSpeedConfig =
+            new TrajectoryConfig(
+                    Constants.AutoConstants.kMaxSpeedMetersPerSecond,
+                    Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared)
+                .setKinematics(Constants.SwerveConstants.swerveKinematics)
+                .setStartVelocity(0)
+                .setEndVelocity(Constants.AutoConstants.kMaxSpeedMetersPerSecond);
+        public static final TrajectoryConfig defaultToZeroSpeedConfig =
+            new TrajectoryConfig(
+                    Constants.AutoConstants.kMaxSpeedMetersPerSecond,
+                    Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared)
+                .setKinematics(Constants.SwerveConstants.swerveKinematics)
+                .setStartVelocity(0)
+                .setEndVelocity(Constants.AutoConstants.kMaxSpeedMetersPerSecond);
+    public static final TrajectoryConfig constantSpeedConfig =
+            new TrajectoryConfig(
+                    Constants.AutoConstants.kMaxSpeedMetersPerSecond,
+                    Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared)
+                .setKinematics(Constants.SwerveConstants.swerveKinematics)
+                .setStartVelocity(kMaxSpeedMetersPerSecond)
+                .setEndVelocity(Constants.AutoConstants.kMaxSpeedMetersPerSecond);
+            
 
 	  }
 
