@@ -1,10 +1,10 @@
 package com.team1678.frc2022.subsystems;
 
+import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.loops.ILooper;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
-import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
 import com.team254.lib.drivers.TalonFXFactory;
 import com.team254.lib.util.ReflectingCSVWriter;
@@ -20,27 +20,26 @@ public class Intake extends Subsystem {
     private static double mCurrent;
     private TimeDelayedBoolean mIntakeSolenoidTimer = new TimeDelayedBoolean();
 
-    //Lists wanted actions
     public enum WantedAction {
         NONE, INTAKE, REVERSE, RETRACT, SPIT
     }
 
-    //Lists corresponding states
     public enum State {
-        IDLE, INTAKING, REVERSING, RETRACTING, SPITTING_OUT
+        IDLE, INTAKING, REVERSING, RETRACTING, SPITTING
     }
 
     private State mState = State.IDLE;
     private static PeriodicIO mPeriodicIO = new PeriodicIO();
     private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
+    private static Intake mInstance;
 
     //creates a Talon FX motor and a single Solenoid
     private final TalonFX mMotor;
     private Solenoid mSolenoid;
 
     private Intake() {
-        mMotor = TalonFXFactory.createDefaultTalon(Ports.INTAKE_ID);
-        mSolenoid = Constants.makeSolenoidForId(Ports.DEPLOY_SOLENOID_ID);
+        mMotor = TalonFXFactory.createDefaultTalon(Ports.);
+        mSolenoid = new Solenoid(Ports.);
         //mMotor.setInverted(true); This line will be uncommented if our motor(s) is inverted on the robot
     }
 
@@ -54,7 +53,7 @@ public class Intake extends Subsystem {
 
     @Override
     public void stop() {
-        mMaster.set(ControlMode.PercentOutput, 0);
+        mMotor.set(ControlMode.PercentOutput, 0);
     }
 
     public boolean checkSystem() {
@@ -86,7 +85,7 @@ public class Intake extends Subsystem {
                 mPeriodicIO.deploy = false;
                 break;
             //As in the REVERSING state, the if/else dialouge is omitted
-            case SPITTING_OUT:
+            case SPITTING:
                 mPeriodicIO.demand = kSpittingVoltage;
                 break;
         }
@@ -117,7 +116,7 @@ public class Intake extends Subsystem {
                 mState = State.RETRACTING;
                 break;
             case SPIT:
-                mState = State.SPITTING_OUT;
+                mState = State.SPITTING;
                 break;
         }
    }
@@ -134,8 +133,8 @@ public class Intake extends Subsystem {
     
         @Override
         public void writePeriodicOutputs() {
-            mMaster.set(ControlMode.PercentOutput, mPeriodicIO.demand / 12.0);
-            mDeploySolenoid.set(mPeriodicIO.deploy);
+            mMotor.set(ControlMode.PercentOutput, mPeriodicIO.demand / 12.0);
+            mSolenoid.set(mPeriodicIO.deploy);
         }
     
         @Override
@@ -150,17 +149,30 @@ public class Intake extends Subsystem {
         @Override
         public void registerEnabledLoops(ILooper enabledLooper) {
             enabledLooper.register(new Loop() {
-                 @Override
-                 public void onStart(double timestamp) {
+                @Override
+                public void onStart(double timestamp) {
                     mState = State.IDLE;
-            }
+                }
+
+                @Override
+                public void onLoop(double timestamp) {
+                    runStateMachine();
+                }
+
+                @Override
+                public void onStop(double timestamp) {
+
+                }
+            });
+        }
 
         public static class PeriodicIO {
             // INPUTS
             public double current;
             public boolean intake_out;
-    
+
             // OUTPUTS
             public double demand;
             public boolean deploy;
         }
+}
