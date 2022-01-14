@@ -24,8 +24,6 @@ public abstract class Subsystem {
     public void writePeriodicOutputs() {
     }
 
-    public abstract void outputTelemetry();
-
     public abstract void stop();
 
     public void zeroSensors() {

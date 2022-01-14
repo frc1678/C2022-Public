@@ -14,10 +14,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Intake extends Subsystem {
 
-    private static double kIntakingVoltage = 5;
-    private static double kIdleVoltage = 0;
-    public static double kSpittingVoltage = -7;
-    private static double mCurrent;
     private TimeDelayedBoolean mIntakeSolenoidTimer = new TimeDelayedBoolean();
 
     public enum WantedAction {
@@ -33,17 +29,14 @@ public class Intake extends Subsystem {
     private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
     private static Intake mInstance;
 
-    //creates a Talon FX motor and a single Solenoid
     private final TalonFX mMotor;
     private Solenoid mSolenoid;
 
     private Intake() {
-        mMotor = TalonFXFactory.createDefaultTalon(Ports.);
-        mSolenoid = new Solenoid(Ports.);
-        //mMotor.setInverted(true); This line will be uncommented if our motor(s) is inverted on the robot
+        mMotor = TalonFXFactory.createDefaultTalon(Ports.INTAKE_ID);
+        mSolenoid = null;
     }
 
-    //Tells us the State the Intake is currently in
     public static synchronized Intake getInstance() {
         if (mInstance == null) {
             mInstance = new Intake();
@@ -56,44 +49,36 @@ public class Intake extends Subsystem {
         mMotor.set(ControlMode.PercentOutput, 0);
     }
 
-    public boolean checkSystem() {
-        return true;
+    public void zeroSensors() {
     }
-
-    public boolean hasEmergency = false;
 
     public void runStateMachine() {
         switch (mState) {
             case IDLE:
-                mPeriodicIO.demand = kIdleVoltage;
+                mPeriodicIO.demand = 0;
                 mPeriodicIO.deploy = false;
-            break;
+                break;
             case INTAKING:
                 if (mPeriodicIO.intake_out) {
-                    mPeriodicIO.demand = kIntakingVoltage;
+                    mPeriodicIO.demand = Constants.IntakeConstants.kIntakeVoltage;
                 } else {
                     mPeriodicIO.demand = 0.0;
                 }
                 mPeriodicIO.deploy = true;
                 break;
-            //The if/else statemenet has been left out, since we might need to reverse while the intake is up
+            // The if/else statement has been left out, since we might need to reverse while the intake is up
             case REVERSING:
-                mPeriodicIO.demand = -kIntakingVoltage;
+                mPeriodicIO.demand = -Constants.IntakeConstants.kIntakeVoltage;
                 break;
             case RETRACTING:
-                mPeriodicIO.demand = kIdleVoltage;
+                mPeriodicIO.demand = Constants.IntakeConstants.kIntakeVoltage;
                 mPeriodicIO.deploy = false;
                 break;
-            //As in the REVERSING state, the if/else dialouge is omitted
+            // As in the REVERSING state, the if/else dialogue is omitted
             case SPITTING:
-                mPeriodicIO.demand = kSpittingVoltage;
+                mPeriodicIO.demand = Constants.IntakeConstants.kSpittingVoltage;
                 break;
         }
-    }
-
-    //Returns some values to display on SmartDash
-    public double getVoltage() {
-        return mPeriodicIO.demand;
     }
 
     public synchronized State getState() {
@@ -121,52 +106,54 @@ public class Intake extends Subsystem {
         }
    }
 
+   @Override
+   public synchronized void readPeriodicInputs() {
+        mPeriodicIO.intake_out = mIntakeSolenoidTimer.update(mPeriodicIO.deploy, 0.2);
+       if (mCSVWriter != null) {
+           mCSVWriter.add(mPeriodicIO);
+       }
+   }
 
-        @Override
-        public synchronized void readPeriodicInputs() {
-            mPeriodicIO.intake_out = mIntakeSolenoidTimer.update(mPeriodicIO.deploy, 0.2);
-            mCurrent = mPeriodicIO.current;
-            if (mCSVWriter != null) {
-                mCSVWriter.add(mPeriodicIO);
-            }
-        }
-    
-        @Override
-        public void writePeriodicOutputs() {
-            mMotor.set(ControlMode.PercentOutput, mPeriodicIO.demand / 12.0);
-            mSolenoid.set(mPeriodicIO.deploy);
-        }
-    
-        @Override
-        public synchronized void outputTelemetry() {
-            SmartDashboard.putNumber("Intake Current", mPeriodicIO.current);
-            SmartDashboard.putString("Intake State", mState.toString());
-            if (mCSVWriter != null) {
-                mCSVWriter.write();
-            }
-        }
-    
-        @Override
-        public void registerEnabledLoops(ILooper enabledLooper) {
-            enabledLooper.register(new Loop() {
-                @Override
-                public void onStart(double timestamp) {
-                    mState = State.IDLE;
-                }
+   @Override
+   public void writePeriodicOutputs() {
+       mMotor.set(ControlMode.PercentOutput, mPeriodicIO.demand / 12.0);
+       mSolenoid.set(mPeriodicIO.deploy);
+   }
 
-                @Override
-                public void onLoop(double timestamp) {
-                    runStateMachine();
-                }
+   public synchronized void outputTelemetry() {
+       SmartDashboard.putNumber("Intake Current", mPeriodicIO.current);
+       SmartDashboard.putString("Intake State", mState.toString());
+       if (mCSVWriter != null) {
+           mCSVWriter.write();
+       }
+   }
 
-                @Override
-                public void onStop(double timestamp) {
+   @Override
+   public void registerEnabledLoops(ILooper enabledLooper) {
+       enabledLooper.register(new Loop() {
+           @Override
+           public void onStart(double timestamp) {
+               mState = State.IDLE;
+           }
 
-                }
-            });
-        }
+           @Override
+           public void onLoop(double timestamp) {
+               runStateMachine();
+           }
 
-        public static class PeriodicIO {
+           @Override
+           public void onStop(double timestamp) {
+
+           }
+       });
+   }
+
+    @Override
+    public boolean checkSystem() {
+        return false;
+    }
+
+    public static class PeriodicIO {
             // INPUTS
             public double current;
             public boolean intake_out;

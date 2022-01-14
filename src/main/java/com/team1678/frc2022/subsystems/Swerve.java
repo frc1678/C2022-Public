@@ -71,7 +71,7 @@ public class Swerve extends Subsystem {
 
             @Override
             public void onLoop(double timestamp) {
-
+                outputTelemetry();
             }
 
             @Override
@@ -81,7 +81,6 @@ public class Swerve extends Subsystem {
         });
     }
     
-    @Override
     public void outputTelemetry() {
         SmartDashboard.putNumber("Odometry Pose X", swerveOdometry.getPoseMeters().getX());
         SmartDashboard.putNumber("Odometry Pose Y", swerveOdometry.getPoseMeters().getY());
