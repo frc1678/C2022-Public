@@ -139,6 +139,7 @@ public class Intake extends Subsystem {
            @Override
            public void onLoop(double timestamp) {
                runStateMachine();
+               outputTelemetry();
            }
 
            @Override
