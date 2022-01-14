@@ -4,6 +4,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
+import com.team1678.frc2022.subsystems.Subsystem;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
 import com.team1678.frc2022.Ports;
@@ -19,22 +20,26 @@ public class Climber extends Subsystem {
     private TalonFX mClimber;
     private final Solenoid mShiftSolenoid;
 
+    private void spinMotor(double voltage){
+        mPeriodicIO.climber_demand = voltage;
+    }
+
     private static Climber mInstance;
 
     private TimeDelayedBoolean mShiftSolenoidTimer = new TimeDelayedBoolean();
     private PeriodicIO mPeriodicIO = new PeriodicIO();
 
     private Climber() {
-        mShiftSolenoid = null;
+        Constants.makeSolenoidForID(Ports.CLIMBER_PIVOT_SOLENOID);
         mClimber = TalonFXFactory.createDefaultTalon(Ports.CLIMBER_ID);
     }
 
     public enum WantedAction {
-        NONE, EXTEND, RETRACT,
+        NONE, EXTEND, RETRACT, HOOK
     }
 
     public enum State {
-        IDLE, EXTENDING, RETRACTING,
+        IDLE, EXTENDING, RETRACTING, HOOKING
     }
 
     private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
@@ -80,19 +85,27 @@ public class Climber extends Subsystem {
             case RETRACT:
                 mState = State.RETRACTING;
                 break;
+            case HOOK:
+                mState = State.HOOKING;
+                break;
         }
     }
 
     private void runStateMachine() {
         switch (mState) {
             case EXTENDING:
-                mPeriodicIO.climber_demand = Constants.ClimberConstants.kExtendingVoltage;
+                spinMotor(Constants.ClimberConstants.kExtendingVoltage);
+                mPeriodicIO.climber_deploy_solenoid = false;
                 break;
+            case HOOKING:
+                spinMotor(Constants.ClimberConstants.kExtendingVoltage);
+                mPeriodicIO.climber_deploy_solenoid = true;
             case RETRACTING:
-                mPeriodicIO.climber_demand = Constants.ClimberConstants.kRetractingVoltage;
+                spinMotor(Constants.ClimberConstants.kRetractingVoltage);
+                mPeriodicIO.climber_deploy_solenoid = true;
                 break;
             case IDLE:
-                mPeriodicIO.climber_demand = Constants.ClimberConstants.kIdleVoltage;
+                spinMotor(Constants.ClimberConstants.kIdleVoltage);
                 break;
         }
     }
@@ -120,6 +133,7 @@ public class Climber extends Subsystem {
         //INPUTS
         public double climber_voltage;
         public double climber_current;
+        public boolean climber_deploy_solenoid;
 
         //OUTPUTS
         public double climber_demand;

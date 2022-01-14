@@ -5,12 +5,12 @@ import com.lib.util.SwerveModuleConstants;
 import com.team1678.frc2022.subsystems.Limelight.LimelightConstants;
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
-import com.team254.lib.geometry.Translation2d;
 
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.Solenoid;
 
 public class Constants {
 	
@@ -183,6 +183,16 @@ public class Constants {
 		public static final double kVPH = 2.0 * Math.tan(Math.toRadians(kVerticalFOV / 2.0));
 		public static final double kImageCaptureLatency = 11.0 / 1000.0; // seconds
 	}
+
+    // Solenoids
+    public static final int kPCMId = 20;
+    // Drive Control
+    public static void makeSolenoidForID(int solenoidID){
+        if (solenoidID < 20){
+            return new Solenoid(kPCMId, solenoidID);
+        }
+        throw new IllegalArgumentException("solenoid is not valid" + solenoidID);
+    }
 
     /*** SUBSYSTEM CONSTANTS ***/
     public static final class IntakeConstants {
