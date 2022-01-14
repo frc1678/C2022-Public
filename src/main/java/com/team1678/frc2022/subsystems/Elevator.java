@@ -163,8 +163,18 @@ public class Elevator extends Subsystem{
                 spinMotor(0);
                 break;
             case INDEXING:
+                mBottomBeamBreak.get();
+                if (true) {
+                    spinMotor(Constants.ElevatorConstants.kIndexingVoltage);
+                    //determine position amount
+                }
+                mTopBeamBreak.get();
+                if (true){
+                    spinMotor(0);
+                }
                 if (mBallCount == 2) {
                     System.out.println("Elevator is full!!");
+                    setState(State.IDLE);
                 } else if (mBallCount < 2 && mBallCount > 0) {
                     spinMotor(Constants.ElevatorConstants.kIndexingVoltage);
                 }
@@ -186,7 +196,6 @@ public class Elevator extends Subsystem{
                     if (true) {
                         setState(State.INDEXING);
                 }
-                setState(State.INDEXING);
                 break;
             }
             case OUTTAKING_BOTTOM:
