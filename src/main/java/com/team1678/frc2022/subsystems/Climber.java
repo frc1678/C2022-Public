@@ -106,7 +106,7 @@ public class Climber extends Subsystem {
     private void runStateMachine() {
         switch (mState) {
             case EXTENDING:
-                spinMotor(Constants.ClimberConstants.kExtendingVoltage);
+                mPeriodicIO.climber_voltage = Constants.ClimberConstants.kExtendingVoltage);
                 mPeriodicIO.climber_solenoid = true;
                 break;
             case GROUND_EXTENDING:
@@ -131,6 +131,7 @@ public class Climber extends Subsystem {
 
     public boolean hasEmergency = false;
 
+    //TODO: put in ShuffleBoardInteractions.java
     public void outputTelemetry(){
         SmartDashboard.putNumber("Climber Voltage", mPeriodicIO.climber_voltage);
         SmartDashboard.putNumber("Climber Current", mPeriodicIO.climber_current);
