@@ -13,11 +13,11 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class Elevator extends Subsystem{
+public class Indexer extends Subsystem{
 
     private final TalonFX mIndexer;
 
-    private static Elevator mInstance;
+    private static Indexer mInstance;
     private static PeriodicIO mPeriodicIO = new PeriodicIO();
 
     private boolean mSlotsClean;
@@ -59,7 +59,7 @@ public class Elevator extends Subsystem{
         OUTTAKING_BOTTOM*/
     }
 
-    private Elevator() {
+    private Indexer() {
         mIndexer = TalonFXFactory.createDefaultTalon(Ports.ELEVATOR_ID);
 
         mIndexer.config_kP(0, Constants.ElevatorConstants.kIndexerKp, Constants.kLongCANTimeoutMs);
@@ -84,9 +84,9 @@ public class Elevator extends Subsystem{
         mIndexer.configClosedloopRamp(0.0);
     }
 
-    public static synchronized Elevator getInstance() {
+    public static synchronized Indexer getInstance() {
         if (mInstance == null) {
-            mInstance = new Elevator();
+            mInstance = new Indexer();
         }
         return mInstance;
     }
@@ -121,7 +121,7 @@ public class Elevator extends Subsystem{
 
             @Override
             public void onLoop(double timestamp) {
-                synchronized (Elevator.this){
+                synchronized (Indexer.this){
                     runStateMachine();
                     updateSlots();
                     outputTelemetry();
@@ -207,7 +207,6 @@ public class Elevator extends Subsystem{
         }
     }
 
-    @Override
     public void outputTelemetry() {
         SmartDashboard.putString("Elevator State", mState.toString());
         SmartDashboard.putNumber("Indexer Demand", mPeriodicIO.indexer_demand);
