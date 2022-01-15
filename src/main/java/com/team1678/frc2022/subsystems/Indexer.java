@@ -20,8 +20,8 @@ public class Indexer extends Subsystem{
     private static Indexer mInstance;
     private static PeriodicIO mPeriodicIO = new PeriodicIO();
 
-    private final DigitalInput mBottomBeamBreak = new DigitalInput(Constants.ElevatorConstants.kBottomBeamBreak);
-    private final DigitalInput mTopBeamBreak = new DigitalInput(Constants.ElevatorConstants.kTopBeamBreak);
+    private final DigitalInput mBottomBeamBreak = new DigitalInput(Constants.IndexerConstants.kBottomBeamBreak);
+    private final DigitalInput mTopBeamBreak = new DigitalInput(Constants.IndexerConstants.kTopBeamBreak);
     //TODO: private final DigitalInput mColorSensor = new DigitalInput(Ports.COLOR_SENOR);
 
     private State mState = State.IDLE;
@@ -138,19 +138,19 @@ public class Indexer extends Subsystem{
                 mPeriodicIO.elevator_demand = 0;
                 break;
             case ELEVATING:
-                mPeriodicIO.hopper_demand = Constants.ElevatorConstants.kIdleVoltage;
-                mPeriodicIO.elevator_demand = Constants.ElevatorConstants.kIndexingVoltage;
+                mPeriodicIO.hopper_demand = Constants.IndexerConstants.kIdleVoltage;
+                mPeriodicIO.elevator_demand = Constants.IndexerConstants.kIndexingVoltage;
                 break;
             case INDEXING:
-                mPeriodicIO.hopper_demand = Constants.ElevatorConstants.kHopperIndexingVoltage;
-                mPeriodicIO.elevator_demand = Constants.ElevatorConstants.kIndexingVoltage;
+                mPeriodicIO.hopper_demand = Constants.IndexerConstants.kHopperIndexingVoltage;
+                mPeriodicIO.elevator_demand = Constants.IndexerConstants.kIndexingVoltage;
                 break;
             case HOPPING:
-                mPeriodicIO.hopper_demand = Constants.ElevatorConstants.kHopperIndexingVoltage;
-                mPeriodicIO.elevator_demand = Constants.ElevatorConstants.kIdleVoltage;
+                mPeriodicIO.hopper_demand = Constants.IndexerConstants.kHopperIndexingVoltage;
+                mPeriodicIO.elevator_demand = Constants.IndexerConstants.kIdleVoltage;
                 break;
             case REVERSING:
-                mPeriodicIO.elevator_demand = Constants.ElevatorConstants.kReversingVoltage;
+                mPeriodicIO.elevator_demand = Constants.IndexerConstants.kReversingVoltage;
                 break;
 
         }

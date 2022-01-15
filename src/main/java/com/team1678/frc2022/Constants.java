@@ -261,7 +261,7 @@ public class Constants {
         }
     }
 
-    public static final class ElevatorConstants {
+    public static final class IndexerConstants {
 
         //TODO: find actual values
         public static final double kIndexerKp = 0.2;
