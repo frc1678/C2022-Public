@@ -1,7 +1,6 @@
 package com.team1678.frc2022.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
@@ -23,6 +22,7 @@ public class Indexer extends Subsystem{
 
     private final DigitalInput mBottomBeamBreak = new DigitalInput(Constants.ElevatorConstants.kBottomBeamBreak);
     private final DigitalInput mTopBeamBreak = new DigitalInput(Constants.ElevatorConstants.kTopBeamBreak);
+    //TODO: private final DigitalInput mColorSensor = new DigitalInput(Ports.COLOR_SENOR);
 
     private State mState = State.IDLE;
 
@@ -88,7 +88,7 @@ public class Indexer extends Subsystem{
 
     @Override
     public void writePeriodicOutputs() {
-        mIndexer.set(ControlMode.PercentOutput, mPeriodicIO.indexer_demand / 12.0);
+        mIndexer.set(ControlMode.PercentOutput, mPeriodicIO.elevator_demand / 12.0);
         mHopper.set(ControlMode.PercentOutput, mPeriodicIO.hopper_demand / 12.0);
     }
 
@@ -135,22 +135,22 @@ public class Indexer extends Subsystem{
     private void runStateMachine() {
         switch (mState) {
             case IDLE:
-                mPeriodicIO.indexer_demand = 0;
+                mPeriodicIO.elevator_demand = 0;
                 break;
             case ELEVATING:
                 mPeriodicIO.hopper_demand = Constants.ElevatorConstants.kIdleVoltage;
-                mPeriodicIO.indexer_demand = Constants.ElevatorConstants.kIndexingVoltage;
+                mPeriodicIO.elevator_demand = Constants.ElevatorConstants.kIndexingVoltage;
                 break;
             case INDEXING:
                 mPeriodicIO.hopper_demand = Constants.ElevatorConstants.kHopperIndexingVoltage;
-                mPeriodicIO.indexer_demand = Constants.ElevatorConstants.kIndexingVoltage;
+                mPeriodicIO.elevator_demand = Constants.ElevatorConstants.kIndexingVoltage;
                 break;
             case HOPPING:
                 mPeriodicIO.hopper_demand = Constants.ElevatorConstants.kHopperIndexingVoltage;
-                mPeriodicIO.indexer_demand = Constants.ElevatorConstants.kIdleVoltage;
+                mPeriodicIO.elevator_demand = Constants.ElevatorConstants.kIdleVoltage;
                 break;
             case REVERSING:
-                mPeriodicIO.indexer_demand = Constants.ElevatorConstants.kReversingVoltage;
+                mPeriodicIO.elevator_demand = Constants.ElevatorConstants.kReversingVoltage;
                 break;
 
         }
@@ -158,8 +158,10 @@ public class Indexer extends Subsystem{
 
     public void outputTelemetry() {
         SmartDashboard.putString("Indexer State", mState.toString());
-        SmartDashboard.putNumber("Indexer Demand", mPeriodicIO.indexer_demand);
+        SmartDashboard.putBoolean("Indexer Top Beam Break", mPeriodicIO.topLightBeamBreakSensor);
+        SmartDashboard.putBoolean("Indexer Bottom Beam Break", mPeriodicIO.bottomLightBeamBreakSensor);
 
+        SmartDashboard.putNumber("Elevator Demand", mPeriodicIO.elevator_demand);
         SmartDashboard.putNumber("Elevator Voltage", mPeriodicIO.elevator_voltage);
         SmartDashboard.putNumber("Elevator Current", mPeriodicIO.elevator_current);
 
@@ -191,7 +193,7 @@ public class Indexer extends Subsystem{
         public double hopper_current;
 
         //OUTPUTS
-        public double indexer_demand;
+        public double elevator_demand;
         public double hopper_demand;
     }
 
