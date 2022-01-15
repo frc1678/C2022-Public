@@ -41,6 +41,7 @@ public class Robot extends TimedRobot {
   
   private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
   private final Swerve mSwerve = Swerve.getInstance();
+  private final Intake mIntake = Intake.getInstance();
   private final Limelight mLimelight = Limelight.getInstance(); 
 
   // instantiate enabled and disabled loopers
@@ -65,7 +66,8 @@ public class Robot extends TimedRobot {
         CrashTracker.logRobotInit();
 
         mSubsystemManager.setSubsystems(
-            mSwerve
+            mSwerve,
+            mIntake
         );
 
         mSubsystemManager.registerEnabledLoops(mEnabledLooper);
@@ -130,10 +132,27 @@ public class Robot extends TimedRobot {
           if (mControlBoard.getSwerveSnap() != SwerveCardinal.NONE) {
               mSwerve.startSnap(mControlBoard.getSwerveSnap().degrees);
           }
-
           Translation2d swerveTranslation = new Translation2d(mControlBoard.getSwerveTranslation().x(), mControlBoard.getSwerveTranslation().y());
           double swerveRotation = mControlBoard.getSwerveRotation();
           mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
+
+          //Intake
+          if (mControlBoard.getIntake()) {
+            mIntake.setState(State.INTAKING);
+          }
+
+          if (mControlBoard.getOuttake()) {
+            mIntake.setState(State.REVERSING);
+          }
+
+          if(mControlBoard.getRetract()) {
+            mIntake.setState(State.RETRACTING);
+          }
+
+          if(mControlBoard.getSpitting()) {
+            mIntake.setState(State.SPITTING);
+          }
+
       } catch (Throwable t) {
         CrashTracker.logThrowableCrash(t);
         throw t;

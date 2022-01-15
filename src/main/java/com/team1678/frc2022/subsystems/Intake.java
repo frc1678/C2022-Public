@@ -44,6 +44,10 @@ public class Intake extends Subsystem {
         return mInstance;
     }
 
+    public void setState (State state) {
+        this.mState = state;
+    }
+
     @Override
     public void stop() {
         mMotor.set(ControlMode.PercentOutput, 0);
