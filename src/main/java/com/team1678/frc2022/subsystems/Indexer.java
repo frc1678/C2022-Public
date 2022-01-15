@@ -47,27 +47,6 @@ public class Indexer extends Subsystem{
     private Indexer() {
         mIndexer = TalonFXFactory.createDefaultTalon(Ports.ELEVATOR_ID);
         mHopper = TalonFXFactory.createDefaultTalon(Ports.HOPPER_ID);
-
-        mIndexer.config_kP(0, Constants.ElevatorConstants.kIndexerKp, Constants.kLongCANTimeoutMs);
-        mIndexer.config_kI(0, Constants.ElevatorConstants.kIndexerKi, Constants.kLongCANTimeoutMs);
-        mIndexer.config_kD(0, Constants.ElevatorConstants.kIndexerKd, Constants.kLongCANTimeoutMs);
-        mIndexer.config_kF(0, Constants.ElevatorConstants.kIndexerKf, Constants.kLongCANTimeoutMs);
-        mIndexer.config_kP(1, Constants.ElevatorConstants.kIndexerVelocityKp, Constants.kLongCANTimeoutMs);
-        mIndexer.config_kI(1, Constants.ElevatorConstants.kIndexerVelocityKi, Constants.kLongCANTimeoutMs);
-        mIndexer.config_kD(1, Constants.ElevatorConstants.kIndexerVelocityKd, Constants.kLongCANTimeoutMs);
-        mIndexer.config_kF(1, Constants.ElevatorConstants.kIndexerVelocityKf, Constants.kLongCANTimeoutMs);
-
-        mIndexer.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
-        mIndexer.configMotionCruiseVelocity(Constants.ElevatorConstants.kIndexerMaxVelocity);
-        mIndexer.configMotionAcceleration(Constants.ElevatorConstants.kIndexerMaxAcceleration);
-
-        mIndexer.set(ControlMode.PercentOutput, 0);
-        mIndexer.setInverted(false);
-        mIndexer.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
-        mIndexer.enableVoltageCompensation(true);
-
-        mIndexer.setSelectedSensorPosition(0, 0, Constants.kLongCANTimeoutMs);
-        mIndexer.configClosedloopRamp(0.0);
     }
 
     public static synchronized Indexer getInstance() {
@@ -120,7 +99,7 @@ public class Indexer extends Subsystem{
         enabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
-                mState = State.ELEVATING;
+                mState = State.IDLE;
             }
 
             @Override
