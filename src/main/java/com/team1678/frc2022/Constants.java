@@ -206,6 +206,11 @@ public class Constants {
 
     /*** SUBSYSTEM CONSTANTS ***/
 
+    public static final class IntakeConstants {
+        public static final double kIntakingVoltage = 7;
+        public static final double kSpittingVoltage = -8;
+    }
+
     public static final class ShooterConstants {
 
         public static final double kFlywheelVelocityConversion = 100/2048; // TODO Change to actual ratio, remember velo is measured in ticks/100ms
