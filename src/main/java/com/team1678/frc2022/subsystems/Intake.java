@@ -85,6 +85,7 @@ public class Intake extends Subsystem {
             case STAYING_OUT:
                 mPeriodicIO.demand = 0;
                 mPeriodicIO.deploy = true;
+                break;
         }
     }
 
