@@ -9,6 +9,8 @@ import com.team1678.frc2022.loops.Loop;
 import com.team254.lib.drivers.TalonFXFactory;
 import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.util.TimeDelayedBoolean;
+
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -24,18 +26,18 @@ public class Intake extends Subsystem {
         IDLE, INTAKING, REVERSING, SPITTING
     }
 
-    public static PeriodicIO mPeriodicIO = new PeriodicIO();
+    public PeriodicIO mPeriodicIO = new PeriodicIO();
     private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
 
     private static Intake mInstance;
-    public static State mState = State.IDLE;
+    public State mState = State.IDLE;
 
     private final TalonFX mMaster;
     private Solenoid mSolenoid;
 
     private Intake() {
         mMaster = TalonFXFactory.createDefaultTalon(Ports.INTAKE_ID);
-        mSolenoid = null;
+        mSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.DEPLOY_SOLENOID_ID);
     }
 
     public static synchronized Intake getInstance() {
@@ -161,7 +163,15 @@ public class Intake extends Subsystem {
         return mPeriodicIO.voltage;
     }
 
+    public boolean getDeployed() {
+        return mPeriodicIO.deploy;
+    }
+
     public double getMotorCurrent() {
         return mPeriodicIO.current;  
+    }
+
+    public double getMotorDemand() {
+        return mPeriodicIO.demand;
     }
 }

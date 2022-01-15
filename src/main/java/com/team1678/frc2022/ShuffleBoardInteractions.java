@@ -49,6 +49,8 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mIntakeCurrent;
     private final NetworkTableEntry mIntakeState;
     private final NetworkTableEntry mIntakeVoltage;
+    private final NetworkTableEntry mIntakeDemand;
+    private final NetworkTableEntry mIntakeDeployed;
 
     /* Vision */
     private final NetworkTableEntry mSeesTarget;
@@ -218,14 +220,20 @@ public class ShuffleBoardInteractions {
         
         /* INTAKE */
         mIntakeCurrent = INTAKE_TAB
-            .add("Intake Current", Intake.mPeriodicIO.current)
+            .add("Intake Current", mIntake.mPeriodicIO.current)
             .getEntry();
         mIntakeState = INTAKE_TAB
-            .add("Intake State", Intake.mState.toString())
+            .add("Intake State", mIntake.getState().toString())
             .getEntry();
         mIntakeVoltage = INTAKE_TAB
-            .add("Intake Voltage", Intake.mPeriodicIO.voltage)
+            .add("Intake Voltage", mIntake.mPeriodicIO.voltage)
             .getEntry();
+        mIntakeDemand = INTAKE_TAB
+                .add("Intake Demand", mIntake.mPeriodicIO.demand)
+                .getEntry();
+        mIntakeDeployed = INTAKE_TAB
+                .add("Intake Deployed", mIntake.mPeriodicIO.deploy)
+                .getEntry();
     }
 
     public void update() {
@@ -233,6 +241,8 @@ public class ShuffleBoardInteractions {
         /* Intake */
         mIntakeState.setString(mIntake.getState().toString());
         mIntakeVoltage.setDouble(mIntake.getMotorVoltage());
+        mIntakeDemand.setDouble(mIntake.getMotorDemand());
+        mIntakeDeployed.setBoolean(mIntake.getDeployed());
         mIntakeCurrent.setDouble(mIntake.getMotorCurrent());
 
         /* Vision */

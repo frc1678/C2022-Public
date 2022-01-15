@@ -33,7 +33,7 @@ public class Ports {
 
     /*** SUBSYSTEM IDS ***/
     public static final int INTAKE_ID = 8;
-    public static final int DEPLOY_SOLENOID_ID = 9;
+    public static final int DEPLOY_SOLENOID_ID = 7;
 
     public static final int HOPPER_ID = 10;
     public static final int ELEVATOR_ID = 11;
