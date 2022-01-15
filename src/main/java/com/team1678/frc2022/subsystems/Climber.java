@@ -22,7 +22,7 @@ public class Climber extends Subsystem {
     private static Climber mInstance;
 
     private TimeDelayedBoolean mShiftSolenoidTimer = new TimeDelayedBoolean();
-    public static PeriodicIO mPeriodicIO = new PeriodicIO();
+    public PeriodicIO mPeriodicIO = new PeriodicIO();
 
     private Climber() {
         mShiftSolenoid = Solenoid(Ports.CLIMBER_PIVOT_SOLENOID);
@@ -33,7 +33,7 @@ public class Climber extends Subsystem {
         return null;
     }
 
-    public static synchronized Climber getInstance() {
+    public synchronized static Climber getInstance() {
         if (mInstance == null) {
             mInstance = new Climber();
         }
@@ -53,7 +53,7 @@ public class Climber extends Subsystem {
         IDLE, EXTENDING, RETRACTING, DEPLOYING, UNDEPLOYNG
     }
 
-    public static State mState = State.IDLE;
+    public State mState = State.IDLE;
 
     @Override
     public void writePeriodicOutputs() {

@@ -218,16 +218,16 @@ public class ShuffleBoardInteractions {
             .getEntry();
 
         mClimberCurrent = CLIMBER_TAB
-            .add("Climber Current", Climber.mPeriodicIO.climber_current)
+            .add("Climber Current", mClimber.mPeriodicIO.climber_current)
             .getEntry();
         mClimberVoltage = CLIMBER_TAB
-            .add("Climber Voltage", Climber.mPeriodicIO.climber_voltage)
+            .add("Climber Voltage", mClimber.mPeriodicIO.climber_voltage)
             .getEntry();
         mClimberSolenoid = CLIMBER_TAB
-            .add("Climber Solenoid is Deployed", Climber.mPeriodicIO.climber_solenoid)
+            .add("Climber Solenoid is Deployed", mClimber.mPeriodicIO.climber_solenoid)
             .getEntry();
         mClimberState = CLIMBER_TAB 
-            .add("Climber State", Climber.mState.toString())
+            .add("Climber State", mClimber.mState.toString())
             .getEntry();
     }
 

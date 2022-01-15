@@ -13,8 +13,10 @@ import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.ControlBoard.SwerveCardinal;
 import com.team1678.frc2022.loops.CrashTracker;
 import com.team1678.frc2022.loops.Looper;
+import com.team1678.frc2022.subsystems.Climber;
 import com.team1678.frc2022.subsystems.Limelight;
 import com.team1678.frc2022.subsystems.Swerve;
+import com.team1678.frc2022.subsystems.Climber.WantedAction;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -38,6 +40,7 @@ public class Robot extends TimedRobot {
 
   // subsystem instances
   private final ControlBoard mControlBoard = ControlBoard.getInstance();
+  private final Climber mClimber = Climber.getInstance();
   
   private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
   private final Swerve mSwerve = Swerve.getInstance();
@@ -65,7 +68,8 @@ public class Robot extends TimedRobot {
         CrashTracker.logRobotInit();
 
         mSubsystemManager.setSubsystems(
-            mSwerve
+            mSwerve,
+            mClimber
         );
 
         mSubsystemManager.registerEnabledLoops(mEnabledLooper);
@@ -134,6 +138,19 @@ public class Robot extends TimedRobot {
           Translation2d swerveTranslation = new Translation2d(mControlBoard.getSwerveTranslation().x(), mControlBoard.getSwerveTranslation().y());
           double swerveRotation = mControlBoard.getSwerveRotation();
           mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
+
+          /* CLIMBER */
+          if(mControlBoard.getClimberJog() ==  -1) {
+            mClimber.setState(WantedAction.RETRACT);
+          } else if(mControlBoard.getClimberJog() == 1) {
+            mClimber.setState(WantedAction.EXTEND);
+          } else if(mControlBoard.getDeploySolenoid()) {
+            mClimber.setState(WantedAction.DEPLOY);
+          } else if(mControlBoard.getUndeploySolenoid()) {
+            mClimber.setState(WantedAction.UNDEPLOY);
+          } else {
+            mClimber.setState(WantedAction.NONE);
+          }
       } catch (Throwable t) {
         CrashTracker.logThrowableCrash(t);
         throw t;
