@@ -13,23 +13,23 @@ import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
 public class Constants {
-	
-	// robot loop time
-	public static final double kLooperDt = 0.02;
 
-	/* Control Board */
-	public static final double kJoystickThreshold = 0.2;
-	public static final int kButtonGamepadPort = 1;
-	
-	/* 364 IMPORTED CONSTANTS */
-	public static final double stickDeadband = 0.15;
+    // robot loop time
+    public static final double kLooperDt = 0.02;
 
-	public static final class SwerveConstants {	
+    /* Control Board */
+    public static final double kJoystickThreshold = 0.2;
+    public static final int kButtonGamepadPort = 1;
+
+    /* 364 IMPORTED CONSTANTS */
+    public static final double stickDeadband = 0.15;
+
+    public static final class SwerveConstants {
         public static final boolean invertGyro = false; // Always ensure Gyro is CCW+ CW-
 
         /* Drivetrain Constants */
         public static final double trackWidth = Units.inchesToMeters(29.5); // TODO: Check value
-		public static final double wheelBase = Units.inchesToMeters(29.5); // TODO: Check value
+        public static final double wheelBase = Units.inchesToMeters(29.5); // TODO: Check value
 
         public static final double wheelDiameter = Units.inchesToMeters(4.0);
         public static final double wheelCircumference = wheelDiameter * Math.PI;
@@ -96,38 +96,38 @@ public class Constants {
 
 
         /*** MODULE SPECIFIC CONSTANTS ***/
-        
-		/* Front Left Module - Module 0 */
+
+        /* Front Left Module - Module 0 */
         public static final class Mod0 {
             public static final double angleOffset = 144;
             public static final SwerveModuleConstants constants =
-                new SwerveModuleConstants(Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER, angleOffset);
+                    new SwerveModuleConstants(Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER, angleOffset);
         }
 
         /* Front Right Module - Module 1 */
         public static final class Mod1 {
             public static final double angleOffset = 44;
             public static final SwerveModuleConstants constants =
-                new SwerveModuleConstants(Ports.FR_DRIVE, Ports.FR_ROTATION, Ports.FR_CANCODER, angleOffset);
+                    new SwerveModuleConstants(Ports.FR_DRIVE, Ports.FR_ROTATION, Ports.FR_CANCODER, angleOffset);
         }
 
         /* Back Left Module - Module 2 */
         public static final class Mod2 {
             public static final double angleOffset = 289;
             public static final SwerveModuleConstants constants =
-                new SwerveModuleConstants(Ports.BL_DRIVE, Ports.BL_ROTATION, Ports.BL_CANCODER, angleOffset);
+                    new SwerveModuleConstants(Ports.BL_DRIVE, Ports.BL_ROTATION, Ports.BL_CANCODER, angleOffset);
         }
 
         /* Back Right Module - Module 3 */
         public static final class Mod3 {
             public static final double angleOffset = 60;
             public static final SwerveModuleConstants constants =
-                new SwerveModuleConstants(Ports.BR_DRIVE, Ports.BR_ROTATION, Ports.BR_CANCODER, angleOffset);
+                    new SwerveModuleConstants(Ports.BR_DRIVE, Ports.BR_ROTATION, Ports.BR_CANCODER, angleOffset);
         }
 
-	}
-	
-	public static final class SnapConstants {
+    }
+
+    public static final class SnapConstants {
         public static final double snapKP = 3.0;
         public static final double snapKI = 0;
         public static final double snapKD = 0.0;
@@ -135,97 +135,101 @@ public class Constants {
         public static final double snapEpsilon = 1.0;
 
         // Constraints for the profiled angle controller
-        public static final double kMaxAngularSpeedRadiansPerSecond = 2.0*Math.PI;
+        public static final double kMaxAngularSpeedRadiansPerSecond = 2.0 * Math.PI;
         public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.pow(kMaxAngularSpeedRadiansPerSecond, 2);
 
         public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
-        new TrapezoidProfile.Constraints(
-            kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
+                new TrapezoidProfile.Constraints(
+                        kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
     }
 
     public static final class AutoConstants {
         public static final double kMaxSpeedMetersPerSecond = 2.5; // TODO: Revise this
         public static final double kMaxAccelerationMetersPerSecondSquared = 3; // TODO: Revise this
-        public static final double kMaxAngularSpeedRadiansPerSecond = 2.0*Math.PI; // TODO: Revise this
+        public static final double kMaxAngularSpeedRadiansPerSecond = 2.0 * Math.PI; // TODO: Revise this
         public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.pow(kMaxAngularSpeedRadiansPerSecond, 2); // TODO: Revise this
-		
+
         public static final double kPXController = 1;
         public static final double kPYController = 1;
         public static final double kPThetaController = 2.5;
-    
+
         // Constraint for the motion profilied robot angle controller
         public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
-            new TrapezoidProfile.Constraints(
-				kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
-				
-		// Trajectory Speed Configs
-		public static final TrajectoryConfig defaultConfig = 
-		new TrajectoryConfig(
-				Constants.AutoConstants.kMaxSpeedMetersPerSecond,
-				Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared)
-			.setKinematics(Constants.SwerveConstants.swerveKinematics);
+                new TrapezoidProfile.Constraints(
+                        kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
 
-	  }
+        // Trajectory Speed Configs
+        public static final TrajectoryConfig defaultConfig =
+                new TrajectoryConfig(
+                        Constants.AutoConstants.kMaxSpeedMetersPerSecond,
+                        Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared)
+                        .setKinematics(Constants.SwerveConstants.swerveKinematics);
 
-	  public static final class VisionConstants {
-		public static final LimelightConstants kLimelightConstants = new LimelightConstants();
-		static {
-			kLimelightConstants.kName = "Limelight";
-			kLimelightConstants.kTableName = "limelight";
-			kLimelightConstants.kHeight = 24.5; // inches
-			kLimelightConstants.kTurretToLens = Pose2d.identity();
-			kLimelightConstants.kHorizontalPlaneToLens = Rotation2d.fromDegrees(0.0);
-		}
+    }
 
-		public static final double kHorizontalFOV = 59.6; // degrees
-		public static final double kVerticalFOV = 49.7; // degrees
-		public static final double kVPW = 2.0 * Math.tan(Math.toRadians(kHorizontalFOV / 2.0));
-		public static final double kVPH = 2.0 * Math.tan(Math.toRadians(kVerticalFOV / 2.0));
-		public static final double kImageCaptureLatency = 11.0 / 1000.0; // seconds
-	}
+    public static final class VisionConstants {
+        public static final LimelightConstants kLimelightConstants = new LimelightConstants();
 
-        /*** SUBSYSTEM CONSTANTS ***/
-        public static final class IntakeConstants {
-            public static final double kIntakingVoltage = 5;
-            public static final double kOuttakingVoltage = -5;
+        static {
+            kLimelightConstants.kName = "Limelight";
+            kLimelightConstants.kTableName = "limelight";
+            kLimelightConstants.kHeight = 24.5; // inches
+            kLimelightConstants.kTurretToLens = Pose2d.identity();
+            kLimelightConstants.kHorizontalPlaneToLens = Rotation2d.fromDegrees(0.0);
         }
-    
-        public static final class HopperConstants {
-            
-        }
-    
-        public static final class ElevatorConstants {
-            public static final int kIndexerMotorId = 32;
 
-            //TODO: find actual values
-            public static final double kIndexerKp = 0.2;
-            public static final double kIndexerKi = 0.;
-            public static final double kIndexerKd = 0.;
-            public static final double kIndexerKf = .05;
-            public static final double kIndexerVelocityKp = 0.05;
-            public static final double kIndexerVelocityKi = 0.;
-            public static final double kIndexerVelocityKd = 0.;
-            public static final double kIndexerVelocityKf = .05;
-            public static final int kIndexerMaxVelocity = 20000;
-            public static final int kIndexerMaxAcceleration = 40000;
-            
-            public static final int kBottomBeamBreak = 1;
-            public static final int kTopBeamBreak = 0;
+        public static final double kHorizontalFOV = 59.6; // degrees
+        public static final double kVerticalFOV = 49.7; // degrees
+        public static final double kVPW = 2.0 * Math.tan(Math.toRadians(kHorizontalFOV / 2.0));
+        public static final double kVPH = 2.0 * Math.tan(Math.toRadians(kVerticalFOV / 2.0));
+        public static final double kImageCaptureLatency = 11.0 / 1000.0; // seconds
+    }
 
-            public static final double kIndexingVoltage = 7.0;
-            public static final double kReversingVoltage = -7.0;
-            
-        }
-    
-        public static final class ShooterConstants {
-            
-        }
-    
-        public static final class ClimberConstants {
-            
-        }
-    
-	// Timeout constants
-	public static final int kLongCANTimeoutMs = 100;
-	public static final int kCANTimeoutMs = 10;
+    /*** SUBSYSTEM CONSTANTS ***/
+    public static final class IntakeConstants {
+        public static final double kIntakingVoltage = 5;
+        public static final double kOuttakingVoltage = -5;
+    }
+
+    public static final class HopperConstants {
+
+    }
+
+    public static final class ElevatorConstants {
+
+        //TODO: find actual values
+        public static final double kIndexerKp = 0.2;
+        public static final double kIndexerKi = 0.;
+        public static final double kIndexerKd = 0.;
+        public static final double kIndexerKf = .05;
+        public static final double kIndexerVelocityKp = 0.05;
+        public static final double kIndexerVelocityKi = 0.;
+        public static final double kIndexerVelocityKd = 0.;
+        public static final double kIndexerVelocityKf = .05;
+        public static final int kIndexerMaxVelocity = 20000;
+        public static final int kIndexerMaxAcceleration = 40000;
+
+        public static final int kBottomBeamBreak = 1;
+        public static final int kTopBeamBreak = 0;
+
+        public static final double kIndexingVoltage = 7.0;
+        public static final double kReversingVoltage = -7.0;
+        public static final double kIdleVoltage = 0.0;
+        public static final double kHopperIdleVoltage = 2;
+        public static final double kHopperIndexingVoltage = 6;
+        public static final double kHopperReversingVoltage = -6;
+
+    }
+
+    public static final class ShooterConstants {
+
+    }
+
+    public static final class ClimberConstants {
+
+    }
+
+    // Timeout constants
+    public static final int kLongCANTimeoutMs = 100;
+    public static final int kCANTimeoutMs = 10;
 }
