@@ -24,10 +24,12 @@ public class Intake extends Subsystem {
         IDLE, INTAKING, REVERSING, SPITTING
     }
 
-    private State mState = State.IDLE;
-    private static PeriodicIO mPeriodicIO = new PeriodicIO();
+    public static PeriodicIO mPeriodicIO = new PeriodicIO();
     private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
+
     private static Intake mInstance;
+    public static State mState = State.IDLE;
+
     private final TalonFX mMaster;
     private Solenoid mSolenoid;
 
@@ -155,9 +157,18 @@ public class Intake extends Subsystem {
             // INPUTS
             public double current;
             public boolean intake_out;
+            public double voltage;
 
             // OUTPUTS
             public double demand;
             public boolean deploy;
         }
+
+    public double getMotorVoltage() {
+        return mPeriodicIO.voltage;
+    }
+
+    public double getMotorCurrent() {
+        return mPeriodicIO.current;  
+    }
 }

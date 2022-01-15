@@ -1,5 +1,7 @@
 package com.team1678.frc2022;
 
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
+
 public class Ports {
 
     /*** SWERVE MODULE PORTS ***/
@@ -42,6 +44,9 @@ public class Ports {
 
     public static final int CLIMBER_ID = 14;
     public static final int CLIMBER_PIVOT_SOLENOID = 15;
+
+    // Infrastucture
+    public static final int PCM = 21;
 
 
 }
