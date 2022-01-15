@@ -165,9 +165,6 @@ public class ControlBoard {
     }
 
     //Climber Controls
-    public enum Climber {
-
-    }
     public int getClimberJog() {
         int povread = operator.getController().getPOV();
         switch(povread){
@@ -180,24 +177,19 @@ public class ControlBoard {
         }
     }
     
-        public boolean getDeploySolenoid() {
-            return operator.getButton(Button.Y);
-        }
-
-        public boolean getUndeploySolenoid() {
-            return operator.getButton(Button.A);
-        }
-
-        public boolean climbMode() {
-            return operator.getButton(Button.LB) && operator.getButton(Button.RB) && operator.getTrigger(Side.LEFT) && operator.getTrigger(Side.RIGHT);
-        }
-
-    //Intake Controls
-
-    public enum Intake {
-
+    public boolean getDeploySolenoid() {
+        return operator.getButton(Button.Y);
     }
 
+    public boolean getUndeploySolenoid() {
+        return operator.getButton(Button.A);
+    }
+
+    public boolean climbMode() {
+        return operator.getButton(Button.LB) && operator.getButton(Button.RB) && operator.getTrigger(Side.LEFT) && operator.getTrigger(Side.RIGHT);
+    }
+
+    //Intake Controls
     public boolean getIntake() {
         return operator.getTrigger(Side.RIGHT);
     }
