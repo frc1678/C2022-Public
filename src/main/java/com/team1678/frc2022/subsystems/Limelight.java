@@ -366,4 +366,12 @@ public class Limelight extends Subsystem {
     public double getLatency() {
         return mPeriodicIO.latency;
     }
+
+    public double getDt() {
+        return mPeriodicIO.dt;
+    }
+
+    public double[] getOffset() {
+        return new double[] {mPeriodicIO.xOffset, mPeriodicIO.yOffset};
+    }
 }
