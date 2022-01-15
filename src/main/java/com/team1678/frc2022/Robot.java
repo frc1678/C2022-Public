@@ -57,6 +57,7 @@ public class Robot extends TimedRobot {
   private AutoModeExecutor mAutoModeExecutor;
   private AutoModeSelector mAutoModeSelector = new AutoModeSelector();
 
+  private boolean mClimbMode = false;
 
   public Robot() {
     CrashTracker.logRobotConstruction();
@@ -147,29 +148,37 @@ public class Robot extends TimedRobot {
           double swerveRotation = mControlBoard.getSwerveRotation();
           mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
 
-          //Intake
-          if (mControlBoard.getIntake()) {
-            mIntake.setState(Intake.WantedAction.INTAKE);
-          } else if (mControlBoard.getOuttake()) {
-            mIntake.setState(Intake.WantedAction.REVERSE); 
-          } else if (mControlBoard.getSpitting()) {
-            mIntake.setState(Intake.WantedAction.SPIT);
-          } else {
-            mIntake.setState(Intake.WantedAction.NONE);
-          }
+          mClimbMode = mControlBoard.climbMode();
 
-          /* CLIMBER */
-          if(mControlBoard.getClimberJog() ==  -1) {
-            mClimber.setState(Climber.WantedAction.RETRACT);
-          } else if(mControlBoard.getClimberJog() == 1) {
-            mClimber.setState(Climber.WantedAction.EXTEND);
-          } else if(mControlBoard.getDeploySolenoid()) {
-            mClimber.setState(Climber.WantedAction.DEPLOY);
-          } else if(mControlBoard.getUndeploySolenoid()) {
-            mClimber.setState(Climber.WantedAction.UNDEPLOY);
+          if (mClimbMode) {
+
+              if(mControlBoard.getClimberJog() ==  -1) {
+                mClimber.setState(Climber.WantedAction.RETRACT);
+              } else if(mControlBoard.getClimberJog() == 1) {
+                mClimber.setState(Climber.WantedAction.EXTEND);
+              } else if(mControlBoard.getDeploySolenoid()) {
+                mClimber.setState(Climber.WantedAction.DEPLOY);
+              } else if(mControlBoard.getUndeploySolenoid()) {
+                mClimber.setState(Climber.WantedAction.UNDEPLOY);
+              } else {
+                mClimber.setState(Climber.WantedAction.NONE);
+              }
+
           } else {
-            mClimber.setState(Climber.WantedAction.NONE);
+            
+            //Intake controls
+              if (mControlBoard.getIntake()) {
+                mIntake.setState(Intake.WantedAction.INTAKE);
+              } else if (mControlBoard.getOuttake()) {
+                mIntake.setState(Intake.WantedAction.REVERSE); 
+              } else if (mControlBoard.getSpitting()) {
+                mIntake.setState(Intake.WantedAction.SPIT);
+              } else {
+                mIntake.setState(Intake.WantedAction.NONE);
+              }
+
           }
+      
 
       } catch (Throwable t) {
         CrashTracker.logThrowableCrash(t);
