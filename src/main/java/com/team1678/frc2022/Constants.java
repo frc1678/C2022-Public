@@ -262,7 +262,6 @@ public class Constants {
     }
 
     public static final class ElevatorConstants {
-        public static final int kIndexerMotorId = 32;
 
         //TODO: find actual values
         public static final double kIndexerKp = 0.2;
@@ -281,6 +280,10 @@ public class Constants {
 
         public static final double kIndexingVoltage = 7.0;
         public static final double kReversingVoltage = -7.0;
+        public static final double kIdleVoltage = 0.0;
+        public static final double kHopperIdleVoltage = 2;
+        public static final double kHopperIndexingVoltage = 6;
+        public static final double kHopperReversingVoltage = -6;
 
     }
         
