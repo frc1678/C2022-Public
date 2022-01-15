@@ -74,8 +74,6 @@ public class Intake extends Subsystem {
             case REVERSING:
                 mPeriodicIO.demand = -Constants.IntakeConstants.kIntakeVoltage;
                 mPeriodicIO.deploy = true;
-                break;
-            // As in the REVERSING state, the if/else dialogue is omitted
             case SPITTING:
                 mPeriodicIO.demand = Constants.IntakeConstants.kSpittingVoltage;
                 mPeriodicIO.deploy = false;
