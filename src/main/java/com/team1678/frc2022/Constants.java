@@ -3,6 +3,7 @@ package com.team1678.frc2022;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.lib.util.SwerveModuleConstants;
 import com.team1678.frc2022.subsystems.Limelight.LimelightConstants;
+import com.team1678.frc2022.subsystems.ServoMotorSubsystem.ServoMotorSubsystemConstants;
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
@@ -222,15 +223,61 @@ public class Constants {
     }
 
     public static final class ShooterConstants {
+
         public static final double kFlywheelVelocityConversion = 100/2048; // TODO Change to actual ratio, remember velo is measured in ticks/100ms
         public static final double kFlywheelTolerance = 200;
         public static final double kShooterP = 0.25; // TODO Retune these
-		public static final double kShooterI = 0.00004;
-		public static final double kShooterD = 0.0;
-		public static final double kShooterF = 0.05;
+        public static final double kShooterI = 0.00004;
+        public static final double kShooterD = 0.0;
+        public static final double kShooterF = 0.05;
         public static final double kClosedLoopRamp = 0.1;
+
     }
 
+    public static final class HoodConstants {
+        public static final double kCalibratingVoltage = -2.0;
+        public static final double kCalibrationCurrentThreshold = 15.0;
+
+        public static final ServoMotorSubsystemConstants kHoodServoConstants = new ServoMotorSubsystemConstants();
+        static {
+            kHoodServoConstants.kName = "Hood";
+
+            kHoodServoConstants.kMasterConstants.id = Ports.HOOD_ID;
+            kHoodServoConstants.kMasterConstants.invert_motor = true;
+            kHoodServoConstants.kMasterConstants.invert_sensor_phase = false;
+
+            // Unit == Degrees
+            kHoodServoConstants.kHomePosition = 0.0; // Degrees
+            kHoodServoConstants.kTicksPerUnitDistance = (2048.0) / 360.0; // TODO Add real gear ratio
+            kHoodServoConstants.kKp = 0.55;
+            kHoodServoConstants.kKi = 0;
+            kHoodServoConstants.kKd = 0;
+            kHoodServoConstants.kKf = 0.05;
+            kHoodServoConstants.kMaxIntegralAccumulator = 0;
+            kHoodServoConstants.kIZone = 0; // Ticks
+            kHoodServoConstants.kDeadband = 0; // Ticks
+
+            kHoodServoConstants.kPositionKp = 0.1;
+            kHoodServoConstants.kPositionKi = 0;
+            kHoodServoConstants.kPositionKd = 0;
+            kHoodServoConstants.kPositionKf = 0.0;
+            kHoodServoConstants.kPositionMaxIntegralAccumulator = 0;
+            kHoodServoConstants.kPositionIZone = 0; // Ticks
+            kHoodServoConstants.kPositionDeadband = 0; // Ticks
+
+            kHoodServoConstants.kMinUnitsLimit = 0; // TODO Add actual min/max limits (in degrees)
+            kHoodServoConstants.kMaxUnitsLimit = 1;
+
+            kHoodServoConstants.kCruiseVelocity = 20000; // Ticks / 100ms
+            kHoodServoConstants.kAcceleration = 20000; // Ticks / 100ms / s
+            kHoodServoConstants.kRampRate = 0.0; // s
+            kHoodServoConstants.kContinuousCurrentLimit = 35; // amps
+            kHoodServoConstants.kPeakCurrentLimit = 40; // amps
+            kHoodServoConstants.kPeakCurrentDuration = 10; // milliseconds
+            kHoodServoConstants.kMaxVoltage = 3.0;
+        }
+    }
+        
     public static final class ClimberConstants {
         
     }
