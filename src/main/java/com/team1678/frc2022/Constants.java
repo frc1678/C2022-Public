@@ -186,8 +186,9 @@ public class Constants {
 
         /*** SUBSYSTEM CONSTANTS ***/
         public static final class IntakeConstants {
-            public static final double kIntakingVoltage = 5;
-            public static final double kOuttakingVoltage = -5;
+            public static double kIntakeVoltage = 5;
+            public static double kIdleVoltage = 0;
+            public static double kSpittingVoltage = -7;
         }
     
         public static final class HopperConstants {

@@ -17,6 +17,14 @@
       <option name="url" value="https://frcmaven.wpi.edu/artifactory/vendor-mvn-release" />
     </remote-repository>
     <remote-repository>
+<<<<<<< HEAD
+=======
+      <option name="id" value="WPILocal" />
+      <option name="name" value="WPILocal" />
+      <option name="url" value="file:$USER_HOME$/wpilib/2022/maven" />
+    </remote-repository>
+    <remote-repository>
+>>>>>>> 4785ccc6b8a5b7a50f5ef85f97a021636a15885f
       <option name="id" value="MavenRepo" />
       <option name="name" value="MavenRepo" />
       <option name="url" value="https://repo.maven.apache.org/maven2/" />
@@ -31,10 +39,13 @@
       <option name="name" value="WPIab676553-b602-441f-a38d-f1296eff6537_0Release" />
       <option name="url" value="https://maven.ctr-electronics.com/release/" />
     </remote-repository>
+<<<<<<< HEAD
     <remote-repository>
       <option name="id" value="WPILocal" />
       <option name="name" value="WPILocal" />
       <option name="url" value="file:/$PROJECT_DIR$/../../Public/wpilib/2022/maven/" />
     </remote-repository>
+=======
+>>>>>>> 4785ccc6b8a5b7a50f5ef85f97a021636a15885f
   </component>
 </project>
