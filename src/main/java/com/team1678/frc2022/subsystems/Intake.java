@@ -119,14 +119,6 @@ public class Intake extends Subsystem {
        mSolenoid.set(mPeriodicIO.deploy);
    }
 
-   public synchronized void outputTelemetry() {
-       SmartDashboard.putNumber("Intake Current", mPeriodicIO.current);
-       SmartDashboard.putString("Intake State", mState.toString());
-       if (mCSVWriter != null) {
-           mCSVWriter.write();
-       }
-   }
-
    @Override
    public void registerEnabledLoops(ILooper enabledLooper) {
        enabledLooper.register(new Loop() {
@@ -138,7 +130,6 @@ public class Intake extends Subsystem {
            @Override
            public void onLoop(double timestamp) {
                runStateMachine();
-               outputTelemetry();
            }
 
            @Override
