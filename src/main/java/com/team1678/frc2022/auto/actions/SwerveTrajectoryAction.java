@@ -44,7 +44,7 @@ public class SwerveTrajectoryAction implements Action {
   private final Supplier<Rotation2d> m_desiredRotation;
 
   /**
-   * Constructs a new SwerveControllerCommand that when executed will follow the provided
+   * Constructs a new SwerveTrajectoryAction that when executed will follow the provided
    * trajectory. This command will not return output voltages but rather raw module states from the
    * position controllers which need to be put into a velocity PID.
    *
@@ -72,21 +72,21 @@ public class SwerveTrajectoryAction implements Action {
       ProfiledPIDController thetaController,
       Supplier<Rotation2d> desiredRotation,
       Consumer<SwerveModuleState[]> outputModuleStates) {
-    m_trajectory = requireNonNullParam(trajectory, "trajectory", "SwerveControllerCommand");
-    m_pose = requireNonNullParam(pose, "pose", "SwerveControllerCommand");
-    m_kinematics = requireNonNullParam(kinematics, "kinematics", "SwerveControllerCommand");
+    m_trajectory = requireNonNullParam(trajectory, "trajectory", "SwerveTrajectoryAction");
+    m_pose = requireNonNullParam(pose, "pose", "SwerveTrajectoryAction");
+    m_kinematics = requireNonNullParam(kinematics, "kinematics", "SwerveTrajectoryAction");
 
     m_controller =
         new HolonomicDriveController(
-            requireNonNullParam(xController, "xController", "SwerveControllerCommand"),
-            requireNonNullParam(yController, "xController", "SwerveControllerCommand"),
-            requireNonNullParam(thetaController, "thetaController", "SwerveControllerCommand"));
+            requireNonNullParam(xController, "xController", "SwerveTrajectoryAction"),
+            requireNonNullParam(yController, "xController", "SwerveTrajectoryAction"),
+            requireNonNullParam(thetaController, "thetaController", "SwerveTrajectoryAction"));
 
     m_outputModuleStates =
-        requireNonNullParam(outputModuleStates, "frontLeftOutput", "SwerveControllerCommand");
+        requireNonNullParam(outputModuleStates, "frontLeftOutput", "SwerveTrajectoryAction");
 
     m_desiredRotation =
-        requireNonNullParam(desiredRotation, "desiredRotation", "SwerveControllerCommand");
+        requireNonNullParam(desiredRotation, "desiredRotation", "SwerveTrajectoryAction");
   }
 
   /**
