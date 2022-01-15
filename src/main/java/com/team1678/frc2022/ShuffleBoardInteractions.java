@@ -3,6 +3,7 @@ package com.team1678.frc2022;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.team1678.frc2022.Constants.ClimberConstants;
 import com.team1678.frc2022.subsystems.Climber;
+import com.team1678.frc2022.subsystems.Intake;
 import com.team1678.frc2022.subsystems.Limelight;
 import com.team1678.frc2022.subsystems.Swerve;
 
@@ -15,6 +16,8 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 import edu.wpi.first.math.MathUtil;
+
+import com.team254.lib.util.ReflectingCSVWriter;
 
 public class ShuffleBoardInteractions {
 
@@ -33,6 +36,7 @@ public class ShuffleBoardInteractions {
     private final Swerve mSwerve;
     private final SwerveModule[] mSwerveModules;
     private final Climber mClimber;
+    private final Intake mIntake;
 
     /* Status Variable */
     private double lastCancoderUpdate = 0.0;
@@ -42,8 +46,16 @@ public class ShuffleBoardInteractions {
     private ShuffleboardTab SWERVE_TAB;
     private ShuffleboardTab PID_TAB;
     private ShuffleboardTab CLIMBER_TAB;
+    private ShuffleboardTab INTAKE_TAB;
 
     /* ENTRIES */
+
+    /* Intake */
+    private final NetworkTableEntry mIntakeCurrent;
+    private final NetworkTableEntry mIntakeState;
+    private final NetworkTableEntry mIntakeVoltage;
+    private final NetworkTableEntry mIntakeDemand;
+    private final NetworkTableEntry mIntakeDeployed;
 
     /* Vision */
     private final NetworkTableEntry mSeesTarget;
@@ -86,12 +98,14 @@ public class ShuffleBoardInteractions {
         mSwerve = Swerve.getInstance();
         mSwerveModules = Swerve.getInstance().mSwerveMods;
         mClimber = Climber.getInstance();
+        mIntake = Intake.getInstance();
 
         /* Get Tabs */
         VISION_TAB = Shuffleboard.getTab("Vision");
         SWERVE_TAB = Shuffleboard.getTab("Swerve");
         PID_TAB = Shuffleboard.getTab("Module PID");
         CLIMBER_TAB = Shuffleboard.getTab("Climber");
+        INTAKE_TAB = Shuffleboard.getTab("Intake");
         
         /* Create Entries */
         mLimelightOk = VISION_TAB
@@ -232,10 +246,34 @@ public class ShuffleBoardInteractions {
     }
 
     private void getEntry() {
+        
+        /* INTAKE */
+        mIntakeCurrent = INTAKE_TAB
+            .add("Intake Current", mIntake.mPeriodicIO.current)
+            .getEntry();
+        mIntakeState = INTAKE_TAB
+            .add("Intake State", mIntake.getState().toString())
+            .getEntry();
+        mIntakeVoltage = INTAKE_TAB
+            .add("Intake Voltage", mIntake.mPeriodicIO.voltage)
+            .getEntry();
+        mIntakeDemand = INTAKE_TAB
+                .add("Intake Demand", mIntake.mPeriodicIO.demand)
+                .getEntry();
+        mIntakeDeployed = INTAKE_TAB
+                .add("Intake Deployed", mIntake.mPeriodicIO.deploy)
+                .getEntry();
     }
 
     public void update() {
         
+        /* Intake */
+        mIntakeState.setString(mIntake.getState().toString());
+        mIntakeVoltage.setDouble(mIntake.getMotorVoltage());
+        mIntakeDemand.setDouble(mIntake.getMotorDemand());
+        mIntakeDeployed.setBoolean(mIntake.getDeployed());
+        mIntakeCurrent.setDouble(mIntake.getMotorCurrent());
+
         /* Vision */
         mSeesTarget.setBoolean(mLimelight.seesTarget());
         mLimelightOk.setBoolean(mLimelight.limelightOK());

@@ -192,4 +192,21 @@ public class ControlBoard {
             return operator.getButton(Button.LB) && operator.getButton(Button.RB) && operator.getTrigger(Side.LEFT) && operator.getTrigger(Side.RIGHT);
         }
 
+    //Intake Controls
+
+    public enum Intake {
+
+    }
+
+    public boolean getIntake() {
+        return operator.getTrigger(Side.RIGHT);
+    }
+
+    public boolean getOuttake() {
+        return operator.getTrigger(Side.LEFT);
+    }
+
+    public boolean getSpitting() {
+        return operator.getController().getRightBumper();
+    }
 }
