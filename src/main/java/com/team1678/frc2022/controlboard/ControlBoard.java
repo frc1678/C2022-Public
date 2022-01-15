@@ -164,4 +164,25 @@ public class ControlBoard {
         return SwerveCardinal.NONE;
     }
 
+    //Intake Controls
+
+    public enum Intake {
+
+    }
+
+    public boolean getIntake() {
+        return driver.getTrigger(Side.RIGHT);
+    }
+
+    public boolean getOuttake() {
+        return driver.getTrigger(Side.LEFT);
+    }
+
+    public boolean getRetract() {
+        return driver.getController().getLeftBumper();
+    }
+
+    public boolean getRetract() {
+        return driver.getController().getRightBumper();
+    }
 }
