@@ -1,6 +1,8 @@
 package com.team1678.frc2022;
 
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
+import com.team1678.frc2022.Constants.ClimberConstants;
+import com.team1678.frc2022.subsystems.Climber;
 import com.team1678.frc2022.subsystems.Limelight;
 import com.team1678.frc2022.subsystems.Swerve;
 
@@ -11,6 +13,7 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 import edu.wpi.first.math.MathUtil;
 
 public class ShuffleBoardInteractions {
@@ -29,6 +32,7 @@ public class ShuffleBoardInteractions {
     private final Limelight mLimelight;
     private final Swerve mSwerve;
     private final SwerveModule[] mSwerveModules;
+    private final Climber mClimber;
 
     /* Status Variable */
     private double lastCancoderUpdate = 0.0;
@@ -37,6 +41,7 @@ public class ShuffleBoardInteractions {
     private ShuffleboardTab VISION_TAB;
     private ShuffleboardTab SWERVE_TAB;
     private ShuffleboardTab PID_TAB;
+    private ShuffleboardTab CLIMBER_TAB;
 
     /* ENTRIES */
 
@@ -68,17 +73,25 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mCurrentAngleI;
     private final NetworkTableEntry mCurrentAngleD;
 
+    /* Climber */
+    private final NetworkTableEntry mClimberVoltage;
+    private final NetworkTableEntry mClimberCurrent;
+    private final NetworkTableEntry mClimberState;
+    private final NetworkTableEntry mClimberSolenoid;
+
 
     public ShuffleBoardInteractions() {
         /* Get Subsystems */
         mLimelight = Limelight.getInstance();
         mSwerve = Swerve.getInstance();
         mSwerveModules = Swerve.getInstance().mSwerveMods;
+        mClimber = Climber.getInstance();
 
         /* Get Tabs */
         VISION_TAB = Shuffleboard.getTab("Vision");
         SWERVE_TAB = Shuffleboard.getTab("Swerve");
         PID_TAB = Shuffleboard.getTab("Module PID");
+        CLIMBER_TAB = Shuffleboard.getTab("Climber");
         
         /* Create Entries */
         mLimelightOk = VISION_TAB
@@ -203,6 +216,22 @@ public class ShuffleBoardInteractions {
             .withPosition(2,1)
             .withSize(1, 1)
             .getEntry();
+
+        mClimberCurrent = CLIMBER_TAB
+            .add("Climber Current", Climber.mPeriodicIO.climber_current)
+            .getEntry();
+        mClimberVoltage = CLIMBER_TAB
+            .add("Climber Voltage", Climber.mPeriodicIO.climber_voltage)
+            .getEntry();
+        mClimberSolenoid = CLIMBER_TAB
+            .add("Climber Solenoid is Deployed", Climber.mPeriodicIO.climber_solenoid)
+            .getEntry();
+        mClimberState = CLIMBER_TAB 
+            .add("Climber State", Climber.mState.toString())
+            .getEntry();
+    }
+
+    private void getEntry() {
     }
 
     public void update() {
@@ -245,6 +274,12 @@ public class ShuffleBoardInteractions {
         mCurrentAngleP.setDouble(currentPIDVals[0]);
         mCurrentAngleI.setDouble(currentPIDVals[1]);
         mCurrentAngleD.setDouble(currentPIDVals[2]);
+
+        /* CLIMBER */
+        mClimberCurrent.setDouble(mClimber.getMotorCurrent());
+        mClimberVoltage.setDouble(mClimber.getMotorVoltage());
+        mClimberState.setString(mClimber.getState().toString());
+        mClimberSolenoid.setBoolean(mClimber.getSolenoid());
     }
 
     /* Truncates number to 2 decimal places for cleaner numbers */

@@ -19,14 +19,10 @@ public class Climber extends Subsystem {
     private TalonFX mClimber;
     private final Solenoid mShiftSolenoid;
 
-    private void spinMotor(double voltage){
-        mPeriodicIO.climber_demand = voltage;
-    }
-
     private static Climber mInstance;
 
     private TimeDelayedBoolean mShiftSolenoidTimer = new TimeDelayedBoolean();
-    private PeriodicIO mPeriodicIO = new PeriodicIO();
+    public static PeriodicIO mPeriodicIO = new PeriodicIO();
 
     private Climber() {
         mShiftSolenoid = Solenoid(Ports.CLIMBER_PIVOT_SOLENOID);
@@ -44,17 +40,20 @@ public class Climber extends Subsystem {
         return mInstance;
     }
 
+
+    public void setState (State state) {
+        this.mState = state;
+    }
+
     public enum WantedAction {
-        NONE, GROUND_EXTEND, EXTEND, RETRACT, PIVOT
+        NONE, EXTEND, RETRACT, DEPLOY, UNDEPLOY
     }
 
     public enum State {
-        IDLE, GROUND_EXTENDING, EXTENDING, RETRACTING, PIVOTING
+        IDLE, EXTENDING, RETRACTING, DEPLOYING, UNDEPLOYNG
     }
 
-    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
-
-    private State mState = State.IDLE;
+    public static State mState = State.IDLE;
 
     @Override
     public void writePeriodicOutputs() {
@@ -84,43 +83,43 @@ public class Climber extends Subsystem {
         });
     }
 
+    public synchronized State getState() {
+        return mState;
+    }
+
     public void setState(WantedAction wanted_state) {
         switch (wanted_state) {
             case NONE:
                 mState = State.IDLE;
                 break;
-            case GROUND_EXTEND:
-                mState = State.GROUND_EXTENDING;
             case EXTEND:
                 mState = State.EXTENDING;
                 break;
             case RETRACT:
                 mState = State.RETRACTING;
                 break;
-            case PIVOT:
-                mState = State.PIVOTING;
+            case DEPLOY:
+                mState = State.DEPLOYING;
                 break;
+            case UNDEPLOY:
+                mState = State.UNDEPLOYNG;
         }
     }
 
     private void runStateMachine() {
         switch (mState) {
             case EXTENDING:
-                mPeriodicIO.climber_voltage = Constants.ClimberConstants.kExtendingVoltage);
-                mPeriodicIO.climber_solenoid = true;
+                mPeriodicIO.climber_demand = Constants.ClimberConstants.kExtendingVoltage;
                 break;
-            case GROUND_EXTENDING:
-                spinMotor(Constants.ClimberConstants.kExtendingVoltage);
-                mPeriodicIO.climber_solenoid = false;
-            case PIVOTING:
-                spinMotor(Constants.ClimberConstants.kExtendingVoltage);
-                mPeriodicIO.climber_solenoid = true;
             case RETRACTING:
-                spinMotor(Constants.ClimberConstants.kRetractingVoltage);
-                mPeriodicIO.climber_solenoid = true;
+                mPeriodicIO.climber_demand = Constants.ClimberConstants.kRetractingVoltage;
                 break;
+            case DEPLOYING:
+                mPeriodicIO.climber_solenoid = true;
+            case UNDEPLOYNG:
+                mPeriodicIO.climber_solenoid = false;
             case IDLE:
-                spinMotor(Constants.ClimberConstants.kIdleVoltage);
+                mPeriodicIO.climber_demand = Constants.ClimberConstants.kIdleVoltage;
                 break;
         }
     }
@@ -131,18 +130,22 @@ public class Climber extends Subsystem {
 
     public boolean hasEmergency = false;
 
-    //TODO: put in ShuffleBoardInteractions.java
-    public void outputTelemetry(){
-        SmartDashboard.putNumber("Climber Voltage", mPeriodicIO.climber_voltage);
-        SmartDashboard.putNumber("Climber Current", mPeriodicIO.climber_current);
-        SmartDashboard.putNumber("Climber Demand", mPeriodicIO. climber_demand);
-        SmartDashboard.putString("Climber State", mState.toString());
-    }
-
     @Override
     public void stop(){
         setState(WantedAction.NONE);
         mClimber.set(ControlMode.PercentOutput, 0);
+    }
+
+    public double getMotorVoltage() {
+        return mPeriodicIO.climber_voltage;
+    }
+
+    public double getMotorCurrent() {
+        return mPeriodicIO.climber_current;  
+    }
+
+    public boolean getSolenoid() {
+        return mPeriodicIO.climber_solenoid;
     }
 
     public static class PeriodicIO {
