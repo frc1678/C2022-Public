@@ -207,7 +207,6 @@ public class Elevator extends Subsystem{
         }
     }
 
-    @Override
     public void outputTelemetry() {
         SmartDashboard.putString("Elevator State", mState.toString());
         SmartDashboard.putNumber("Indexer Demand", mPeriodicIO.indexer_demand);

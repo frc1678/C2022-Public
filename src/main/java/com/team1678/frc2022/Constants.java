@@ -5,12 +5,12 @@ import com.lib.util.SwerveModuleConstants;
 import com.team1678.frc2022.subsystems.Limelight.LimelightConstants;
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
-import com.team254.lib.geometry.Translation2d;
 
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.Solenoid;
 
 public class Constants {
 	
@@ -220,11 +220,13 @@ public class Constants {
         public static final class ShooterConstants {
             
         }
-    
-        public static final class ClimberConstants {
-            
-        }
-    
+
+    public static final class ClimberConstants {
+        public static final double kExtendingVoltage = -8.0;
+        public static final double kRetractingVoltage = 8.0;
+        public static final double kIdleVoltage = 0.0;
+    }
+
 	// Timeout constants
 	public static final int kLongCANTimeoutMs = 100;
 	public static final int kCANTimeoutMs = 10;
