@@ -243,10 +243,7 @@ public class ShuffleBoardInteractions {
         mClimberState = CLIMBER_TAB 
             .add("Climber State", mClimber.mState.toString())
             .getEntry();
-    }
 
-    private void getEntry() {
-        
         /* INTAKE */
         mIntakeCurrent = INTAKE_TAB
             .add("Intake Current", mIntake.mPeriodicIO.current)
@@ -258,11 +255,11 @@ public class ShuffleBoardInteractions {
             .add("Intake Voltage", mIntake.mPeriodicIO.voltage)
             .getEntry();
         mIntakeDemand = INTAKE_TAB
-                .add("Intake Demand", mIntake.mPeriodicIO.demand)
-                .getEntry();
+            .add("Intake Demand", mIntake.mPeriodicIO.demand)
+            .getEntry();
         mIntakeDeployed = INTAKE_TAB
-                .add("Intake Deployed", mIntake.mPeriodicIO.deploy)
-                .getEntry();
+            .add("Intake Deployed", mIntake.mPeriodicIO.deploy)
+            .getEntry();
     }
 
     public void update() {

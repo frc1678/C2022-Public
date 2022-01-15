@@ -16,10 +16,8 @@ import com.team1678.frc2022.loops.Looper;
 import com.team1678.frc2022.subsystems.Climber;
 import com.team1678.frc2022.subsystems.Limelight;
 import com.team1678.frc2022.subsystems.Swerve;
-import com.team1678.frc2022.subsystems.Climber.WantedAction;
 import com.team1678.frc2022.subsystems.Infrastructure;
 import com.team1678.frc2022.subsystems.Intake;
-import com.team1678.frc2021.subsystems.Intake.WantedAction;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -74,7 +72,7 @@ public class Robot extends TimedRobot {
 
         mSubsystemManager.setSubsystems(
             mSwerve,
-            mClimber
+            mClimber,
             mIntake,
             mInfrastructure
         );
@@ -149,27 +147,28 @@ public class Robot extends TimedRobot {
           double swerveRotation = mControlBoard.getSwerveRotation();
           mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
 
-          /* CLIMBER */
-          if(mControlBoard.getClimberJog() ==  -1) {
-            mClimber.setState(WantedAction.RETRACT);
-          } else if(mControlBoard.getClimberJog() == 1) {
-            mClimber.setState(WantedAction.EXTEND);
-          } else if(mControlBoard.getDeploySolenoid()) {
-            mClimber.setState(WantedAction.DEPLOY);
-          } else if(mControlBoard.getUndeploySolenoid()) {
-            mClimber.setState(WantedAction.UNDEPLOY);
-          } else {
-            mClimber.setState(WantedAction.NONE);
-          }
           //Intake
           if (mControlBoard.getIntake()) {
-            mIntake.setState(WantedAction.INTAKE);
+            mIntake.setState(Intake.WantedAction.INTAKE);
           } else if (mControlBoard.getOuttake()) {
-            mIntake.setState(WantedAction.REVERSE); 
+            mIntake.setState(Intake.WantedAction.REVERSE); 
           } else if (mControlBoard.getSpitting()) {
-            mIntake.setState(WantedAction.SPIT);
+            mIntake.setState(Intake.WantedAction.SPIT);
           } else {
-            mIntake.setState(WantedAction.NONE);
+            mIntake.setState(Intake.WantedAction.NONE);
+          }
+
+          /* CLIMBER */
+          if(mControlBoard.getClimberJog() ==  -1) {
+            mClimber.setState(Climber.WantedAction.RETRACT);
+          } else if(mControlBoard.getClimberJog() == 1) {
+            mClimber.setState(Climber.WantedAction.EXTEND);
+          } else if(mControlBoard.getDeploySolenoid()) {
+            mClimber.setState(Climber.WantedAction.DEPLOY);
+          } else if(mControlBoard.getUndeploySolenoid()) {
+            mClimber.setState(Climber.WantedAction.UNDEPLOY);
+          } else {
+            mClimber.setState(Climber.WantedAction.NONE);
           }
 
       } catch (Throwable t) {
