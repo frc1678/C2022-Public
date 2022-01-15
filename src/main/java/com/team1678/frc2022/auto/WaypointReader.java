@@ -41,12 +41,14 @@ public class WaypointReader {
             }
         }
 
+        /*
         // Debug print out of arrays in vectors
         for (Spline.ControlVector vector : controlVectors) {
             System.out.println(Arrays.toString(vector.x));
             System.out.println(Arrays.toString(vector.y));
             System.out.println("===");
         }
+        */
 
         return controlVectors;
     }

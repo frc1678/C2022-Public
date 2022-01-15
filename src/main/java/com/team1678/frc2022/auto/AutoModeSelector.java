@@ -11,6 +11,7 @@ public class AutoModeSelector {
     enum DesiredMode {
         DO_NOTHING, 
         TEST_PATH_AUTO,
+        FIVE_BALL_AUTO,
     }
 
     private DesiredMode mCachedDesiredMode = DesiredMode.DO_NOTHING;
@@ -23,6 +24,7 @@ public class AutoModeSelector {
         mModeChooser = new SendableChooser<>();
         mModeChooser.setDefaultOption("Do Nothing", DesiredMode.DO_NOTHING);
         mModeChooser.addOption("Test Path Mode", DesiredMode.TEST_PATH_AUTO);
+        mModeChooser.addOption("Five Ball Mode", DesiredMode.FIVE_BALL_AUTO);
         SmartDashboard.putData("Auto Mode", mModeChooser);
     }
 
@@ -45,6 +47,9 @@ public class AutoModeSelector {
         
         case TEST_PATH_AUTO:
             return Optional.of(new TestPathMode());
+
+        case FIVE_BALL_AUTO:
+            return Optional.of(new FiveBallMode());
             
         default:
             System.out.println("ERROR: unexpected auto mode: " + mode);
