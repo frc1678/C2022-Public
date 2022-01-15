@@ -279,7 +279,9 @@ public class Constants {
     }
         
     public static final class ClimberConstants {
-        
+        public static final double kExtendingVoltage = -8.0;
+        public static final double kRetractingVoltage = 8.0;
+        public static final double kIdleVoltage = 0.0;
     }
 
 	// Timeout constants
