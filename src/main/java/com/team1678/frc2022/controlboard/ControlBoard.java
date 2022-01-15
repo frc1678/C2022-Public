@@ -188,4 +188,8 @@ public class ControlBoard {
             return operator.getButton(Button.A);
         }
 
+        public boolean climbMode() {
+            return operator.getButton(Button.LB) && operator.getButton(Button.RB) && operator.getTrigger(Side.LEFT) && operator.getTrigger(Side.RIGHT);
+        }
+
 }
