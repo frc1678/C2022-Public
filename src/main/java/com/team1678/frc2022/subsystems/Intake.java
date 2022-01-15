@@ -108,6 +108,8 @@ public class Intake extends Subsystem {
    @Override
    public synchronized void readPeriodicInputs() {
         mPeriodicIO.intake_out = mIntakeSolenoidTimer.update(mPeriodicIO.deploy, 0.2);
+        mPeriodicIO.current =  mMaster.getStatorCurrent();
+        mPeriodicIO.voltage = mMaster.getMotorOutputVoltage();
        if (mCSVWriter != null) {
            mCSVWriter.add(mPeriodicIO);
        }
