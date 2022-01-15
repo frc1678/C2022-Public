@@ -73,7 +73,6 @@ public class Intake extends Subsystem {
             // The if/else statement has been left out, since we might need to reverse while the intake is up
             case REVERSING:
                 mPeriodicIO.demand = -Constants.IntakeConstants.kIntakeVoltage;
-                mPeriodicIO.deploy = false;
                 break;
             case RETRACTING:
                 mPeriodicIO.demand = Constants.IntakeConstants.kIdleVoltage;
@@ -82,7 +81,6 @@ public class Intake extends Subsystem {
             // As in the REVERSING state, the if/else dialogue is omitted
             case SPITTING:
                 mPeriodicIO.demand = Constants.IntakeConstants.kSpittingVoltage;
-                mPeriodicIO.deploy = false;
                 break;
         }
     }
