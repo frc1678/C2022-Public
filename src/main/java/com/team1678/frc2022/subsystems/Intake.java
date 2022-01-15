@@ -28,11 +28,11 @@ public class Intake extends Subsystem {
     private static PeriodicIO mPeriodicIO = new PeriodicIO();
     private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
     private static Intake mInstance;
-    private final TalonFX mMotor;
+    private final TalonFX mMaster;
     private Solenoid mSolenoid;
 
     private Intake() {
-        mMotor = TalonFXFactory.createDefaultTalon(Ports.INTAKE_ID);
+        mMaster = TalonFXFactory.createDefaultTalon(Ports.INTAKE_ID);
         mSolenoid = null;
     }
 
@@ -49,7 +49,7 @@ public class Intake extends Subsystem {
 
     @Override
     public void stop() {
-        mMotor.set(ControlMode.PercentOutput, 0);
+        mMaster.set(ControlMode.PercentOutput, 0);
     }
 
     public void zeroSensors() {
@@ -62,7 +62,7 @@ public class Intake extends Subsystem {
                 mPeriodicIO.deploy = false;
                 break;
             case INTAKING:
-                mPeriodicIO.demand = Constants.IntakeConstants.kIntakeVoltage;
+                mPeriodicIO.demand = Constants.IntakeConstants.kIntakingVoltage;
                 /*if (mPeriodicIO.intake_out) {
                     mPeriodicIO.demand = Constants.IntakeConstants.kIntakeVoltage;
                 } else {
@@ -72,7 +72,7 @@ public class Intake extends Subsystem {
                 break;
             // The if/else statement has been left out, since we might need to reverse while the intake is up
             case REVERSING:
-                mPeriodicIO.demand = -Constants.IntakeConstants.kIntakeVoltage;
+                mPeriodicIO.demand = -Constants.IntakeConstants.kIntakingVoltage;
                 mPeriodicIO.deploy = true;
             case SPITTING:
                 mPeriodicIO.demand = Constants.IntakeConstants.kSpittingVoltage;
@@ -113,7 +113,7 @@ public class Intake extends Subsystem {
 
    @Override
    public void writePeriodicOutputs() {
-       mMotor.set(ControlMode.PercentOutput, mPeriodicIO.demand / 12.0);
+       mMaster.set(ControlMode.PercentOutput, mPeriodicIO.demand / 12.0);
        mSolenoid.set(mPeriodicIO.deploy);
    }
 

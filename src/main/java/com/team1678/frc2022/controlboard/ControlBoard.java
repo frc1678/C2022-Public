@@ -171,14 +171,14 @@ public class ControlBoard {
     }
 
     public boolean getIntake() {
-        return driver.getTrigger(Side.RIGHT);
+        return operator.getTrigger(Side.RIGHT);
     }
 
     public boolean getOuttake() {
-        return driver.getTrigger(Side.LEFT);
+        return operator.getTrigger(Side.LEFT);
     }
 
-    public boolean getReversing() {
-        return driver.getController().getRightBumper();
+    public boolean getSpitting() {
+        return operator.getController().getRightBumper();
     }
 }

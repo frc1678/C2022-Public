@@ -13,8 +13,10 @@ import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.ControlBoard.SwerveCardinal;
 import com.team1678.frc2022.loops.CrashTracker;
 import com.team1678.frc2022.loops.Looper;
+import com.team1678.frc2022.subsystems.Intake;
 import com.team1678.frc2022.subsystems.Limelight;
 import com.team1678.frc2022.subsystems.Swerve;
+import com.team1678.frc2022.subsystems.Intake.WantedAction;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -138,16 +140,13 @@ public class Robot extends TimedRobot {
 
           //Intake
           if (mControlBoard.getIntake()) {
-            mIntake.setState(State.INTAKING);
-
-          } if else (mControlBoard.getOuttake()) {
-            mIntake.setState(State.REVERSING);
-            
-          } if else (mControlBoard.getSpitting()) {
-            mIntake.setState(State.SPITTING);
-          }
-          else {
-            mIntake.setState(State.IDLE);
+            mIntake.setState(WantedAction.INTAKE);
+          } else if (mControlBoard.getOuttake()) {
+            mIntake.setState(WantedAction.REVERSE); 
+          } else if (mControlBoard.getSpitting()) {
+            mIntake.setState(WantedAction.SPIT);
+          } else {
+            mIntake.setState(WantedAction.NONE);
           }
 
       } catch (Throwable t) {
