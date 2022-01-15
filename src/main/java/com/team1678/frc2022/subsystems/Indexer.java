@@ -21,9 +21,6 @@ public class Indexer extends Subsystem{
     private static Indexer mInstance;
     private static PeriodicIO mPeriodicIO = new PeriodicIO();
 
-    private boolean mSlotsClean;
-    private boolean mHasBall;
-
     private int mBallCount = 0;
 
     private final DigitalInput mBottomBeamBreak = new DigitalInput(Constants.ElevatorConstants.kBottomBeamBreak);
@@ -34,12 +31,14 @@ public class Indexer extends Subsystem{
     public enum WantedAction {
         NONE,
         INDEX,
+        ELEVATE,
         REVERSE,
         HOP,
     }
 
     public enum State {
         IDLE,
+        INDEXING,
         ELEVATING,
         REVERSING,
         HOPPING,
@@ -83,8 +82,11 @@ public class Indexer extends Subsystem{
             case REVERSE:
                 this.mState = State.REVERSING;
                 break;
-            case INDEX:
+            case ELEVATE:
                 this.mState = State.ELEVATING;
+                break;
+            case INDEX:
+                this.mState = State.INDEXING;
                 break;
             case HOP:
                 this.mState = State.HOPPING;
@@ -125,7 +127,6 @@ public class Indexer extends Subsystem{
             public void onLoop(double timestamp) {
                 synchronized (Indexer.this){
                     runStateMachine();
-                    updateSlots();
                     outputTelemetry();
                 }
             }
@@ -136,21 +137,6 @@ public class Indexer extends Subsystem{
                 stop();
             }
         });
-    }
-
-
-    private void updateSlots() {
-        // Update beam breaks
-        mPeriodicIO.topLightBeamBreakSensor = mTopBeamBreak.get();
-        mPeriodicIO.bottomLightBeamBreakSensor = mBottomBeamBreak.get();
-
-        // Update ball count
-        mBallCount = 0;
-        if (mPeriodicIO.topLightBeamBreakSensor) mBallCount += 1;
-        if (mPeriodicIO.bottomLightBeamBreakSensor) mBallCount += 1;
-
-        // Update slot clean status
-        mSlotsClean = (mBallCount == 0);
     }
 
     /**
@@ -169,22 +155,6 @@ public class Indexer extends Subsystem{
         return mPeriodicIO.bottomLightBeamBreakSensor;
     }
 
-    /**
-     * Gets the count of the balls (between 0 and 2)
-     * @return how many balls are in the system
-     */
-    public int ballCount() {
-        return mBallCount;
-    }
-
-    /**
-     * Returns if the indexer is clear
-     * @return if the indexer is clear
-     */
-    public boolean slotsClean() {
-        return mSlotsClean;
-    }
-
     private void runStateMachine() {
         switch (mState) {
             case IDLE:
@@ -192,6 +162,10 @@ public class Indexer extends Subsystem{
                 break;
             case ELEVATING:
                 mPeriodicIO.hopper_demand = Constants.ElevatorConstants.kIdleVoltage;
+                mPeriodicIO.indexer_demand = Constants.ElevatorConstants.kIndexingVoltage;
+                break;
+            case INDEXING:
+                mPeriodicIO.hopper_demand = Constants.ElevatorConstants.kHopperIndexingVoltage;
                 mPeriodicIO.indexer_demand = Constants.ElevatorConstants.kIndexingVoltage;
                 break;
             case HOPPING:
