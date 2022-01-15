@@ -21,8 +21,6 @@ public class Indexer extends Subsystem{
     private static Indexer mInstance;
     private static PeriodicIO mPeriodicIO = new PeriodicIO();
 
-    private int mBallCount = 0;
-
     private final DigitalInput mBottomBeamBreak = new DigitalInput(Constants.ElevatorConstants.kBottomBeamBreak);
     private final DigitalInput mTopBeamBreak = new DigitalInput(Constants.ElevatorConstants.kTopBeamBreak);
 
