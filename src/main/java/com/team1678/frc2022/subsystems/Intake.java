@@ -17,11 +17,11 @@ public class Intake extends Subsystem {
     private TimeDelayedBoolean mIntakeSolenoidTimer = new TimeDelayedBoolean();
 
     public enum WantedAction {
-        NONE, INTAKE, REVERSE, RETRACT, SPIT
+        NONE, INTAKE, REVERSE, SPIT
     }
 
     public enum State {
-        IDLE, INTAKING, REVERSING, RETRACTING, SPITTING
+        IDLE, INTAKING, REVERSING, SPITTING
     }
 
     private State mState = State.IDLE;
@@ -75,13 +75,10 @@ public class Intake extends Subsystem {
                 mPeriodicIO.demand = -Constants.IntakeConstants.kIntakeVoltage;
                 mPeriodicIO.deploy = true;
                 break;
-            case RETRACTING:
-                mPeriodicIO.demand = Constants.IntakeConstants.kIdleVoltage;
-                mPeriodicIO.deploy = false;
-                break;
             // As in the REVERSING state, the if/else dialogue is omitted
             case SPITTING:
                 mPeriodicIO.demand = Constants.IntakeConstants.kSpittingVoltage;
+                mPeriodicIO.deploy = false;
                 break;
         }
     }
@@ -101,9 +98,6 @@ public class Intake extends Subsystem {
                 break;
             case REVERSE:
                 mState = State.REVERSING;
-                break;
-            case RETRACT:
-                mState = State.RETRACTING;
                 break;
             case SPIT:
                 mState = State.SPITTING;

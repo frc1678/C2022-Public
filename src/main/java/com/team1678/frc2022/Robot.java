@@ -143,9 +143,6 @@ public class Robot extends TimedRobot {
           } if else (mControlBoard.getOuttake()) {
             mIntake.setState(State.REVERSING);
             
-          } if else (mControlBoard.getRetract()) {
-            mIntake.setState(State.RETRACTING);
-          
           } if else (mControlBoard.getSpitting()) {
             mIntake.setState(State.SPITTING);
           }

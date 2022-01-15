@@ -181,8 +181,4 @@ public class ControlBoard {
     public boolean getRetract() {
         return driver.getController().getLeftBumper();
     }
-
-    public boolean getRetract() {
-        return driver.getController().getRightBumper();
-    }
 }
