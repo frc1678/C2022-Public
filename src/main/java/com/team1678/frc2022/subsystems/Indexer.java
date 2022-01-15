@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Indexer extends Subsystem{
 
     private final TalonFX mIndexer;
-    private final TalonFX mHopper;
 
     private static Indexer mInstance;
     private static PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -30,24 +29,38 @@ public class Indexer extends Subsystem{
     private final DigitalInput mTopBeamBreak = new DigitalInput(Constants.ElevatorConstants.kTopBeamBreak);
 
     private State mState = State.IDLE;
+    private WantedAction mWantedAction = WantedAction.NONE;
+
+    private void spinMotor (double voltage) {
+        mPeriodicIO.indexer_demand = voltage;
+    }
+
+    private void updateSlots() {
+        mHasBall = mPeriodicIO.topLightBeamBreakSensor;
+        mSlotsClean = mPeriodicIO.bottomLightBeamBreakSensor;
+        if (mBallCount != 0) {
+            mSlotsClean = false;
+        }
+    }
 
     public enum WantedAction {
         NONE,
         INDEX,
         REVERSE,
-        HOP,
+        /*OUTTAKE_TOP,
+        OUTTAKE_BOTTOM*/
     }
 
     public enum State {
-        IDLE,
-        ELEVATING,
+        IDLE, 
+        INDEXING, 
         REVERSING,
-        HOPPING,
+        /*OUTTAKING_TOP,
+        OUTTAKING_BOTTOM*/
     }
 
     private Indexer() {
         mIndexer = TalonFXFactory.createDefaultTalon(Ports.ELEVATOR_ID);
-        mHopper = TalonFXFactory.createDefaultTalon(Ports.HOPPER_ID);
 
         mIndexer.config_kP(0, Constants.ElevatorConstants.kIndexerKp, Constants.kLongCANTimeoutMs);
         mIndexer.config_kI(0, Constants.ElevatorConstants.kIndexerKi, Constants.kLongCANTimeoutMs);
@@ -78,39 +91,24 @@ public class Indexer extends Subsystem{
         return mInstance;
     }
 
-    public void setState(WantedAction state) {
-        switch (state) {
-            case REVERSE:
-                this.mState = State.REVERSING;
-                break;
-            case INDEX:
-                this.mState = State.ELEVATING;
-                break;
-            case HOP:
-                this.mState = State.HOPPING;
-                break;
-            case NONE:
-                this.mState = State.IDLE;
-                break;
-        }
+    public void setState (State state) {
+        this.mState = state;
+    }
 
+    public WantedAction getWantedAction() {
+        return mWantedAction;
     }
 
     @Override
     public synchronized void readPeriodicInputs() {
         mPeriodicIO.timestamp = Timer.getFPGATimestamp();
-
         mPeriodicIO.topLightBeamBreakSensor = mBottomBeamBreak.get();
         mPeriodicIO.bottomLightBeamBreakSensor = mTopBeamBreak.get();
-
-        mPeriodicIO.hopper_current = mHopper.getStatorCurrent();
-        mPeriodicIO.hopper_voltage = mHopper.getMotorOutputVoltage();
     }
 
     @Override 
     public void writePeriodicOutputs() {
         mIndexer.set(ControlMode.PercentOutput, mPeriodicIO.indexer_demand / 12.0);
-        mHopper.set(ControlMode.PercentOutput, mPeriodicIO.hopper_demand / 12.0);
     }
 
     @Override
@@ -118,7 +116,7 @@ public class Indexer extends Subsystem{
         enabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
-                mState = State.ELEVATING;
+                mState = State.INDEXING;
             }
 
             @Override
@@ -138,94 +136,94 @@ public class Indexer extends Subsystem{
         });
     }
 
-
-    private void updateSlots() {
-        // Update beam breaks
-        mPeriodicIO.topLightBeamBreakSensor = mTopBeamBreak.get();
-        mPeriodicIO.bottomLightBeamBreakSensor = mBottomBeamBreak.get();
-
-        // Update ball count
-        mBallCount = 0;
-        if (mPeriodicIO.topLightBeamBreakSensor) mBallCount += 1;
-        if (mPeriodicIO.bottomLightBeamBreakSensor) mBallCount += 1;
-
-        // Update slot clean status
-        mSlotsClean = (mBallCount == 0);
-    }
-
-    /**
-     * Gets the current status of the top beam break
-     * @return the state of the beam break
-     */
-    public boolean topBeamBreak() {
-        return mPeriodicIO.topLightBeamBreakSensor;
-    }
-
-    /**
-     * Gets the current status of the top beam break
-     * @return the state of the beam break
-     */
-    public boolean bottomBeamBreak() {
-        return mPeriodicIO.bottomLightBeamBreakSensor;
-    }
-
-    /**
-     * Gets the count of the balls (between 0 and 2)
-     * @return how many balls are in the system
-     */
-    public int ballCount() {
-        return mBallCount;
-    }
-
-    /**
-     * Returns if the indexer is clear
-     * @return if the indexer is clear
-     */
-    public boolean slotsClean() {
-        return mSlotsClean;
+    public void setState (WantedAction wanted_state) {
+        mWantedAction = wanted_state;
+        switch (wanted_state) {
+            case NONE:
+                mState = State.IDLE;
+                break;
+            case INDEX:
+                mState = State.INDEXING;
+                break;
+            case REVERSE:
+                mState = State.REVERSING;
+                break;
+            /*case OUTTAKE_TOP:
+                mState = State.OUTTAKING_TOP;
+                break;
+            case OUTTAKE_BOTTOM:
+                mState = State.OUTTAKING_BOTTOM;
+                break;*/
+        }
     }
 
     private void runStateMachine() {
         switch (mState) {
             case IDLE:
-                mPeriodicIO.indexer_demand = 0;
+                spinMotor(0);
                 break;
-            case ELEVATING:
-                mPeriodicIO.hopper_demand = Constants.ElevatorConstants.kIdleVoltage;
-                mPeriodicIO.indexer_demand = Constants.ElevatorConstants.kIndexingVoltage;
-                break;
-            case HOPPING:
-                mPeriodicIO.hopper_demand = Constants.ElevatorConstants.kHopperIndexingVoltage;
-                mPeriodicIO.indexer_demand = Constants.ElevatorConstants.kIdleVoltage;
+            case INDEXING:
+                mBottomBeamBreak.get();
+                if (true) {
+                    spinMotor(Constants.ElevatorConstants.kIndexingVoltage);
+                    //determine position amount
+                }
+                mTopBeamBreak.get();
+                if (true){
+                    spinMotor(0);
+                }
+                if (mBallCount == 2) {
+                    System.out.println("Elevator is full!!");
+                    setState(State.IDLE);
+                } else if (mBallCount < 2 && mBallCount > 0) {
+                    spinMotor(Constants.ElevatorConstants.kIndexingVoltage);
+                }
                 break;
             case REVERSING:
-                mPeriodicIO.indexer_demand = Constants.ElevatorConstants.kReversingVoltage;
+                spinMotor(Constants.ElevatorConstants.kReversingVoltage);
                 break;
+            //Logic for beam breaks, will probably be moved to superstructure
+            /*case OUTTAKING_TOP:
+                mTopBeamBreak.get();
+                if(false){
+                    spinMotor(Constants.ElevatorConstants.kIndexingVoltage);
+                    mPeriodicIO.indexer_demand = Constants.ElevatorConstants.kIndexingVoltage;
+                }if (true) {
+                    spinMotor(Constants.ElevatorConstants.kReversingVoltage);
+                    mPeriodicIO.indexer_demand = Constants.ElevatorConstants.kReversingVoltage; 
+                    mBallCount = mBallCount - 1;
+                    mBottomBeamBreak.get();
+                    if (true) {
+                        setState(State.INDEXING);
+                }
+                break;
+            }
+            case OUTTAKING_BOTTOM:
+                spinMotor(Constants.ElevatorConstants.kReversingVoltage);
+                mPeriodicIO.indexer_demand = Constants.ElevatorConstants.kReversingVoltage;
+                mBallCount = mBallCount - 1;
+                break;*/
 
         }
     }
 
     public void outputTelemetry() {
-        SmartDashboard.putString("Indexer State", mState.toString());
+        SmartDashboard.putString("Elevator State", mState.toString());
         SmartDashboard.putNumber("Indexer Demand", mPeriodicIO.indexer_demand);
 
         SmartDashboard.putNumber("Elevator Voltage", mPeriodicIO.elevator_voltage);
         SmartDashboard.putNumber("Elevator Current", mPeriodicIO.elevator_current);
-
-        SmartDashboard.putNumber("Hopper Demand", mPeriodicIO.hopper_demand);
-        SmartDashboard.putNumber("Hopper Voltage", mPeriodicIO.hopper_voltage);
-        SmartDashboard.putNumber("Hopper Current", mPeriodicIO.hopper_current);
     }
 
     @Override
     public void stop() {
-        mHopper.set(ControlMode.PercentOutput, 0);
-        mIndexer.set(ControlMode.PercentOutput, 0);
+        // TODO Auto-generated method stub
         
     }
 
     @Override
     public boolean checkSystem() {
+        // TODO Auto-generated method stub
         return false;
     }
 
@@ -236,12 +234,9 @@ public class Indexer extends Subsystem{
         public double elevator_current;
         private boolean topLightBeamBreakSensor;
         private boolean bottomLightBeamBreakSensor;
-        public double hopper_voltage;
-        public double hopper_current;
 
         //OUTPUTS
         public double indexer_demand;
-        public double hopper_demand;
     }
     
     
