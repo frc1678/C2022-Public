@@ -12,6 +12,9 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
+import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
+import com.ctre.phoenix.sensors.CANCoderStatusFrame;
+
 public class SwerveModule {
     public int moduleNumber;
     public double angleOffset;
@@ -19,7 +22,10 @@ public class SwerveModule {
     private TalonFX mDriveMotor;
     private CANCoder angleEncoder;
     private double lastAngle;
-    private CTREConfigs ctreConfigs;
+
+    private double anglekP;
+    private double anglekI;
+    private double anglekD;
 
     SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(Constants.SwerveConstants.driveKS, Constants.SwerveConstants.driveKV, Constants.SwerveConstants.driveKA);
 
@@ -27,7 +33,6 @@ public class SwerveModule {
         this.moduleNumber = moduleNumber;
         angleOffset = moduleConstants.angleOffset;
         
-        ctreConfigs = new CTREConfigs();
         /* Angle Encoder Config */
         angleEncoder = new CANCoder(moduleConstants.cancoderID);
         configAngleEncoder();
@@ -37,6 +42,10 @@ public class SwerveModule {
         /* Angle Motor Config */
         mAngleMotor = new TalonFX(moduleConstants.angleMotorID);
         configAngleMotor();
+        TalonFXConfiguration angleConfiguration = CTREConfigs.swerveAngleFXConfig();
+        anglekP = angleConfiguration.slot0.kP;
+        anglekI = angleConfiguration.slot0.kI;
+        anglekD = angleConfiguration.slot0.kD;
 
         /* Drive Motor Config */
         mDriveMotor = new TalonFX(moduleConstants.driveMotorID);
@@ -69,12 +78,12 @@ public class SwerveModule {
 
     private void configAngleEncoder(){        
         angleEncoder.configFactoryDefault();
-        angleEncoder.configAllSettings(ctreConfigs.swerveCanCoderConfig);
+        angleEncoder.configAllSettings(CTREConfigs.swerveCancoderConfig());
     }
 
     private void configAngleMotor(){
         mAngleMotor.configFactoryDefault();
-        mAngleMotor.configAllSettings(ctreConfigs.swerveAngleFXConfig);
+        mAngleMotor.configAllSettings(CTREConfigs.swerveAngleFXConfig());
         mAngleMotor.setInverted(Constants.SwerveConstants.angleMotorInvert);
         mAngleMotor.setNeutralMode(Constants.SwerveConstants.angleNeutralMode);
         resetToAbsolute();
@@ -82,14 +91,38 @@ public class SwerveModule {
 
     private void configDriveMotor(){        
         mDriveMotor.configFactoryDefault();
-        mDriveMotor.configAllSettings(ctreConfigs.swerveDriveFXConfig);
+        mDriveMotor.configAllSettings(CTREConfigs.swerveDriveFXConfig());
         mDriveMotor.setInverted(Constants.SwerveConstants.driveMotorInvert);
         mDriveMotor.setNeutralMode(Constants.SwerveConstants.driveNeutralMode);
         mDriveMotor.setSelectedSensorPosition(0);
     }
 
+    public void updateAnglePID(double kP, double kI, double kD) {
+        if (anglekP != kP) {
+            anglekP = kP;
+            mAngleMotor.config_kP(0, anglekP, Constants.kLongCANTimeoutMs);
+        }
+        if (anglekI != kI) {
+            anglekI = kI;
+            mAngleMotor.config_kI(0, anglekI, Constants.kLongCANTimeoutMs);
+        }
+        if (anglekD != kP) {
+            anglekD = kD;
+            mAngleMotor.config_kD(0, anglekD, Constants.kLongCANTimeoutMs);        
+        }
+    }
+
+    public double[] getAnglePIDValues() {
+        double[] values = {anglekP, anglekI, anglekD};
+        return values;
+    }
+
     public Rotation2d getCanCoder(){
         return Rotation2d.fromDegrees(angleEncoder.getAbsolutePosition());
+    }
+
+    public double getTargetAngle() {
+        return lastAngle;
     }
 
     public SwerveModuleState getState(){
