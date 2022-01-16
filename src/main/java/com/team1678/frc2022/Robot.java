@@ -158,13 +158,13 @@ public class Robot extends TimedRobot {
 
             // Climber Controls
               if(mControlBoard.getClimberJog() ==  -1) {
-                mClimber.setState(Climber.WantedAction.RETRACT);
+                mClimber.setState(Climber.WantedAction.CLIMB);
               } else if(mControlBoard.getClimberJog() == 1) {
                 mClimber.setState(Climber.WantedAction.EXTEND);
               } else if(mControlBoard.getClimberSolenoidDeploy()) {
                 mClimber.setState(Climber.WantedAction.DEPLOY);
               } else if(mControlBoard.getUndeploySolenoid()) {
-                mClimber.setState(Climber.WantedAction.UNDEPLOY);
+                mClimber.setState(Climber.WantedAction.RETRACT);
               } else {
                 mClimber.setState(Climber.WantedAction.NONE);
               }

@@ -39,11 +39,11 @@ public class Climber extends Subsystem {
     }
 
     public enum WantedAction {
-        NONE, EXTEND, RETRACT, DEPLOY, UNDEPLOY
+        NONE, EXTEND, CLIMB, DEPLOY, RETRACT
     }
 
     public enum State {
-        IDLE, EXTENDING, RETRACTING, DEPLOYING, UNDEPLOYNG
+        IDLE, EXTENDING, CLIMBING, DEPLOYING, RETRACTING
     }
 
     public State mState = State.IDLE;
@@ -89,14 +89,14 @@ public class Climber extends Subsystem {
             case EXTEND:
                 mState = State.EXTENDING;
                 break;
-            case RETRACT:
-                mState = State.RETRACTING;
+            case CLIMB:
+                mState = State.CLIMBING;
                 break;
             case DEPLOY:
                 mState = State.DEPLOYING;
                 break;
-            case UNDEPLOY:
-                mState = State.UNDEPLOYNG;
+            case RETRACT:
+                mState = State.RETRACTING;
         }
     }
 
@@ -112,12 +112,12 @@ public class Climber extends Subsystem {
             case EXTENDING:
                 mPeriodicIO.climber_demand = Constants.ClimberConstants.kExtendingVoltage;
                 break;
-            case RETRACTING:
+            case CLIMBING:
                 mPeriodicIO.climber_demand = Constants.ClimberConstants.kRetractingVoltage;
                 break;
             case DEPLOYING:
                 mPeriodicIO.climber_solenoid = true;
-            case UNDEPLOYNG:
+            case RETRACTING:
                 mPeriodicIO.climber_solenoid = false;
             case IDLE:
                 mPeriodicIO.climber_demand = Constants.ClimberConstants.kIdleVoltage;
