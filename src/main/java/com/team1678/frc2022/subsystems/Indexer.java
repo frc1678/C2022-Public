@@ -4,6 +4,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
+import com.team1678.frc2022.controlboard.ControlBoard.TurretCardinal;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
 import com.team254.lib.drivers.TalonFXFactory;
@@ -54,27 +55,6 @@ public class Indexer extends Subsystem{
             mInstance = new Indexer();
         }
         return mInstance;
-    }
-
-    public void setState(WantedAction state) {
-        switch (state) {
-            case REVERSE:
-                this.mState = State.REVERSING;
-                break;
-            case ELEVATE:
-                this.mState = State.ELEVATING;
-                break;
-            case INDEX:
-                this.mState = State.INDEXING;
-                break;
-            case HOP:
-                this.mState = State.HOPPING;
-                break;
-            case NONE:
-                this.mState = State.IDLE;
-                break;
-        }
-
     }
 
     public synchronized State getState() {
@@ -174,10 +154,41 @@ public class Indexer extends Subsystem{
             case INDEXING:
                 mPeriodicIO.hopper_demand = Constants.IndexerConstants.kHopperIndexingVoltage;
                 mPeriodicIO.elevator_demand = Constants.IndexerConstants.kElevatorIndexingVoltage;
+
+                if (mPeriodicIO.bottomLightBeamBreakSensor) {
+                    if (mPeriodicIO.correctColor) {
+                        mPeriodicIO.eject = false;
+                        if (mPeriodicIO.topLightBeamBreakSensor) {
+                            mState = State.HOPPING;
+                        } else {
+                            mState = State.INDEXING;
+                        }
+                    } else {
+                        mPeriodicIO.eject = true;
+                    }
+                } else {
+                    if (mPeriodicIO.topLightBeamBreakSensor) {
+                        mState = State.HOPPING;
+                    } else {
+                        mState = State.INDEXING;
+                    }
+                }
+
                 break;
             case HOPPING:
                 mPeriodicIO.hopper_demand = Constants.IndexerConstants.kHopperIndexingVoltage;
                 mPeriodicIO.elevator_demand = Constants.IndexerConstants.kIdleVoltage;
+
+                if (mPeriodicIO.bottomLightBeamBreakSensor) {
+                    if (mPeriodicIO.correctColor) {
+                        mPeriodicIO.eject = false;
+                        mState = State.IDLE;
+                    } else {
+                        mPeriodicIO.eject = true;
+                        mState = State.HOPPING;
+                    }
+                }
+
                 break;
             case REVERSING:
                 mPeriodicIO.elevator_demand = Constants.IndexerConstants.kElevatorReversingVoltage;
@@ -185,6 +196,27 @@ public class Indexer extends Subsystem{
                 break;
 
         }
+    }
+
+    public void setState(WantedAction state) {
+        switch (state) {
+            case REVERSE:
+                mState = State.REVERSING;
+                break;
+            case ELEVATE:
+                mState = State.ELEVATING;
+                break;
+            case INDEX:
+                mState = State.INDEXING;
+                break;
+            case HOP:
+                mState = State.HOPPING;
+                break;
+            case NONE:
+                mState = State.IDLE;
+                break;
+        }
+
     }
     
     @Override
@@ -206,12 +238,14 @@ public class Indexer extends Subsystem{
         public double elevator_current;
         public boolean topLightBeamBreakSensor;
         public boolean bottomLightBeamBreakSensor;
+        public boolean correctColor;
         public double hopper_voltage;
         public double hopper_current;
 
         //OUTPUTS
         public double elevator_demand;
         public double hopper_demand;
+        public boolean eject;
     }
 
 
