@@ -46,7 +46,7 @@ public class Robot extends TimedRobot {
   private final Swerve mSwerve = Swerve.getInstance();
   private final Intake mIntake = Intake.getInstance();
   private final Limelight mLimelight = Limelight.getInstance(); 
-  private final Infrastructure mInfrastructure = Infrastructure.getInstance();
+  // private final Infrastructure mInfrastructure = Infrastructure.getInstance();
 
   // instantiate enabled and disabled loopers
   private final Looper mEnabledLooper = new Looper();
@@ -71,8 +71,8 @@ public class Robot extends TimedRobot {
 
         mSubsystemManager.setSubsystems(
             mSwerve,
-            mIntake,
-            mInfrastructure
+            mIntake //,
+            // mInfrastructure
         );
 
         mSubsystemManager.registerEnabledLoops(mEnabledLooper);
@@ -99,7 +99,7 @@ public class Robot extends TimedRobot {
         mEnabledLooper.start();
         mAutoModeExecutor.start();
 
-        mInfrastructure.setIsDuringAuto(true);
+        // mInfrastructure.setIsDuringAuto(true);
 
       } catch (Throwable t) {
           CrashTracker.logThrowableCrash(t);
@@ -120,7 +120,7 @@ public class Robot extends TimedRobot {
         mDisabledLooper.stop();
         mEnabledLooper.start();
 
-        mInfrastructure.setIsDuringAuto(false);
+        // mInfrastructure.setIsDuringAuto(false);
 
     } catch (Throwable t) {
         CrashTracker.logThrowableCrash(t);
@@ -191,7 +191,7 @@ public class Robot extends TimedRobot {
     try {
 
         mAutoModeSelector.updateModeCreator();
-        // [mSwerve.resetAnglesToAbsolute();
+        mSwerve.resetAnglesToAbsolute();
 
         mLimelight.setLed(Limelight.LedMode.OFF);
         mLimelight.writePeriodicOutputs();
