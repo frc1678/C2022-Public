@@ -122,7 +122,6 @@ public class Swerve extends Subsystem {
             double targetOffset = Math.toRadians(mLimelight.getOffset()[0]);
             mTargetOffset = targetOffset;
             rotation = visionPIDController.calculate(currentAngle, currentAngle - targetOffset);
-            System.out.println(rotation);
         }
         teleopDrive(translation2d, rotation, fieldRelative, isOpenLoop);
     }
@@ -152,9 +151,7 @@ public class Swerve extends Subsystem {
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.SwerveConstants.maxSpeed);
 
         for (SwerveModule mod : mSwerveMods) {
-            SmartDashboard.putNumber(mod.moduleNumber + " rot",
-                swerveModuleStates[mod.moduleNumber].angle.getDegrees());
-                mod.setDesiredState(swerveModuleStates[mod.moduleNumber], isOpenLoop);
+            mod.setDesiredState(swerveModuleStates[mod.moduleNumber], isOpenLoop);
         }
     }    
 

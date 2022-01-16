@@ -164,7 +164,7 @@ public class ControlBoard {
         return SwerveCardinal.NONE;
     }
 
-    // align swerve drive with target
+    // Align swerve drive with target
     public boolean getVisionAlign() {
         return driver.getButton(Button.RB);
     }
