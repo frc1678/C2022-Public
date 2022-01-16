@@ -11,26 +11,22 @@ import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.util.TimeDelayedBoolean;
 import com.team254.lib.drivers.TalonFXFactory;
 
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Climber extends Subsystem {
 
     private TalonFX mClimber;
-    private final Solenoid mShiftSolenoid;
+    private final Solenoid mSolenoid;
 
     private static Climber mInstance;
 
-    private TimeDelayedBoolean mShiftSolenoidTimer = new TimeDelayedBoolean();
     public PeriodicIO mPeriodicIO = new PeriodicIO();
 
     private Climber() {
-        mShiftSolenoid = Solenoid(Ports.CLIMBER_PIVOT_SOLENOID);
+        mSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.CLIMBER_PIVOT_SOLENOID);
         mClimber = TalonFXFactory.createDefaultTalon(Ports.CLIMBER_ID);
-    }
-
-    private Solenoid Solenoid(int climberPivotSolenoid) {
-        return null;
     }
 
     public synchronized static Climber getInstance() {
@@ -39,7 +35,6 @@ public class Climber extends Subsystem {
         }
         return mInstance;
     }
-
 
     public void setState (State state) {
         this.mState = state;
@@ -58,6 +53,7 @@ public class Climber extends Subsystem {
     @Override
     public void writePeriodicOutputs() {
         mClimber.set(ControlMode.PercentOutput, mPeriodicIO.climber_demand / 12.0);
+        mSolenoid.set(mPeriodicIO.climber_solenoid);
     }
 
     @Override
@@ -127,8 +123,6 @@ public class Climber extends Subsystem {
     public boolean checkSystem() {
         return true;
     }
-
-    public boolean hasEmergency = false;
 
     @Override
     public void stop(){
