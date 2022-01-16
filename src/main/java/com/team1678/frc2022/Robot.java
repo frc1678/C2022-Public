@@ -159,8 +159,10 @@ public class Robot extends TimedRobot {
           // Intake
           if (mControlBoard.getIntake()) {
             mIntake.setState(Intake.WantedAction.INTAKE);
+            mIndexer.setState(Indexer.WantedAction.INDEX);
           } else if (mControlBoard.getOuttake()) {
-            mIntake.setState(Intake.WantedAction.REVERSE); 
+            mIntake.setState(Intake.WantedAction.REVERSE);
+            mIndexer.setState(Indexer.WantedAction.REVERSE); 
           } else if (mControlBoard.getSpitting()) {
             mIntake.setState(Intake.WantedAction.SPIT);
           } else {
