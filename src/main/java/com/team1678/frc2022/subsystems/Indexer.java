@@ -15,7 +15,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Indexer extends Subsystem{
 
     private final TalonFX mIndexer;
-    private final TalonFX mHopper;
+    private final TalonFX mMaster;
+    private final TalonFX mSlave;
 
     private static Indexer mInstance;
     public PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -44,7 +45,8 @@ public class Indexer extends Subsystem{
 
     private Indexer() {
         mIndexer = TalonFXFactory.createDefaultTalon(Ports.ELEVATOR_ID);
-        mHopper = TalonFXFactory.createDefaultTalon(Ports.HOPPER_ID);
+        mMaster = TalonFXFactory.createDefaultTalon(Ports.HOPPER_MASTER_ID);
+        mSlave = TalonFXFactory.createPermanentSlaveTalon(Ports.HOPPER_SLAVE_ID, Ports.HOPPER_MASTER_ID);
     }
 
     public static synchronized Indexer getInstance() {
@@ -86,14 +88,14 @@ public class Indexer extends Subsystem{
         mPeriodicIO.topLightBeamBreakSensor = mBottomBeamBreak.get();
         mPeriodicIO.bottomLightBeamBreakSensor = mTopBeamBreak.get();
 
-        mPeriodicIO.hopper_current = mHopper.getStatorCurrent();
-        mPeriodicIO.hopper_voltage = mHopper.getMotorOutputVoltage();
+        mPeriodicIO.hopper_current = mMaster.getStatorCurrent();
+        mPeriodicIO.hopper_voltage = mMaster.getMotorOutputVoltage();
     }
 
     @Override
     public void writePeriodicOutputs() {
         mIndexer.set(ControlMode.PercentOutput, mPeriodicIO.elevator_demand / 12.0);
-        mHopper.set(ControlMode.PercentOutput, mPeriodicIO.hopper_demand / 12.0);
+        mMaster.set(ControlMode.PercentOutput, mPeriodicIO.hopper_demand / 12.0);
     }
 
     @Override
@@ -186,7 +188,7 @@ public class Indexer extends Subsystem{
 
     @Override
     public void stop() {
-        mHopper.set(ControlMode.PercentOutput, 0);
+        mMaster.set(ControlMode.PercentOutput, 0);
         mIndexer.set(ControlMode.PercentOutput, 0);
 
     }
