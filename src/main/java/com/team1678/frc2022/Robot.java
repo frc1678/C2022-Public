@@ -100,7 +100,7 @@ public class Robot extends TimedRobot {
         mEnabledLooper.start();
         mAutoModeExecutor.start();
 
-        // mInfrastructure.setIsDuringAuto(true);
+        mInfrastructure.setIsDuringAuto(true);
 
       } catch (Throwable t) {
           CrashTracker.logThrowableCrash(t);
@@ -121,7 +121,7 @@ public class Robot extends TimedRobot {
         mDisabledLooper.stop();
         mEnabledLooper.start();
 
-        // mInfrastructure.setIsDuringAuto(false);
+        mInfrastructure.setIsDuringAuto(false);
 
     } catch (Throwable t) {
         CrashTracker.logThrowableCrash(t);
@@ -144,12 +144,12 @@ public class Robot extends TimedRobot {
           }
           Translation2d swerveTranslation = new Translation2d(mControlBoard.getSwerveTranslation().x(), mControlBoard.getSwerveTranslation().y());
           double swerveRotation = mControlBoard.getSwerveRotation();
-          mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
+          mSwerve.drive(swerveTranslation, swerveRotation, true, true);
 
           if (mControlBoard.getVisionAlign()) {
             mSwerve.visionAlignDrive(swerveTranslation, true, true);
           } else {
-            mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
+            mSwerve.drive(swerveTranslation, swerveRotation, true, true);
           }
 
           // Intake
@@ -198,7 +198,7 @@ public class Robot extends TimedRobot {
     try {
 
         mAutoModeSelector.updateModeCreator();
-        mSwerve.resetAnglesToAbsolute();
+        // [mSwerve.resetAnglesToAbsolute();
 
         mLimelight.setLed(Limelight.LedMode.ON);
         mLimelight.writePeriodicOutputs();
