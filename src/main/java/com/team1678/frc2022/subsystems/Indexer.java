@@ -105,6 +105,14 @@ public class Indexer extends Subsystem{
             mMatch = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
         }
 
+        if (mMatch.color == Constants.IndexerConstants.kNeutralColor) {
+            mPeriodicIO.eject = false;
+        } else if (mMatch.color == mAllianceColor) {
+            mPeriodicIO.eject = false;
+        } else if (mMatch.color == mOpponentColor) {
+            mPeriodicIO.eject = true;
+        }
+
     }
 
     @Override
@@ -190,29 +198,24 @@ public class Indexer extends Subsystem{
                 mPeriodicIO.hopper_demand = Constants.IndexerConstants.kHopperIndexingVoltage;
                 mPeriodicIO.elevator_demand = Constants.IndexerConstants.kElevatorIndexingVoltage;
 
-                /*if (mPeriodicIO.bottomLightBeamBreakSensor) {
-                    if (mPeriodicIO.correctColor) {
-                        mPeriodicIO.eject = false;
-                        if (mPeriodicIO.topLightBeamBreakSensor) {
-                            mState = State.HOPPING;
-                        } else {
-                            mState = State.INDEXING;
-                        }
-                    } else {
-                        mPeriodicIO.eject = true;
-                    }
-                } else {
+                if (mPeriodicIO.bottomLightBeamBreakSensor) {
                     if (mPeriodicIO.topLightBeamBreakSensor) {
                         mState = State.HOPPING;
                     } else {
                         mState = State.INDEXING;
                     }
-                }*/
+                }
 
                 break;
             case HOPPING:
                 mPeriodicIO.hopper_demand = Constants.IndexerConstants.kHopperIndexingVoltage;
                 mPeriodicIO.elevator_demand = Constants.IndexerConstants.kIdleVoltage;
+
+                if (mPeriodicIO.bottomLightBeamBreakSensor) {
+                    mState = State.IDLE;
+                } else {
+                    mState = State.HOPPING;
+                }
 
                 /*if (mPeriodicIO.bottomLightBeamBreakSensor) {
                     if (mPeriodicIO.correctColor) {
