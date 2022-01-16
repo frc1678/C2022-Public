@@ -33,11 +33,11 @@ public class Intake extends Subsystem {
     public State mState = State.IDLE;
 
     private final TalonFX mMaster;
-    private Solenoid mSolenoid;
+    // private Solenoid mSolenoid;
 
     private Intake() {
         mMaster = TalonFXFactory.createDefaultTalon(Ports.INTAKE_ID);
-        mSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.DEPLOY_SOLENOID_ID);
+        // mSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.DEPLOY_SOLENOID_ID);
     }
 
     public static synchronized Intake getInstance() {
@@ -127,7 +127,7 @@ public class Intake extends Subsystem {
    @Override
    public void writePeriodicOutputs() {
        mMaster.set(ControlMode.PercentOutput, mPeriodicIO.demand / 12.0);
-       mSolenoid.set(mPeriodicIO.deploy);
+       // mSolenoid.set(mPeriodicIO.deploy);
    }
 
    @Override

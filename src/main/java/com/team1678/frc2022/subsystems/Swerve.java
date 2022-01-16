@@ -26,6 +26,9 @@ public class Swerve extends Subsystem {
 
     private static Swerve mInstance;
 
+    // required instance for vision align
+    public Limelight mLimelight = Limelight.getInstance();
+
     public SwerveDriveOdometry swerveOdometry;
     public SwerveModule[] mSwerveMods;
     public PigeonIMU gyro;
@@ -33,6 +36,7 @@ public class Swerve extends Subsystem {
     public boolean isSnapping;
     public ProfiledPIDController snapPidController;
 
+    public ProfiledPIDController visionPIDController;
 
     public static Swerve getInstance() {
         if (mInstance == null) {
@@ -47,11 +51,19 @@ public class Swerve extends Subsystem {
         zeroGyro();
         
         swerveOdometry = new SwerveDriveOdometry(Constants.SwerveConstants.swerveKinematics, getYaw());
+        
         snapPidController = new ProfiledPIDController(Constants.SnapConstants.snapKP,
                                               Constants.SnapConstants.snapKI, 
                                               Constants.SnapConstants.snapKD,
                                               Constants.SnapConstants.kThetaControllerConstraints);
         snapPidController.enableContinuousInput(-Math.PI, Math.PI);
+
+        visionPIDController = new ProfiledPIDController(Constants.SnapConstants.snapKP,
+                Constants.SnapConstants.snapKI,
+                Constants.SnapConstants.snapKD,
+                Constants.SnapConstants.kThetaControllerConstraints);
+        visionPIDController.enableContinuousInput(-Math.PI, Math.PI);
+
 
         mSwerveMods = new SwerveModule[] {
             new SwerveModule(0, Constants.SwerveConstants.Mod0.constants),
@@ -93,11 +105,31 @@ public class Swerve extends Subsystem {
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Integrated", mod.getState().angle.getDegrees());
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Velocity", mod.getState().speedMetersPerSecond);    
         }
+        
+        SmartDashboard.putNumber("Robot heading", Math.toDegrees(mCurrentRobotHeading));
+        SmartDashboard.putNumber("Target offset", Math.toDegrees(mTargetOffset));
+    }
+
+    double mCurrentRobotHeading = 0.0;
+    double mTargetOffset = 0.0;
+
+    public void visionAlignDrive(Translation2d translation2d, boolean fieldRelative, boolean isOpenLoop) {
+        double rotation = 0.0;
+
+        if (mLimelight.seesTarget()) {
+            double currentAngle = getPose().getRotation().getRadians();
+            mCurrentRobotHeading = currentAngle;
+            double targetOffset = Math.toRadians(mLimelight.getOffset()[0]);
+            mTargetOffset = targetOffset;
+            rotation = visionPIDController.calculate(currentAngle, currentAngle - targetOffset);
+            System.out.println(rotation);
+        }
+        teleopDrive(translation2d, rotation, fieldRelative, isOpenLoop);
     }
 
     public void teleopDrive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
-        if(isSnapping) {
-            if(Math.abs(rotation) == 0.0) {
+        if (isSnapping) {
+            if (Math.abs(rotation) == 0.0) {
                 maybeStopSnap(false);
                 rotation = calculateSnapValue();
             } else {
@@ -119,9 +151,10 @@ public class Swerve extends Subsystem {
                                 );
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.SwerveConstants.maxSpeed);
 
-        for(SwerveModule mod : mSwerveMods){
-            SmartDashboard.putNumber(mod.moduleNumber + " rot", swerveModuleStates[mod.moduleNumber].angle.getDegrees());
-            mod.setDesiredState(swerveModuleStates[mod.moduleNumber], isOpenLoop);
+        for (SwerveModule mod : mSwerveMods) {
+            SmartDashboard.putNumber(mod.moduleNumber + " rot",
+                swerveModuleStates[mod.moduleNumber].angle.getDegrees());
+                mod.setDesiredState(swerveModuleStates[mod.moduleNumber], isOpenLoop);
         }
     }    
 
@@ -144,10 +177,10 @@ public class Swerve extends Subsystem {
     }
 
     public void maybeStopSnap(boolean force){
-        if(!isSnapping){
+        if (!isSnapping) {
             return;
         } 
-        if(force || snapComplete()) {
+        if (force || snapComplete()) {
             isSnapping = false;
             snapPidController.reset(getYaw().getRadians());
         }
@@ -177,7 +210,7 @@ public class Swerve extends Subsystem {
         }
     }
 
-    public SwerveModuleState[] getStates(){
+    public SwerveModuleState[] getStates() {
         SwerveModuleState[] states = new SwerveModuleState[4];
         for(SwerveModule mod : mSwerveMods){
             states[mod.moduleNumber] = mod.getState();

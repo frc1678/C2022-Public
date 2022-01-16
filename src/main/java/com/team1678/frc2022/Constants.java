@@ -129,9 +129,9 @@ public class Constants {
 	}
 	
 	public static final class SnapConstants {
-        public static final double snapKP = 1.0;
+        public static final double snapKP = 20.0;
         public static final double snapKI = 0;
-        public static final double snapKD = 0.0;
+        public static final double snapKD = 1.0;
         public static final double snapTimeout = 0.25;
         public static final double snapEpsilon = 1.0;
 
