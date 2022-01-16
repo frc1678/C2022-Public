@@ -145,8 +145,8 @@ public class Constants {
     }
 
     public static final class AutoConstants {
-        public static final double kMaxSpeedMetersPerSecond = 2.5; // TODO: Revise this
-        public static final double kMaxAccelerationMetersPerSecondSquared = 3.0 // TODO: Revise this
+        public static final double kMaxSpeedMetersPerSecond = 2.0; // TODO: Revise this
+        public static final double kMaxAccelerationMetersPerSecondSquared = 2.5 // TODO: Revise this
         ; // TODO: Revise this
         public static final double kMaxAngularSpeedRadiansPerSecond = 2.0*Math.PI; // TODO: Revise this
         public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.pow(kMaxAngularSpeedRadiansPerSecond, 2); // TODO: Revise this
@@ -210,7 +210,7 @@ public class Constants {
 
     /*** SUBSYSTEM CONSTANTS ***/
     public static final class IntakeConstants {
-        public static final double kIntakingVoltage = 7;
+        public static final double kIntakingVoltage = 9;
         public static final double kSpittingVoltage = -8;
     }
 

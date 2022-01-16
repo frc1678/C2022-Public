@@ -8,6 +8,7 @@ import com.team1678.frc2022.auto.AutoTrajectoryReader;
 import com.team1678.frc2022.auto.actions.LambdaAction;
 import com.team1678.frc2022.auto.actions.SwerveTrajectoryAction;
 import com.team1678.frc2022.auto.actions.WaitAction;
+import com.team1678.frc2022.subsystems.Intake;
 import com.team1678.frc2022.subsystems.Swerve;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -23,6 +24,7 @@ public class FiveBallMode extends AutoModeBase {
     
     // Swerve instance 
     private final Swerve s_Swerve = Swerve.getInstance();
+    private final Intake mIntake = Intake.getInstance();
 
     // required PathWeaver file paths
     String file_path_a = "paths/FiveBallPaths/5 Ball A.path";
@@ -52,7 +54,7 @@ public class FiveBallMode extends AutoModeBase {
                                                             new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                             new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                             thetaController,
-                                                            () -> Rotation2d.fromDegrees(235.0),
+                                                            () -> Rotation2d.fromDegrees(225.0),
                                                             s_Swerve::setModuleStates);
 
         Trajectory traj_path_b = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_b, Constants.AutoConstants.constantSpeedConfig);
@@ -61,7 +63,7 @@ public class FiveBallMode extends AutoModeBase {
                                                             new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                             new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                             thetaController,
-                                                            () -> Rotation2d.fromDegrees(135.0),
+                                                            () -> Rotation2d.fromDegrees(120.0),
                                                             s_Swerve::setModuleStates);
 
         Trajectory traj_path_c = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_c, Constants.AutoConstants.constantSpeedConfig);
@@ -101,6 +103,9 @@ public class FiveBallMode extends AutoModeBase {
 
         // reset odometry at the start of the trajectory
         runAction(new LambdaAction(() -> s_Swerve.resetOdometry(new Pose2d(driveToIntakeFirstCargo.getInitialPose().getX(), driveToIntakeFirstCargo.getInitialPose().getY(), Rotation2d.fromDegrees(90)))));
+
+        // start intaking
+        runAction(new LambdaAction(() -> mIntake.setState(Intake.State.INTAKING)));
 
         runAction(driveToIntakeFirstCargo);
         runAction(driveToIntakeSecondCargo);
