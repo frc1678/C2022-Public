@@ -177,7 +177,7 @@ public class ControlBoard {
         }
     }
     
-    public boolean getDeploySolenoid() {
+    public boolean getClimberSolenoidDeploy() {
         return operator.getButton(Button.Y);
     }
 
