@@ -185,11 +185,11 @@ public class ControlBoard {
         return operator.getButton(Button.A);
     }
 
-    public boolean highClimb () {
+    public boolean getHighClimb () {
         return operator.getButton(Button.LB) && operator.getButton(Button.RB);
     }
 
-    public boolean trasversalClimb() {
+    public boolean getTrasversalClimb() {
         return operator.getTrigger(Side.LEFT) && operator.getTrigger(Side.RIGHT);
     }
 

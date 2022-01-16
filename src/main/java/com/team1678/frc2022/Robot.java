@@ -62,7 +62,7 @@ public class Robot extends TimedRobot {
 
   private boolean mClimbMode = false;
   private boolean mHighClimb = false;
-  private boolean mTrasversalClimb = false;
+  private boolean mTraversalClimb = false;
 
   public Robot() {
     CrashTracker.logRobotConstruction();
@@ -154,9 +154,9 @@ public class Robot extends TimedRobot {
           double swerveRotation = mControlBoard.getSwerveRotation();
           mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
 
-          mClimbMode = mControlBoard.highClimb() || mControlBoard.trasversalClimb();
-          mHighClimb = mControlBoard.highClimb();
-          mTrasversalClimb = mControlBoard.trasversalClimb();
+          mClimbMode = mControlBoard.getHighClimb() || mControlBoard.getTrasversalClimb();
+          mHighClimb = mControlBoard.getHighClimb();
+          mTraversalClimb = mControlBoard.getTrasversalClimb();
 
           if (mClimbMode) {
 
@@ -187,7 +187,7 @@ public class Robot extends TimedRobot {
                 mClimber.setState(Climber.WantedAction.EXTEND);
               }
 
-            } else if (mTrasversalClimb) {
+            } else if (mTraversalClimb) {
 
             } else {
 
