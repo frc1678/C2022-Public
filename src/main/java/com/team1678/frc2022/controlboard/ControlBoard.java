@@ -165,11 +165,6 @@ public class ControlBoard {
     }
 
     //Intake Controls
-
-    public enum Intake {
-
-    }
-
     public boolean getIntake() {
         return operator.getTrigger(Side.RIGHT);
     }
@@ -181,4 +176,22 @@ public class ControlBoard {
     public boolean getSpitting() {
         return operator.getController().getRightBumper();
     }
+
+    //Indexer Controls
+    public boolean getElevating() {
+        return operator.getButton(Button.A);
+    }
+
+    public boolean getIndexing() {
+        return operator.getButton(Button.B);
+    }
+
+    public boolean getHopping() {
+        return operator.getButton(Button.X);
+    }
+
+    public boolean getReversing() {
+        return operator.getButton(Button.Y);
+    }
 }
+

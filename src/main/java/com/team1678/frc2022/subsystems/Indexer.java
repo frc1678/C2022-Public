@@ -169,18 +169,19 @@ public class Indexer extends Subsystem{
                 break;
             case ELEVATING:
                 mPeriodicIO.hopper_demand = Constants.IndexerConstants.kIdleVoltage;
-                mPeriodicIO.elevator_demand = Constants.IndexerConstants.kIndexingVoltage;
+                mPeriodicIO.elevator_demand = Constants.IndexerConstants.kElevatorIndexingVoltage;
                 break;
             case INDEXING:
                 mPeriodicIO.hopper_demand = Constants.IndexerConstants.kHopperIndexingVoltage;
-                mPeriodicIO.elevator_demand = Constants.IndexerConstants.kIndexingVoltage;
+                mPeriodicIO.elevator_demand = Constants.IndexerConstants.kElevatorIndexingVoltage;
                 break;
             case HOPPING:
                 mPeriodicIO.hopper_demand = Constants.IndexerConstants.kHopperIndexingVoltage;
                 mPeriodicIO.elevator_demand = Constants.IndexerConstants.kIdleVoltage;
                 break;
             case REVERSING:
-                mPeriodicIO.elevator_demand = Constants.IndexerConstants.kReversingVoltage;
+                mPeriodicIO.elevator_demand = Constants.IndexerConstants.kElevatorReversingVoltage;
+                mPeriodicIO.hopper_demand = Constants.IndexerConstants.kHopperReversingVoltage;
                 break;
 
         }
