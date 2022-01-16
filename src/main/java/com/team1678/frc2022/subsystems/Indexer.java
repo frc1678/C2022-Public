@@ -21,8 +21,8 @@ public class Indexer extends Subsystem{
     private static Indexer mInstance;
     public PeriodicIO mPeriodicIO = new PeriodicIO();
 
-    private final DigitalInput mBottomBeamBreak = new DigitalInput(Constants.IndexerConstants.kBottomBeamBreak);
-    private final DigitalInput mTopBeamBreak = new DigitalInput(Constants.IndexerConstants.kTopBeamBreak);
+    private final DigitalInput mBottomBeamBreak = new DigitalInput(Ports.BOTTOM_BEAM_BREAK);
+    private final DigitalInput mTopBeamBreak = new DigitalInput(Ports.TOP_BEAM_BREAK);
     //TODO: private final DigitalInput mColorSensor = new DigitalInput(Ports.COLOR_SENOR);
 
     private State mState = State.IDLE;
