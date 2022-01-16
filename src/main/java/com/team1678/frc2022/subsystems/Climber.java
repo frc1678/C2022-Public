@@ -6,7 +6,6 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
-import com.team1678.frc2022.subsystems.Intake.PeriodicIO;
 import com.team1678.frc2022.Ports;
 import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.util.TimeDelayedBoolean;
@@ -106,6 +105,7 @@ public class Climber extends Subsystem {
     public synchronized void readPeriodicInputs() {
         mPeriodicIO.climber_voltage = mClimber.getMotorOutputVoltage();
         mPeriodicIO.climber_current = mClimber.getStatorCurrent();
+        mPeriodicIO.position_ticks = mClimber.getSelectedSensorPosition();
         mPeriodicIO.climber_solenoid = mSolenoid.get();
     }
 
@@ -149,11 +149,16 @@ public class Climber extends Subsystem {
         return mPeriodicIO.climber_solenoid;
     }
 
+    public double getInchesExtended() {
+        return (mPeriodicIO.position_ticks / Constants.ClimberConstants.kEncoderTicksPerInch);
+    }
+
     public static class PeriodicIO {
         //INPUTS
         public double climber_voltage;
         public double climber_current;
         public boolean climber_solenoid;
+        public double position_ticks;
 
         //OUTPUTS
         public double climber_demand;
