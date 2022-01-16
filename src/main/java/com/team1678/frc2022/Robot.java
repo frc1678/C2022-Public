@@ -17,6 +17,7 @@ import com.team1678.frc2022.subsystems.Climber;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Limelight;
 import com.team1678.frc2022.subsystems.Swerve;
+import com.team254.lib.util.Util;
 import com.team1678.frc2022.subsystems.Infrastructure;
 import com.team1678.frc2022.subsystems.Intake;
 
@@ -60,6 +61,8 @@ public class Robot extends TimedRobot {
   private AutoModeSelector mAutoModeSelector = new AutoModeSelector();
 
   private boolean mClimbMode = false;
+  private boolean mHighClimb = false;
+  private boolean mTrasversalClimb = false;
 
   public Robot() {
     CrashTracker.logRobotConstruction();
@@ -151,11 +154,44 @@ public class Robot extends TimedRobot {
           double swerveRotation = mControlBoard.getSwerveRotation();
           mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
 
-          mClimbMode = mControlBoard.climbMode();
+          mClimbMode = mControlBoard.highClimb() || mControlBoard.trasversalClimb();
+          mHighClimb = mControlBoard.highClimb();
+          mTrasversalClimb = mControlBoard.trasversalClimb();
 
           if (mClimbMode) {
 
-            // Climber Controls
+            if (mHighClimb) {
+
+              //Extend Climber to Mid Bar
+              while (Util.epsilonEquals(mClimber.getInchesExtended(), Constants.ClimberConstants.kExtensionHeight, 5.0)) {
+                mClimber.setState(Climber.WantedAction.EXTEND);
+              }
+
+              //Pull Up to Mid Bar
+              while (Util.epsilonEquals(mClimber.getInchesExtended(), -Constants.ClimberConstants.kExtensionHeight, 5.0)) {
+                mClimber.setState(Climber.WantedAction.RETRACT);
+              }
+
+              //Deploy Solenoid
+              while (!mClimber.getSolenoid()) {
+                mClimber.setState(Climber.WantedAction.DEPLOY);
+              }
+
+              //Undeploy Solenoid
+              while (mClimber.getSolenoid()) {
+                mClimber.setState(Climber.WantedAction.UNDEPLOY);
+              }
+
+              //Extend Climber to High Bar
+              while (Util.epsilonEquals(mClimber.getInchesExtended(), Constants.ClimberConstants.kExtensionHeight, 5.0)) {
+                mClimber.setState(Climber.WantedAction.EXTEND);
+              }
+
+            } else if (mTrasversalClimb) {
+
+            } else {
+
+              // Climber Controls
               if(mControlBoard.getClimberJog() ==  -1) {
                 mClimber.setState(Climber.WantedAction.RETRACT);
               } else if(mControlBoard.getClimberJog() == 1) {
@@ -167,6 +203,8 @@ public class Robot extends TimedRobot {
               } else {
                 mClimber.setState(Climber.WantedAction.NONE);
               }
+              
+            }
 
               //Other Subsystems
               mIntake.setState(Intake.WantedAction.STAY_OUT);
