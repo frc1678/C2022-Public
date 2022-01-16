@@ -18,7 +18,7 @@ public class Indexer extends Subsystem{
     private final TalonFX mHopper;
 
     private static Indexer mInstance;
-    private static PeriodicIO mPeriodicIO = new PeriodicIO();
+    public PeriodicIO mPeriodicIO = new PeriodicIO();
 
     private final DigitalInput mBottomBeamBreak = new DigitalInput(Constants.IndexerConstants.kBottomBeamBreak);
     private final DigitalInput mTopBeamBreak = new DigitalInput(Constants.IndexerConstants.kTopBeamBreak);
@@ -75,6 +75,10 @@ public class Indexer extends Subsystem{
 
     }
 
+    public synchronized State getState() {
+        return mState;
+    }
+
     @Override
     public synchronized void readPeriodicInputs() {
         mPeriodicIO.timestamp = Timer.getFPGATimestamp();
@@ -104,7 +108,6 @@ public class Indexer extends Subsystem{
             public void onLoop(double timestamp) {
                 synchronized (Indexer.this){
                     runStateMachine();
-                    outputTelemetry();
                 }
             }
 
@@ -132,6 +135,31 @@ public class Indexer extends Subsystem{
         return mPeriodicIO.bottomLightBeamBreakSensor;
     }
 
+    public double getElevatorDemand() {
+        return mPeriodicIO.elevator_demand;
+    }
+
+    public double getElevatorCurrent() {
+        return mPeriodicIO.elevator_current;
+    }
+    
+    public double getElevatorVoltage() {
+        return mPeriodicIO.elevator_voltage;
+    }
+
+    public double getHopperDemand() {
+        return mPeriodicIO.hopper_demand;
+    }
+
+    public double getHopperCurrent() {
+        return mPeriodicIO.hopper_current;
+    }
+    
+    public double getHopperVoltage() {
+        return mPeriodicIO.hopper_voltage;
+    }
+
+
     private void runStateMachine() {
         switch (mState) {
             case IDLE:
@@ -156,20 +184,6 @@ public class Indexer extends Subsystem{
         }
     }
 
-    public void outputTelemetry() {
-        SmartDashboard.putString("Indexer State", mState.toString());
-        SmartDashboard.putBoolean("Indexer Top Beam Break", mPeriodicIO.topLightBeamBreakSensor);
-        SmartDashboard.putBoolean("Indexer Bottom Beam Break", mPeriodicIO.bottomLightBeamBreakSensor);
-
-        SmartDashboard.putNumber("Elevator Demand", mPeriodicIO.elevator_demand);
-        SmartDashboard.putNumber("Elevator Voltage", mPeriodicIO.elevator_voltage);
-        SmartDashboard.putNumber("Elevator Current", mPeriodicIO.elevator_current);
-
-        SmartDashboard.putNumber("Hopper Demand", mPeriodicIO.hopper_demand);
-        SmartDashboard.putNumber("Hopper Voltage", mPeriodicIO.hopper_voltage);
-        SmartDashboard.putNumber("Hopper Current", mPeriodicIO.hopper_current);
-    }
-
     @Override
     public void stop() {
         mHopper.set(ControlMode.PercentOutput, 0);
@@ -187,8 +201,8 @@ public class Indexer extends Subsystem{
         public double timestamp;
         public double elevator_voltage;
         public double elevator_current;
-        private boolean topLightBeamBreakSensor;
-        private boolean bottomLightBeamBreakSensor;
+        public boolean topLightBeamBreakSensor;
+        public boolean bottomLightBeamBreakSensor;
         public double hopper_voltage;
         public double hopper_current;
 
