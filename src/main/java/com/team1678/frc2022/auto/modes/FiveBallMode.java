@@ -67,7 +67,7 @@ public class FiveBallMode extends AutoModeBase {
                                                             new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                             new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                             thetaController,
-                                                            () -> Rotation2d.fromDegrees(120.0),
+                                                            () -> Rotation2d.fromDegrees(125.0),
                                                             mSwerve::getWantAutoVisionAim,
                                                             mSwerve::setModuleStates);
 
@@ -111,6 +111,8 @@ public class FiveBallMode extends AutoModeBase {
 
         // reset odometry at the start of the trajectory
         runAction(new LambdaAction(() -> mSwerve.resetOdometry(new Pose2d(driveToIntakeFirstCargo.getInitialPose().getX(), driveToIntakeFirstCargo.getInitialPose().getY(), Rotation2d.fromDegrees(90)))));
+
+        runAction(new WaitAction(2.0));
 
         // start intaking
         runAction(new LambdaAction(() -> mIntake.setState(Intake.State.INTAKING)));
