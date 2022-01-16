@@ -34,7 +34,7 @@ public class Superstructure extends Subsystem{
 
            @Override
            public void onLoop(double timestamp) {
-               updateIndexerStates();
+
                
            }
 
@@ -44,38 +44,6 @@ public class Superstructure extends Subsystem{
            }
        });
    }
-
-   public synchronized void updateIndexerStates() {
-
-        final boolean mIndexerBottomSensor = mIndexer.bottomBeamBreak();
-        final boolean mIndexerTopSensor = mIndexer.topBeamBreak();
-        final boolean mCorrectColor = true /*= mIndexer.getCorrectColor()*/;
-
-        Indexer.WantedAction indexer_state;
-
-        if (mIndexerBottomSensor) {
-            if (mCorrectColor) {
-                mOuttake = false;
-                if (mIndexerTopSensor) {
-                    indexer_state = Indexer.WantedAction.NONE;
-                } else {
-                    indexer_state = Indexer.WantedAction.INDEX;
-                }
-            } else {
-                mOuttake = true;
-                indexer_state = Indexer.WantedAction.NONE;
-            }
-        } else {
-            mOuttake = false;
-            if (mIndexerTopSensor) {
-                indexer_state = Indexer.WantedAction.HOP;
-            } else {
-                indexer_state = Indexer.WantedAction.INDEX;
-            }
-        }
-
-        mIndexer.setState(indexer_state);
-    }
 
 @Override
 public void stop() {
