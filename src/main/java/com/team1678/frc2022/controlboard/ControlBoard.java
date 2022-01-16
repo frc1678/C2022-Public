@@ -164,6 +164,11 @@ public class ControlBoard {
         return SwerveCardinal.NONE;
     }
 
+    // Align swerve drive with target
+    public boolean getVisionAlign() {
+        return driver.getButton(Button.RB);
+    }
+
     //Intake Controls
     public boolean getIntake() {
         return operator.getTrigger(Side.RIGHT);
