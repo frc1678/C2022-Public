@@ -146,8 +146,8 @@ public class Constants {
         public static final double kP = 20.0;
         public static final double kI = 0;
         public static final double kD = 1.2;
-        public static final double visionAlignTimeout = 0.25;
-        public static final double visionAlignEpsilon = 1.0;
+        public static final double kVisionAlignTimeout = 0.25;
+        public static final double kVisionAlignEpsilon = 1.0;
 
         // Constraints for the profiled angle controller
         public static final double kMaxAngularSpeedRadiansPerSecond = 2.0 * Math.PI;
