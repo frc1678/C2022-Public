@@ -6,6 +6,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
+import com.team1678.frc2022.subsystems.Intake.PeriodicIO;
 import com.team1678.frc2022.Ports;
 import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.util.TimeDelayedBoolean;
@@ -99,6 +100,13 @@ public class Climber extends Subsystem {
             case UNDEPLOY:
                 mState = State.UNDEPLOYNG;
         }
+    }
+
+    @Override
+    public synchronized void readPeriodicInputs() {
+        mPeriodicIO.climber_voltage = mClimber.getMotorOutputVoltage();
+        mPeriodicIO.climber_current = mClimber.getStatorCurrent();
+        mPeriodicIO.climber_solenoid = mSolenoid.get();
     }
 
     private void runStateMachine() {
