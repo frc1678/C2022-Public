@@ -14,6 +14,7 @@ import com.team1678.frc2022.controlboard.ControlBoard.SwerveCardinal;
 import com.team1678.frc2022.loops.CrashTracker;
 import com.team1678.frc2022.loops.Looper;
 import com.team1678.frc2022.subsystems.Climber;
+import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Limelight;
 import com.team1678.frc2022.subsystems.Swerve;
 import com.team1678.frc2022.subsystems.Infrastructure;
@@ -46,6 +47,7 @@ public class Robot extends TimedRobot {
   private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
   private final Swerve mSwerve = Swerve.getInstance();
   private final Intake mIntake = Intake.getInstance();
+  private final Indexer mIndexer = Indexer.getInstance();
   private final Limelight mLimelight = Limelight.getInstance(); 
   private final Infrastructure mInfrastructure = Infrastructure.getInstance();
 
@@ -75,6 +77,7 @@ public class Robot extends TimedRobot {
             mSwerve,
             mClimber,
             mIntake,
+            mIndexer,
             mInfrastructure
         );
 
@@ -152,6 +155,7 @@ public class Robot extends TimedRobot {
 
           if (mClimbMode) {
 
+            // Climber Controls
               if(mControlBoard.getClimberJog() ==  -1) {
                 mClimber.setState(Climber.WantedAction.RETRACT);
               } else if(mControlBoard.getClimberJog() == 1) {
@@ -163,6 +167,10 @@ public class Robot extends TimedRobot {
               } else {
                 mClimber.setState(Climber.WantedAction.NONE);
               }
+
+              //Other Subsystems
+              mIntake.setState(Intake.WantedAction.STAY_OUT);
+              mIndexer.setState(Indexer.WantedAction.NONE);
 
           } else {
             
