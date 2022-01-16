@@ -22,7 +22,7 @@ public class Superstructure extends Subsystem{
     private final Intake mIntake = Intake.getInstance();
 
     /* Status Variables */
-    private boolean mOuttake = false;
+    private boolean mOuttake = true;
 
     @Override
     public void registerEnabledLoops(ILooper enabledLooper) {
@@ -49,7 +49,7 @@ public class Superstructure extends Subsystem{
 
         final boolean mIndexerBottomSensor = mIndexer.bottomBeamBreak();
         final boolean mIndexerTopSensor = mIndexer.topBeamBreak();
-        final boolean mCorrectColor = false /*= mIndexer.getCorrectColor()*/;
+        final boolean mCorrectColor = true /*= mIndexer.getCorrectColor()*/;
 
         Indexer.WantedAction indexer_state;
 

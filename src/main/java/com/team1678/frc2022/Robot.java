@@ -16,6 +16,7 @@ import com.team1678.frc2022.loops.Looper;
 import com.team1678.frc2022.subsystems.Infrastructure;
 import com.team1678.frc2022.subsystems.Intake;
 import com.team1678.frc2022.subsystems.Limelight;
+import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
 import com.team1678.frc2022.subsystems.Intake.WantedAction;
 
@@ -43,6 +44,7 @@ public class Robot extends TimedRobot {
   private final ControlBoard mControlBoard = ControlBoard.getInstance();
   
   private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
+  private final Superstructure mSuperstructure = Superstructure.getInstance();
   private final Swerve mSwerve = Swerve.getInstance();
   private final Intake mIntake = Intake.getInstance();
   private final Limelight mLimelight = Limelight.getInstance(); 
@@ -70,6 +72,7 @@ public class Robot extends TimedRobot {
         CrashTracker.logRobotInit();
 
         mSubsystemManager.setSubsystems(
+            mSuperstructure,
             mSwerve,
             mIntake,
             mInfrastructure
