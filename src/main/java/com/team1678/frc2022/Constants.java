@@ -128,7 +128,7 @@ public class Constants {
     }
 	
 	public static final class SnapConstants {
-        public static final double kP = 5.0; // TODO: tune value
+        public static final double kP = 7.0; // TODO: tune value
         public static final double kI = 0; // TODO: tune value
         public static final double kD = 0.0; // TODO: tune value
         public static final double snapTimeout = 0.25;
@@ -145,7 +145,7 @@ public class Constants {
     public static final class VisionAlignConstants {
         public static final double kP = 20.0;
         public static final double kI = 0;
-        public static final double kD = 1.0;
+        public static final double kD = 1.2;
         public static final double visionAlignTimeout = 0.25;
         public static final double visionAlignEpsilon = 1.0;
 
