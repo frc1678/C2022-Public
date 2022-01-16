@@ -170,6 +170,7 @@ public class Robot extends TimedRobot {
           }
 
           /* INDEXER */
+          //TODO: delete later
           if (mControlBoard.getElevating()) {
             mIndexer.setState(Indexer.WantedAction.ELEVATE);
           } else if (mControlBoard.getIndexing()) {
