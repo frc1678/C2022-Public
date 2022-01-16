@@ -17,6 +17,7 @@ import com.team1678.frc2022.subsystems.Climber;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Limelight;
 import com.team1678.frc2022.subsystems.Swerve;
+import com.team254.lib.util.TimeDelayedBoolean;
 import com.team254.lib.util.Util;
 import com.team1678.frc2022.subsystems.Infrastructure;
 import com.team1678.frc2022.subsystems.Intake;
@@ -161,6 +162,7 @@ public class Robot extends TimedRobot {
           if (mClimbMode) {
 
             if (mHighClimb) {
+              TimeDelayedBoolean mSolenoidTimer = new TimeDelayedBoolean();
 
               //Extend Climber to Mid Bar
               while (Util.epsilonEquals(mClimber.getInchesExtended(), Constants.ClimberConstants.kExtensionHeight, 5.0)) {
@@ -173,12 +175,12 @@ public class Robot extends TimedRobot {
               }
 
               //Deploy Solenoid
-              while (!mClimber.getSolenoid()) {
+              while (mSolenoidTimer.update(!mClimber.getSolenoid(), Constants.ClimberConstants.kDeployTime)) {
                 mClimber.setState(Climber.WantedAction.DEPLOY);
               }
 
               //Undeploy Solenoid
-              while (mClimber.getSolenoid()) {
+              while (mSolenoidTimer.update(mClimber.getSolenoid(), Constants.ClimberConstants.kUndeployTime)) {
                 mClimber.setState(Climber.WantedAction.UNDEPLOY);
               }
 

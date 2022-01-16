@@ -298,6 +298,8 @@ public class Constants {
         public static final double kIdleVoltage = 0.0;
         public static final double kEncoderTicksPerInch = (4096) / (Math.PI * 1.25 * 1.6);
         public static final double kExtensionHeight = 0.0; //TODO: check value
+        public static final double kDeployTime = 0.0; //TODO: check value
+        public static final double kUndeployTime = 0.0; //TODO: check value
     }
 
     // Timeout constants
