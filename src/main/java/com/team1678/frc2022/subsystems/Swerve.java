@@ -52,15 +52,15 @@ public class Swerve extends Subsystem {
         
         swerveOdometry = new SwerveDriveOdometry(Constants.SwerveConstants.swerveKinematics, getYaw());
         
-        snapPIDController = new ProfiledPIDController(Constants.SnapConstants.snapKP,
-                                                      Constants.SnapConstants.snapKI, 
-                                                      Constants.SnapConstants.snapKD,
+        snapPIDController = new ProfiledPIDController(Constants.SnapConstants.kP,
+                                                      Constants.SnapConstants.kI, 
+                                                      Constants.SnapConstants.kD,
                                                       Constants.SnapConstants.kThetaControllerConstraints);
         snapPIDController.enableContinuousInput(-Math.PI, Math.PI);
 
-        visionPIDController = new ProfiledPIDController(Constants.VisionAlignConstants.snapKP,
-                                                        Constants.VisionAlignConstants.snapKI,
-                                                        Constants.VisionAlignConstants.snapKD,
+        visionPIDController = new ProfiledPIDController(Constants.VisionAlignConstants.kP,
+                                                        Constants.VisionAlignConstants.kI,
+                                                        Constants.VisionAlignConstants.kD,
                                                         Constants.VisionAlignConstants.kThetaControllerConstraints);
         visionPIDController.enableContinuousInput(-Math.PI, Math.PI);
 
