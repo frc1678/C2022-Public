@@ -177,7 +177,7 @@ public class ControlBoard {
         }
     }
 
-    public boolean getUndeploySolenoid() {
+    public boolean getRetract() {
         return operator.getButton(Button.A);
     }
 
