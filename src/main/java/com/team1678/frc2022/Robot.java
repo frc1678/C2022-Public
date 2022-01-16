@@ -167,6 +167,7 @@ public class Robot extends TimedRobot {
             mIntake.setState(Intake.WantedAction.SPIT);
           } else {
             mIntake.setState(Intake.WantedAction.NONE);
+            mIndexer.setState(Indexer.WantedAction.NONE);
           }
 
           /* INDEXER */
