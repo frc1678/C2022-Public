@@ -180,6 +180,12 @@ public class ControlBoard {
     public boolean getClimberSolenoidDeploy() {
         return operator.getButton(Button.Y);
     }
+    // Align swerve drive with target
+    public boolean getVisionAlign() {
+        return driver.getButton(Button.RB);
+    }
+
+    //Intake Controls
 
     public boolean getUndeploySolenoid() {
         return operator.getButton(Button.A);

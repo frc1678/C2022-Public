@@ -78,7 +78,8 @@ public class Robot extends TimedRobot {
             mClimber,
             mIntake,
             mIndexer,
-            mInfrastructure
+            mInfrastructure,
+            mLimelight
         );
 
         mSubsystemManager.registerEnabledLoops(mEnabledLooper);
@@ -172,7 +173,11 @@ public class Robot extends TimedRobot {
               mIntake.setState(Intake.WantedAction.STAY_OUT);
               mIndexer.setState(Indexer.WantedAction.NONE);
 
+          if (mControlBoard.getVisionAlign()) {
+            mSwerve.visionAlignDrive(swerveTranslation, true, true);
           } else {
+            mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
+          }
             
             //Intake controls
               if (mControlBoard.getIntake()) {
@@ -185,7 +190,7 @@ public class Robot extends TimedRobot {
                 mIntake.setState(Intake.WantedAction.NONE);
               }
 
-          }
+            }
       
 
       } catch (Throwable t) {
@@ -225,7 +230,7 @@ public class Robot extends TimedRobot {
         mAutoModeSelector.updateModeCreator();
         // [mSwerve.resetAnglesToAbsolute();
 
-        mLimelight.setLed(Limelight.LedMode.OFF);
+        mLimelight.setLed(Limelight.LedMode.ON);
         mLimelight.writePeriodicOutputs();
 
         Optional<AutoModeBase> autoMode = mAutoModeSelector.getAutoMode();
