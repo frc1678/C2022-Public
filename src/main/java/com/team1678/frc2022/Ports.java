@@ -43,6 +43,7 @@ public class Ports {
     public static final int HOOD_ID = 13;
 
     public static final int CLIMBER_ID = 14;
+    //TODO: get actual value
     public static final int CLIMBER_PIVOT_SOLENOID = 15;
 
     // Infrastucture

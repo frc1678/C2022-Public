@@ -307,6 +307,7 @@ public class Constants {
     }
         
     public static final class ClimberConstants {
+        //TODO: get values
         public static final double kExtendingVoltage = 3.0;
         public static final double kRetractingVoltage = -3.0;
         public static final double kIdleVoltage = 0.0;
