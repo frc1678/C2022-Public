@@ -21,8 +21,8 @@ public class Indexer extends Subsystem{
     private static Indexer mInstance;
     public PeriodicIO mPeriodicIO = new PeriodicIO();
 
-    private final DigitalInput mBottomBeamBreak = new DigitalInput(Ports.BOTTOM_BEAM_BREAK);
-    private final DigitalInput mTopBeamBreak = new DigitalInput(Ports.TOP_BEAM_BREAK);
+    private final DigitalInput mBottomBeamBreak;
+    private final DigitalInput mTopBeamBreak;
     //TODO: private final DigitalInput mColorSensor = new DigitalInput(Ports.COLOR_SENOR);
 
     private State mState = State.IDLE;
@@ -47,6 +47,8 @@ public class Indexer extends Subsystem{
         mElevator = TalonFXFactory.createDefaultTalon(Ports.ELEVATOR_ID);
         mHopperMaster = TalonFXFactory.createDefaultTalon(Ports.HOPPER_MASTER_ID);
         mHopperSlave = TalonFXFactory.createPermanentSlaveTalon(Ports.HOPPER_SLAVE_ID, Ports.HOPPER_MASTER_ID);
+        mBottomBeamBreak = new DigitalInput(Ports.BOTTOM_BEAM_BREAK);
+        mTopBeamBreak = new DigitalInput(Ports.TOP_BEAM_BREAK);
     }
 
     public static synchronized Indexer getInstance() {
