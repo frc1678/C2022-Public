@@ -246,7 +246,7 @@ public class ShuffleBoardInteractions {
         mIntakeCurrent.setDouble(mIntake.getMotorCurrent());
 
         /* Vision */
-        mSeesTarget.setBoolean(mLimelight.seesTarget());
+        mSeesTarget.setBoolean(mLimelight.hasTarget());
         mLimelightOk.setBoolean(mLimelight.limelightOK());
         mLimelightLatency.setDouble(mLimelight.getLatency());
         mLimelightDt.setDouble(mLimelight.getDt());
