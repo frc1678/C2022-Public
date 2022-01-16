@@ -41,7 +41,7 @@ public class Climber extends Subsystem {
     }
 
     public enum WantedAction {
-        NONE, EXTEND, RETRACT, DEPLOY, UNDEPLOY, INTAKE, REVERSE, SPIT, INTAKING
+        NONE, EXTEND, RETRACT, DEPLOY, UNDEPLOY
     }
 
     public enum State {
