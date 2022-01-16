@@ -72,7 +72,8 @@ public class Robot extends TimedRobot {
         mSubsystemManager.setSubsystems(
             mSwerve,
             mIntake,
-            mInfrastructure
+            mInfrastructure,
+            mLimelight
         );
 
         mSubsystemManager.registerEnabledLoops(mEnabledLooper);
@@ -145,7 +146,13 @@ public class Robot extends TimedRobot {
           double swerveRotation = mControlBoard.getSwerveRotation();
           mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
 
-          //Intake
+          if (mControlBoard.getVisionAlign()) {
+            mSwerve.visionAlignDrive(swerveTranslation, true, true);
+          } else {
+            mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
+          }
+
+          // Intake
           if (mControlBoard.getIntake()) {
             mIntake.setState(WantedAction.INTAKE);
           } else if (mControlBoard.getOuttake()) {
@@ -193,7 +200,7 @@ public class Robot extends TimedRobot {
         mAutoModeSelector.updateModeCreator();
         // [mSwerve.resetAnglesToAbsolute();
 
-        mLimelight.setLed(Limelight.LedMode.OFF);
+        mLimelight.setLed(Limelight.LedMode.ON);
         mLimelight.writePeriodicOutputs();
 
         Optional<AutoModeBase> autoMode = mAutoModeSelector.getAutoMode();
