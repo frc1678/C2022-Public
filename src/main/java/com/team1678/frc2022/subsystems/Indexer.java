@@ -156,6 +156,7 @@ public class Indexer extends Subsystem{
         }
     }
 
+    //TODO: move to shuffleboard interactions
     public void outputTelemetry() {
         SmartDashboard.putString("Indexer State", mState.toString());
         SmartDashboard.putBoolean("Indexer Top Beam Break", mPeriodicIO.topLightBeamBreakSensor);
