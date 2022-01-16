@@ -89,7 +89,7 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mClimberVoltage;
     private final NetworkTableEntry mClimberCurrent;
     private final NetworkTableEntry mClimberState;
-    private final NetworkTableEntry mClimberSolenoid;
+    private final NetworkTableEntry mClimberSolenoidDeployed;
 
 
     public ShuffleBoardInteractions() {
@@ -237,8 +237,8 @@ public class ShuffleBoardInteractions {
         mClimberVoltage = CLIMBER_TAB
             .add("Climber Voltage", mClimber.mPeriodicIO.climber_voltage)
             .getEntry();
-        mClimberSolenoid = CLIMBER_TAB
-            .add("Climber Solenoid is Deployed", mClimber.mPeriodicIO.climber_solenoid)
+        mClimberSolenoidDeployed = CLIMBER_TAB
+            .add("Climber Solenoid Deployed", mClimber.mPeriodicIO.climber_solenoid)
             .getEntry();
         mClimberState = CLIMBER_TAB 
             .add("Climber State", mClimber.mState.toString())
@@ -314,7 +314,7 @@ public class ShuffleBoardInteractions {
         mClimberCurrent.setDouble(mClimber.getMotorCurrent());
         mClimberVoltage.setDouble(mClimber.getMotorVoltage());
         mClimberState.setString(mClimber.getState().toString());
-        mClimberSolenoid.setBoolean(mClimber.getSolenoid());
+        mClimberSolenoidDeployed.setBoolean(mClimber.getSolenoid());
     }
 
     /* Truncates number to 2 decimal places for cleaner numbers */
