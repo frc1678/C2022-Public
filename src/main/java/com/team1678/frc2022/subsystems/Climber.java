@@ -113,7 +113,7 @@ public class Climber extends Subsystem {
                 mPeriodicIO.climber_demand = Constants.ClimberConstants.kExtendingVoltage;
                 break;
             case CLIMBING:
-                mPeriodicIO.climber_demand = Constants.ClimberConstants.kRetractingVoltage;
+                mPeriodicIO.climber_demand = Constants.ClimberConstants.kClimbingVoltage;
                 break;
             case DEPLOYING:
                 mPeriodicIO.climber_solenoid = true;
