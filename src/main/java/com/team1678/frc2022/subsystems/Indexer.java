@@ -179,7 +179,7 @@ public class Indexer extends Subsystem{
                 mPeriodicIO.hopper_demand = Constants.IndexerConstants.kHopperIndexingVoltage;
                 mPeriodicIO.elevator_demand = Constants.IndexerConstants.kIdleVoltage;
 
-                if (mPeriodicIO.bottomLightBeamBreakSensor) {
+                /*if (mPeriodicIO.bottomLightBeamBreakSensor) {
                     if (mPeriodicIO.correctColor) {
                         mPeriodicIO.eject = false;
                         mState = State.IDLE;
@@ -187,7 +187,7 @@ public class Indexer extends Subsystem{
                         mPeriodicIO.eject = true;
                         mState = State.HOPPING;
                     }
-                }
+                }*/
 
                 break;
             case REVERSING:
