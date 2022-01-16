@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Indexer extends Subsystem{
 
-    private final TalonFX mIndexer;
+    private final TalonFX mElevator;
     private final TalonFX mHopperMaster;
     private final TalonFX mHopperSlave;
 
@@ -44,7 +44,7 @@ public class Indexer extends Subsystem{
     }
 
     private Indexer() {
-        mIndexer = TalonFXFactory.createDefaultTalon(Ports.ELEVATOR_ID);
+        mElevator = TalonFXFactory.createDefaultTalon(Ports.ELEVATOR_ID);
         mHopperMaster = TalonFXFactory.createDefaultTalon(Ports.HOPPER_MASTER_ID);
         mHopperSlave = TalonFXFactory.createPermanentSlaveTalon(Ports.HOPPER_SLAVE_ID, Ports.HOPPER_MASTER_ID);
     }
@@ -94,7 +94,7 @@ public class Indexer extends Subsystem{
 
     @Override
     public void writePeriodicOutputs() {
-        mIndexer.set(ControlMode.PercentOutput, mPeriodicIO.elevator_demand / 12.0);
+        mElevator.set(ControlMode.PercentOutput, mPeriodicIO.elevator_demand / 12.0);
         mHopperMaster.set(ControlMode.PercentOutput, mPeriodicIO.hopper_demand / 12.0);
     }
 
@@ -189,7 +189,7 @@ public class Indexer extends Subsystem{
     @Override
     public void stop() {
         mHopperMaster.set(ControlMode.PercentOutput, 0);
-        mIndexer.set(ControlMode.PercentOutput, 0);
+        mElevator.set(ControlMode.PercentOutput, 0);
 
     }
 
