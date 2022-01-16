@@ -176,16 +176,7 @@ public class ControlBoard {
                 return 0;
         }
     }
-    
-    public boolean getClimberSolenoidDeploy() {
-        return operator.getButton(Button.Y);
-    }
-    // Align swerve drive with target
-    public boolean getVisionAlign() {
-        return driver.getButton(Button.RB);
-    }
 
-    //Intake Controls
 
     public boolean getUndeploySolenoid() {
         return operator.getButton(Button.A);
@@ -193,6 +184,15 @@ public class ControlBoard {
 
     public boolean climbMode() {
         return operator.getButton(Button.LB) && operator.getButton(Button.RB) && operator.getTrigger(Side.LEFT) && operator.getTrigger(Side.RIGHT);
+    }
+    
+    public boolean getClimberSolenoidDeploy() {
+        return operator.getButton(Button.Y);
+    }
+
+    // Align swerve drive with target
+    public boolean getVisionAlign() {
+        return driver.getButton(Button.RB);
     }
 
     //Intake Controls
