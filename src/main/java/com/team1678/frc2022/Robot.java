@@ -13,6 +13,7 @@ import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.ControlBoard.SwerveCardinal;
 import com.team1678.frc2022.loops.CrashTracker;
 import com.team1678.frc2022.loops.Looper;
+import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Infrastructure;
 import com.team1678.frc2022.subsystems.Intake;
 import com.team1678.frc2022.subsystems.Limelight;
@@ -24,6 +25,7 @@ import com.team1678.frc2022.subsystems.Intake.WantedAction;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Encoder.IndexingType;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -51,6 +53,7 @@ public class Robot extends TimedRobot {
   private final Intake mIntake = Intake.getInstance();
   private final Limelight mLimelight = Limelight.getInstance(); 
   private final Infrastructure mInfrastructure = Infrastructure.getInstance();
+  private final Indexer mIndexer = Indexer.getInstance();
 
   // instantiate enabled and disabled loopers
   private final Looper mEnabledLooper = new Looper();
@@ -151,16 +154,39 @@ public class Robot extends TimedRobot {
           double swerveRotation = mControlBoard.getSwerveRotation();
           //mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
 
-          //Intake
-          if (mControlBoard.getIntake()) {
-            mIntake.setState(WantedAction.INTAKE);
-          } else if (mControlBoard.getOuttake()) {
-            mIntake.setState(WantedAction.REVERSE); 
-          } else if (mControlBoard.getSpitting()) {
-            mIntake.setState(WantedAction.SPIT);
+          if (mControlBoard.getVisionAlign()) {
+            mSwerve.visionAlignDrive(swerveTranslation, true, true);
           } else {
-            mIntake.setState(WantedAction.NONE);
+            mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
           }
+
+          // Intake
+          if (mControlBoard.getIntake()) {
+            mIntake.setState(Intake.WantedAction.INTAKE);
+            mIndexer.setState(Indexer.WantedAction.INDEX);
+          } else if (mControlBoard.getOuttake()) {
+            mIntake.setState(Intake.WantedAction.REVERSE);
+            mIndexer.setState(Indexer.WantedAction.REVERSE); 
+          } else if (mControlBoard.getSpitting()) {
+            mIntake.setState(Intake.WantedAction.SPIT);
+          } else {
+            mIntake.setState(Intake.WantedAction.NONE);
+            mIndexer.setState(Indexer.WantedAction.NONE);
+          }
+
+          /* INDEXER */
+          //TODO: delete later
+         /* if (mControlBoard.getElevating()) {
+            mIndexer.setState(Indexer.WantedAction.ELEVATE);
+          } else if (mControlBoard.getIndexing()) {
+            mIndexer.setState(Indexer.WantedAction.INDEX);
+          } else if (mControlBoard.getHopping()) {
+            mIndexer.setState(Indexer.WantedAction.HOP);
+          } else if (mControlBoard.getReversing()) {
+            mIndexer.setState(Indexer.WantedAction.REVERSE);
+          } else {
+            mIndexer.setState(Indexer.WantedAction.NONE);
+          }*/
 
       } catch (Throwable t) {
         CrashTracker.logThrowableCrash(t);
@@ -199,7 +225,7 @@ public class Robot extends TimedRobot {
         mAutoModeSelector.updateModeCreator();
         // [mSwerve.resetAnglesToAbsolute();
 
-        mLimelight.setLed(Limelight.LedMode.OFF);
+        mLimelight.setLed(Limelight.LedMode.ON);
         mLimelight.writePeriodicOutputs();
 
         Optional<AutoModeBase> autoMode = mAutoModeSelector.getAutoMode();

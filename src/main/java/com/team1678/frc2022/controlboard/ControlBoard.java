@@ -164,12 +164,12 @@ public class ControlBoard {
         return SwerveCardinal.NONE;
     }
 
-    //Intake Controls
-
-    public enum Intake {
-
+    // Align swerve drive with target
+    public boolean getVisionAlign() {
+        return driver.getButton(Button.RB);
     }
 
+    //Intake Controls
     public boolean getIntake() {
         return operator.getTrigger(Side.RIGHT);
     }
@@ -181,4 +181,22 @@ public class ControlBoard {
     public boolean getSpitting() {
         return operator.getController().getRightBumper();
     }
+
+    //Indexer Controls
+    public boolean getElevating() {
+        return operator.getButton(Button.B);
+    }
+
+    public boolean getIndexing() {
+        return operator.getButton(Button.Y);
+    }
+
+    public boolean getHopping() {
+        return operator.getButton(Button.X);
+    }
+
+    public boolean getReversing() {
+        return operator.getButton(Button.A);
+    }
 }
+

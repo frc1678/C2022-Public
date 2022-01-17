@@ -126,11 +126,11 @@ public class Constants {
                     new SwerveModuleConstants(Ports.BR_DRIVE, Ports.BR_ROTATION, Ports.BR_CANCODER, angleOffset);
         }
     }
-
-    public static final class SnapConstants {
-        public static final double snapKP = 1.0;
-        public static final double snapKI = 0;
-        public static final double snapKD = 0.0;
+	
+	public static final class SnapConstants {
+        public static final double kP = 7.0; // TODO: tune value
+        public static final double kI = 0; // TODO: tune value
+        public static final double kD = 0.0; // TODO: tune value
         public static final double snapTimeout = 0.25;
         public static final double snapEpsilon = 1.0;
 
@@ -139,8 +139,22 @@ public class Constants {
         public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.pow(kMaxAngularSpeedRadiansPerSecond, 2);
 
         public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
-                new TrapezoidProfile.Constraints(
-                        kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
+                new TrapezoidProfile.Constraints(kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
+    }
+
+    public static final class VisionAlignConstants {
+        public static final double kP = 20.0;
+        public static final double kI = 0;
+        public static final double kD = 1.2;
+        public static final double visionAlignTimeout = 0.25;
+        public static final double visionAlignEpsilon = 1.0;
+
+        // Constraints for the profiled angle controller
+        public static final double kMaxAngularSpeedRadiansPerSecond = 2.0 * Math.PI;
+        public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.pow(kMaxAngularSpeedRadiansPerSecond, 2);
+
+        public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
+                new TrapezoidProfile.Constraints(kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
     }
 
     public static final class AutoConstants {
@@ -285,12 +299,11 @@ public class Constants {
         public static final int kBottomBeamBreak = 1;
         public static final int kTopBeamBreak = 0;
 
-        public static final double kIndexingVoltage = 7.0;
-        public static final double kReversingVoltage = -7.0;
+        public static final double kElevatorIndexingVoltage = 5.0;
+        public static final double kElevatorReversingVoltage = -5.0;
         public static final double kIdleVoltage = 0.0;
-        public static final double kHopperIdleVoltage = 2;
-        public static final double kHopperIndexingVoltage = 6;
-        public static final double kHopperReversingVoltage = -6;
+        public static final double kHopperIndexingVoltage = 5;
+        public static final double kHopperReversingVoltage = -5;
 
     }
         

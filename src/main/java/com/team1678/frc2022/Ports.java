@@ -35,9 +35,11 @@ public class Ports {
     public static final int INTAKE_ID = 8;
     public static final int DEPLOY_SOLENOID_ID = 7;
 
-    public static final int HOPPER_ID = 10;
+    public static final int HOPPER_MASTER_ID = 9;
+    public static final int HOPPER_SLAVE_ID = 10;
     public static final int ELEVATOR_ID = 11;
-    public static final int ELEVATOR_SENSOR = 0;
+    public static final int TOP_BEAM_BREAK = 0;
+    public static final int BOTTOM_BEAM_BREAK = 1;
 
     public static final int FLYWHEEL_MASTER_ID = 12;
     public static final int FLYWHEEL_SLAVE_ID = 16;
