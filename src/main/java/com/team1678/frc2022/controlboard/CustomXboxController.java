@@ -49,6 +49,10 @@ public class CustomXboxController {
     boolean getTrigger(Side side) {
         return mController.getRawAxis(side == Side.LEFT ? 2 : 3) > Constants.kJoystickThreshold;
     }
+    
+    double getRawTrigger(Side side) {
+        return mController.getRawAxis(side == Side.LEFT ? 2 : 3);
+    }
 
     boolean getButton(Button button) {
         return mController.getRawButton(button.id);

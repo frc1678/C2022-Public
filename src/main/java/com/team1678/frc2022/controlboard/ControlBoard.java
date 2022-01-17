@@ -27,6 +27,7 @@ public class ControlBoard {
     private TurretCardinal mLastCardinal;
 
     private static ControlBoard mInstance = null;
+    
 
     // Turret
     public enum TurretCardinal {
@@ -169,12 +170,35 @@ public class ControlBoard {
         return driver.getButton(Button.RB);
     }
 
-    //Intake Controls
-
-    public enum Intake {
-
+    // Climber controls
+    public double getClimberMotor() {
+        if (operator.getRawTrigger(Side.RIGHT) > operator.getRawTrigger(Side.LEFT)) {
+            return operator.getRawTrigger(Side.RIGHT);
+        } else {
+            return -operator.getRawTrigger(Side.LEFT);
+        }
     }
 
+    public boolean getClimbMode() {
+        return operator.getButton(CustomXboxController.Button.LB)
+                && operator.getButton(CustomXboxController.Button.RB)
+                && operator.getTrigger(CustomXboxController.Side.LEFT)
+                && operator.getTrigger(CustomXboxController.Side.RIGHT);
+    }
+
+    public boolean getLeaveClimbMode() {
+        return operator.getButton(Button.BACK) && operator.getButton(Button.START);
+    }
+
+    public boolean getClimberSolenoidDeploy() {
+        return operator.getButton(Button.RB);
+    }
+
+    public boolean getClimberSolenoidRetract() {
+        return operator.getButton(Button.LB);
+    }
+
+    //Intake Controls
     public boolean getIntake() {
         return operator.getTrigger(Side.RIGHT);
     }

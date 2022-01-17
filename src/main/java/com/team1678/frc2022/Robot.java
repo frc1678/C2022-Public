@@ -13,6 +13,7 @@ import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.ControlBoard.SwerveCardinal;
 import com.team1678.frc2022.loops.CrashTracker;
 import com.team1678.frc2022.loops.Looper;
+import com.team1678.frc2022.subsystems.Climber;
 import com.team1678.frc2022.subsystems.Infrastructure;
 import com.team1678.frc2022.subsystems.Intake;
 import com.team1678.frc2022.subsystems.Limelight;
@@ -24,208 +25,234 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.TimedRobot;
 
 /**
- * The VM is configured to automatically run this class, and to call the functions corresponding to
- * each mode, as described in the TimedRobot documentation. If you change the name of this class or
- * the package after creating this project, you must also update the build.gradle file in the
+ * The VM is configured to automatically run this class, and to call the
+ * functions corresponding to
+ * each mode, as described in the TimedRobot documentation. If you change the
+ * name of this class or
+ * the package after creating this project, you must also update the
+ * build.gradle file in the
  * project.
  */
 public class Robot extends TimedRobot {
-  /**
-   * This function is run when the robot is first started up and should be used for any
-   * initialization code.
-   */
+	/**
+	 * This function is run when the robot is first started up and should be used
+	 * for any
+	 * initialization code.
+	 */
 
-  /* Declare necessary class objects */
-  private ShuffleBoardInteractions mShuffleBoardInteractions;
+	/* Declare necessary class objects */
+	private ShuffleBoardInteractions mShuffleBoardInteractions;
 	public static CTREConfigs ctreConfigs;
 
-  // subsystem instances
-  private final ControlBoard mControlBoard = ControlBoard.getInstance();
-  
-  private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
-  private final Swerve mSwerve = Swerve.getInstance();
-  private final Intake mIntake = Intake.getInstance();
-  private final Limelight mLimelight = Limelight.getInstance(); 
-  private final Infrastructure mInfrastructure = Infrastructure.getInstance();
+	// subsystem instances
+	private final ControlBoard mControlBoard = ControlBoard.getInstance();
 
-  // instantiate enabled and disabled loopers
-  private final Looper mEnabledLooper = new Looper();
-  private final Looper mDisabledLooper = new Looper();
+	private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
+	private final Swerve mSwerve = Swerve.getInstance();
+	private final Intake mIntake = Intake.getInstance();
+	private final Limelight mLimelight = Limelight.getInstance();
+	private final Infrastructure mInfrastructure = Infrastructure.getInstance();
+	private final Climber mClimber = Climber.getInstance();
 
-  // auto instances
-  private AutoModeExecutor mAutoModeExecutor;
-  private AutoModeSelector mAutoModeSelector = new AutoModeSelector();
+	// instantiate enabled and disabled loopers
+	private final Looper mEnabledLooper = new Looper();
+	private final Looper mDisabledLooper = new Looper();
 
+	// auto instances
+	private AutoModeExecutor mAutoModeExecutor;
+	private AutoModeSelector mAutoModeSelector = new AutoModeSelector();
 
-  public Robot() {
-    CrashTracker.logRobotConstruction();
-  }
+	private boolean mClimbMode = false;
 
-  @Override
-  public void robotInit() {
-      ctreConfigs = new CTREConfigs();
-      mShuffleBoardInteractions = ShuffleBoardInteractions.getInstance();
+	public Robot() {
+		CrashTracker.logRobotConstruction();
+	}
 
-      try {      
-        CrashTracker.logRobotInit();
+	@Override
+	public void robotInit() {
+		ctreConfigs = new CTREConfigs();
+		mShuffleBoardInteractions = ShuffleBoardInteractions.getInstance();
 
-        mSubsystemManager.setSubsystems(
-            mSwerve,
-            mIntake,
-            mInfrastructure,
-            mLimelight
-        );
+		try {
+			CrashTracker.logRobotInit();
 
-        mSubsystemManager.registerEnabledLoops(mEnabledLooper);
-        mSubsystemManager.registerDisabledLoops(mDisabledLooper);
+			mSubsystemManager.setSubsystems(
+					mSwerve,
+					mIntake,
+					mInfrastructure,
+					mLimelight);
 
-        mSwerve.resetOdometry(new Pose2d());            
-      } catch (Throwable t) {
-        CrashTracker.logThrowableCrash(t);
-        throw t;
-      }
-  }
+			mSubsystemManager.registerEnabledLoops(mEnabledLooper);
+			mSubsystemManager.registerDisabledLoops(mDisabledLooper);
 
-  @Override
-  public void robotPeriodic() {
-    mShuffleBoardInteractions.update();
-  }
+			mSwerve.resetOdometry(new Pose2d());
+		} catch (Throwable t) {
+			CrashTracker.logThrowableCrash(t);
+			throw t;
+		}
+	}
 
-  @Override
-  public void autonomousInit() {
-      CrashTracker.logAutoInit();
+	@Override
+	public void robotPeriodic() {
+		mShuffleBoardInteractions.update();
+	}
 
-      try {
-        
-        mEnabledLooper.start();
-        mAutoModeExecutor.start();
+	@Override
+	public void autonomousInit() {
+		CrashTracker.logAutoInit();
 
-        mInfrastructure.setIsDuringAuto(true);
+		try {
 
-      } catch (Throwable t) {
-          CrashTracker.logThrowableCrash(t);
-          throw t;
-      }
-      
-  }
+			mEnabledLooper.start();
+			mAutoModeExecutor.start();
 
-  @Override
-  public void autonomousPeriodic() {
-    mSwerve.updateSwerveOdometry();
-  }
+			mInfrastructure.setIsDuringAuto(true);
 
-  @Override
-  public void teleopInit() {
-      try {
+		} catch (Throwable t) {
+			CrashTracker.logThrowableCrash(t);
+			throw t;
+		}
 
-        mDisabledLooper.stop();
-        mEnabledLooper.start();
+	}
 
-        mInfrastructure.setIsDuringAuto(false);
+	@Override
+	public void autonomousPeriodic() {
+		mSwerve.updateSwerveOdometry();
+	}
 
-    } catch (Throwable t) {
-        CrashTracker.logThrowableCrash(t);
-        throw t;
-    }
-  }
+	@Override
+	public void teleopInit() {
+		try {
 
-  @Override
-  public void teleopPeriodic() {
-      try {
-          /* SWERVE DRIVE */
-          if (mControlBoard.zeroGyro()) {
-              mSwerve.zeroGyro();
-          }
+			mDisabledLooper.stop();
+			mEnabledLooper.start();
 
-          mSwerve.updateSwerveOdometry();
+			mInfrastructure.setIsDuringAuto(false);
 
-          if (mControlBoard.getSwerveSnap() != SwerveCardinal.NONE) {
-              mSwerve.startSnap(mControlBoard.getSwerveSnap().degrees);
-          }
-          Translation2d swerveTranslation = new Translation2d(mControlBoard.getSwerveTranslation().x(), mControlBoard.getSwerveTranslation().y());
-          double swerveRotation = mControlBoard.getSwerveRotation();
-          mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
+		} catch (Throwable t) {
+			CrashTracker.logThrowableCrash(t);
+			throw t;
+		}
+	}
 
-          if (mControlBoard.getVisionAlign()) {
-            mSwerve.visionAlignDrive(swerveTranslation, true, true);
-          } else {
-            mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
-          }
+	@Override
+	public void teleopPeriodic() {
+		try {
+			/* SWERVE DRIVE */
+			if (mControlBoard.zeroGyro()) {
+				mSwerve.zeroGyro();
+			}
 
-          // Intake
-          if (mControlBoard.getIntake()) {
-            mIntake.setState(WantedAction.INTAKE);
-          } else if (mControlBoard.getOuttake()) {
-            mIntake.setState(WantedAction.REVERSE); 
-          } else if (mControlBoard.getSpitting()) {
-            mIntake.setState(WantedAction.SPIT);
-          } else {
-            mIntake.setState(WantedAction.NONE);
-          }
+			mSwerve.updateSwerveOdometry();
 
-      } catch (Throwable t) {
-        CrashTracker.logThrowableCrash(t);
-        throw t;
-      }
-  }
+			if (mControlBoard.getSwerveSnap() != SwerveCardinal.NONE) {
+				mSwerve.startSnap(mControlBoard.getSwerveSnap().degrees);
+			}
+			Translation2d swerveTranslation = new Translation2d(mControlBoard.getSwerveTranslation().x(),
+					mControlBoard.getSwerveTranslation().y());
+			double swerveRotation = mControlBoard.getSwerveRotation();
+			mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
 
-  @Override
-  public void disabledInit() {
-    try {
+			if (mControlBoard.getVisionAlign()) {
+				mSwerve.visionAlignDrive(swerveTranslation, true, true);
+			} else {
+				mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
+			}
 
-      CrashTracker.logDisabledInit();
-      mEnabledLooper.stop();
-      mDisabledLooper.start();
-    
-    } catch (Throwable t) {
-        CrashTracker.logThrowableCrash(t);
-        throw t;
-    }
+			if (mControlBoard.getClimbMode()) {
+				mClimbMode = true;
+			}
 
-    if (mAutoModeExecutor != null) {
-        mAutoModeExecutor.stop();
-    }
+			if (!mClimbMode) {
+				// Intake
+				if (mControlBoard.getIntake()) {
+					mIntake.setState(WantedAction.INTAKE);
+				} else if (mControlBoard.getOuttake()) {
+					mIntake.setState(WantedAction.REVERSE);
+				} else if (mControlBoard.getSpitting()) {
+					mIntake.setState(WantedAction.SPIT);
+				} else {
+					mIntake.setState(WantedAction.NONE);
+				}
+			} else {
+				if (mControlBoard.getLeaveClimbMode()) {
+					mClimbMode = false;
+				}
+				
+				if (mControlBoard.getClimberSolenoidDeploy()) {
+					mClimber.setWantDeploy(true);
+				}
+				if (mControlBoard.getClimberSolenoidRetract()) {
+					mClimber.setWantDeploy(false);
+				}
 
-    // Reset all auto mode state.
-    mAutoModeSelector.reset();
-    mAutoModeSelector.updateModeCreator();
-    mAutoModeExecutor = new AutoModeExecutor();    
+				mClimber.setClimberDemand(mControlBoard.getClimberMotor());
+			}
 
-  }
+		} catch (Throwable t) {
+			CrashTracker.logThrowableCrash(t);
+			throw t;
+		}
+	}
 
-  @Override
-  public void disabledPeriodic() {
-    try {
+	@Override
+	public void disabledInit() {
+		try {
 
-        mAutoModeSelector.updateModeCreator();
-        // [mSwerve.resetAnglesToAbsolute();
+			CrashTracker.logDisabledInit();
+			mEnabledLooper.stop();
+			mDisabledLooper.start();
 
-        mLimelight.setLed(Limelight.LedMode.ON);
-        mLimelight.writePeriodicOutputs();
+		} catch (Throwable t) {
+			CrashTracker.logThrowableCrash(t);
+			throw t;
+		}
 
-        Optional<AutoModeBase> autoMode = mAutoModeSelector.getAutoMode();
-        if (autoMode.isPresent() && autoMode.get() != mAutoModeExecutor.getAutoMode()) {
-            System.out.println("Set auto mode to: " + autoMode.get().getClass().toString());
-            mAutoModeExecutor.setAutoMode(autoMode.get());
-        }
-        
-    } catch (Throwable t) {
-        CrashTracker.logThrowableCrash(t);
-        throw t;
-    }
-  }
+		if (mAutoModeExecutor != null) {
+			mAutoModeExecutor.stop();
+		}
 
-  @Override
-  public void testInit() {
-      try {
-        mDisabledLooper.stop();
-        mEnabledLooper.stop();			
-      } catch (Throwable t) {
-        CrashTracker.logThrowableCrash(t);
-        throw t;
-      }
-  }
+		// Reset all auto mode state.
+		mAutoModeSelector.reset();
+		mAutoModeSelector.updateModeCreator();
+		mAutoModeExecutor = new AutoModeExecutor();
 
-  @Override
-  public void testPeriodic() {}
+	}
+
+	@Override
+	public void disabledPeriodic() {
+		try {
+
+			mAutoModeSelector.updateModeCreator();
+			// [mSwerve.resetAnglesToAbsolute();
+
+			mLimelight.setLed(Limelight.LedMode.ON);
+			mLimelight.writePeriodicOutputs();
+
+			Optional<AutoModeBase> autoMode = mAutoModeSelector.getAutoMode();
+			if (autoMode.isPresent() && autoMode.get() != mAutoModeExecutor.getAutoMode()) {
+				System.out.println("Set auto mode to: " + autoMode.get().getClass().toString());
+				mAutoModeExecutor.setAutoMode(autoMode.get());
+			}
+
+		} catch (Throwable t) {
+			CrashTracker.logThrowableCrash(t);
+			throw t;
+		}
+	}
+
+	@Override
+	public void testInit() {
+		try {
+			mDisabledLooper.stop();
+			mEnabledLooper.stop();
+		} catch (Throwable t) {
+			CrashTracker.logThrowableCrash(t);
+			throw t;
+		}
+	}
+
+	@Override
+	public void testPeriodic() {
+	}
 }
