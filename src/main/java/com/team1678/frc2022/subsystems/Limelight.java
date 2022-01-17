@@ -38,7 +38,6 @@ public class Limelight extends Subsystem {
         public String kName = "";
         public String kTableName = "";
         public double kHeight = 0.0;
-        public Pose2d kTurretToLens = Pose2d.identity();
         public Rotation2d kHorizontalPlaneToLens = Rotation2d.identity();
     }
 
@@ -121,10 +120,6 @@ public class Limelight extends Subsystem {
     private double[] mZeroArray = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     private List<TargetInfo> mTargets = new ArrayList<>();
     private boolean mSeesTarget = false;
-
-    public Pose2d getTurretToLens() {
-        return mConstants.kTurretToLens;
-    }
 
     public double getLensHeight() {
         return mConstants.kHeight;
