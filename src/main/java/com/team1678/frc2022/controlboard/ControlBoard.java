@@ -184,11 +184,11 @@ public class ControlBoard {
 
     //Indexer Controls
     public boolean getElevating() {
-        return operator.getButton(Button.A);
+        return operator.getButton(Button.B);
     }
 
     public boolean getIndexing() {
-        return operator.getButton(Button.B);
+        return operator.getButton(Button.Y);
     }
 
     public boolean getHopping() {
@@ -196,7 +196,7 @@ public class ControlBoard {
     }
 
     public boolean getReversing() {
-        return operator.getButton(Button.Y);
+        return operator.getButton(Button.A);
     }
 }
 
