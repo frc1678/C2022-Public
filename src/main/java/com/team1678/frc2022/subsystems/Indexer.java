@@ -162,43 +162,10 @@ public class Indexer extends Subsystem{
             case INDEXING:
                 mPeriodicIO.hopper_demand = Constants.IndexerConstants.kHopperIndexingVoltage;
                 mPeriodicIO.elevator_demand = Constants.IndexerConstants.kElevatorIndexingVoltage;
-                mPeriodicIO.correctColor = true;
-
-                if (mPeriodicIO.bottomLightBeamBreakSensor) {
-                    if (mPeriodicIO.correctColor) {
-                        mPeriodicIO.eject = false;
-                        if (mPeriodicIO.topLightBeamBreakSensor) {
-                            mState = State.HOPPING;
-                        } else {
-                            mState = State.INDEXING;
-                        }
-                    } else {
-                        mPeriodicIO.eject = true;
-                    }
-                } else {
-                    if (mPeriodicIO.topLightBeamBreakSensor) {
-                        mState = State.HOPPING;
-                    } else {
-                        mState = State.INDEXING;
-                    }
-                }
-
                 break;
             case HOPPING:
                 mPeriodicIO.hopper_demand = Constants.IndexerConstants.kHopperIndexingVoltage;
                 mPeriodicIO.elevator_demand = Constants.IndexerConstants.kIdleVoltage;
-                mPeriodicIO.correctColor = true;
-
-                if (mPeriodicIO.bottomLightBeamBreakSensor) {
-                    if (mPeriodicIO.correctColor) {
-                        mPeriodicIO.eject = false;
-                        mState = State.IDLE;
-                    } else {
-                        mPeriodicIO.eject = true;
-                        mState = State.HOPPING;
-                    }
-                }
-
                 break;
             case REVERSING:
                 mPeriodicIO.elevator_demand = Constants.IndexerConstants.kElevatorReversingVoltage;
@@ -216,11 +183,35 @@ public class Indexer extends Subsystem{
             case ELEVATE:
                 mState = State.ELEVATING;
                 break;
-            case INDEX:
-                mState = State.INDEXING;
+            case INDEX:             
+                mPeriodicIO.correctColor = true;
+
+                if (mPeriodicIO.bottomLightBeamBreakSensor) {
+                    if (mPeriodicIO.topLightBeamBreakSensor) {
+                        mState = State.IDLE;
+                    } else {
+                        mState = State.INDEXING;
+                    }
+                } else {
+                    if (mPeriodicIO.topLightBeamBreakSensor) {
+                        mState = State.HOPPING;
+                    } else {
+                        mState = State.INDEXING;
+                    }
+                }
                 break;
             case HOP:
-                mState = State.HOPPING;
+                mPeriodicIO.correctColor = true;
+
+                if (mPeriodicIO.bottomLightBeamBreakSensor) {
+                    if (mPeriodicIO.correctColor) {
+                        mPeriodicIO.eject = false;
+                        mState = State.IDLE;
+                    } else {
+                        mPeriodicIO.eject = true;
+                        mState = State.HOPPING;
+                    }
+                }
                 break;
             case NONE:
                 mState = State.IDLE;

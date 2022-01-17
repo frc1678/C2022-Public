@@ -73,7 +73,7 @@ public class Robot extends TimedRobot {
         CrashTracker.logRobotInit();
 
         mSubsystemManager.setSubsystems(
-            mSwerve,
+            //mSwerve,
             mIntake,
             mInfrastructure,
             mIndexer,
