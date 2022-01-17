@@ -71,6 +71,9 @@ public class Indexer extends Subsystem{
 
         mPeriodicIO.hopper_current = mHopperMaster.getStatorCurrent();
         mPeriodicIO.hopper_voltage = mHopperMaster.getMotorOutputVoltage();
+
+        mPeriodicIO.elevator_current = mElevator.getStatorCurrent();
+        mPeriodicIO.elevator_voltage = mElevator.getMotorOutputVoltage();
     }
 
     @Override
@@ -155,6 +158,7 @@ public class Indexer extends Subsystem{
             case INDEXING:
                 mPeriodicIO.hopper_demand = Constants.IndexerConstants.kHopperIndexingVoltage;
                 mPeriodicIO.elevator_demand = Constants.IndexerConstants.kElevatorIndexingVoltage;
+                //mPeriodicIO.correctColor = true;
 
                 /*if (mPeriodicIO.bottomLightBeamBreakSensor) {
                     if (mPeriodicIO.correctColor) {
@@ -179,6 +183,7 @@ public class Indexer extends Subsystem{
             case HOPPING:
                 mPeriodicIO.hopper_demand = Constants.IndexerConstants.kHopperIndexingVoltage;
                 mPeriodicIO.elevator_demand = Constants.IndexerConstants.kIdleVoltage;
+                //mPeriodicIO.correctColor = true;
 
                 /*if (mPeriodicIO.bottomLightBeamBreakSensor) {
                     if (mPeriodicIO.correctColor) {
