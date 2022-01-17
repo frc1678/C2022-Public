@@ -24,6 +24,12 @@ public class Pose2d implements IPose2d<Pose2d> {
         rotation_ = new Rotation2d();
     }
 
+    public Pose2d(edu.wpi.first.math.geometry.Pose2d pose2d) {
+        translation_ = new Translation2d(pose2d.getTranslation());
+        rotation_ = new Rotation2d(pose2d.getRotation());
+    }
+
+
     public Pose2d(double x, double y, final Rotation2d rotation) {
         translation_ = new Translation2d(x, y);
         rotation_ = rotation;
