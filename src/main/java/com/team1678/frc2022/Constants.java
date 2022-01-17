@@ -207,7 +207,6 @@ public class Constants {
                 kLimelightConstants.kName = "Limelight";
                 kLimelightConstants.kTableName = "limelight";
                 kLimelightConstants.kHeight = 24.5; // inches
-                kLimelightConstants.kTurretToLens = Pose2d.identity();
                 kLimelightConstants.kHorizontalPlaneToLens = Rotation2d.fromDegrees(0.0);
             }
 
@@ -216,6 +215,23 @@ public class Constants {
 		public static final double kVPW = 2.0 * Math.tan(Math.toRadians(kHorizontalFOV / 2.0));
 		public static final double kVPH = 2.0 * Math.tan(Math.toRadians(kVerticalFOV / 2.0));
 		public static final double kImageCaptureLatency = 11.0 / 1000.0; // seconds
+
+        /* Goal Tracker Constants */
+
+        public static final double kMaxTrackerDistance = 15.0;
+        public static final double kMaxGoalTrackAge = 30.0;
+        public static final double kMaxGoalTrackAgeNotTracking = 0.3;
+        public static final double kMaxGoalTrackSmoothingTime = 1.5;
+        public static final double kTrackStabilityWeight = 0.0;
+        public static final double kTrackAgeWeight = 10.0;
+        public static final double kTrackSwitchingWeight = 100.0;
+        public static final boolean kEnableCachedGoal = true;
+
+        public static final double kCameraFrameRate = 90.0;
+        public static final double kMinStability = 0.5;
+        public static final int kDefaultPipeline = 0;
+        public static final double kGoalHeight = 90.0;
+        
 	}
 
     /*** SUBSYSTEM CONSTANTS ***/
@@ -239,6 +255,8 @@ public class Constants {
     public static final class HoodConstants {
         public static final double kCalibratingVoltage = -2.0;
         public static final double kCalibrationCurrentThreshold = 15.0;
+
+        public static final double kHoodRadius = 11.904; // radius of hood // TODO: check this value
 
         public static final ServoMotorSubsystemConstants kHoodServoConstants = new ServoMotorSubsystemConstants();
         static {
