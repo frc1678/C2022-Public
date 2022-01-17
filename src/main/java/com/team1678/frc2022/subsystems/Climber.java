@@ -15,8 +15,9 @@ import edu.wpi.first.wpilibj.Solenoid;
 
 public class Climber extends Subsystem {
 
-    private TalonFX mClimber;
+    private TalonFX mClimberMaster;
     private final Solenoid mSolenoid;
+    private TalonFX mClimberSlave;
 
     private static Climber mInstance;
 
@@ -24,7 +25,8 @@ public class Climber extends Subsystem {
 
     private Climber() {
         mSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.CLIMBER_PIVOT_SOLENOID);
-        mClimber = TalonFXFactory.createDefaultTalon(Ports.CLIMBER_ID);
+        mClimberMaster = TalonFXFactory.createDefaultTalon(Ports.CLIMBER_MASTER_ID);
+        mClimberSlave = TalonFXFactory.createPermanentSlaveTalon(Ports.CLIMBER_SLAVE_ID, Ports.CLIMBER_MASTER_ID);
     }
 
     public synchronized static Climber getInstance() {
@@ -50,7 +52,7 @@ public class Climber extends Subsystem {
 
     @Override
     public void writePeriodicOutputs() {
-        mClimber.set(ControlMode.PercentOutput, mPeriodicIO.climber_demand / 12.0);
+        mClimberMaster.set(ControlMode.PercentOutput, mPeriodicIO.climber_demand / 12.0);
         mSolenoid.set(mPeriodicIO.climber_solenoid);
     }
 
@@ -102,8 +104,8 @@ public class Climber extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        mPeriodicIO.climber_voltage = mClimber.getMotorOutputVoltage();
-        mPeriodicIO.climber_current = mClimber.getStatorCurrent();
+        mPeriodicIO.climber_voltage = mClimberMaster.getMotorOutputVoltage();
+        mPeriodicIO.climber_current = mClimberMaster.getStatorCurrent();
         mPeriodicIO.climber_solenoid = mSolenoid.get();
     }
 
@@ -132,7 +134,7 @@ public class Climber extends Subsystem {
     @Override
     public void stop(){
         setState(WantedAction.NONE);
-        mClimber.set(ControlMode.PercentOutput, 0);
+        mClimberMaster.set(ControlMode.PercentOutput, 0);
     }
 
     public double getMotorVoltage() {
