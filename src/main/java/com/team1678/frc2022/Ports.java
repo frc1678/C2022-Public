@@ -39,7 +39,8 @@ public class Ports {
     public static final int ELEVATOR_ID = 11;
     public static final int ELEVATOR_SENSOR = 0;
 
-    public static final int FLYWHEEL_ID = 12;
+    public static final int FLYWHEEL_MASTER_ID = 12;
+    public static final int FLYWHEEL_SLAVE_ID = 16;
     public static final int HOOD_ID = 13;
 
     public static final int CLIMBER_ID = 14;

@@ -213,7 +213,9 @@ public class Constants {
 
     public static final class ShooterConstants {
 
-        public static final double kFlywheelVelocityConversion = 100/2048; // TODO Change to actual ratio, remember velo is measured in ticks/100ms
+        public static final double kFlywheelVelocityConversion = 600 / 2048 * (3/4); 
+        public static final double kKickerVelocityConversion = 600 / 2048; // 1:1 ratio on the kicker
+        
         public static final double kFlywheelTolerance = 200;
         public static final double kShooterP = 0.25; // TODO Retune these
         public static final double kShooterI = 0.00004;
