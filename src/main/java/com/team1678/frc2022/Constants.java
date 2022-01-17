@@ -298,12 +298,11 @@ public class Constants {
         public static final int kBottomBeamBreak = 1;
         public static final int kTopBeamBreak = 0;
 
-        public static final double kElevatorIndexingVoltage = 3.0;
-        public static final double kElevatorReversingVoltage = -3.0;
+        public static final double kElevatorIndexingVoltage = 5.0;
+        public static final double kElevatorReversingVoltage = -5.0;
         public static final double kIdleVoltage = 0.0;
-        public static final double kHopperIdleVoltage = 2;
-        public static final double kHopperIndexingVoltage = 6;
-        public static final double kHopperReversingVoltage = -6;
+        public static final double kHopperIndexingVoltage = 5;
+        public static final double kHopperReversingVoltage = -5;
 
         public static final boolean isRedAlliance = true;
         public static final Color kBlueBallColor = new Color(0.134, 0.432, 0.434);
