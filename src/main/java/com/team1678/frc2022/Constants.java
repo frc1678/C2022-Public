@@ -307,7 +307,9 @@ public class Constants {
     }
         
     public static final class ClimberConstants {
-
+        public static final double kCalibratingVoltage = -1.5;
+        public static final double kCalibrationCurrentThreshold = 15;
+        public static final double kClimberControlDelta = 50;
     }
 
     // Timeout constants

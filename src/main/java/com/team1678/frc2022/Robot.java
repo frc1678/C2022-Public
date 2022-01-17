@@ -18,11 +18,13 @@ import com.team1678.frc2022.subsystems.Infrastructure;
 import com.team1678.frc2022.subsystems.Intake;
 import com.team1678.frc2022.subsystems.Limelight;
 import com.team1678.frc2022.subsystems.Swerve;
+import com.team1678.frc2022.subsystems.Intake.State;
 import com.team1678.frc2022.subsystems.Intake.WantedAction;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -80,6 +82,7 @@ public class Robot extends TimedRobot {
 					mSwerve,
 					mIntake,
 					mInfrastructure,
+					mClimber,
 					mLimelight);
 
 			mSubsystemManager.registerEnabledLoops(mEnabledLooper);
@@ -95,6 +98,8 @@ public class Robot extends TimedRobot {
 	@Override
 	public void robotPeriodic() {
 		mShuffleBoardInteractions.update();
+
+		SmartDashboard.putNumber("Trigger input", mControlBoard.getClimberMotor());
 	}
 
 	@Override
@@ -151,13 +156,13 @@ public class Robot extends TimedRobot {
 			Translation2d swerveTranslation = new Translation2d(mControlBoard.getSwerveTranslation().x(),
 					mControlBoard.getSwerveTranslation().y());
 			double swerveRotation = mControlBoard.getSwerveRotation();
-			mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
+			//mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
 
-			if (mControlBoard.getVisionAlign()) {
-				mSwerve.visionAlignDrive(swerveTranslation, true, true);
-			} else {
-				mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
-			}
+			// if (mControlBoard.getVisionAlign()) {
+			// 	mSwerve.visionAlignDrive(swerveTranslation, true, true);
+			// } else {
+			// 	mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
+			// }
 
 			if (mControlBoard.getClimbMode()) {
 				mClimbMode = true;
@@ -178,6 +183,8 @@ public class Robot extends TimedRobot {
 				if (mControlBoard.getLeaveClimbMode()) {
 					mClimbMode = false;
 				}
+
+				mIntake.setState(State.STAYING_OUT);
 				
 				if (mControlBoard.getClimberSolenoidDeploy()) {
 					mClimber.setWantDeploy(true);
@@ -186,7 +193,8 @@ public class Robot extends TimedRobot {
 					mClimber.setWantDeploy(false);
 				}
 
-				mClimber.setClimberDemand(mControlBoard.getClimberMotor());
+				//mClimber.setClimberOpenLoop(mControlBoard.getClimberMotor());
+				mClimber.setClimberPositionDelta(mControlBoard.getClimberMotor() * Constants.ClimberConstants.kClimberControlDelta);
 			}
 
 		} catch (Throwable t) {

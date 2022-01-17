@@ -1,6 +1,7 @@
 package com.team1678.frc2022;
 
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
+import com.team1678.frc2022.subsystems.Climber;
 import com.team1678.frc2022.subsystems.Intake;
 import com.team1678.frc2022.subsystems.Limelight;
 import com.team1678.frc2022.subsystems.Swerve;
@@ -33,6 +34,7 @@ public class ShuffleBoardInteractions {
     private final Swerve mSwerve;
     private final SwerveModule[] mSwerveModules;
     private final Intake mIntake;
+    private final Climber mClimber;
 
     /* Status Variable */
     private double lastCancoderUpdate = 0.0;
@@ -42,6 +44,7 @@ public class ShuffleBoardInteractions {
     private ShuffleboardTab SWERVE_TAB;
     private ShuffleboardTab PID_TAB;
     private ShuffleboardTab INTAKE_TAB;
+    private ShuffleboardTab CLIMBER_TAB;
 
     /* ENTRIES */
 
@@ -59,6 +62,10 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mLimelightDt;
     private final NetworkTableEntry mLimelightTx;
     private final NetworkTableEntry mLimelightTy;
+
+    /* Climber */
+    private final NetworkTableEntry mClimberCurrent;
+    private final NetworkTableEntry mClimberPostion;
 
     /* Swerve Modules */
     private final String[] kSwervePlacements = {"Front Left", "Front Right", "Back Left", "Back Right"};
@@ -87,12 +94,14 @@ public class ShuffleBoardInteractions {
         mSwerve = Swerve.getInstance();
         mSwerveModules = Swerve.getInstance().mSwerveMods;
         mIntake = Intake.getInstance();
+        mClimber = Climber.getInstance();
 
         /* Get Tabs */
         VISION_TAB = Shuffleboard.getTab("Vision");
         SWERVE_TAB = Shuffleboard.getTab("Swerve");
         PID_TAB = Shuffleboard.getTab("Module PID");
         INTAKE_TAB = Shuffleboard.getTab("Intake");
+        CLIMBER_TAB = Shuffleboard.getTab("Climber");
         
         /* Create Entries */
         mLimelightOk = VISION_TAB
@@ -234,6 +243,14 @@ public class ShuffleBoardInteractions {
         mIntakeDeployed = INTAKE_TAB
                 .add("Intake Deployed", mIntake.mPeriodicIO.deploy)
                 .getEntry();
+
+        /* Climber */
+        mClimberCurrent = CLIMBER_TAB
+                .add("Climber Current", 0.0)
+                .getEntry();
+        mClimberPostion = CLIMBER_TAB
+                .add("Climber Position", 0.0)
+                .getEntry();
     }
 
     public void update() {
@@ -283,6 +300,9 @@ public class ShuffleBoardInteractions {
         mCurrentAngleP.setDouble(currentPIDVals[0]);
         mCurrentAngleI.setDouble(currentPIDVals[1]);
         mCurrentAngleD.setDouble(currentPIDVals[2]);
+
+        mClimberPostion.setDouble(truncate(mClimber.getMotorPosition()));
+        mClimberCurrent.setDouble(truncate(mClimber.getStatorCurrent()));
     }
 
     /* Truncates number to 2 decimal places for cleaner numbers */
