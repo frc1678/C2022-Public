@@ -172,7 +172,7 @@ public class Robot extends TimedRobot {
 
           /* INDEXER */
           //TODO: delete later
-          if (mControlBoard.getElevating()) {
+         /* if (mControlBoard.getElevating()) {
             mIndexer.setState(Indexer.WantedAction.ELEVATE);
           } else if (mControlBoard.getIndexing()) {
             mIndexer.setState(Indexer.WantedAction.INDEX);
@@ -182,7 +182,7 @@ public class Robot extends TimedRobot {
             mIndexer.setState(Indexer.WantedAction.REVERSE);
           } else {
             mIndexer.setState(Indexer.WantedAction.NONE);
-          }
+          }*/
 
       } catch (Throwable t) {
         CrashTracker.logThrowableCrash(t);
