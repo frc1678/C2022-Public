@@ -1,6 +1,7 @@
 package com.team1678.frc2022.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
@@ -135,6 +136,11 @@ public class Climber extends Subsystem {
     public void stop(){
         setState(WantedAction.NONE);
         mClimberMaster.set(ControlMode.PercentOutput, 0);
+    }
+
+    public synchronized void setBrakeMode(boolean brake) {
+        mClimberMaster.setNeutralMode(brake ? NeutralMode.Brake : NeutralMode.Coast);
+        mClimberSlave.setNeutralMode(brake ? NeutralMode.Brake: NeutralMode.Coast);
     }
 
     public double getMotorVoltage() {

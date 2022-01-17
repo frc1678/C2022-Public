@@ -128,6 +128,7 @@ public class Robot extends TimedRobot {
         mEnabledLooper.start();
 
         mInfrastructure.setIsDuringAuto(false);
+        mClimber.setBrakeMode(true);
 
     } catch (Throwable t) {
         CrashTracker.logThrowableCrash(t);
