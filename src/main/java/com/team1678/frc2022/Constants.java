@@ -304,6 +304,7 @@ public class Constants {
         public static final double kIdleVoltage = 0.0;
         public static final double kHopperIndexingVoltage = 5;
         public static final double kHopperReversingVoltage = -5;
+        public static final double kFeedingVoltage = 8.0;
 
     }
         
