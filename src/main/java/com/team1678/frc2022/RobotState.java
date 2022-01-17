@@ -227,7 +227,7 @@ public class RobotState {
         return getFieldToVehicle(timestamp).inverse().transformBy(fieldToVisionTarget);
     }
 
-    public synchronized Optional<AimingParameters> getAimingParameters(boolean inner_goal, int prev_track_id,
+    public synchronized Optional<AimingParameters> getAimingParameters(int prev_track_id,
             double max_track_age) {
         GoalTracker tracker = vision_target_;
         List<GoalTracker.TrackReport> reports = tracker.getTracks();
@@ -255,7 +255,7 @@ public class RobotState {
         }
 
         Pose2d vehicleToGoal = getFieldToVehicle(timestamp).inverse().transformBy(report.field_to_target)
-                .transformBy(getVisionTargetToGoalOffset(inner_goal));
+                .transformBy(getVisionTargetToGoalOffset());
 
         AimingParameters params = new AimingParameters(vehicleToGoal, report.field_to_target,
                 report.field_to_target.getRotation(), report.latest_timestamp, report.stability, report.id);
@@ -266,7 +266,7 @@ public class RobotState {
         return new Pose2d();
     }
 
-    public synchronized Pose2d getVisionTargetToGoalOffset(boolean inner_goal) {
+    public synchronized Pose2d getVisionTargetToGoalOffset() {
         return Pose2d.fromTranslation(new Translation2d(0, 0));
     }
 
@@ -276,7 +276,7 @@ public class RobotState {
         SmartDashboard.putNumber("Robot X", getLatestFieldToVehicle().getValue().getTranslation().x());
         SmartDashboard.putNumber("Robot Y", getLatestFieldToVehicle().getValue().getTranslation().y());
         SmartDashboard.putNumber("Robot Theta", getLatestFieldToVehicle().getValue().getRotation().getDegrees());
-        Optional<AimingParameters> params = getAimingParameters(false, -1, Constants.VisionConstants.kMaxGoalTrackAge);
+        Optional<AimingParameters> params = getAimingParameters(-1, Constants.VisionConstants.kMaxGoalTrackAge);
         SmartDashboard.putBoolean("Has Aiming Parameters", params.isPresent());
         if (params.isPresent()) {
             SmartDashboard.putNumber("Vehicle to Target", params.get().getRange());

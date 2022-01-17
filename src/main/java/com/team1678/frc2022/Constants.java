@@ -206,8 +206,8 @@ public class Constants {
 		    static {
                 kLimelightConstants.kName = "Limelight";
                 kLimelightConstants.kTableName = "limelight";
-                kLimelightConstants.kHeight = 24.5; // inches
-                kLimelightConstants.kHorizontalPlaneToLens = Rotation2d.fromDegrees(0.0);
+                kLimelightConstants.kHeight = 2.64; // meters
+                kLimelightConstants.kHorizontalPlaneToLens = Rotation2d.fromDegrees(30.0);
             }
 
 		public static final double kHorizontalFOV = 59.6; // degrees

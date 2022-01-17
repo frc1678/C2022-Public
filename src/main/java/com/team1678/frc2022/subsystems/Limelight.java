@@ -1,6 +1,7 @@
 package com.team1678.frc2022.subsystems;
 
 import com.team1678.frc2022.Constants;
+import com.team1678.frc2022.RobotState;
 import com.team1678.frc2022.loops.Loop;
 import com.team1678.frc2022.loops.ILooper;  
 
@@ -75,6 +76,12 @@ public class Limelight extends Subsystem {
                 }
 
                 setLed(LedMode.ON);
+
+                if (mPeriodicIO.has_comms /*&& !Superstructure.getInstance().getDisableLimelight()*/) {
+                        RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), getTarget());
+                } else {
+                    RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), null);
+                }
 
                 final double end = Timer.getFPGATimestamp();
                 mPeriodicIO.dt = end - start;
