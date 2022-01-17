@@ -68,7 +68,9 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mHopperDemand;
     private final NetworkTableEntry mHopperVoltage;
     private final NetworkTableEntry mHopperCurrent;
-    
+
+    private final NetworkTableEntry mDetectedColor;
+    private final NetworkTableEntry mMatchedColor;
 
     /* Vision */
     private final NetworkTableEntry mSeesTarget;
@@ -285,6 +287,14 @@ public class ShuffleBoardInteractions {
         mHopperCurrent = INDEXER_TAB
             .add("Hopper Current", mIndexer.mPeriodicIO.hopper_current)
             .getEntry();
+
+        mDetectedColor = INDEXER_TAB
+            .add("Detected Color", mIndexer.mPeriodicIO.detected_color)
+            .getEntry();
+
+        mMatchedColor = INDEXER_TAB
+            .add("Matched Color", mIndexer.mMatch)
+            .getEntry();
     }
 
     public void update() {
@@ -308,6 +318,8 @@ public class ShuffleBoardInteractions {
         mHopperDemand.setDouble(mIndexer.getHopperDemand());
         mHopperCurrent.setDouble(mIndexer.getHopperCurrent());
         mHopperVoltage.setDouble(mIndexer.getHopperVoltage());
+
+        
 
         /* Vision */
         mSeesTarget.setBoolean(mLimelight.seesTarget());

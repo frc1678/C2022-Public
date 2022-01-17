@@ -103,6 +103,7 @@ public class Indexer extends Subsystem{
 
         if (reading.color != null) {
             mPeriodicIO.detected_color = reading.color;
+            mMatch = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
         }
 
         if (mMatch.color == Constants.IndexerConstants.kNeutralColor) {
@@ -160,8 +161,8 @@ public class Indexer extends Subsystem{
         return mPeriodicIO.bottomLightBeamBreakSensor;
     }
 
-    public Color getDetectedColor() {
-        return mPeriodicIO.detected_color;
+    public String getDetectedColor() {
+        return mPeriodicIO.detected_color.toString();
     }
 
     public String getMatchedColor() {
