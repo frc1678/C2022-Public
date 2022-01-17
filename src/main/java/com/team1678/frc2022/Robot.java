@@ -81,7 +81,8 @@ public class Robot extends TimedRobot {
             //mSwerve,
             mIntake,
             mShooter,
-            mInfrastructure
+            mInfrastructure,
+            mIndexer
         );
 
         mSubsystemManager.registerEnabledLoops(mEnabledLooper);
@@ -154,24 +155,25 @@ public class Robot extends TimedRobot {
           double swerveRotation = mControlBoard.getSwerveRotation();
           //mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
 
-          if (mControlBoard.getVisionAlign()) {
-            mSwerve.visionAlignDrive(swerveTranslation, true, true);
-          } else {
-            mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
-          }
+          // if (mControlBoard.getVisionAlign()) {
+          //   mSwerve.visionAlignDrive(swerveTranslation, true, true);
+          // } else {
+          //   mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
+          // }
 
           // Intake
           if (mControlBoard.getIntake()) {
             mIntake.setState(Intake.WantedAction.INTAKE);
-            mIndexer.setState(Indexer.WantedAction.INDEX);
           } else if (mControlBoard.getOuttake()) {
             mIntake.setState(Intake.WantedAction.REVERSE);
-            mIndexer.setState(Indexer.WantedAction.REVERSE); 
           } else if (mControlBoard.getSpitting()) {
             mIntake.setState(Intake.WantedAction.SPIT);
           } else {
             mIntake.setState(Intake.WantedAction.NONE);
-            mIndexer.setState(Indexer.WantedAction.NONE);
+          }
+
+          if (mControlBoard.operator.getController().getYButtonPressed()) {
+            mSuperstructure.toggleShoot();
           }
 
           /* INDEXER */

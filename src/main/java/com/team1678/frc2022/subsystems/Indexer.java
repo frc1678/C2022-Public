@@ -7,12 +7,15 @@ import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.controlboard.ControlBoard.TurretCardinal;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
+import com.team1678.frc2022.subsystems.Intake.State;
 import com.team254.lib.drivers.TalonFXFactory;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 
-public class Indexer extends Subsystem{
+public class Indexer extends Subsystem {
+    
+    private final Superstructure mSuperstructure = Superstructure.getInstance();
 
     private final TalonFX mElevator;
     private final TalonFX mHopperMaster;
@@ -44,6 +47,8 @@ public class Indexer extends Subsystem{
     }
 
     private Indexer() {
+        //mSuperstructure = Superstructure.getInstance();
+
         mElevator = TalonFXFactory.createDefaultTalon(Ports.ELEVATOR_ID);
         mHopperMaster = TalonFXFactory.createDefaultTalon(Ports.HOPPER_MASTER_ID);
         mHopperSlave = TalonFXFactory.createPermanentSlaveTalon(Ports.HOPPER_SLAVE_ID, Ports.HOPPER_MASTER_ID);
@@ -194,7 +199,11 @@ public class Indexer extends Subsystem{
                     }
                 } else {
                     if (mPeriodicIO.topLightBeamBreakSensor) {
-                        mState = State.HOPPING;
+                        if (mSuperstructure.mWantsShoot) {
+                            mState = State.INDEXING;
+                        } else {
+                            mState = State.HOPPING;
+                        }
                     } else {
                         mState = State.INDEXING;
                     }

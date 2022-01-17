@@ -69,8 +69,6 @@ public class Shooter extends Subsystem {
 
             @Override
             public void onLoop(double timestamp) {
-                setVelocity(500);
-                //setOpenLoop(2.0);
                 SmartDashboard.putBoolean("Open Loop Shooter", mIsOpenLoop);
                 SmartDashboard.putNumber("Shooter Demand", mPeriodicIO.flywheel_demand);
             }
