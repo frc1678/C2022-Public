@@ -3,6 +3,7 @@ package com.team1678.frc2022;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.team1678.frc2022.subsystems.Intake;
 import com.team1678.frc2022.subsystems.Limelight;
+import com.team1678.frc2022.subsystems.Shooter;
 import com.team1678.frc2022.subsystems.Swerve;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -13,8 +14,6 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.math.MathUtil;
-
-import com.team254.lib.util.ReflectingCSVWriter;
 
 public class ShuffleBoardInteractions {
 
@@ -33,6 +32,7 @@ public class ShuffleBoardInteractions {
     private final Swerve mSwerve;
     private final SwerveModule[] mSwerveModules;
     private final Intake mIntake;
+    private final Shooter mShooter;
 
     /* Status Variable */
     private double lastCancoderUpdate = 0.0;
@@ -42,6 +42,7 @@ public class ShuffleBoardInteractions {
     private ShuffleboardTab SWERVE_TAB;
     private ShuffleboardTab PID_TAB;
     private ShuffleboardTab INTAKE_TAB;
+    private ShuffleboardTab SHOOTER_TAB;
 
     /* ENTRIES */
 
@@ -51,6 +52,10 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mIntakeVoltage;
     private final NetworkTableEntry mIntakeDemand;
     private final NetworkTableEntry mIntakeDeployed;
+
+    /* Shooter */
+    private final NetworkTableEntry mFlywheelRPM;
+    private final NetworkTableEntry mKickerRPM;
 
     /* Vision */
     private final NetworkTableEntry mSeesTarget;
@@ -87,6 +92,7 @@ public class ShuffleBoardInteractions {
         mSwerve = Swerve.getInstance();
         mSwerveModules = Swerve.getInstance().mSwerveMods;
         mIntake = Intake.getInstance();
+        mShooter = Shooter.getInstance();
 
         /* Get Tabs */
         VISION_TAB = Shuffleboard.getTab("Vision");
@@ -234,7 +240,21 @@ public class ShuffleBoardInteractions {
         mIntakeDeployed = INTAKE_TAB
                 .add("Intake Deployed", mIntake.mPeriodicIO.deploy)
                 .getEntry();
+                
+        /* Shooter */
+        mFlywheelRPM = SHOOTER_TAB
+                .add("Shooter RPM", 0.0)
+                .withPosition(0, 0)
+                .withSize(2, 1)
+                .getEntry();
+
+        mKickerRPM = SHOOTER_TAB
+                .add("Kicker RPM", 0.0)
+                .withPosition(2, 0)
+                .withSize(2, 1)
+                .getEntry();
     }
+    
 
     public void update() {
         
@@ -244,6 +264,10 @@ public class ShuffleBoardInteractions {
         mIntakeDemand.setDouble(mIntake.getMotorDemand());
         mIntakeDeployed.setBoolean(mIntake.getDeployed());
         mIntakeCurrent.setDouble(mIntake.getMotorCurrent());
+
+        /* Shooter */
+        mFlywheelRPM.setDouble(truncate(mShooter.getShooterRPM()));
+        mKickerRPM.setDouble(truncate(mShooter.getKickerRPM()));
 
         /* Vision */
         mSeesTarget.setBoolean(mLimelight.seesTarget());
