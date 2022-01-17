@@ -297,12 +297,11 @@ public class Constants {
         public static final int kBottomBeamBreak = 1;
         public static final int kTopBeamBreak = 0;
 
-        public static final double kIndexingVoltage = 7.0;
-        public static final double kReversingVoltage = -7.0;
+        public static final double kElevatorIndexingVoltage = 5.0;
+        public static final double kElevatorReversingVoltage = -5.0;
         public static final double kIdleVoltage = 0.0;
-        public static final double kHopperIdleVoltage = 2;
-        public static final double kHopperIndexingVoltage = 6;
-        public static final double kHopperReversingVoltage = -6;
+        public static final double kHopperIndexingVoltage = 5;
+        public static final double kHopperReversingVoltage = -5;
 
     }
         
