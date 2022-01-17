@@ -231,8 +231,7 @@ public class Indexer extends Subsystem{
             case ELEVATE:
                 mState = State.ELEVATING;
                 break;
-            case INDEX:             
-                mPeriodicIO.correctColor = true;
+            case INDEX:
 
                 if (mPeriodicIO.bottomLightBeamBreakSensor) {
                     if (mPeriodicIO.topLightBeamBreakSensor) {
@@ -249,17 +248,11 @@ public class Indexer extends Subsystem{
                 }
                 break;
             case HOP:
-                mPeriodicIO.correctColor = true;
 
                 if (mPeriodicIO.bottomLightBeamBreakSensor) {
-                    if (mPeriodicIO.correctColor) {
-                        mPeriodicIO.eject = false;
-                        mState = State.IDLE;
-                    } else {
-                        mPeriodicIO.eject = true;
-                        mState = State.HOPPING;
-                    }
+                    mState = State.HOPPING;
                 }
+
                 break;
             case NONE:
                 mState = State.IDLE;
@@ -287,7 +280,6 @@ public class Indexer extends Subsystem{
         public double elevator_current;
         public boolean topLightBeamBreakSensor;
         public boolean bottomLightBeamBreakSensor;
-        public boolean correctColor;
         public double hopper_voltage;
         public double hopper_current;
         public Color detected_color;
