@@ -65,6 +65,7 @@ public class Indexer extends Subsystem{
 
         mColorMatcher.addColorMatch(Constants.IndexerConstants.kBlueBallColor);
         mColorMatcher.addColorMatch(Constants.IndexerConstants.kRedBallColor);
+        mColorMatcher.addColorMatch(Constants.IndexerConstants.kNeutralColor);
 
         if (Constants.IndexerConstants.isRedAlliance) {
             mAllianceColor = Constants.IndexerConstants.kRedBallColor;
