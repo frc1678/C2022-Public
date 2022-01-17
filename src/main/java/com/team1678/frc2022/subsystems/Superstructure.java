@@ -16,7 +16,7 @@ public class Superstructure extends Subsystem{
     };
 
     /* Required Subsystem Instances */
-    private final Hood mHood = Hood.getInstance();
+    //private final Hood mHood = Hood.getInstance();
     private final Shooter mShooter = Shooter.getInstance();
     private final Indexer mIndexer = Indexer.getInstance();
     private final Intake mIntake = Intake.getInstance();

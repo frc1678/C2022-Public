@@ -16,6 +16,7 @@ import com.team1678.frc2022.loops.Looper;
 import com.team1678.frc2022.subsystems.Infrastructure;
 import com.team1678.frc2022.subsystems.Intake;
 import com.team1678.frc2022.subsystems.Limelight;
+import com.team1678.frc2022.subsystems.Shooter;
 import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
 import com.team1678.frc2022.subsystems.Intake.WantedAction;
@@ -45,6 +46,7 @@ public class Robot extends TimedRobot {
   
   private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
   private final Superstructure mSuperstructure = Superstructure.getInstance();
+  private final Shooter mShooter = Shooter.getInstance();
   private final Swerve mSwerve = Swerve.getInstance();
   private final Intake mIntake = Intake.getInstance();
   private final Limelight mLimelight = Limelight.getInstance(); 
@@ -73,8 +75,9 @@ public class Robot extends TimedRobot {
 
         mSubsystemManager.setSubsystems(
             mSuperstructure,
-            mSwerve,
+            //mSwerve,
             mIntake,
+            mShooter,
             mInfrastructure
         );
 
@@ -146,7 +149,7 @@ public class Robot extends TimedRobot {
           }
           Translation2d swerveTranslation = new Translation2d(mControlBoard.getSwerveTranslation().x(), mControlBoard.getSwerveTranslation().y());
           double swerveRotation = mControlBoard.getSwerveRotation();
-          mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
+          //mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
 
           //Intake
           if (mControlBoard.getIntake()) {

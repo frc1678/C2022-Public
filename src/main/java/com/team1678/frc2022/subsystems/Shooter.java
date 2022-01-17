@@ -13,6 +13,7 @@ import com.team254.lib.drivers.TalonFXFactory;
 import com.team254.lib.util.Util;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Shooter extends Subsystem {
 
@@ -55,7 +56,6 @@ public class Shooter extends Subsystem {
         mSlave = TalonFXFactory.createPermanentSlaveTalon(Ports.FLYWHEEL_SLAVE_ID, Ports.FLYWHEEL_MASTER_ID);
         mSlave.setInverted(true);
 
-
         setOpenLoop(0.0);
     }
 
@@ -69,7 +69,10 @@ public class Shooter extends Subsystem {
 
             @Override
             public void onLoop(double timestamp) {
-
+                setVelocity(500);
+                //setOpenLoop(2.0);
+                SmartDashboard.putBoolean("Open Loop Shooter", mIsOpenLoop);
+                SmartDashboard.putNumber("Shooter Demand", mPeriodicIO.flywheel_demand);
             }
 
             @Override

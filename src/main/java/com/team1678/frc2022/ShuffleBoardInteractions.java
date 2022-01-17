@@ -57,6 +57,12 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mFlywheelRPM;
     private final NetworkTableEntry mKickerRPM;
 
+    // private final NetworkTableEntry mFlywheelManualPIDToggle;
+    // private final NetworkTableEntry mFlywheelP;
+    // private final NetworkTableEntry mFlywheelI;
+    // private final NetworkTableEntry mFlywheelD;
+    // private final NetworkTableEntry mFlywheelF;
+
     /* Vision */
     private final NetworkTableEntry mSeesTarget;
     private final NetworkTableEntry mLimelightOk;
@@ -99,6 +105,7 @@ public class ShuffleBoardInteractions {
         SWERVE_TAB = Shuffleboard.getTab("Swerve");
         PID_TAB = Shuffleboard.getTab("Module PID");
         INTAKE_TAB = Shuffleboard.getTab("Intake");
+        SHOOTER_TAB = Shuffleboard.getTab("Shooter");
         
         /* Create Entries */
         mLimelightOk = VISION_TAB
@@ -253,6 +260,15 @@ public class ShuffleBoardInteractions {
                 .withPosition(2, 0)
                 .withSize(2, 1)
                 .getEntry();
+
+        // mFlywheelManualPIDToggle = SHOOTER_TAB
+        //         .add("Apply PID", false)
+        //         .withWidget(BuiltInWidgets.kToggleButton)
+        //         .withPosition(1, 2)
+        //         .withSize(2, 2)
+        //         .getEntry()
+
+        //mFlywheelP = SHOOTER_TAB.add("Shooter P", 0.0)
     }
     
 
