@@ -66,8 +66,8 @@ public class Indexer extends Subsystem{
     public synchronized void readPeriodicInputs() {
         mPeriodicIO.timestamp = Timer.getFPGATimestamp();
 
-        mPeriodicIO.topLightBeamBreakSensor = mBottomBeamBreak.get();
-        mPeriodicIO.bottomLightBeamBreakSensor = mTopBeamBreak.get();
+        mPeriodicIO.topLightBeamBreakSensor = !mBottomBeamBreak.get();
+        mPeriodicIO.bottomLightBeamBreakSensor = !mTopBeamBreak.get();
 
         mPeriodicIO.hopper_current = mHopperMaster.getStatorCurrent();
         mPeriodicIO.hopper_voltage = mHopperMaster.getMotorOutputVoltage();
@@ -78,8 +78,8 @@ public class Indexer extends Subsystem{
 
     @Override
     public void writePeriodicOutputs() {
-        mElevator.set(ControlMode.PercentOutput, mPeriodicIO.elevator_demand / 12.0);
-        mHopperMaster.set(ControlMode.PercentOutput, mPeriodicIO.hopper_demand / 12.0);
+        mElevator.set(ControlMode.Velocity, mPeriodicIO.elevator_demand);
+        mHopperMaster.set(ControlMode.Velocity, mPeriodicIO.hopper_demand);
     }
 
     @Override
@@ -152,18 +152,18 @@ public class Indexer extends Subsystem{
                 mPeriodicIO.elevator_demand = 0;
                 break;
             case ELEVATING:
-                mPeriodicIO.hopper_demand = Constants.IndexerConstants.kIdleVoltage;
-                mPeriodicIO.elevator_demand = Constants.IndexerConstants.kElevatorIndexingVoltage;
+                mPeriodicIO.hopper_demand = Constants.IndexerConstants.kIdleVelocity;
+                mPeriodicIO.elevator_demand = Constants.IndexerConstants.kElevatorIndexingVelocity;
                 break;
             case INDEXING:
-                mPeriodicIO.hopper_demand = Constants.IndexerConstants.kHopperIndexingVoltage;
-                mPeriodicIO.elevator_demand = Constants.IndexerConstants.kElevatorIndexingVoltage;
+                mPeriodicIO.hopper_demand = Constants.IndexerConstants.kHopperIndexingVelocity;
+                mPeriodicIO.elevator_demand = Constants.IndexerConstants.kElevatorIndexingVelocity;
                 //mPeriodicIO.correctColor = true;
 
                 /*if (mPeriodicIO.bottomLightBeamBreakSensor) {
                     if (mPeriodicIO.correctColor) {
                         mPeriodicIO.eject = false;
-                        if (mPeriodicIO.topLightBeamBreakSensor) {
+                        if (PeriodicIO.topLightBeamBreakSensor) {
                             mState = State.HOPPING;
                         } else {
                             mState = State.INDEXING;
@@ -181,8 +181,8 @@ public class Indexer extends Subsystem{
 
                 break;
             case HOPPING:
-                mPeriodicIO.hopper_demand = Constants.IndexerConstants.kHopperIndexingVoltage;
-                mPeriodicIO.elevator_demand = Constants.IndexerConstants.kIdleVoltage;
+                mPeriodicIO.hopper_demand = Constants.IndexerConstants.kHopperIndexingVelocity;
+                mPeriodicIO.elevator_demand = Constants.IndexerConstants.kIdleVelocity;
                 //mPeriodicIO.correctColor = true;
 
                 /*if (mPeriodicIO.bottomLightBeamBreakSensor) {
@@ -197,8 +197,8 @@ public class Indexer extends Subsystem{
 
                 break;
             case REVERSING:
-                mPeriodicIO.elevator_demand = Constants.IndexerConstants.kElevatorReversingVoltage;
-                mPeriodicIO.hopper_demand = Constants.IndexerConstants.kHopperReversingVoltage;
+                mPeriodicIO.elevator_demand = Constants.IndexerConstants.kElevatorReversingVelocity;
+                mPeriodicIO.hopper_demand = Constants.IndexerConstants.kHopperReversingVelocity;
                 break;
 
         }
