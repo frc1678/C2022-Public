@@ -156,13 +156,12 @@ public class Robot extends TimedRobot {
 			Translation2d swerveTranslation = new Translation2d(mControlBoard.getSwerveTranslation().x(),
 					mControlBoard.getSwerveTranslation().y());
 			double swerveRotation = mControlBoard.getSwerveRotation();
-			//mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
 
-			// if (mControlBoard.getVisionAlign()) {
-			// 	mSwerve.visionAlignDrive(swerveTranslation, true, true);
-			// } else {
-			// 	mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
-			// }
+			if (mControlBoard.getVisionAlign()) {
+				mSwerve.visionAlignDrive(swerveTranslation, true, true);
+			} else {
+				mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
+			}
 
 			if (mControlBoard.getClimbMode()) {
 				mClimbMode = true;

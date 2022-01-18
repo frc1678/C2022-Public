@@ -9,6 +9,7 @@ import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.loops.ILooper;
 import com.team254.lib.drivers.TalonFXFactory;
+import com.team254.lib.util.TimeDelayedBoolean;
 
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
@@ -16,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Climber extends Subsystem {
 
+    private TimeDelayedBoolean mCurrentSpiked = new TimeDelayedBoolean();
     private boolean mHomed = false;
     private boolean mIsOpenLoop = false;
 
@@ -44,7 +46,7 @@ public class Climber extends Subsystem {
         mSlave = TalonFXFactory.createPermanentSlaveTalon(Ports.CLIMBER_MASTER_ID, Ports.CLIMBER_SLAVE_ID);
 
         mMaster.set(ControlMode.PercentOutput, 0);
-        mMaster.setInverted(true);
+        mMaster.setInverted(false);
         mSlave.setInverted(true);
 
         mMaster.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
@@ -77,7 +79,7 @@ public class Climber extends Subsystem {
         mPeriodicIO.motor_position = mMaster.getSelectedSensorPosition();
         
         if (!mHomed) {
-            if (mPeriodicIO.stator_current > 15) {
+            if (mCurrentSpiked.update(mPeriodicIO.stator_current > Constants.ClimberConstants.kCalibrationCurrentThreshold, Constants.ClimberConstants.kCalibrationTimeoutSeconds)) {
                 zeroEncoder();
             }
         }
@@ -121,7 +123,11 @@ public class Climber extends Subsystem {
 
     public void setWantDeploy(boolean wantsDeploy) {
         mPeriodicIO.deploy_solenoid = wantsDeploy;
-    } 
+    }
+    
+    public boolean getHomed() {
+        return mHomed;
+    }
 
     public void registerEnabledLoops(ILooper enabledLooper) {
     }

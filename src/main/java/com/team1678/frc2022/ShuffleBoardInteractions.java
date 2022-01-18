@@ -64,6 +64,7 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mLimelightTy;
 
     /* Climber */
+    private final NetworkTableEntry mClimberHomed;
     private final NetworkTableEntry mClimberCurrent;
     private final NetworkTableEntry mClimberPostion;
 
@@ -251,6 +252,9 @@ public class ShuffleBoardInteractions {
         mClimberPostion = CLIMBER_TAB
                 .add("Climber Position", 0.0)
                 .getEntry();
+        mClimberHomed = CLIMBER_TAB
+                .add("Climber Homed", false)
+                .getEntry();
     }
 
     public void update() {
@@ -301,6 +305,7 @@ public class ShuffleBoardInteractions {
         mCurrentAngleI.setDouble(currentPIDVals[1]);
         mCurrentAngleD.setDouble(currentPIDVals[2]);
 
+        mClimberHomed.setBoolean(mClimber.getHomed());
         mClimberPostion.setDouble(truncate(mClimber.getMotorPosition()));
         mClimberCurrent.setDouble(truncate(mClimber.getStatorCurrent()));
     }
