@@ -145,9 +145,9 @@ public class Constants {
     public static final class VisionAlignConstants {
         public static final double kP = 20.0;
         public static final double kI = 0;
-        public static final double kD = 1.2;
-        public static final double visionAlignTimeout = 0.25;
-        public static final double visionAlignEpsilon = 1.0;
+        public static final double kD = 1.1;
+        public static final double kVisionAlignTimeout = 0.25;
+        public static final double kVisionAlignEpsilon = 1.0;
 
         // Constraints for the profiled angle controller
         public static final double kMaxAngularSpeedRadiansPerSecond = 2.0 * Math.PI;
@@ -158,9 +158,10 @@ public class Constants {
     }
 
     public static final class AutoConstants {
-        public static final double kMaxSpeedMetersPerSecond = 2.5; // TODO: Revise this
-        public static final double kMaxAccelerationMetersPerSecondSquared = 3.0; // TODO: Revise this
-        public static final double kMaxAngularSpeedRadiansPerSecond = 2.0 * Math.PI; // TODO: Revise this
+        public static final double kMaxSpeedMetersPerSecond = 2.0; // TODO: Revise this
+        public static final double kMaxAccelerationMetersPerSecondSquared = 2.5 // TODO: Revise this
+        ; // TODO: Revise this
+        public static final double kMaxAngularSpeedRadiansPerSecond = 2.0*Math.PI; // TODO: Revise this
         public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.pow(kMaxAngularSpeedRadiansPerSecond, 2); // TODO: Revise this
 
         public static final double kPXController = 1;
@@ -221,7 +222,7 @@ public class Constants {
     /*** SUBSYSTEM CONSTANTS ***/
 
     public static final class IntakeConstants {
-        public static final double kIntakingVoltage = 7;
+        public static final double kIntakingVoltage = 9;
         public static final double kSpittingVoltage = -8;
     }
 
