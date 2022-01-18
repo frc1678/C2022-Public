@@ -22,6 +22,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.WPILibVersion;
 
 public class FiveBallMode extends AutoModeBase {
@@ -46,6 +47,9 @@ public class FiveBallMode extends AutoModeBase {
 	SwerveTrajectoryAction driveToShootFromTerminal;
 
     public FiveBallMode() {
+
+        SmartDashboard.putBoolean("Auto Finished", false);
+
 
         // define theta controller for robot heading
         var thetaController = new ProfiledPIDController(Constants.AutoConstants.kPThetaController, 0, 0,
@@ -110,15 +114,19 @@ public class FiveBallMode extends AutoModeBase {
     @Override
     protected void routine() throws AutoModeEndedException {
         System.out.println("Running five ball mode auto!");
+        SmartDashboard.putBoolean("Auto Finished", false);
 
+        runAction(new LambdaAction(() -> mSuperstructure.setShooterVelocity(1600)));
         runAction(new LambdaAction(() -> mSuperstructure.setWantSpinUp(true)));
+
+        runAction(new LambdaAction(() -> mSuperstructure.setShooterVelocity(1800)));
         
         // reset odometry at the start of the trajectory
         runAction(new LambdaAction(() -> mSwerve.resetOdometry(new Pose2d(driveToIntakeFirstCargo.getInitialPose().getX(), driveToIntakeFirstCargo.getInitialPose().getY(), Rotation2d.fromDegrees(90)))));
         
         // shoot first cargo
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
-        runAction(new WaitAction(1.0));
+        runAction(new WaitAction(1.70));
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
 
         // start intaking
@@ -136,7 +144,7 @@ public class FiveBallMode extends AutoModeBase {
 
         // shoot second and third cargo
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
-        runAction(new ParallelAction(List.of(new WaitAction(2.0), new VisionAlignAction())));
+        runAction(new WaitAction(1.0));
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
 
         // stop vision aiming to control robot heading
@@ -144,21 +152,22 @@ public class FiveBallMode extends AutoModeBase {
 
         // run trajectory to drive to intake at terminal
         runAction(driveToIntakeAtTerminal);
-        runAction(new WaitAction(2.0));
+        runAction(new WaitAction(1.0));
 
         // start vision aiming to align to target for second shot
         runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));
 
         // run trajectory to drive to second shot pose
         runAction(driveToShootFromTerminal);
-        runAction(new VisionAlignAction());
-
-        // shoot fourth and fifth cargo 
-        runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
-        runAction(new WaitAction(2.0));
-        runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
-        runAction(new LambdaAction(() -> mSuperstructure.setWantSpinUp(false)));
         
+        // shoot fourth and fifth cargo 
+        runAction(new WaitAction(0.50));
+        runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
+
+        runAction(new WaitAction(5.0));
+
         System.out.println("Finished auto!");
+        SmartDashboard.putBoolean("Auto Finished", true);
+
     }
 }

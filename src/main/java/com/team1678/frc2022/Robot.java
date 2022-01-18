@@ -20,12 +20,10 @@ import com.team1678.frc2022.subsystems.Limelight;
 import com.team1678.frc2022.subsystems.Shooter;
 import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
-import com.team1678.frc2022.subsystems.Intake.WantedAction;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.Encoder.IndexingType;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -181,6 +179,7 @@ public class Robot extends TimedRobot {
 			}
 
 			if (mControlBoard.operator.getController().getAButtonPressed()) {
+				mSuperstructure.setShooterVelocity(1800);
 				mSuperstructure.setWantSpinUp();
 			}
 
