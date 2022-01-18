@@ -10,6 +10,7 @@ import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.loops.ILooper;
 import com.team254.lib.drivers.TalonFXFactory;
 import com.team254.lib.util.TimeDelayedBoolean;
+import com.team254.lib.util.Util;
 
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
@@ -17,8 +18,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Climber extends Subsystem {
 
-    private TimeDelayedBoolean mCurrentSpiked = new TimeDelayedBoolean();
+    private TimeDelayedBoolean mClimberCalibrated = new TimeDelayedBoolean();
     private boolean mHomed = false;
+    private boolean mIsHoming = false;
     private boolean mIsOpenLoop = false;
 
     /* Subsystem Instance */
@@ -71,15 +73,22 @@ public class Climber extends Subsystem {
     private void zeroEncoder() {
         mMaster.setSelectedSensorPosition(0.0);
         mHomed = true;
+        setClimberOpenLoop(0.0);
     }
     
     @Override
     public void readPeriodicInputs() {
         mPeriodicIO.stator_current = mMaster.getStatorCurrent();
         mPeriodicIO.motor_position = mMaster.getSelectedSensorPosition();
-        
+        mPeriodicIO.motor_velocity = mMaster.getSelectedSensorVelocity();
+
+        SmartDashboard.putBoolean("Is homing", mIsHoming);
+
         if (!mHomed) {
-            if (mCurrentSpiked.update(mPeriodicIO.stator_current > Constants.ClimberConstants.kCalibrationCurrentThreshold, Constants.ClimberConstants.kCalibrationTimeoutSeconds)) {
+            if (mPeriodicIO.stator_current > 30 & mIsHoming == false) {
+                mIsHoming = true;
+            }
+            if (mClimberCalibrated.update(Util.epsilonEquals(mPeriodicIO.motor_velocity, 0, 500), Constants.ClimberConstants.kCalibrationTimeoutSeconds) && mIsHoming == true) {
                 zeroEncoder();
             }
         }
@@ -118,7 +127,7 @@ public class Climber extends Subsystem {
         if (mIsOpenLoop != false) {
             mIsOpenLoop = false;
         }
-        mPeriodicIO.climber_demand = mPeriodicIO.motor_position + wantedPositionDelta;
+        mPeriodicIO.climber_demand = mPeriodicIO.climber_demand + wantedPositionDelta;
     }
 
     public void setWantDeploy(boolean wantsDeploy) {
@@ -144,6 +153,18 @@ public class Climber extends Subsystem {
         return mPeriodicIO.motor_position;
     }
 
+    public double getMotorVelocity() {
+        return mPeriodicIO.motor_velocity;
+    }
+
+    public double getDemand() {
+        return mPeriodicIO.climber_demand;
+    }
+
+    public boolean isRunningOpenLoop() {
+        return mIsOpenLoop;
+    }
+
     public boolean hasEmergency = false;
 
     public static class PeriodicIO {
@@ -151,6 +172,7 @@ public class Climber extends Subsystem {
         /* Inputs */
         public double stator_current;
         public double motor_position;
+        public double motor_velocity;
 
         /* Outputs */
         public double climber_demand;

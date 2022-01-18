@@ -67,6 +67,9 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mClimberHomed;
     private final NetworkTableEntry mClimberCurrent;
     private final NetworkTableEntry mClimberPostion;
+    private final NetworkTableEntry mClimberVelocity;
+    private final NetworkTableEntry mClimberDemand;
+    private final NetworkTableEntry mClimberControlMode;
 
     /* Swerve Modules */
     private final String[] kSwervePlacements = {"Front Left", "Front Right", "Back Left", "Back Right"};
@@ -255,6 +258,15 @@ public class ShuffleBoardInteractions {
         mClimberHomed = CLIMBER_TAB
                 .add("Climber Homed", false)
                 .getEntry();
+        mClimberVelocity = CLIMBER_TAB
+                .add("Climber Velocity", 0.0)
+                .getEntry();
+        mClimberControlMode = CLIMBER_TAB
+                .add("Climber Mode", "N/A")
+                .getEntry();
+        mClimberDemand = CLIMBER_TAB
+                .add("Climber Demand", 0.0)
+                .getEntry();
     }
 
     public void update() {
@@ -308,6 +320,9 @@ public class ShuffleBoardInteractions {
         mClimberHomed.setBoolean(mClimber.getHomed());
         mClimberPostion.setDouble(truncate(mClimber.getMotorPosition()));
         mClimberCurrent.setDouble(truncate(mClimber.getStatorCurrent()));
+        mClimberVelocity.setDouble(truncate(mClimber.getMotorVelocity()));
+        mClimberControlMode.setString(mClimber.isRunningOpenLoop() ? "OPEN LOOP" : "MOTION MAGIC");
+        mClimberDemand.setDouble(truncate(mClimber.getDemand()));
     }
 
     /* Truncates number to 2 decimal places for cleaner numbers */
