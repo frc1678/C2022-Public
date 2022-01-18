@@ -228,10 +228,12 @@ public class Constants {
 
     public static final class ShooterConstants {
 
-        public static final double kFlywheelVelocityConversion = 100/2048; // TODO Change to actual ratio, remember velo is measured in ticks/100ms
+        public static final double kFlywheelVelocityConversion = 600.0 / 2048.0 * (3.0/4.0); 
+        public static final double kKickerVelocityConversion = 600.0 / 2048.0; // 1:1 ratio on the kicker
+        
         public static final double kFlywheelTolerance = 200;
-        public static final double kShooterP = 0.25; // TODO Retune these
-        public static final double kShooterI = 0.00004;
+        public static final double kShooterP = 0.1; // TODO Retune these
+        public static final double kShooterI = 0.0;
         public static final double kShooterD = 0.0;
         public static final double kShooterF = 0.05;
         public static final double kClosedLoopRamp = 0.1;
@@ -298,12 +300,12 @@ public class Constants {
         public static final int kBottomBeamBreak = 1;
         public static final int kTopBeamBreak = 0;
 
-        public static final double kIndexingVoltage = 7.0;
-        public static final double kReversingVoltage = -7.0;
+        public static final double kElevatorIndexingVoltage = 5.0;
+        public static final double kElevatorReversingVoltage = -5.0;
         public static final double kIdleVoltage = 0.0;
-        public static final double kHopperIdleVoltage = 2;
-        public static final double kHopperIndexingVoltage = 6;
-        public static final double kHopperReversingVoltage = -6;
+        public static final double kHopperIndexingVoltage = 5;
+        public static final double kHopperReversingVoltage = -5;
+        public static final double kFeedingVoltage = 6.0;
 
     }
         
