@@ -122,8 +122,9 @@ public class Shooter extends Subsystem {
 
     public synchronized boolean spunUp() {
         if (mPeriodicIO.flywheel_demand > 0) {
-            return Util.epsilonEquals(mPeriodicIO.flywheel_demand, mPeriodicIO.falcon_velocity,
-                    Constants.ShooterConstants.kFlywheelTolerance);
+            return Util.epsilonEquals(mPeriodicIO.flywheel_demand,
+                                      mPeriodicIO.falcon_velocity * Constants.ShooterConstants.kFlywheelVelocityConversion,
+                                      Constants.ShooterConstants.kFlywheelTolerance);
         }
         return false;
     }
@@ -134,6 +135,7 @@ public class Shooter extends Subsystem {
         public double falcon_velocity;
         public double falcon_voltage;
         public double falcon_current;
+
         /* Outputs */
         public double flywheel_demand;
     }

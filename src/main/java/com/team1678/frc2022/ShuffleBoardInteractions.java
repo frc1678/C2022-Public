@@ -294,10 +294,10 @@ public class ShuffleBoardInteractions {
             .add("Indexer State", mIndexer.getState().toString())
             .getEntry();
         mTopBeamBreak = INDEXER_TAB
-            .add("Top Beam Break", mIndexer.mPeriodicIO.topLightBeamBreakSensor)
+            .add("Top Beam Break", mIndexer.mPeriodicIO.top_break)
             .getEntry();
         mBottomBeamBreak = INDEXER_TAB
-            .add("Bottom Beam Break", mIndexer.mPeriodicIO.bottomLightBeamBreakSensor)
+            .add("Bottom Beam Break", mIndexer.mPeriodicIO.bottom_break)
             .getEntry();
 
         mElevatorDemand = INDEXER_TAB
@@ -336,8 +336,8 @@ public class ShuffleBoardInteractions {
         mKickerRPM.setDouble(truncate(mShooter.getKickerRPM()));
         /* Indexer */
         mIndexerState.setString(mIndexer.getState().toString());
-        mTopBeamBreak.setBoolean(mIndexer.topBeamBreak());
-        mBottomBeamBreak.setBoolean(mIndexer.bottomBeamBreak());
+        mTopBeamBreak.setBoolean(mIndexer.getTopBeamBreak());
+        mBottomBeamBreak.setBoolean(mIndexer.getBottomBeamBreak());
 
         mElevatorDemand.setDouble(mIndexer.getElevatorDemand());
         mElevatorCurrent.setDouble(mIndexer.getElevatorCurrent());

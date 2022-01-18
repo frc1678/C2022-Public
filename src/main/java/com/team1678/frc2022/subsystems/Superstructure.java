@@ -3,6 +3,7 @@ package com.team1678.frc2022.subsystems;
 import com.team1678.frc2022.loops.Loop;
 
 import edu.wpi.first.wpilibj.Encoder.IndexingType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.team1678.frc2022.loops.ILooper;
 
@@ -26,7 +27,7 @@ public class Superstructure extends Subsystem {
     private final Intake mIntake = Intake.getInstance();
 
     /* Status Variables */
-    private boolean mOuttake = true;
+    public boolean mWantsSpinUp = false;
     public boolean mWantsShoot = false;
 
     @Override
@@ -39,7 +40,10 @@ public class Superstructure extends Subsystem {
 
             @Override
             public void onLoop(double timestamp) {
-                updateStates();
+                setSetpoints();
+                SmartDashboard.putBoolean("Want Spin Up", mWantsSpinUp);
+                SmartDashboard.putBoolean("Want Shoot", mWantsShoot);
+                SmartDashboard.putBoolean("Is Spun Up", isSpunUp());
             }
 
             @Override
@@ -59,22 +63,41 @@ public class Superstructure extends Subsystem {
         return mShooter.spunUp();
     }
 
-    public void toggleShoot() {
+    public void setWantSpinUp() {
+        mWantsSpinUp = !mWantsSpinUp;
+    }
+
+    public void setWantShoot() {
         mWantsShoot = !mWantsShoot;
     }
 
-    public void updateStates() {
-        if (mWantsShoot) {
-            mShooter.setVelocity(1000);
+    public void setSetpoints() {
+        /* Default indexer wanted action to be set */
+        Indexer.WantedAction real_indexer;
+
+        if (mWantsSpinUp) {
+            mShooter.setVelocity(2000);
         } else {
             mShooter.setOpenLoop(0.0);
         }
-        if (mIntake.getState() == Intake.State.INTAKING || (mWantsShoot && isSpunUp())) {
+
+        if (mWantsShoot) {
+            if (isSpunUp()) {
+                real_indexer = Indexer.WantedAction.FEED;
+            } else {
+                real_indexer = Indexer.WantedAction.NONE;
+            }
+        } else {
+            real_indexer = Indexer.WantedAction.NONE;
+        }
+
+        /* SET INDEXER STATE */
+        if (mIntake.getState() == Intake.State.INTAKING) {
             mIndexer.setState(Indexer.WantedAction.INDEX);
         } else if (mIntake.getState() == Intake.State.REVERSING) {
             mIndexer.setState(Indexer.WantedAction.REVERSE);
         } else {
-            mIndexer.setState(Indexer.WantedAction.NONE);
+            mIndexer.setState(real_indexer);
         }
     }
 
