@@ -13,6 +13,7 @@ import com.team254.lib.drivers.TalonFXFactory;
 import com.team254.lib.util.Util;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Shooter extends Subsystem {
 
@@ -29,27 +30,31 @@ public class Shooter extends Subsystem {
 
     private boolean mIsOpenLoop = false;
 
-    public TalonFX mMain;
+    private TalonFX mMaster;
+    private TalonFX mSlave;
 
     private Shooter() {
-        mMain = TalonFXFactory.createDefaultTalon(Ports.FLYWHEEL_ID);
-        mMain.setInverted(false);
-        mMain.setNeutralMode(NeutralMode.Coast);
+        mMaster = TalonFXFactory.createDefaultTalon(Ports.FLYWHEEL_MASTER_ID);
+        mMaster.setInverted(false);
+        mMaster.setNeutralMode(NeutralMode.Coast);
         /* Tuning Values */
-        mMain.config_kP(0, Constants.ShooterConstants.kShooterP, Constants.kLongCANTimeoutMs);
-        mMain.config_kI(0, Constants.ShooterConstants.kShooterI, Constants.kLongCANTimeoutMs);
-        mMain.config_kD(0, Constants.ShooterConstants.kShooterD, Constants.kLongCANTimeoutMs);
-        mMain.config_kF(0, Constants.ShooterConstants.kShooterF, Constants.kLongCANTimeoutMs);
-        mMain.config_IntegralZone(0, (int) (200.0 / Constants.ShooterConstants.kFlywheelVelocityConversion));
-        mMain.selectProfileSlot(0, 0);
-        mMain.configClosedloopRamp(0.1);
+        mMaster.config_kP(0, Constants.ShooterConstants.kShooterP, Constants.kLongCANTimeoutMs);
+        mMaster.config_kI(0, Constants.ShooterConstants.kShooterI, Constants.kLongCANTimeoutMs);
+        mMaster.config_kD(0, Constants.ShooterConstants.kShooterD, Constants.kLongCANTimeoutMs);
+        mMaster.config_kF(0, Constants.ShooterConstants.kShooterF, Constants.kLongCANTimeoutMs);
+        mMaster.config_IntegralZone(0, (int) (200.0 / Constants.ShooterConstants.kFlywheelVelocityConversion));
+        mMaster.selectProfileSlot(0, 0);
+        mMaster.configClosedloopRamp(0.1);
         /* Current and voltage limits */
         SupplyCurrentLimitConfiguration curr_lim = new SupplyCurrentLimitConfiguration(true, 40, 100, 0.02);
-        mMain.configSupplyCurrentLimit(curr_lim);
-        mMain.configVoltageCompSaturation(12, Constants.kLongCANTimeoutMs);
-        mMain.enableVoltageCompensation(true);
+        mMaster.configSupplyCurrentLimit(curr_lim);
+        mMaster.configVoltageCompSaturation(12, Constants.kLongCANTimeoutMs);
+        mMaster.enableVoltageCompensation(true);
         /* Use integrated encoder for velocity control */
-        mMain.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
+        mMaster.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
+
+        mSlave = TalonFXFactory.createPermanentSlaveTalon(Ports.FLYWHEEL_SLAVE_ID, Ports.FLYWHEEL_MASTER_ID);
+        mSlave.setInverted(true);
 
         setOpenLoop(0.0);
     }
@@ -64,7 +69,8 @@ public class Shooter extends Subsystem {
 
             @Override
             public void onLoop(double timestamp) {
-
+                SmartDashboard.putBoolean("Open Loop Shooter", mIsOpenLoop);
+                SmartDashboard.putNumber("Shooter Demand", mPeriodicIO.flywheel_demand);
             }
 
             @Override
@@ -77,18 +83,17 @@ public class Shooter extends Subsystem {
     @Override
     public void readPeriodicInputs() {
         mPeriodicIO.timestamp = Timer.getFPGATimestamp();
-        mPeriodicIO.flywheel_current = mMain.getSupplyCurrent();
-        mPeriodicIO.flywheel_voltage = mMain.getMotorOutputVoltage();
-        mPeriodicIO.flywheel_velocity = mMain.getSelectedSensorVelocity()
-                * Constants.ShooterConstants.kFlywheelVelocityConversion;
+        mPeriodicIO.falcon_current = mMaster.getSupplyCurrent();
+        mPeriodicIO.falcon_voltage = mMaster.getMotorOutputVoltage();
+        mPeriodicIO.falcon_velocity = mMaster.getSelectedSensorVelocity();
     }
 
     @Override
     public void writePeriodicOutputs() {
         if (mIsOpenLoop) {
-            mMain.set(ControlMode.PercentOutput, mPeriodicIO.flywheel_demand);
+            mMaster.set(ControlMode.PercentOutput, mPeriodicIO.flywheel_demand);
         } else {
-            mMain.set(ControlMode.Velocity,
+            mMaster.set(ControlMode.Velocity,
                     mPeriodicIO.flywheel_demand / Constants.ShooterConstants.kFlywheelVelocityConversion);
         }
     }
@@ -107,20 +112,30 @@ public class Shooter extends Subsystem {
         mPeriodicIO.flywheel_demand = demand;
     }
 
+    public synchronized double getShooterRPM() {
+        return mPeriodicIO.falcon_velocity * Constants.ShooterConstants.kFlywheelVelocityConversion;
+    }
+
+    public synchronized double getKickerRPM() {
+        return mPeriodicIO.falcon_velocity * Constants.ShooterConstants.kKickerVelocityConversion;
+    }
+
     public synchronized boolean spunUp() {
         if (mPeriodicIO.flywheel_demand > 0) {
-            return Util.epsilonEquals(mPeriodicIO.flywheel_demand, mPeriodicIO.flywheel_velocity,
-                    Constants.ShooterConstants.kFlywheelTolerance);
+            return Util.epsilonEquals(mPeriodicIO.flywheel_demand,
+                                      mPeriodicIO.falcon_velocity * Constants.ShooterConstants.kFlywheelVelocityConversion,
+                                      Constants.ShooterConstants.kFlywheelTolerance);
         }
         return false;
     }
 
     public static class PeriodicIO {
-        double timestamp;
         /* Inputs */
-        public double flywheel_velocity;
-        public double flywheel_voltage;
-        public double flywheel_current;
+        public double timestamp;
+        public double falcon_velocity;
+        public double falcon_voltage;
+        public double falcon_current;
+
         /* Outputs */
         public double flywheel_demand;
     }
