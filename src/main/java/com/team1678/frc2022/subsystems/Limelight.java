@@ -241,7 +241,7 @@ public class Limelight extends Subsystem {
         return mPeriodicIO.pipeline;
     }
 
-    public synchronized boolean seesTarget() {
+    public synchronized boolean hasTarget() {
         return mSeesTarget;
     }
 
@@ -252,7 +252,7 @@ public class Limelight extends Subsystem {
     public synchronized List<TargetInfo> getTarget() {
         List<TargetInfo> targets = new ArrayList<TargetInfo>(); //getRawTargetInfos();
         targets.add(new TargetInfo(Math.tan(Math.toRadians(-mPeriodicIO.xOffset)), Math.tan(Math.toRadians(mPeriodicIO.yOffset))));
-        if (seesTarget() && targets != null) {
+        if (hasTarget() && targets != null) {
             return targets;
         }
 
@@ -375,5 +375,9 @@ public class Limelight extends Subsystem {
 
     public double[] getOffset() {
         return new double[] {mPeriodicIO.xOffset, mPeriodicIO.yOffset};
+    }
+
+    public boolean getOnTarget() {
+        return Util.epsilonEquals(mPeriodicIO.xOffset, 0., Constants.VisionAlignConstants.kVisionAlignEpsilon);
     }
 }

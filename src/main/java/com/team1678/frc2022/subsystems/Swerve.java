@@ -29,6 +29,9 @@ public class Swerve extends Subsystem {
     // required instance for vision align
     public Limelight mLimelight = Limelight.getInstance();
 
+    // wants vision aim during auto
+    public boolean mWantsAutoVisionAim = false;
+
     public SwerveDriveOdometry swerveOdometry;
     public SwerveModule[] mSwerveMods;
     public PigeonIMU gyro;
@@ -105,28 +108,30 @@ public class Swerve extends Subsystem {
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Integrated", mod.getState().angle.getDegrees());
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Velocity", mod.getState().speedMetersPerSecond);    
         }
-        
-        SmartDashboard.putNumber("Robot heading", Math.toDegrees(mCurrentRobotHeading));
-        SmartDashboard.putNumber("Target offset", Math.toDegrees(mTargetOffset));
+
+        SmartDashboard.putBoolean("Wants Auto Vision Aim", mWantsAutoVisionAim);
     }
 
-    double mCurrentRobotHeading = 0.0;
-    double mTargetOffset = 0.0;
+    public void setWantAutoVisionAim(boolean aim) {
+        mWantsAutoVisionAim = aim;
+    } 
+
+    public boolean getWantAutoVisionAim() {
+        return mWantsAutoVisionAim;
+    }
 
     public void visionAlignDrive(Translation2d translation2d, boolean fieldRelative, boolean isOpenLoop) {
         double rotation = 0.0;
 
-        if (mLimelight.seesTarget()) {
+        if (mLimelight.hasTarget()) {
             double currentAngle = getPose().getRotation().getRadians();
-            mCurrentRobotHeading = currentAngle;
             double targetOffset = Math.toRadians(mLimelight.getOffset()[0]);
-            mTargetOffset = targetOffset;
             rotation = visionPIDController.calculate(currentAngle, currentAngle - targetOffset);
         }
-        teleopDrive(translation2d, rotation, fieldRelative, isOpenLoop);
+        drive(translation2d, rotation, fieldRelative, isOpenLoop);
     }
 
-    public void teleopDrive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
+    public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
         if (isSnapping) {
             if (Math.abs(rotation) == 0.0) {
                 maybeStopSnap(false);

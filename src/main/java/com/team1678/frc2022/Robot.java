@@ -13,11 +13,13 @@ import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.ControlBoard.SwerveCardinal;
 import com.team1678.frc2022.loops.CrashTracker;
 import com.team1678.frc2022.loops.Looper;
+import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Infrastructure;
 import com.team1678.frc2022.subsystems.Intake;
 import com.team1678.frc2022.subsystems.Limelight;
+import com.team1678.frc2022.subsystems.Shooter;
+import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
-import com.team1678.frc2022.subsystems.Intake.WantedAction;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -48,9 +50,12 @@ public class Robot extends TimedRobot {
 
 	private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
 	private final Swerve mSwerve = Swerve.getInstance();
-	private final Intake mIntake = Intake.getInstance();
-	private final Limelight mLimelight = Limelight.getInstance();
 	private final Infrastructure mInfrastructure = Infrastructure.getInstance();
+	private final Intake mIntake = Intake.getInstance();
+	private final Indexer mIndexer = Indexer.getInstance();
+	private final Shooter mShooter = Shooter.getInstance();
+	private final Superstructure mSuperstructure = Superstructure.getInstance();
+	private final Limelight mLimelight = Limelight.getInstance();
 
 	// instantiate enabled and disabled loopers
 	private final Looper mEnabledLooper = new Looper();
@@ -74,9 +79,13 @@ public class Robot extends TimedRobot {
 
 			mSubsystemManager.setSubsystems(
 					mSwerve,
-					mIntake,
 					mInfrastructure,
-					mLimelight);
+					mIntake,
+					mIndexer,
+					mShooter,
+					mSuperstructure,
+					mLimelight
+			);
 
 			mSubsystemManager.registerEnabledLoops(mEnabledLooper);
 			mSubsystemManager.registerDisabledLoops(mDisabledLooper);
@@ -147,23 +156,31 @@ public class Robot extends TimedRobot {
 			Translation2d swerveTranslation = new Translation2d(mControlBoard.getSwerveTranslation().x(),
 					mControlBoard.getSwerveTranslation().y());
 			double swerveRotation = mControlBoard.getSwerveRotation();
-			mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
 
 			if (mControlBoard.getVisionAlign()) {
 				mSwerve.visionAlignDrive(swerveTranslation, true, true);
 			} else {
-				mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
+				mSwerve.drive(swerveTranslation, swerveRotation, true, true);
 			}
 
 			// Intake
 			if (mControlBoard.getIntake()) {
-				mIntake.setState(WantedAction.INTAKE);
+				mIntake.setState(Intake.WantedAction.INTAKE);
 			} else if (mControlBoard.getOuttake()) {
-				mIntake.setState(WantedAction.REVERSE);
+				mIntake.setState(Intake.WantedAction.REVERSE);
 			} else if (mControlBoard.getSpitting()) {
-				mIntake.setState(WantedAction.SPIT);
+				mIntake.setState(Intake.WantedAction.SPIT);
 			} else {
-				mIntake.setState(WantedAction.NONE);
+				mIntake.setState(Intake.WantedAction.NONE);
+			}
+
+			if (mControlBoard.operator.getController().getYButtonPressed()) {
+				mSuperstructure.setWantShoot();
+			}
+
+			if (mControlBoard.operator.getController().getAButtonPressed()) {
+				mSuperstructure.setShooterVelocity(1800);
+				mSuperstructure.setWantSpinUp();
 			}
 
 		} catch (Throwable t) {
