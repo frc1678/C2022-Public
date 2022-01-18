@@ -115,33 +115,49 @@ public class FiveBallMode extends AutoModeBase {
         
         // reset odometry at the start of the trajectory
         runAction(new LambdaAction(() -> mSwerve.resetOdometry(new Pose2d(driveToIntakeFirstCargo.getInitialPose().getX(), driveToIntakeFirstCargo.getInitialPose().getY(), Rotation2d.fromDegrees(90)))));
+        
+        // shoot first cargo
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
-        runAction(new WaitAction(2.0));
+        runAction(new WaitAction(1.0));
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
 
         // start intaking
         runAction(new LambdaAction(() -> mIntake.setState(Intake.State.INTAKING)));
 
+        // run trajectories for first and second cargo intakes
         runAction(driveToIntakeFirstCargo);
         runAction(driveToIntakeSecondCargo);
 
+        // start vision aiming to align drivetrain to target
         runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));
-        runAction(driveToFirstShot);
-        runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
-        runAction(new ParallelAction(List.of(new WaitAction(2.0), new VisionAlignAction(), new LambdaAction(() -> mSuperstructure.setWantShoot(false)))));
 
+        // run trajectory to drive to first shot pose
+        runAction(driveToFirstShot);
+
+        // shoot second and third cargo
+        runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
+        runAction(new ParallelAction(List.of(new WaitAction(2.0), new VisionAlignAction())));
+        runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
+
+        // stop vision aiming to control robot heading
         runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(false)));
 
+        // run trajectory to drive to intake at terminal
         runAction(driveToIntakeAtTerminal);
         runAction(new WaitAction(2.0));
 
+        // start vision aiming to align to target for second shot
         runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));
+
+        // run trajectory to drive to second shot pose
         runAction(driveToShootFromTerminal);
         runAction(new VisionAlignAction());
-        new LambdaAction(() -> mSuperstructure.setWantShoot(true));
+
+        // shoot fourth and fifth cargo 
+        runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
         runAction(new WaitAction(2.0));
-        new LambdaAction(() -> mSuperstructure.setWantShoot(false));
-        new LambdaAction(() -> mSuperstructure.setWantSpinUp(false));
+        runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
+        runAction(new LambdaAction(() -> mSuperstructure.setWantSpinUp(false)));
         
         System.out.println("Finished auto!");
     }
