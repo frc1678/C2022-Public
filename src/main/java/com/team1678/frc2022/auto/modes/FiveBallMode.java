@@ -12,6 +12,7 @@ import com.team1678.frc2022.auto.actions.SwerveTrajectoryAction;
 import com.team1678.frc2022.auto.actions.VisionAlignAction;
 import com.team1678.frc2022.auto.actions.WaitAction;
 import com.team1678.frc2022.subsystems.Intake;
+import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -28,6 +29,7 @@ public class FiveBallMode extends AutoModeBase {
     // Swerve instance 
     private final Swerve mSwerve = Swerve.getInstance();
     private final Intake mIntake = Intake.getInstance();
+    private final Superstructure mSuperstructure = Superstructure.getInstance();
 
     // required PathWeaver file paths
     String file_path_a = "paths/FiveBallPaths/5 Ball A.path";
@@ -109,10 +111,13 @@ public class FiveBallMode extends AutoModeBase {
     protected void routine() throws AutoModeEndedException {
         System.out.println("Running five ball mode auto!");
 
+        runAction(new LambdaAction(() -> mSuperstructure.setWantSpinUp(true)));
+        
         // reset odometry at the start of the trajectory
         runAction(new LambdaAction(() -> mSwerve.resetOdometry(new Pose2d(driveToIntakeFirstCargo.getInitialPose().getX(), driveToIntakeFirstCargo.getInitialPose().getY(), Rotation2d.fromDegrees(90)))));
-
+        runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
         runAction(new WaitAction(2.0));
+        runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
 
         // start intaking
         runAction(new LambdaAction(() -> mIntake.setState(Intake.State.INTAKING)));
@@ -122,7 +127,9 @@ public class FiveBallMode extends AutoModeBase {
 
         runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));
         runAction(driveToFirstShot);
-        runAction(new ParallelAction(List.of(new WaitAction(2.0), new VisionAlignAction())));
+        runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
+        runAction(new ParallelAction(List.of(new WaitAction(2.0), new VisionAlignAction(), new LambdaAction(() -> mSuperstructure.setWantShoot(false)))));
+
         runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(false)));
 
         runAction(driveToIntakeAtTerminal);
@@ -131,6 +138,10 @@ public class FiveBallMode extends AutoModeBase {
         runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));
         runAction(driveToShootFromTerminal);
         runAction(new VisionAlignAction());
+        new LambdaAction(() -> mSuperstructure.setWantShoot(true));
+        runAction(new WaitAction(2.0));
+        new LambdaAction(() -> mSuperstructure.setWantShoot(false));
+        new LambdaAction(() -> mSuperstructure.setWantSpinUp(false));
         
         System.out.println("Finished auto!");
     }

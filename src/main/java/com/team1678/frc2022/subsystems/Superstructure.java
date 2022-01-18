@@ -67,6 +67,14 @@ public class Superstructure extends Subsystem {
         mWantsSpinUp = !mWantsSpinUp;
     }
 
+    public void setWantSpinUp(Boolean spinUp) {
+        mWantsSpinUp = spinUp;
+    }
+
+    public void setWantShoot(Boolean shoot) {
+        mWantsSpinUp = shoot;
+    }
+
     public void setWantShoot() {
         mWantsShoot = !mWantsShoot;
     }
