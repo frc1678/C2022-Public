@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Climber extends Subsystem {
 
     private boolean mHomed = false;
-    private boolean mIsHoming = false;
     private boolean mIsOpenLoop = false;
 
     /* Subsystem Instance */
@@ -69,6 +68,7 @@ public class Climber extends Subsystem {
 
     private void zeroEncoder() {
         mMaster.setSelectedSensorPosition(0.0);
+        mHomed = true;
     }
     
     @Override
@@ -77,19 +77,15 @@ public class Climber extends Subsystem {
         mPeriodicIO.motor_position = mMaster.getSelectedSensorPosition();
         
         if (!mHomed) {
-            mIsHoming = true;
-            if (mIsHoming && !mHomed) {
-                if (mPeriodicIO.stator_current > 15) {
-                    mIsHoming = false;
-                    zeroEncoder();
-                }
+            if (mPeriodicIO.stator_current > 15) {
+                zeroEncoder();
             }
         }
     }
 
     @Override
     public void writePeriodicOutputs() {
-        if (mIsHoming) {
+        if (!mHomed) {
             mMaster.set(ControlMode.PercentOutput, Constants.ClimberConstants.kCalibratingVoltage);
         } else {
             if (!mIsOpenLoop) {
