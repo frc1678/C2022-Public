@@ -22,6 +22,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import com.team1678.frc2022.subsystems.Limelight;
+
 /**
  * An action that uses two PID controllers ({@link PIDController}) and a ProfiledPIDController
  * ({@link ProfiledPIDController}) to follow a trajectory {@link Trajectory} with a swerve drive.
@@ -42,6 +44,10 @@ public class SwerveTrajectoryAction implements Action {
   private final HolonomicDriveController m_controller;
   private final Consumer<SwerveModuleState[]> m_outputModuleStates;
   private final Supplier<Rotation2d> m_desiredRotation;
+  private final Supplier<Boolean> m_wantsVisionAlign;
+
+  // required subsystem instances
+  Limelight mLimelight = Limelight.getInstance();
 
   /**
    * Constructs a new SwerveTrajectoryAction that when executed will follow the provided
@@ -71,6 +77,7 @@ public class SwerveTrajectoryAction implements Action {
       PIDController yController,
       ProfiledPIDController thetaController,
       Supplier<Rotation2d> desiredRotation,
+      Supplier<Boolean> wantsVisionAlign,
       Consumer<SwerveModuleState[]> outputModuleStates) {
     m_trajectory = requireNonNullParam(trajectory, "trajectory", "SwerveTrajectoryAction");
     m_pose = requireNonNullParam(pose, "pose", "SwerveTrajectoryAction");
@@ -87,6 +94,9 @@ public class SwerveTrajectoryAction implements Action {
 
     m_desiredRotation =
         requireNonNullParam(desiredRotation, "desiredRotation", "SwerveTrajectoryAction");
+
+    m_wantsVisionAlign = 
+        requireNonNullParam(wantsVisionAlign, "wantsVisionAlign", "SwerveTrajectoryAction");
   }
 
   /**
@@ -129,6 +139,7 @@ public class SwerveTrajectoryAction implements Action {
         thetaController,
         () ->
             trajectory.getStates().get(trajectory.getStates().size() - 1).poseMeters.getRotation(),
+        () -> false, // no vision align
         outputModuleStates);
   }
 
@@ -147,15 +158,19 @@ public class SwerveTrajectoryAction implements Action {
   public void update() {
     double curTime = m_timer.get();
     var desiredState = m_trajectory.sample(curTime);
+    Rotation2d desiredRotation = new Rotation2d();
+
+    if (m_wantsVisionAlign.get() && mLimelight.hasTarget()) {
+      desiredRotation = Rotation2d.fromDegrees(m_pose.get().getRotation().getDegrees() - mLimelight.getOffset()[0]);
+    } else {
+      desiredRotation = m_desiredRotation.get();
+    }
 
     var targetChassisSpeeds =
-        m_controller.calculate(m_pose.get(), desiredState, m_desiredRotation.get());
+        m_controller.calculate(m_pose.get(), desiredState, desiredRotation);
     var targetModuleStates = m_kinematics.toSwerveModuleStates(targetChassisSpeeds);
 
     m_outputModuleStates.accept(targetModuleStates);
-
-    SmartDashboard.putNumber("Desired Position X", desiredState.poseMeters.getX());
-    SmartDashboard.putNumber("Desired Position Y", desiredState.poseMeters.getY());
   }
 
   @Override

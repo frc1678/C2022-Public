@@ -20,12 +20,10 @@ import com.team1678.frc2022.subsystems.Limelight;
 import com.team1678.frc2022.subsystems.Shooter;
 import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
-import com.team1678.frc2022.subsystems.Intake.WantedAction;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.Encoder.IndexingType;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -158,12 +156,11 @@ public class Robot extends TimedRobot {
 			Translation2d swerveTranslation = new Translation2d(mControlBoard.getSwerveTranslation().x(),
 					mControlBoard.getSwerveTranslation().y());
 			double swerveRotation = mControlBoard.getSwerveRotation();
-			// mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
 
 			if (mControlBoard.getVisionAlign()) {
 				mSwerve.visionAlignDrive(swerveTranslation, true, true);
 			} else {
-				mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
+				mSwerve.drive(swerveTranslation, swerveRotation, true, true);
 			}
 
 			// Intake
@@ -182,24 +179,9 @@ public class Robot extends TimedRobot {
 			}
 
 			if (mControlBoard.operator.getController().getAButtonPressed()) {
+				mSuperstructure.setShooterVelocity(1800);
 				mSuperstructure.setWantSpinUp();
 			}
-
-			/* INDEXER */
-			// TODO: delete later
-			/*
-			 * if (mControlBoard.getElevating()) {
-			 * mIndexer.setState(Indexer.WantedAction.ELEVATE);
-			 * } else if (mControlBoard.getIndexing()) {
-			 * mIndexer.setState(Indexer.WantedAction.INDEX);
-			 * } else if (mControlBoard.getHopping()) {
-			 * mIndexer.setState(Indexer.WantedAction.HOP);
-			 * } else if (mControlBoard.getReversing()) {
-			 * mIndexer.setState(Indexer.WantedAction.REVERSE);
-			 * } else {
-			 * mIndexer.setState(Indexer.WantedAction.NONE);
-			 * }
-			 */
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);

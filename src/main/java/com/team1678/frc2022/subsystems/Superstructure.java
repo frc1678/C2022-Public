@@ -27,6 +27,7 @@ public class Superstructure extends Subsystem {
     private final Intake mIntake = Intake.getInstance();
 
     /* Status Variables */
+    public double mShooterSetpoint = 0.0;
     public boolean mWantsSpinUp = false;
     public boolean mWantsShoot = false;
 
@@ -67,8 +68,20 @@ public class Superstructure extends Subsystem {
         mWantsSpinUp = !mWantsSpinUp;
     }
 
+    public void setWantSpinUp(boolean spin_up) {
+        mWantsSpinUp = spin_up;
+    }
+
+    public void setWantShoot(boolean shoot) {
+        mWantsShoot = shoot;
+    }
+
     public void setWantShoot() {
         mWantsShoot = !mWantsShoot;
+    }
+
+    public void setShooterVelocity(double velocity) {
+        mShooterSetpoint = velocity;
     }
 
     public void setSetpoints() {
@@ -76,7 +89,7 @@ public class Superstructure extends Subsystem {
         Indexer.WantedAction real_indexer;
 
         if (mWantsSpinUp) {
-            mShooter.setVelocity(2000);
+            mShooter.setVelocity(mShooterSetpoint);
         } else {
             mShooter.setOpenLoop(0.0);
         }
@@ -88,17 +101,17 @@ public class Superstructure extends Subsystem {
                 real_indexer = Indexer.WantedAction.NONE;
             }
         } else {
-            real_indexer = Indexer.WantedAction.NONE;
+            /* SET INDEXER STATE */
+            if (mIntake.getState() == Intake.State.INTAKING) {
+                real_indexer = Indexer.WantedAction.INDEX;
+            } else if (mIntake.getState() == Intake.State.REVERSING) {
+                real_indexer = Indexer.WantedAction.REVERSE;
+            } else {
+                real_indexer = Indexer.WantedAction.NONE;
+            }
         }
 
-        /* SET INDEXER STATE */
-        if (mIntake.getState() == Intake.State.INTAKING) {
-            mIndexer.setState(Indexer.WantedAction.INDEX);
-        } else if (mIntake.getState() == Intake.State.REVERSING) {
-            mIndexer.setState(Indexer.WantedAction.REVERSE);
-        } else {
-            mIndexer.setState(real_indexer);
-        }
+        mIndexer.setState(real_indexer);
     }
 
     @Override

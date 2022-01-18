@@ -348,7 +348,7 @@ public class ShuffleBoardInteractions {
         mHopperVoltage.setDouble(mIndexer.getHopperVoltage());
 
         /* Vision */
-        mSeesTarget.setBoolean(mLimelight.seesTarget());
+        mSeesTarget.setBoolean(mLimelight.hasTarget());
         mLimelightOk.setBoolean(mLimelight.limelightOK());
         mLimelightLatency.setDouble(mLimelight.getLatency());
         mLimelightDt.setDouble(mLimelight.getDt());
