@@ -81,12 +81,14 @@ public class Robot extends TimedRobot {
 			CrashTracker.logRobotInit();
 
 			mSubsystemManager.setSubsystems(
-					mSuperstructure,
 					mSwerve,
-					mIntake,
-					mShooter,
 					mInfrastructure,
-					mIndexer);
+					mIntake,
+					mIndexer,
+					mShooter,
+					mSuperstructure,
+					mLimelight
+			);
 
 			mSubsystemManager.registerEnabledLoops(mEnabledLooper);
 			mSubsystemManager.registerDisabledLoops(mDisabledLooper);
@@ -157,12 +159,11 @@ public class Robot extends TimedRobot {
 			Translation2d swerveTranslation = new Translation2d(mControlBoard.getSwerveTranslation().x(),
 					mControlBoard.getSwerveTranslation().y());
 			double swerveRotation = mControlBoard.getSwerveRotation();
-			//mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
 
 			if (mControlBoard.getVisionAlign()) {
 				mSwerve.visionAlignDrive(swerveTranslation, true, true);
 			} else {
-				mSwerve.teleopDrive(swerveTranslation, swerveRotation, true, true);
+				mSwerve.drive(swerveTranslation, swerveRotation, true, true);
 			}
 
 			// Intake
