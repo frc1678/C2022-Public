@@ -15,8 +15,6 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.math.MathUtil;
 
-import com.team254.lib.util.ReflectingCSVWriter;
-
 public class ShuffleBoardInteractions {
 
     /* ShuffleBoardInteractions Instance */
@@ -321,7 +319,7 @@ public class ShuffleBoardInteractions {
         mClimberPostion.setDouble(truncate(mClimber.getMotorPosition()));
         mClimberCurrent.setDouble(truncate(mClimber.getStatorCurrent()));
         mClimberVelocity.setDouble(truncate(mClimber.getMotorVelocity()));
-        mClimberControlMode.setString(mClimber.isRunningOpenLoop() ? "OPEN LOOP" : "MOTION MAGIC");
+        mClimberControlMode.setString(mClimber.getControlState().toString());
         mClimberDemand.setDouble(truncate(mClimber.getDemand()));
     }
 

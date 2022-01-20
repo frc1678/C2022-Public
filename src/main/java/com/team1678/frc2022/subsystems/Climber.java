@@ -19,9 +19,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Climber extends Subsystem {
 
     private TimeDelayedBoolean mClimberCalibrated = new TimeDelayedBoolean();
-    private boolean mHomed = false;
-    private boolean mIsHoming = false;
-    private boolean mIsOpenLoop = false;
+    public ControlState mControlState = ControlState.HOMING;
+    public boolean mHomed;
 
     /* Subsystem Instance */
     private static Climber mInstance;
@@ -32,7 +31,7 @@ public class Climber extends Subsystem {
         }
         return mInstance;
     }
-    
+
     /* Components */
     private TalonFX mMaster;
     private TalonFX mSlave;
@@ -73,22 +72,21 @@ public class Climber extends Subsystem {
     private void zeroEncoder() {
         mMaster.setSelectedSensorPosition(0.0);
         mHomed = true;
-        setClimberOpenLoop(0.0);
     }
-    
+
     @Override
     public void readPeriodicInputs() {
         mPeriodicIO.stator_current = mMaster.getStatorCurrent();
         mPeriodicIO.motor_position = mMaster.getSelectedSensorPosition();
         mPeriodicIO.motor_velocity = mMaster.getSelectedSensorVelocity();
 
-        SmartDashboard.putBoolean("Is homing", mIsHoming);
-
         if (!mHomed) {
-            if (mPeriodicIO.stator_current > 30 & mIsHoming == false) {
-                mIsHoming = true;
+            if (mControlState != ControlState.HOMING) {
+                mControlState = ControlState.HOMING;
             }
-            if (mClimberCalibrated.update(Util.epsilonEquals(mPeriodicIO.motor_velocity, 0, 500), Constants.ClimberConstants.kCalibrationTimeoutSeconds) && mIsHoming == true) {
+            if (mClimberCalibrated.update(Util.epsilonEquals(mPeriodicIO.motor_velocity, 0, 500),
+                    Constants.ClimberConstants.kCalibrationTimeoutSeconds) && mPeriodicIO.stator_current > 30) {
+                setClimberOpenLoop(0.0);
                 zeroEncoder();
             }
         }
@@ -96,36 +94,46 @@ public class Climber extends Subsystem {
 
     @Override
     public void writePeriodicOutputs() {
-        if (!mHomed) {
-            mMaster.set(ControlMode.PercentOutput, Constants.ClimberConstants.kCalibratingVoltage);
-        } else {
-            if (!mIsOpenLoop) {
+        switch (mControlState) {
+            case HOMING:
+                mMaster.set(ControlMode.PercentOutput, Constants.ClimberConstants.kCalibratingVoltage);
+                break;
+            case OPEN_LOOP:
+                /* If holding position, set to position control to avoid sag */
+                if (mPeriodicIO.climber_demand == 0.0) {
+                    setClimberPositionDelta(0.0);
+                } else {
+                    mMaster.set(ControlMode.PercentOutput, mPeriodicIO.climber_demand / 12);
+                }
+                break;
+            case MOTION_MAGIC:
                 mMaster.set(ControlMode.MotionMagic, mPeriodicIO.climber_demand);
-            } else {
-                mMaster.set(ControlMode.PercentOutput, mPeriodicIO.climber_demand / 12);
-            }
+                break;
+            default:
+                mMaster.set(ControlMode.MotionMagic,0.0);
+                break;
         }
-
         mDeploySolenoid.set(mPeriodicIO.deploy_solenoid);
     }
 
     public void setClimberOpenLoop(double wantedDemand) {
-        if (mIsOpenLoop != true) {
-            mIsOpenLoop = true;
+        if (mControlState != ControlState.OPEN_LOOP) {
+            mControlState = ControlState.OPEN_LOOP;
         }
         mPeriodicIO.climber_demand = (wantedDemand > 8 ? 8 : wantedDemand);
     }
 
     public void setClimberPosition(double wantedPositionTicks) {
-        if (mIsOpenLoop != false) {
-            mIsOpenLoop = false;
+        if (mControlState != ControlState.MOTION_MAGIC) {
+            mControlState = ControlState.MOTION_MAGIC;
         }
         mPeriodicIO.climber_demand = wantedPositionTicks;
     }
 
     public void setClimberPositionDelta(double wantedPositionDelta) {
-        if (mIsOpenLoop != false) {
-            mIsOpenLoop = false;
+        if (mControlState != ControlState.MOTION_MAGIC) {
+            mControlState = ControlState.MOTION_MAGIC;
+            mPeriodicIO.climber_demand = mPeriodicIO.motor_position;
         }
         mPeriodicIO.climber_demand = mPeriodicIO.climber_demand + wantedPositionDelta;
     }
@@ -133,7 +141,7 @@ public class Climber extends Subsystem {
     public void setWantDeploy(boolean wantsDeploy) {
         mPeriodicIO.deploy_solenoid = wantsDeploy;
     }
-    
+
     public boolean getHomed() {
         return mHomed;
     }
@@ -161,8 +169,8 @@ public class Climber extends Subsystem {
         return mPeriodicIO.climber_demand;
     }
 
-    public boolean isRunningOpenLoop() {
-        return mIsOpenLoop;
+    public ControlState getControlState() {
+        return mControlState;
     }
 
     public boolean hasEmergency = false;
@@ -179,8 +187,14 @@ public class Climber extends Subsystem {
         public boolean deploy_solenoid;
     }
 
+    public enum ControlState {
+        HOMING,
+        OPEN_LOOP,
+        MOTION_MAGIC
+    }
+
     @Override
     public void stop() {
         mMaster.set(ControlMode.PercentOutput, 0.0);
     }
-}   
+}
