@@ -47,13 +47,21 @@ public class Indexer extends Subsystem {
 
         mElevator = TalonFXFactory.createDefaultTalon(Ports.ELEVATOR_ID);
         mHopperMaster = TalonFXFactory.createDefaultTalon(Ports.HOPPER_MASTER_ID);
-        mHopperSlave = TalonFXFactory.createPermanentSlaveTalon(Ports.HOPPER_SLAVE_ID, Ports.HOPPER_MASTER_ID);
 
+        if (Constants.isAlpha) {
+            mHopperSlave = TalonFXFactory.createPermanentSlaveTalon(Ports.HOPPER_SLAVE_ID, Ports.HOPPER_MASTER_ID);
+        } else {
+            mHopperSlave = null;
+        }
+      
         mBottomBeamBreak = new DigitalInput(Ports.BOTTOM_BEAM_BREAK);
         mTopBeamBreak = new DigitalInput(Ports.TOP_BEAM_BREAK);
 
         mHopperMaster.setInverted(true);
-        mHopperSlave.setInverted(true);
+        if (Constants.isAlpha) {
+            mHopperSlave.setInverted(true);
+        }
+        
     }
 
     public static synchronized Indexer getInstance() {
