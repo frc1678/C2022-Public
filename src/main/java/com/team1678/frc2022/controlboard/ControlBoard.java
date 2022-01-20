@@ -100,7 +100,7 @@ public class ControlBoard {
     }
 
     private final CustomXboxController driver;
-    private final CustomXboxController operator;
+    public final CustomXboxController operator;
 
     private ControlBoard() {
         driver = new CustomXboxController(0);
