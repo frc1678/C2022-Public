@@ -1,13 +1,17 @@
 package com.team1678.frc2022.subsystems;
 
+import java.util.Optional;
+
 import com.ctre.phoenix.sensors.PigeonIMU;
 
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
+import com.team1678.frc2022.RobotState;
 import com.team1678.frc2022.SwerveModule;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
 import com.team254.lib.util.TimeDelayedBoolean;
+import com.team254.lib.vision.AimingParameters;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -19,15 +23,18 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Swerve extends Subsystem {
 
     private static Swerve mInstance;
 
-    // required instance for vision align
+    // required instances for vision align
     public Limelight mLimelight = Limelight.getInstance();
+    public RobotState mRobotState = RobotState.getInstance();
+    private Optional<AimingParameters> mLatestAimingParameters = Optional.empty();
+    private int mTrackId = -1;
 
     // wants vision aim during auto
     public boolean mWantsAutoVisionAim = false;
@@ -123,10 +130,12 @@ public class Swerve extends Subsystem {
     public void visionAlignDrive(Translation2d translation2d, boolean fieldRelative, boolean isOpenLoop) {
         double rotation = 0.0;
 
-        if (mLimelight.hasTarget()) {
+        mLatestAimingParameters = mRobotState.getAimingParameters(mTrackId, Constants.VisionConstants.kMaxGoalTrackAge);
+        if (mLatestAimingParameters.isPresent()) {
+            mTrackId = mLatestAimingParameters.get().getTrackId();
             double currentAngle = getPose().getRotation().getRadians();
-            double targetOffset = Math.toRadians(mLimelight.getOffset()[0]);
-            rotation = visionPIDController.calculate(currentAngle, currentAngle - targetOffset);
+            double targetOffset = mLatestAimingParameters.get().getVehicleToGoalRotation().getRadians();
+            rotation = visionPIDController.calculate(currentAngle, currentAngle + targetOffset);
         }
         drive(translation2d, rotation, fieldRelative, isOpenLoop);
     }
