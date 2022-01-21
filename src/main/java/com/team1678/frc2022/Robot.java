@@ -17,13 +17,17 @@ import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Infrastructure;
 import com.team1678.frc2022.subsystems.Intake;
 import com.team1678.frc2022.subsystems.Limelight;
+import com.team1678.frc2022.subsystems.RobotStateEstimator;
 import com.team1678.frc2022.subsystems.Shooter;
 import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.TimedRobot;
+
+import edu.wpi.first.wpilibj.Timer;
+
+import com.team254.lib.wpilib.TimedRobot;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -57,6 +61,9 @@ public class Robot extends TimedRobot {
 	private final Superstructure mSuperstructure = Superstructure.getInstance();
 	private final Limelight mLimelight = Limelight.getInstance();
 
+	private final RobotState mRobotState = RobotState.getInstance();
+	private final RobotStateEstimator mRobotStateEstimator = RobotStateEstimator.getInstance();
+
 	// instantiate enabled and disabled loopers
 	private final Looper mEnabledLooper = new Looper();
 	private final Looper mDisabledLooper = new Looper();
@@ -84,13 +91,17 @@ public class Robot extends TimedRobot {
 					mIndexer,
 					mShooter,
 					mSuperstructure,
-					mLimelight
+					mLimelight,
+					mRobotStateEstimator
 			);
 
 			mSubsystemManager.registerEnabledLoops(mEnabledLooper);
 			mSubsystemManager.registerDisabledLoops(mDisabledLooper);
 
 			mSwerve.resetOdometry(new Pose2d());
+			// Robot starts forwards.
+			mRobotState.reset(Timer.getFPGATimestamp(), new com.team254.lib.geometry.Pose2d());
+
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
 			throw t;
@@ -100,6 +111,7 @@ public class Robot extends TimedRobot {
 	@Override
 	public void robotPeriodic() {
 		mShuffleBoardInteractions.update();
+		// mRobotState.outputToSmartDashboard();
 	}
 
 	@Override
@@ -196,6 +208,8 @@ public class Robot extends TimedRobot {
 			CrashTracker.logDisabledInit();
 			mEnabledLooper.stop();
 			mDisabledLooper.start();
+
+			RobotState.getInstance().reset(Timer.getFPGATimestamp(), new com.team254.lib.geometry.Pose2d());
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);

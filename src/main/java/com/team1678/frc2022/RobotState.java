@@ -154,7 +154,7 @@ public class RobotState {
         double differential_height = lens_height - (Constants.VisionConstants.kGoalHeight);
         if ((z < 0.0) == (differential_height > 0.0)) {
             double scaling = differential_height / -z;
-            double distance = Math.hypot(x, y) * scaling;
+            double distance = (Math.hypot(x, y) * scaling) + Constants.VisionConstants.kGoalRadius;
             Rotation2d angle = new Rotation2d(x, y, true);
             return new Translation2d(distance * angle.cos(), distance * angle.sin());
         }
@@ -280,7 +280,7 @@ public class RobotState {
         SmartDashboard.putBoolean("Has Aiming Parameters", params.isPresent());
         if (params.isPresent()) {
             SmartDashboard.putNumber("Vehicle to Target", params.get().getRange());
-            SmartDashboard.putNumber("Vehicle to TargetAngle", params.get().getTurretToGoalRotation().getDegrees());
+            SmartDashboard.putNumber("Vehicle to TargetAngle", params.get().getVehicleToGoalRotation().getDegrees());
 
         }
     }

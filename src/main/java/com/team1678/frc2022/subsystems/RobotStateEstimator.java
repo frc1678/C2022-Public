@@ -10,6 +10,7 @@ import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class RobotStateEstimator extends Subsystem {
 
@@ -47,6 +48,7 @@ public class RobotStateEstimator extends Subsystem {
 
         @Override
         public synchronized void onLoop(double timestamp) {
+            mRobotState.outputToSmartDashboard();
             if (prev_swerve_pose_ == null) {
                 prev_swerve_pose_ = mRobotState.getLatestFieldToVehicle().getValue();
             }
@@ -81,6 +83,13 @@ public class RobotStateEstimator extends Subsystem {
 
             prev_swerve_pose_ = swerve_pose_;
             prev_timestamp_ = timestamp;
+
+            /*
+            // Shuffleboard outputs for logic checks
+            SmartDashboard.putNumber("Odometry Delta X", odometry_delta.getTranslation().x());
+            SmartDashboard.putNumber("Odometry Delta Y", odometry_delta.getTranslation().y());
+            SmartDashboard.putNumber("Odometry Delta Theta", odometry_delta.getRotation().getDegrees());
+            */
         }
 
         @Override
