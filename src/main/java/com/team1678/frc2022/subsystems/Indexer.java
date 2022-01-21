@@ -1,17 +1,23 @@
 package com.team1678.frc2022.subsystems;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
-import com.team1678.frc2022.controlboard.ControlBoard.TurretCardinal;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
 import com.team1678.frc2022.subsystems.Intake.State;
+import com.team1678.lib.drivers.REVColorSensorV3Wrapper;
+import com.team1678.lib.drivers.REVColorSensorV3Wrapper.ColorSensorData;
 import com.team254.lib.drivers.TalonFXFactory;
+
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.revrobotics.ColorMatch;
+import com.revrobotics.ColorMatchResult;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.I2C;
 
 
 public class Indexer extends Subsystem {
@@ -25,7 +31,13 @@ public class Indexer extends Subsystem {
 
     private final DigitalInput mBottomBeamBreak;
     private final DigitalInput mTopBeamBreak;
-    //TODO: private final DigitalInput mColorSensor = new DigitalInput(Ports.COLOR_SENOR);
+    public REVColorSensorV3Wrapper mColorSensor;
+
+    private final ColorMatch mColorMatcher = new ColorMatch();
+    public ColorMatchResult mMatch;
+
+    private final Color mAllianceColor;
+    private final Color mOpponentColor;
 
     private State mState = State.IDLE;
 
@@ -57,12 +69,28 @@ public class Indexer extends Subsystem {
       
         mBottomBeamBreak = new DigitalInput(Ports.BOTTOM_BEAM_BREAK);
         mTopBeamBreak = new DigitalInput(Ports.TOP_BEAM_BREAK);
+        mColorSensor = new REVColorSensorV3Wrapper(I2C.Port.kOnboard); //TODO: check value
 
         mHopperMaster.setInverted(true);
         if (Constants.isAlpha) {
             mHopperSlave.setInverted(true);
         }
         
+        mHopperSlave.setInverted(true);
+
+        mColorMatcher.addColorMatch(Constants.IndexerConstants.kBlueBallColor);
+        mColorMatcher.addColorMatch(Constants.IndexerConstants.kRedBallColor);
+        mColorMatcher.addColorMatch(Constants.IndexerConstants.kNeutralColor);
+
+        if (Constants.IndexerConstants.isRedAlliance) {
+            mAllianceColor = Constants.IndexerConstants.kRedBallColor;
+            mOpponentColor = Constants.IndexerConstants.kBlueBallColor;
+        } else {
+            mAllianceColor = Constants.IndexerConstants.kBlueBallColor;
+            mOpponentColor = Constants.IndexerConstants.kRedBallColor;
+        }
+
+        mColorSensor.start();
     }
 
     public static synchronized Indexer getInstance() {
@@ -86,8 +114,21 @@ public class Indexer extends Subsystem {
         mPeriodicIO.hopper_current = mHopperMaster.getStatorCurrent();
         mPeriodicIO.hopper_voltage = mHopperMaster.getMotorOutputVoltage();
 
-        mPeriodicIO.elevator_current = mElevator.getStatorCurrent();
-        mPeriodicIO.elevator_voltage = mElevator.getMotorOutputVoltage();
+        ColorSensorData reading = mColorSensor.getLatestReading();
+
+        if (reading.color != null) {
+            mPeriodicIO.detected_color = reading.color;
+            mMatch = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
+        }
+
+        if (mMatch.color == Constants.IndexerConstants.kNeutralColor) {
+            mPeriodicIO.eject = false;
+        } else if (mMatch.color == mAllianceColor) {
+            mPeriodicIO.eject = false;
+        } else if (mMatch.color == mOpponentColor) {
+            mPeriodicIO.eject = true;
+        }
+
     }
 
     @Override
@@ -133,6 +174,14 @@ public class Indexer extends Subsystem {
      */
     public boolean getBottomBeamBreak() {
         return mPeriodicIO.bottom_break;
+    }
+
+    public String getDetectedColor() {
+        return mPeriodicIO.detected_color.toString();
+    }
+
+    public String getMatchedColor() {
+        return mMatch.toString();
     }
 
     public double getElevatorDemand() {
@@ -210,6 +259,7 @@ public class Indexer extends Subsystem {
                 mPeriodicIO.hopper_demand = Constants.IndexerConstants.kHopperReversingVoltage;
                 mPeriodicIO.elevator_demand = Constants.IndexerConstants.kElevatorReversingVoltage;
                 break;
+
         }
     }
     
@@ -231,8 +281,11 @@ public class Indexer extends Subsystem {
 
         public double elevator_voltage;
         public double elevator_current;
+        public boolean topLightBeamBreakSensor;
+        public boolean bottomLightBeamBreakSensor;
         public double hopper_voltage;
         public double hopper_current;
+        public Color detected_color;
 
         public boolean top_break;
         public boolean bottom_break;
