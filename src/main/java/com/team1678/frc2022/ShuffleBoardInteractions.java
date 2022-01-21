@@ -78,7 +78,6 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mHopperDemand;
     private final NetworkTableEntry mHopperVoltage;
     private final NetworkTableEntry mHopperCurrent;
-    
 
     /* Vision */
     private final NetworkTableEntry mSeesTarget;

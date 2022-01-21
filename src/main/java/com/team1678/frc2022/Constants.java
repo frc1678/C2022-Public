@@ -12,6 +12,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.util.Color;
 
 public class Constants {
 	
@@ -309,6 +310,11 @@ public class Constants {
         public static final double kHopperIndexingVoltage = 5;
         public static final double kHopperReversingVoltage = -5;
         public static final double kFeedingVoltage = 6.0;
+
+        public static final boolean isRedAlliance = true;
+        public static final Color kBlueBallColor = new Color(0.134, 0.432, 0.434);
+        public static final Color kRedBallColor = new Color(0.485, 0.364, 0.150);
+        public static final Color kNeutralColor = new Color(0.485, 0.364, 0.150); //Color detected with no ball
 
     }
         
