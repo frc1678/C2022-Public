@@ -81,6 +81,7 @@ public class ShuffleBoardInteractions {
 
     private final NetworkTableEntry mDetectedColor;
     private final NetworkTableEntry mMatchedColor;
+    private final NetworkTableEntry mColorInProximity;
 
     /* Vision */
     private final NetworkTableEntry mSeesTarget;
@@ -325,9 +326,11 @@ public class ShuffleBoardInteractions {
         mDetectedColor = INDEXER_TAB
             .add("Detected Color", mIndexer.mPeriodicIO.detected_color)
             .getEntry();
-
         mMatchedColor = INDEXER_TAB
             .add("Matched Color", mIndexer.mMatch)
+            .getEntry();
+        mColorInProximity = INDEXER_TAB
+            .add("Color is in Proximity", mIndexer.mPeriodicIO.colorProximity)
             .getEntry();
     }
     

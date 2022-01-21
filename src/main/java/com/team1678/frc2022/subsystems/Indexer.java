@@ -2,6 +2,7 @@ package com.team1678.frc2022.subsystems;
 
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
+import com.team1678.frc2022.Constants.IndexerConstants;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
 import com.team1678.frc2022.subsystems.Intake.State;
@@ -14,6 +15,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.revrobotics.ColorMatch;
 import com.revrobotics.ColorMatchResult;
 
+import edu.wpi.first.math.trajectory.constraint.RectangularRegionConstraint;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
@@ -52,7 +54,7 @@ public class Indexer extends Subsystem {
         IDLE,
         INDEXING,
         FEEDING,
-        REVERSING,
+        REVERSING
     }
 
     private Indexer() {
@@ -120,13 +122,18 @@ public class Indexer extends Subsystem {
             mMatch = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
         }
 
-        if (reading.distance == Constants.IndexerConstants.kColorSensorThreshold) {
+        if (reading.distance >= Constants.IndexerConstants.kColorSensorThreshold) {
             mPeriodicIO.eject = false;
         } else if (mMatch.color == mAllianceColor) {
             mPeriodicIO.eject = false;
         } else if (mMatch.color == mOpponentColor) {
             mPeriodicIO.eject = true;
         }
+
+        if (reading.distance <= Constants.IndexerConstants.kColorSensorThreshold) {
+            mPeriodicIO.colorProximity = true;
+        } else 
+            mPeriodicIO.colorProximity = false;
 
     }
 
@@ -205,6 +212,10 @@ public class Indexer extends Subsystem {
     
     public double getHopperVoltage() {
         return mPeriodicIO.hopper_voltage;
+    }
+
+    public boolean getColorProximity() {
+        return mPeriodicIO.colorProximity;
     }
 
     public void setState(WantedAction wanted_state) {
@@ -289,6 +300,7 @@ public class Indexer extends Subsystem {
         public boolean top_break;
         public boolean bottom_break;
         public boolean correctColor;
+        public boolean colorProximity;
 
         //OUTPUTS
         public double elevator_demand;
