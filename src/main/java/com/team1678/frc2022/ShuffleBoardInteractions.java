@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.util.Color;
 
 public class ShuffleBoardInteractions {
 
@@ -359,6 +360,10 @@ public class ShuffleBoardInteractions {
         mHopperDemand.setDouble(mIndexer.getHopperDemand());
         mHopperCurrent.setDouble(mIndexer.getHopperCurrent());
         mHopperVoltage.setDouble(mIndexer.getHopperVoltage());
+        mDetectedColor.setString(mIndexer.getDetectedColor());
+        mMatchedColor.setString(mIndexer.getMatchedColor());
+        mColorInProximity.setBoolean(mIndexer.getColorProximity());
+
 
         /* Vision */
         mSeesTarget.setBoolean(mLimelight.hasTarget());

@@ -218,6 +218,10 @@ public class Indexer extends Subsystem {
         return mPeriodicIO.colorProximity;
     }
 
+    public boolean isEjecting() {
+        return mPeriodicIO.eject;
+    }
+
     public void setState(WantedAction wanted_state) {
         switch (wanted_state) {
             case NONE:

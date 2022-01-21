@@ -1,10 +1,12 @@
 package com.team1678.frc2022.subsystems;
 
 import com.team1678.frc2022.loops.Loop;
+import com.team1678.frc2022.subsystems.Indexer.WantedAction;
 
 import edu.wpi.first.wpilibj.Encoder.IndexingType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.loops.ILooper;
 
 public class Superstructure extends Subsystem {
@@ -93,8 +95,10 @@ public class Superstructure extends Subsystem {
         } else {
             mShooter.setOpenLoop(0.0);
         }
-
-        if (mWantsShoot) {
+        
+        if (mIndexer.isEjecting()) {
+                real_indexer = Indexer.WantedAction.NONE;
+        } else if (mWantsShoot) {
             if (isSpunUp()) {
                 real_indexer = Indexer.WantedAction.FEED;
             } else {
