@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.util.Color;
+import pabeles.concurrency.ConcurrencyOps.NewInstance;
 
 public class ShuffleBoardInteractions {
 
@@ -83,6 +84,8 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mDetectedColor;
     private final NetworkTableEntry mMatchedColor;
     private final NetworkTableEntry mColorInProximity;
+    private final NetworkTableEntry mColorDistance;
+    private final NetworkTableEntry mColorString;
 
     /* Vision */
     private final NetworkTableEntry mSeesTarget;
@@ -325,13 +328,19 @@ public class ShuffleBoardInteractions {
             .getEntry();
 
         mDetectedColor = INDEXER_TAB
-            .add("Detected Color", mIndexer.mPeriodicIO.detected_color)
+            .add("Detected Color", Color.kTomato.toString())
             .getEntry();
         mMatchedColor = INDEXER_TAB
-            .add("Matched Color", mIndexer.mMatch)
+            .add("Matched Color", Color.kTomato.toString())
             .getEntry();
         mColorInProximity = INDEXER_TAB
             .add("Color is in Proximity", mIndexer.mPeriodicIO.colorProximity)
+            .getEntry();
+        mColorDistance = INDEXER_TAB
+            .add("Color Ball Distance", mIndexer.mPeriodicIO.color_proximity_distance)
+            .getEntry();
+        mColorString = INDEXER_TAB
+            .add("Color", "N/A")
             .getEntry();
     }
     
@@ -360,9 +369,12 @@ public class ShuffleBoardInteractions {
         mHopperDemand.setDouble(mIndexer.getHopperDemand());
         mHopperCurrent.setDouble(mIndexer.getHopperCurrent());
         mHopperVoltage.setDouble(mIndexer.getHopperVoltage());
+        
         mDetectedColor.setString(mIndexer.getDetectedColor());
         mMatchedColor.setString(mIndexer.getMatchedColor());
         mColorInProximity.setBoolean(mIndexer.getColorProximity());
+        mColorDistance.setDouble(mIndexer.getColorProximityDistance());
+        mColorString.setString(mIndexer.getColorString());
 
 
         /* Vision */

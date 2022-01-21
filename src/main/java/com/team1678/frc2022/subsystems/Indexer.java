@@ -10,6 +10,8 @@ import com.team1678.lib.drivers.REVColorSensorV3Wrapper;
 import com.team1678.lib.drivers.REVColorSensorV3Wrapper.ColorSensorData;
 import com.team254.lib.drivers.TalonFXFactory;
 
+import javax.lang.model.util.ElementScanner6;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.revrobotics.ColorMatch;
@@ -114,13 +116,15 @@ public class Indexer extends Subsystem {
 
         mPeriodicIO.hopper_current = mHopperMaster.getStatorCurrent();
         mPeriodicIO.hopper_voltage = mHopperMaster.getMotorOutputVoltage();
-
+        
         ColorSensorData reading = mColorSensor.getLatestReading();
 
         if (reading.color != null) {
             mPeriodicIO.detected_color = reading.color;
             mMatch = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
         }
+
+        mPeriodicIO.color_proximity_distance = reading.distance;
 
         if (reading.distance >= Constants.IndexerConstants.kColorSensorThreshold) {
             mPeriodicIO.eject = false;
@@ -134,6 +138,16 @@ public class Indexer extends Subsystem {
             mPeriodicIO.colorProximity = true;
         } else 
             mPeriodicIO.colorProximity = false;
+
+        if(mMatch != null) {
+            if (mMatch.color == Constants.IndexerConstants.kBlueBallColor) {
+                mPeriodicIO.colorString = "Blue";
+            } else if (mMatch.color == Constants.IndexerConstants.kRedBallColor) {
+                mPeriodicIO.colorString = "Red";
+            } else {
+                mPeriodicIO.colorString = "Unknown";
+            }
+        }
 
     }
 
@@ -218,9 +232,21 @@ public class Indexer extends Subsystem {
         return mPeriodicIO.colorProximity;
     }
 
+    public double getColorProximityDistance() {
+        return mPeriodicIO.color_proximity_distance;
+    }
+
     public boolean isEjecting() {
         return mPeriodicIO.eject;
     }
+
+    public String getColorString() {
+        return mPeriodicIO.colorString;
+    }
+
+    /*public double[] getColorSensorRGB() {
+        return {}
+    }*/
 
     public void setState(WantedAction wanted_state) {
         switch (wanted_state) {
@@ -299,12 +325,15 @@ public class Indexer extends Subsystem {
         public boolean bottomLightBeamBreakSensor;
         public double hopper_voltage;
         public double hopper_current;
+        public double raw_color;
         public Color detected_color;
 
         public boolean top_break;
         public boolean bottom_break;
         public boolean correctColor;
         public boolean colorProximity;
+        public int color_proximity_distance;
+        public String colorString;
 
         //OUTPUTS
         public double elevator_demand;
