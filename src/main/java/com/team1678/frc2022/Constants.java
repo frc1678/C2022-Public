@@ -207,7 +207,7 @@ public class Constants {
 		    static {
                 kLimelightConstants.kName = "Limelight";
                 kLimelightConstants.kTableName = "limelight";
-                kLimelightConstants.kHeight = 2.64; // meters
+                kLimelightConstants.kHeight = 0.79; // meters
                 kLimelightConstants.kHorizontalPlaneToLens = Rotation2d.fromDegrees(30.0);
             }
 
@@ -231,7 +231,8 @@ public class Constants {
         public static final double kCameraFrameRate = 90.0;
         public static final double kMinStability = 0.5;
         public static final int kDefaultPipeline = 0;
-        public static final double kGoalHeight = 90.0;
+        public static final double kGoalHeight = 2.63; // meters
+        public static final double kGoalRadius = 0.678; // meters
         
 	}
 
