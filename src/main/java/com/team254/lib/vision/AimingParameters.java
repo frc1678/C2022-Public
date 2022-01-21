@@ -27,7 +27,7 @@ public class AimingParameters {
         this.track_id = track_id;
     }
 
-    public Pose2d getRobotToGoal() {
+    public Pose2d getVehicleToGoal() {
         return vehicle_to_goal;
     }
 
@@ -39,7 +39,7 @@ public class AimingParameters {
         return range;
     }
 
-    public Rotation2d getTurretToGoalRotation() {
+    public Rotation2d getVehicleToGoalRotation() {
         return vehicle_to_goal_rotation;
     }
 
