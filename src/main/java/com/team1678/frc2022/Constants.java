@@ -315,7 +315,7 @@ public class Constants {
         public static final boolean isRedAlliance = true;
         public static final Color kBlueBallColor = new Color(0.134, 0.432, 0.434);
         public static final Color kRedBallColor = new Color(0.485, 0.364, 0.150);
-        public static final Color kNeutralColor = new Color(0.485, 0.364, 0.150); //Color detected with no ball
+        public static final double kColorSensorThreshold = 0.689; // TODO: Find actual values
 
     }
         
