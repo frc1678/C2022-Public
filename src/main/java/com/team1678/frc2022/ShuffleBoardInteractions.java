@@ -2,6 +2,7 @@ package com.team1678.frc2022;
 
 import com.ctre.phoenix.motorcontrol.MotorCommutation;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
+import com.team1678.frc2022.subsystems.Climber;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Intake;
 import com.team1678.frc2022.subsystems.Limelight;
@@ -15,6 +16,7 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import pabeles.concurrency.ConcurrencyOps.NewInstance;
 import edu.wpi.first.math.MathUtil;
 
 public class ShuffleBoardInteractions {
@@ -36,6 +38,7 @@ public class ShuffleBoardInteractions {
     private final Intake mIntake;
     private final Shooter mShooter;
     private final Indexer mIndexer;
+    private final Climber mClimber;
 
     /* Status Variable */
     private double lastCancoderUpdate = 0.0;
@@ -47,6 +50,7 @@ public class ShuffleBoardInteractions {
     private ShuffleboardTab INTAKE_TAB;
     private ShuffleboardTab SHOOTER_TAB;
     private ShuffleboardTab INDEXER_TAB;
+    private ShuffleboardTab CLIMBER_TAB;
 
     /* ENTRIES */
 
@@ -56,6 +60,15 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mIntakeVoltage;
     private final NetworkTableEntry mIntakeDemand;
     private final NetworkTableEntry mIntakeDeployed;
+
+    /* Climber */
+    private final NetworkTableEntry mClimberSolenoidDepolyed;
+    private final NetworkTableEntry mClimberVelocity;
+    private final NetworkTableEntry mClimberDemand;
+    private final NetworkTableEntry mClimberPosition;
+    private final NetworkTableEntry mClimberCurrent;
+    private final NetworkTableEntry mClimberHomed;
+    private final NetworkTableEntry mClimberControlState;
 
     /* Shooter */
     private final NetworkTableEntry mFlywheelRPM;
@@ -117,6 +130,7 @@ public class ShuffleBoardInteractions {
         mIntake = Intake.getInstance();
         mShooter = Shooter.getInstance();
         mIndexer = Indexer.getInstance();
+        mClimber = Climber.getInstance();
 
         /* Get Tabs */
         VISION_TAB = Shuffleboard.getTab("Vision");
@@ -125,6 +139,7 @@ public class ShuffleBoardInteractions {
         INTAKE_TAB = Shuffleboard.getTab("Intake");
         SHOOTER_TAB = Shuffleboard.getTab("Shooter");
         INDEXER_TAB = Shuffleboard.getTab("Indexer");
+        CLIMBER_TAB = Shuffleboard.getTab("Climber");
         
         /* Create Entries */
         mLimelightOk = VISION_TAB
@@ -266,6 +281,29 @@ public class ShuffleBoardInteractions {
         mIntakeDeployed = INTAKE_TAB
                 .add("Intake Deployed", mIntake.mPeriodicIO.deploy)
                 .getEntry();
+
+        /* Climber */
+        mClimberSolenoidDepolyed = CLIMBER_TAB
+            .add("Climber Solenoid is Deplayed", mClimber.mPeriodicIO.deploy_solenoid)
+            .getEntry();
+        mClimberVelocity = CLIMBER_TAB 
+            .add("Climber Velocity", mClimber.mPeriodicIO.climber_motor_velocity)
+            .getEntry();
+        mClimberDemand = CLIMBER_TAB
+            .add("Climber Demand", mClimber.mPeriodicIO.climber_demand)
+            .getEntry();
+        mClimberPosition = CLIMBER_TAB
+            .add("Climber Position", mClimber.mPeriodicIO.climber_motor_position)
+            .getEntry();
+        mClimberCurrent = CLIMBER_TAB
+            .add("Climber Current", mClimber.mPeriodicIO.climber_stator_current)
+            .getEntry();
+        mClimberHomed = CLIMBER_TAB
+            .add("Climber is Homed", mClimber.mHomed)
+            .getEntry();
+        mClimberControlState = CLIMBER_TAB
+            .add("Climber Control State", mClimber.mControlState)
+            .getEntry();
                 
         /* Shooter */
         mFlywheelRPM = SHOOTER_TAB
@@ -330,6 +368,15 @@ public class ShuffleBoardInteractions {
         mIntakeDemand.setDouble(mIntake.getMotorDemand());
         mIntakeDeployed.setBoolean(mIntake.getDeployed());
         mIntakeCurrent.setDouble(mIntake.getMotorCurrent());
+
+        /* Climber */
+        mClimberSolenoidDepolyed.setBoolean(mClimber.getClimberSolenoidDeployed());
+        mClimberVelocity.setDouble(mClimber.getClimberVelocity());
+        mClimberDemand.setDouble(mClimber.getClimberDemand());
+        mClimberPosition.setDouble(mClimber.getClimberPosition());
+        mClimberCurrent.setDouble(mClimber.getClimberCurrent());
+        mClimberHomed.setBoolean(mClimber.getHomed());
+        mClimberControlState.setString(mClimber.getControlState().toString());
 
         /* Shooter */
         mFlywheelRPM.setDouble(truncate(mShooter.getShooterRPM()));
