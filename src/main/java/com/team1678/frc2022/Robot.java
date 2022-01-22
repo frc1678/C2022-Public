@@ -13,6 +13,7 @@ import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.ControlBoard.SwerveCardinal;
 import com.team1678.frc2022.loops.CrashTracker;
 import com.team1678.frc2022.loops.Looper;
+import com.team1678.frc2022.subsystems.Climber;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Infrastructure;
 import com.team1678.frc2022.subsystems.Intake;
@@ -24,6 +25,8 @@ import com.team1678.frc2022.subsystems.Swerve;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
+import com.team254.lib.util.TimeDelayedBoolean;
+import com.team254.lib.util.Util;
 import com.team254.lib.wpilib.TimedRobot;
 
 /**
@@ -57,6 +60,7 @@ public class Robot extends TimedRobot {
 	private final Limelight mLimelight = Limelight.getInstance();
 	private final Infrastructure mInfrastructure = Infrastructure.getInstance();
 	private final Indexer mIndexer = Indexer.getInstance();
+	private final Climber mClimber = Climber.getInstance();
 
 	// instantiate enabled and disabled loopers
 	private final Looper mEnabledLooper = new Looper();
@@ -65,6 +69,9 @@ public class Robot extends TimedRobot {
 	// auto instances
 	private AutoModeExecutor mAutoModeExecutor;
 	private AutoModeSelector mAutoModeSelector = new AutoModeSelector();
+
+	private boolean mClimbMode = false;
+	private boolean mTraversalClimb = false;
 
 	public Robot() {
 		CrashTracker.logRobotConstruction();
@@ -85,7 +92,8 @@ public class Robot extends TimedRobot {
 					mIndexer,
 					mShooter,
 					mSuperstructure,
-					mLimelight
+					mLimelight,
+					mClimber
 			);
 
 			mSubsystemManager.registerEnabledLoops(mEnabledLooper);
@@ -164,17 +172,6 @@ public class Robot extends TimedRobot {
 				mSwerve.drive(swerveTranslation, swerveRotation, true, true);
 			}
 
-			// Intake
-			if (mControlBoard.getIntake()) {
-				mIntake.setState(Intake.WantedAction.INTAKE);
-			} else if (mControlBoard.getOuttake()) {
-				mIntake.setState(Intake.WantedAction.REVERSE);
-			} else if (mControlBoard.getSpitting()) {
-				mIntake.setState(Intake.WantedAction.SPIT);
-			} else {
-				mIntake.setState(Intake.WantedAction.NONE);
-			}
-
 			if (mControlBoard.operator.getController().getYButtonPressed()) {
 				mSuperstructure.setWantShoot();
 			}
@@ -183,6 +180,46 @@ public class Robot extends TimedRobot {
 				mSuperstructure.setShooterVelocity(1800);
 				mSuperstructure.setWantSpinUp();
 			}
+
+			mClimbMode = mControlBoard.getClimbMode();
+			mTraversalClimb = mControlBoard.getTrasversalClimb();
+			if (mClimbMode) {
+				if (mTraversalClimb) {
+					TimeDelayedBoolean mSolenoidTimer = new TimeDelayedBoolean();
+					//Extend to traversal bar
+					while (Util.epsilonEquals(mClimber.getClimberPosition(), Constants.ClimberConstants.kExtentionHeight, 5.0)) {
+						mClimber.setClimberOpenLoop(mClimber.mPeriodicIO.climber_stator_current);
+
+					}
+					//Deploy solenoid
+					while (mSolenoidTimer.update(mClimber.getClimberSolenoidDeployed(), Constants.ClimberConstants.kSolenoidDeployTime)) {
+						mClimber.mPeriodicIO.deploy_solenoid = true;
+						mClimber.mRightClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
+        				mClimber.mLeftClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
+					}
+					//Undeploy solenoid
+					while (mSolenoidTimer.update(mClimber.getClimberSolenoidDeployed(), Constants.ClimberConstants.kSolenoidUndeployTime)) {
+						mClimber.mPeriodicIO.deploy_solenoid = false;
+						mClimber.mRightClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
+						mClimber.mLeftClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
+					}
+					//Other Subsystems
+					mIntake.setState(Intake.WantedAction.STAY_OUT);
+					mIndexer.setState(Indexer.WantedAction.NONE);
+
+				} else {
+					// Intake
+					if (mControlBoard.getIntake()) {
+						mIntake.setState(Intake.WantedAction.INTAKE);
+					} else if (mControlBoard.getOuttake()) {
+						mIntake.setState(Intake.WantedAction.REVERSE);
+					} else if (mControlBoard.getSpitting()) {
+						mIntake.setState(Intake.WantedAction.SPIT);
+					} else {
+						mIntake.setState(Intake.WantedAction.NONE);
+				}
+			}
+		}
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);

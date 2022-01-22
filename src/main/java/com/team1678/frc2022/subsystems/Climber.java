@@ -21,8 +21,8 @@ public class Climber extends Subsystem {
 
     private final TalonFX mClimberMaster;
     private final TalonFX mClimberSlave;
-    private final Solenoid mLeftClimberSolenoid;
-    private final Solenoid mRightClimberSolenoid;
+    public final Solenoid mLeftClimberSolenoid;
+    public final Solenoid mRightClimberSolenoid;
 
     private TimeDelayedBoolean mClimberCalibrated = new TimeDelayedBoolean();
 
