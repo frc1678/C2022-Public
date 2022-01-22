@@ -147,10 +147,10 @@ public class Swerve extends Subsystem {
         SwerveModuleState[] swerveModuleStates = null;
         if (mLocked) {
             swerveModuleStates = new SwerveModuleState[]{
-                new SwerveModuleState(0, new Rotation2d(45)),
-                new SwerveModuleState(0, new Rotation2d(315)),
-                new SwerveModuleState(0, new Rotation2d(135)),
-                new SwerveModuleState(0, new Rotation2d(225))
+                new SwerveModuleState(0.1, Rotation2d.fromDegrees(45)),
+                new SwerveModuleState(0.1, Rotation2d.fromDegrees(315)),
+                new SwerveModuleState(0.1, Rotation2d.fromDegrees(135)),
+                new SwerveModuleState(0.1, Rotation2d.fromDegrees(225))
             };
         } else {
             swerveModuleStates =

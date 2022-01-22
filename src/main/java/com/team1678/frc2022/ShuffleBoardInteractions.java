@@ -90,6 +90,7 @@ public class ShuffleBoardInteractions {
 
     /* Swerve Modules */
     private final String[] kSwervePlacements = {"Front Left", "Front Right", "Back Left", "Back Right"};
+    private final NetworkTableEntry mSwerveBreakMode;
     private final ShuffleboardLayout[] mSwerveAngles = new ShuffleboardLayout[4];
     private final NetworkTableEntry[] mSwerveCancoders = new NetworkTableEntry[4];
     private final NetworkTableEntry[] mSwerveIntegrated = new NetworkTableEntry[4];
@@ -159,6 +160,8 @@ public class ShuffleBoardInteractions {
             .withPosition(1, 1)
             .withSize(1, 1)
             .getEntry();
+        
+        mSwerveBreakMode = SWERVE_TAB.add("Swerve Break Mode", false).getEntry();
 
         for (int i = 0; i < mSwerveCancoders.length; i++) {
             mSwerveAngles[i] = SWERVE_TAB
@@ -356,6 +359,7 @@ public class ShuffleBoardInteractions {
         mLimelightTy.setDouble(mLimelight.getOffset()[1]);
         
         /* SWERVE */
+        mSwerveBreakMode.setBoolean(mSwerve.mLocked);
 
         // Update cancoders at a slower period to avoid stale can frames
         double dt = Timer.getFPGATimestamp();
