@@ -9,10 +9,8 @@ import com.team1678.frc2022.loops.Loop;
 import com.team254.lib.drivers.TalonFXFactory;
 import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.util.TimeDelayedBoolean;
-
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Intake extends Subsystem {
 

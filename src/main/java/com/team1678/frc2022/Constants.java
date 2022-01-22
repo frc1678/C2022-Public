@@ -6,8 +6,6 @@ import com.team1678.frc2022.subsystems.Limelight.LimelightConstants;
 import com.team1678.frc2022.subsystems.ServoMotorSubsystem.ServoMotorSubsystemConstants;
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
-import com.team254.lib.geometry.Translation2d;
-
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
