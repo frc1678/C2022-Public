@@ -42,10 +42,6 @@ public class Ejector extends Subsystem{
         mColorMatcher.addColorMatch(Constants.EjectorConstants.kBlueBallColor);
     }
 
-    public boolean getEject() {
-        return mPeriodicIO.eject;
-    }
-
     @Override
    public void registerEnabledLoops(ILooper enabledLooper) {
        enabledLooper.register(new Loop() {
@@ -103,6 +99,30 @@ public class Ejector extends Subsystem{
     public boolean checkSystem() {
         // TODO Auto-generated method stub
         return false;
+    }
+
+    public boolean getEject() {
+        return mPeriodicIO.eject;
+    }
+
+    public double getDetectedRValue() {
+        return mPeriodicIO.rawColor.red;
+    }
+
+    public double getDetectedGValue() {
+        return mPeriodicIO.rawColor.green;
+    }
+
+    public double getDetectedBValue() {
+        return mPeriodicIO.rawColor.blue;
+    }
+
+    public double getDistance() {
+        return mPeriodicIO.distance;
+    }
+
+    public String getMatchedColor() {
+        return mMathcedColor.toString();
     }
 
     public static class PeriodicIO {
