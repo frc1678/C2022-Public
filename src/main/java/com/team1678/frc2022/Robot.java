@@ -163,6 +163,8 @@ public class Robot extends TimedRobot {
 				mSwerve.drive(swerveTranslation, swerveRotation, true, true);
 			}
 
+			mSwerve.mLocked = mControlBoard.getBreak();
+
 			// Intake
 			if (mControlBoard.getIntake()) {
 				mIntake.setState(Intake.WantedAction.INTAKE);
