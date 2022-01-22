@@ -1,10 +1,5 @@
 package com.team1678.frc2022.subsystems;
 
-import java.time.Period;
-
-import com.revrobotics.ColorMatch;
-import com.revrobotics.ColorMatchResult;
-import com.revrobotics.ColorSensorV3;
 import com.team1678.frc2022.ColorSensor;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.loops.ILooper;
@@ -13,6 +8,7 @@ import com.team1678.lib.drivers.REVColorSensorV3Wrapper;
 
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.util.Color;
+import com.revrobotics.ColorMatch;
 
 public class Ejector extends Subsystem{
     private static Ejector mInstance;
@@ -65,7 +61,7 @@ public class Ejector extends Subsystem{
 
            @Override
            public void onStop(double timestamp) {
-                mColorSensor.stop();
+                mColorSensorThread.stop();
            }
        });
    }
@@ -90,7 +86,6 @@ public class Ejector extends Subsystem{
                 mPeriodicIO.eject = mMathcedColor == mAllianceColor;
             }
         }
-
    }
 
    @Override
