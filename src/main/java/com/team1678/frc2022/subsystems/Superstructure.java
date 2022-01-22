@@ -95,10 +95,8 @@ public class Superstructure extends Subsystem {
         } else {
             mShooter.setOpenLoop(0.0);
         }
-        
-        if (mIndexer.isEjecting()) {
-                real_indexer = Indexer.WantedAction.NONE;
-        } else if (mWantsShoot) {
+       
+        if (mWantsShoot) {
             if (isSpunUp()) {
                 real_indexer = Indexer.WantedAction.FEED;
             } else {

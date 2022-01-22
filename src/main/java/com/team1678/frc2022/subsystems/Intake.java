@@ -6,6 +6,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.loops.Loop;
+import com.team1678.frc2022.subsystems.ServoMotorSubsystem.TalonFXConstants;
 import com.team254.lib.drivers.TalonFXFactory;
 import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.util.TimeDelayedBoolean;
@@ -33,10 +34,12 @@ public class Intake extends Subsystem {
     public State mState = State.IDLE;
 
     private final TalonFX mMaster;
+    private final TalonFX mSingulator;
     private Solenoid mSolenoid;
 
     private Intake() {
         mMaster = TalonFXFactory.createDefaultTalon(Ports.INTAKE_ID);
+        mSingulator = TalonFXFactory.createPermanentSlaveTalon(Ports.SINGULATOR_ID, Ports.INTAKE_ID);
         mSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.DEPLOY_SOLENOID_ID);
     }
 

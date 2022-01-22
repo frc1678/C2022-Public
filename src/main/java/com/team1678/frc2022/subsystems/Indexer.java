@@ -35,13 +35,6 @@ public class Indexer extends Subsystem {
 
     private final DigitalInput mBottomBeamBreak;
     private final DigitalInput mTopBeamBreak;
-    public REVColorSensorV3Wrapper mColorSensor;
-
-    private final ColorMatch mColorMatcher = new ColorMatch();
-    public ColorMatchResult mMatch;
-
-    private final Color mAllianceColor;
-    private final Color mOpponentColor;
 
     private State mState = State.IDLE;
 
@@ -73,7 +66,6 @@ public class Indexer extends Subsystem {
       
         mBottomBeamBreak = new DigitalInput(Ports.BOTTOM_BEAM_BREAK);
         mTopBeamBreak = new DigitalInput(Ports.TOP_BEAM_BREAK);
-        mColorSensor = new REVColorSensorV3Wrapper(I2C.Port.kOnboard); //TODO: check value
 
         mHopperMaster.setInverted(true);
         if (Constants.isAlpha) {
@@ -81,19 +73,6 @@ public class Indexer extends Subsystem {
         }
         
         mHopperSlave.setInverted(true);
-
-        mColorMatcher.addColorMatch(Constants.IndexerConstants.kBlueBallColor);
-        mColorMatcher.addColorMatch(Constants.IndexerConstants.kRedBallColor);
-
-        if (Constants.IndexerConstants.isRedAlliance) {
-            mAllianceColor = Constants.IndexerConstants.kRedBallColor;
-            mOpponentColor = Constants.IndexerConstants.kBlueBallColor;
-        } else {
-            mAllianceColor = Constants.IndexerConstants.kBlueBallColor;
-            mOpponentColor = Constants.IndexerConstants.kRedBallColor;
-        }
-
-        mColorSensor.start();
     }
 
     public static synchronized Indexer getInstance() {
@@ -116,38 +95,6 @@ public class Indexer extends Subsystem {
 
         mPeriodicIO.hopper_current = mHopperMaster.getStatorCurrent();
         mPeriodicIO.hopper_voltage = mHopperMaster.getMotorOutputVoltage();
-        
-        ColorSensorData reading = mColorSensor.getLatestReading();
-
-        if (reading.color != null) {
-            mPeriodicIO.detected_color = reading.color;
-            mMatch = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
-        }
-
-        mPeriodicIO.color_proximity_distance = reading.distance;
-
-        if (reading.distance >= Constants.IndexerConstants.kColorSensorThreshold) {
-            mPeriodicIO.eject = false;
-        } else if (mMatch.color == mAllianceColor) {
-            mPeriodicIO.eject = false;
-        } else if (mMatch.color == mOpponentColor) {
-            mPeriodicIO.eject = true;
-        }
-
-        if (reading.distance <= Constants.IndexerConstants.kColorSensorThreshold) {
-            mPeriodicIO.colorProximity = true;
-        } else 
-            mPeriodicIO.colorProximity = false;
-
-        if(mMatch != null) {
-            if (mMatch.color == Constants.IndexerConstants.kBlueBallColor) {
-                mPeriodicIO.colorString = "Blue";
-            } else if (mMatch.color == Constants.IndexerConstants.kRedBallColor) {
-                mPeriodicIO.colorString = "Red";
-            } else {
-                mPeriodicIO.colorString = "Unknown";
-            }
-        }
 
     }
 
@@ -196,14 +143,6 @@ public class Indexer extends Subsystem {
         return mPeriodicIO.bottom_break;
     }
 
-    public String getDetectedColor() {
-        return mPeriodicIO.detected_color.toString();
-    }
-
-    public String getMatchedColor() {
-        return mMatch.toString();
-    }
-
     public double getElevatorDemand() {
         return mPeriodicIO.elevator_demand;
     }
@@ -227,26 +166,6 @@ public class Indexer extends Subsystem {
     public double getHopperVoltage() {
         return mPeriodicIO.hopper_voltage;
     }
-
-    public boolean getColorProximity() {
-        return mPeriodicIO.colorProximity;
-    }
-
-    public double getColorProximityDistance() {
-        return mPeriodicIO.color_proximity_distance;
-    }
-
-    public boolean isEjecting() {
-        return mPeriodicIO.eject;
-    }
-
-    public String getColorString() {
-        return mPeriodicIO.colorString;
-    }
-
-    /*public double[] getColorSensorRGB() {
-        return {}
-    }*/
 
     public void setState(WantedAction wanted_state) {
         switch (wanted_state) {
@@ -325,15 +244,9 @@ public class Indexer extends Subsystem {
         public boolean bottomLightBeamBreakSensor;
         public double hopper_voltage;
         public double hopper_current;
-        public double raw_color;
-        public Color detected_color;
 
         public boolean top_break;
         public boolean bottom_break;
-        public boolean correctColor;
-        public boolean colorProximity;
-        public int color_proximity_distance;
-        public String colorString;
 
         //OUTPUTS
         public double elevator_demand;
