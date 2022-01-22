@@ -78,9 +78,9 @@ public class Ejector extends Subsystem{
                 mPeriodicIO.eject = false;
                 mMathcedColor = ColorChoices.NONE;
             } else {
-                if (mPeriodicIO.matchedColor == Constants.EjectorConstants.kRedBallColor) {
+                if (mPeriodicIO.matchedColor.equals(Constants.EjectorConstants.kRedBallColor)) {
                 mMathcedColor = ColorChoices.RED;
-                } else if (mPeriodicIO.matchedColor == Constants.EjectorConstants.kBlueBallColor) {
+                } else if (mPeriodicIO.matchedColor.equals(Constants.EjectorConstants.kBlueBallColor)) {
                 mMathcedColor = ColorChoices.BLUE;
                 }
                 mPeriodicIO.eject = mMathcedColor == mAllianceColor;
