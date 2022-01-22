@@ -13,11 +13,15 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.util.Color;
 
 public class Constants {
 	
 	// robot loop time
 	public static final double kLooperDt = 0.02;
+
+    // robot toggle
+    public static final boolean isAlpha = true;
 
 	/* Control Board */
 	public static final double kJoystickThreshold = 0.2;
@@ -39,8 +43,8 @@ public class Constants {
         public static final double openLoopRamp = 0.25;
         public static final double closedLoopRamp = 0.0;
 
-        public static final double driveGearRatio = 6.92307; // TODO: Check value
-        public static final double angleGearRatio = 11.57142; // TODO: Check value
+        public static final double driveGearRatio = (isAlpha ? (6.92307) : (6.74603)); // TODO: Check value
+        public static final double angleGearRatio = (isAlpha ? (11.57142) : (21.42857)); // TODO: Check value
 
         public static final SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(
                 new edu.wpi.first.math.geometry.Translation2d(wheelBase / 2.0, trackWidth / 2.0),
@@ -144,11 +148,11 @@ public class Constants {
     }
 
     public static final class VisionAlignConstants {
-        public static final double kP = 20.0;
+        public static final double kP = 9.0;
         public static final double kI = 0;
-        public static final double kD = 1.2;
-        public static final double visionAlignTimeout = 0.25;
-        public static final double visionAlignEpsilon = 1.0;
+        public static final double kD = 0.0;
+        public static final double kVisionAlignTimeout = 0.25;
+        public static final double kVisionAlignEpsilon = 1.0;
 
         // Constraints for the profiled angle controller
         public static final double kMaxAngularSpeedRadiansPerSecond = 2.0 * Math.PI;
@@ -159,9 +163,10 @@ public class Constants {
     }
 
     public static final class AutoConstants {
-        public static final double kMaxSpeedMetersPerSecond = 2.5; // TODO: Revise this
-        public static final double kMaxAccelerationMetersPerSecondSquared = 3.0; // TODO: Revise this
-        public static final double kMaxAngularSpeedRadiansPerSecond = 2.0 * Math.PI; // TODO: Revise this
+        public static final double kMaxSpeedMetersPerSecond = 2.2; // TODO: Revise this
+        public static final double kMaxAccelerationMetersPerSecondSquared = 2.3 // TODO: Revise this
+        ; // TODO: Revise this
+        public static final double kMaxAngularSpeedRadiansPerSecond = 2.0*Math.PI; // TODO: Revise this
         public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.pow(kMaxAngularSpeedRadiansPerSecond, 2); // TODO: Revise this
 
         public static final double kPXController = 1;
@@ -228,10 +233,12 @@ public class Constants {
 
     public static final class ShooterConstants {
 
-        public static final double kFlywheelVelocityConversion = 100/2048; // TODO Change to actual ratio, remember velo is measured in ticks/100ms
-        public static final double kFlywheelTolerance = 200;
-        public static final double kShooterP = 0.25; // TODO Retune these
-        public static final double kShooterI = 0.00004;
+        public static final double kFlywheelVelocityConversion = 600.0 / 2048.0 * (3.0/4.0); 
+        public static final double kKickerVelocityConversion = 600.0 / 2048.0; // 1:1 ratio on the kicker
+        
+        public static final double kFlywheelTolerance = 500;
+        public static final double kShooterP = 0.1; // TODO Retune these
+        public static final double kShooterI = 0.0;
         public static final double kShooterD = 0.0;
         public static final double kShooterF = 0.05;
         public static final double kClosedLoopRamp = 0.1;
@@ -303,11 +310,12 @@ public class Constants {
         public static final double kIdleVoltage = 0.0;
         public static final double kHopperIndexingVoltage = 5;
         public static final double kHopperReversingVoltage = -5;
+        public static final double kFeedingVoltage = 6.0;
 
         public static final boolean isRedAlliance = true;
         public static final Color kBlueBallColor = new Color(0.134, 0.432, 0.434);
         public static final Color kRedBallColor = new Color(0.485, 0.364, 0.150);
-        public static final Color kNeutralColor = new Color(0.485, 0.364, 0.150); //Color detected with no ball
+        public static final double kColorSensorThreshold = 0.689; // TODO: Find actual values
 
     }
         

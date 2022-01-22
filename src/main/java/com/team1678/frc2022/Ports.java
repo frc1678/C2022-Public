@@ -41,8 +41,8 @@ public class Ports {
     public static final int TOP_BEAM_BREAK = 0;
     public static final int BOTTOM_BEAM_BREAK = 1;
 
-    public static final int FLYWHEEL_ID = 12;
-    public static final int SHOOTER_SLAVE_ID = 16;
+    public static final int FLYWHEEL_MASTER_ID = 12;
+    public static final int FLYWHEEL_SLAVE_ID = 16;
     public static final int HOOD_ID = 13;
 
     public static final int CLIMBER_ID = 14;

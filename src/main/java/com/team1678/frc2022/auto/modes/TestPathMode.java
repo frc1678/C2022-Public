@@ -20,7 +20,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 public class TestPathMode extends AutoModeBase {
     
     // Swerve instance 
-    private final Swerve s_Swerve = Swerve.getInstance();
+    private final Swerve mSwerve = Swerve.getInstance();
 
     // required PathWeaver trajectory paths
     String path = "paths/test.path";
@@ -40,12 +40,13 @@ public class TestPathMode extends AutoModeBase {
         // read trajectories from PathWeaver and generate trajectory actions
         Trajectory traj_path = AutoTrajectoryReader.generateTrajectoryFromFile(path, Constants.AutoConstants.defaultSpeedConfig);
         testTrajectoryAction = new SwerveTrajectoryAction(traj_path,
-                                                            s_Swerve::getPose, Constants.SwerveConstants.swerveKinematics,
+                                                            mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
                                                             new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                             new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                             thetaController,
                                                             () -> Rotation2d.fromDegrees(0.0),
-                                                            s_Swerve::setModuleStates);
+                                                            mSwerve::getWantAutoVisionAim,
+                                                            mSwerve::setModuleStates);
 		
     }
 
@@ -54,7 +55,7 @@ public class TestPathMode extends AutoModeBase {
         System.out.println("Running test mode auto!");
 
         // reset odometry at the start of the trajectory
-        runAction(new LambdaAction(() -> s_Swerve.resetOdometry(testTrajectoryAction.getInitialPose())));
+        runAction(new LambdaAction(() -> mSwerve.resetOdometry(testTrajectoryAction.getInitialPose())));
 
         runAction(testTrajectoryAction);
         
