@@ -49,6 +49,9 @@ public class Ports {
     public static final int CLIMBER_ID = 14;
     public static final int CLIMBER_PIVOT_SOLENOID = 15;
 
+    public static final int EJECTOR_ID = 18;
+    public static final int EJECTOR_SOLENOID_ID = 6;
+
     // Infrastucture
     public static final int PCM = 21;
 

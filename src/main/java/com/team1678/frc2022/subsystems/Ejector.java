@@ -2,12 +2,18 @@ package com.team1678.frc2022.subsystems;
 
 import com.team1678.frc2022.ColorSensor;
 import com.team1678.frc2022.Constants;
+import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
 import com.team1678.lib.drivers.REVColorSensorV3Wrapper;
 
 import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.util.Color;
+
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.revrobotics.ColorMatch;
 
 public class Ejector extends Subsystem{
@@ -15,6 +21,8 @@ public class Ejector extends Subsystem{
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
     private REVColorSensorV3Wrapper mColorSensor;
+    private Solenoid mSolenoid;
+    private TalonFX mMaster;
     
     public ColorSensor mColorSensorThread = new ColorSensor(mColorSensor);
     private final ColorMatch mColorMatcher = new ColorMatch();
@@ -37,6 +45,7 @@ public class Ejector extends Subsystem{
         mAllianceColor = Constants.isRedAlliance ? ColorChoices.RED : ColorChoices.BLUE;
         mMathcedColor = ColorChoices.NONE;
         mColorSensor = new REVColorSensorV3Wrapper(I2C.Port.kOnboard);
+        mSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.EJECTOR_SOLENOID_ID);
 
         mColorMatcher.addColorMatch(Constants.EjectorConstants.kRedBallColor);
         mColorMatcher.addColorMatch(Constants.EjectorConstants.kBlueBallColor);
@@ -86,7 +95,8 @@ public class Ejector extends Subsystem{
 
    @Override
    public void writePeriodicOutputs() {
-
+        mSolenoid.set(mPeriodicIO.eject);
+        mMaster.set(ControlMode.PercentOutput, mPeriodicIO.demand);
    }
 
     @Override
@@ -127,10 +137,14 @@ public class Ejector extends Subsystem{
 
     public static class PeriodicIO {
     
-        public boolean eject;
+        //INPUTS
         public Color rawColor;
-        public int distance;
+        public double distance;
         public Color matchedColor;
+
+        //OUTPUTS
+        public double demand;
+        public boolean eject;
 
     }
     
