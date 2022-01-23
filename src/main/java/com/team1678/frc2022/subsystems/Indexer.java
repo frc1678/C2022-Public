@@ -251,7 +251,6 @@ public class Indexer extends Subsystem {
         //OUTPUTS
         public double elevator_demand;
         public double hopper_demand;
-        public boolean eject;
     }
 
 

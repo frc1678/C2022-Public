@@ -6,17 +6,25 @@ import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
 import com.team1678.lib.drivers.REVColorSensorV3Wrapper;
+import com.team1678.lib.drivers.REVColorSensorV3Wrapper.ColorSensorData;
 
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.util.Color;
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.revrobotics.ColorMatch;
 
-public class Ejector extends Subsystem{
+public class Ejector extends Subsystem {
+
+    BlockingQueue<Integer> commandQueue = new LinkedBlockingQueue<>(10);
+    BlockingQueue<ColorSensorData> outputQueue = new LinkedBlockingQueue<>(10);
+
     private static Ejector mInstance;
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -24,7 +32,7 @@ public class Ejector extends Subsystem{
     private Solenoid mSolenoid;
     private TalonFX mMaster;
     
-    public ColorSensor mColorSensorThread = new ColorSensor(mColorSensor);
+    public ColorSensor mColorSensorThread = new ColorSensor(mColorSensor, commandQueue, outputQueue);
     private final ColorMatch mColorMatcher = new ColorMatch();
 
     public ColorChoices mAllianceColor;
@@ -74,9 +82,9 @@ public class Ejector extends Subsystem{
    @Override
    public synchronized void readPeriodicInputs() {
 
-        if (mColorSensorThread.getColorSensorData() != null) {
-            mPeriodicIO.rawColor = mColorSensorThread.getColorSensorData().color;
-            mPeriodicIO.distance = mColorSensorThread.getColorSensorData().distance; 
+        if (mPeriodicIO.rawColorData != null) {
+            mPeriodicIO.rawColor = mPeriodicIO.rawColorData.color;
+            mPeriodicIO.distance = mPeriodicIO.rawColorData.distance; 
             mPeriodicIO.matchedColor = mColorMatcher.matchClosestColor(mPeriodicIO.rawColor).color; 
 
             if (mPeriodicIO.distance < Constants.EjectorConstants.kColorSensorThreshold) {
@@ -91,10 +99,28 @@ public class Ejector extends Subsystem{
                 mPeriodicIO.eject = mMathcedColor == mAllianceColor;
             }
         }
+
+        try {
+            for (int i = 0; i < 20; i++) {
+                commandQueue.put(i);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
    }
 
    @Override
    public void writePeriodicOutputs() {
+
+        /* This should usually be in read periodic inputs — 
+        only put into write periodic outputs to accomodate for timing of color sensor thread*/
+        try { 
+            mPeriodicIO.rawColorData = outputQueue.take();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        
         mSolenoid.set(mPeriodicIO.eject);
         mMaster.set(ControlMode.PercentOutput, mPeriodicIO.demand);
    }
@@ -138,6 +164,7 @@ public class Ejector extends Subsystem{
     public static class PeriodicIO {
     
         //INPUTS
+        public ColorSensorData rawColorData;
         public Color rawColor;
         public double distance;
         public Color matchedColor;
