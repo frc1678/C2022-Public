@@ -93,6 +93,7 @@ public class Swerve extends Subsystem {
 
             @Override
             public void onLoop(double timestamp) {
+                updateSwerveOdometry();
                 outputTelemetry();
             }
 

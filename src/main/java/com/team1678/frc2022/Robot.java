@@ -85,14 +85,14 @@ public class Robot extends TimedRobot {
 			CrashTracker.logRobotInit();
 
 			mSubsystemManager.setSubsystems(
+					mRobotStateEstimator,
 					mSwerve,
 					mInfrastructure,
 					mIntake,
 					mIndexer,
 					mShooter,
 					mSuperstructure,
-					mLimelight,
-					mRobotStateEstimator
+					mLimelight
 			);
 
 			mSubsystemManager.registerEnabledLoops(mEnabledLooper);
@@ -134,7 +134,6 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void autonomousPeriodic() {
-		mSwerve.updateSwerveOdometry();
 	}
 
 	@Override
@@ -159,8 +158,6 @@ public class Robot extends TimedRobot {
 			if (mControlBoard.zeroGyro()) {
 				mSwerve.zeroGyro();
 			}
-
-			mSwerve.updateSwerveOdometry();
 
 			if (mControlBoard.getSwerveSnap() != SwerveCardinal.NONE) {
 				mSwerve.startSnap(mControlBoard.getSwerveSnap().degrees);
