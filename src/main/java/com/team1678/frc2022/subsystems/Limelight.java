@@ -62,7 +62,7 @@ public class Limelight extends Subsystem {
         Loop mLoop = new Loop() {
             @Override
             public void onStart(double timestamp) {
-              //  RobotState.getInstance().resetVision();
+              RobotState.getInstance().resetVision();
               setLed(LedMode.ON);
             }
 
@@ -71,16 +71,11 @@ public class Limelight extends Subsystem {
                 final double start = Timer.getFPGATimestamp();
                 
                 synchronized (this) {
-                    outputTelemetry();
-                    startLogging();
-                }
-
-                setLed(LedMode.ON);
-
-                if (mPeriodicIO.has_comms /*&& !Superstructure.getInstance().getDisableLimelight()*/) {
+                    if (mPeriodicIO.has_comms /*&& !Superstructure.getInstance().getDisableLimelight()*/) {
                         RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), getTarget());
-                } else {
-                    RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), null);
+                    } else {
+                        RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), null);
+                    }
                 }
 
                 final double end = Timer.getFPGATimestamp();
@@ -90,7 +85,7 @@ public class Limelight extends Subsystem {
             @Override
             public void onStop(double timestamp) {
                 stop();
-                stopLogging();
+                //stopLogging();
                 setLed(LedMode.OFF);
             }
         };
