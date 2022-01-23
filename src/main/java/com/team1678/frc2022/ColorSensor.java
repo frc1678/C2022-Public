@@ -23,10 +23,13 @@ public class ColorSensor extends Thread{
 
     public void run() {
         try {
-            System.out.println("Running Color Sensor Thread");
-            Integer command = commandQueue.take();
-            mRawColorData = colorSensor.getLatestReading();
-            outputQueue.put(mRawColorData);
+            while (true) {
+                System.out.println("Running Color Sensor Thread");
+                Integer command = commandQueue.take();
+                mRawColorData = colorSensor.getLatestReading();
+                outputQueue.put(mRawColorData);
+            }
+            
 
         } catch (Exception e) {
             System.out.println("Exception is caught");
