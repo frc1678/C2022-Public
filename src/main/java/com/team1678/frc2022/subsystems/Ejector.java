@@ -82,6 +82,25 @@ public class Ejector extends Subsystem {
    @Override
    public synchronized void readPeriodicInputs() {
 
+        try {
+            commandQueue.put(1);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+   }
+
+   @Override
+   public void writePeriodicOutputs() {
+
+        /* This should usually be in read periodic inputs — 
+        only put into write periodic outputs to accomodate for timing of color sensor thread*/
+        try { 
+            mPeriodicIO.rawColorData = outputQueue.take();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
         if (mPeriodicIO.rawColorData != null) {
             mPeriodicIO.rawColor = mPeriodicIO.rawColorData.color;
             mPeriodicIO.distance = mPeriodicIO.rawColorData.distance; 
@@ -98,27 +117,6 @@ public class Ejector extends Subsystem {
                 }
                 mPeriodicIO.eject = mMathcedColor == mAllianceColor;
             }
-        }
-
-        try {
-            for (int i = 0; i < 20; i++) {
-                commandQueue.put(i);
-            }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-
-   }
-
-   @Override
-   public void writePeriodicOutputs() {
-
-        /* This should usually be in read periodic inputs — 
-        only put into write periodic outputs to accomodate for timing of color sensor thread*/
-        try { 
-            mPeriodicIO.rawColorData = outputQueue.take();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
         }
         
         mSolenoid.set(mPeriodicIO.eject);
