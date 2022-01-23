@@ -66,10 +66,7 @@ public class RobotStateEstimator extends Subsystem {
                     mSwerve.mSwerveMods[3].getState()
             );
 
-            Pose2d odometry_delta;
-            synchronized (mRobotState) {
-                odometry_delta = new Pose2d(latest_translational_displacement, latest_rotational_displacement);
-            }
+            Pose2d odometry_delta = new Pose2d(latest_translational_displacement, latest_rotational_displacement);
 
             final Pose2d measured_velocity = odometry_delta.scaled(1.0 / dt);
             final Pose2d current_velocity = new Pose2d(chassisVelocity.vxMetersPerSecond,

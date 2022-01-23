@@ -29,7 +29,7 @@ public class RobotState {
         return mInstance;
     }
 
-    private static final int kObservationBufferSize = 100;
+    private static final int kObservationBufferSize = 1;
 
     /*
      * RobotState keeps track of the poses of various coordinate frames throughout
@@ -254,8 +254,7 @@ public class RobotState {
             return Optional.empty();
         }
 
-        Pose2d vehicleToGoal = getFieldToVehicle(timestamp).inverse().transformBy(report.field_to_target)
-                .transformBy(getVisionTargetToGoalOffset());
+        Pose2d vehicleToGoal = getFieldToVehicle(timestamp).inverse().transformBy(report.field_to_target);
 
         AimingParameters params = new AimingParameters(vehicleToGoal, report.field_to_target,
                 report.field_to_target.getRotation(), report.latest_timestamp, report.stability, report.id);
@@ -279,8 +278,9 @@ public class RobotState {
         Optional<AimingParameters> params = getAimingParameters(-1, Constants.VisionConstants.kMaxGoalTrackAge);
         SmartDashboard.putBoolean("Has Aiming Parameters", params.isPresent());
         if (params.isPresent()) {
-            SmartDashboard.putNumber("Vehicle to Target", params.get().getRange());
-            SmartDashboard.putNumber("Vehicle to TargetAngle", params.get().getVehicleToGoalRotation().getDegrees());
+            SmartDashboard.putString("Vehicle to Target", params.get().getVehicleToGoal().toString());
+            SmartDashboard.putNumber("Vehicle to Target Angle", params.get().getVehicleToGoalRotation().getDegrees());
+            SmartDashboard.putString("Field To Target", params.get().getFieldToGoal().toString());
 
         }
     }

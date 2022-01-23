@@ -15,6 +15,8 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.MathUtil;
 
 public class ShuffleBoardInteractions {
@@ -47,6 +49,8 @@ public class ShuffleBoardInteractions {
     private ShuffleboardTab INTAKE_TAB;
     private ShuffleboardTab SHOOTER_TAB;
     private ShuffleboardTab INDEXER_TAB;
+
+    private Field2d mSwerveOdometryPlot;
 
     /* ENTRIES */
 
@@ -125,6 +129,8 @@ public class ShuffleBoardInteractions {
         INTAKE_TAB = Shuffleboard.getTab("Intake");
         SHOOTER_TAB = Shuffleboard.getTab("Shooter");
         INDEXER_TAB = Shuffleboard.getTab("Indexer");
+
+        mSwerveOdometryPlot = new Field2d();
         
         /* Create Entries */
         mLimelightOk = VISION_TAB
@@ -324,28 +330,28 @@ public class ShuffleBoardInteractions {
 
     public void update() {
         
-        /* Intake */
-        mIntakeState.setString(mIntake.getState().toString());
-        mIntakeVoltage.setDouble(mIntake.getMotorVoltage());
-        mIntakeDemand.setDouble(mIntake.getMotorDemand());
-        mIntakeDeployed.setBoolean(mIntake.getDeployed());
-        mIntakeCurrent.setDouble(mIntake.getMotorCurrent());
+        // /* Intake */
+        // mIntakeState.setString(mIntake.getState().toString());
+        // mIntakeVoltage.setDouble(mIntake.getMotorVoltage());
+        // mIntakeDemand.setDouble(mIntake.getMotorDemand());
+        // mIntakeDeployed.setBoolean(mIntake.getDeployed());
+        // mIntakeCurrent.setDouble(mIntake.getMotorCurrent());
 
-        /* Shooter */
-        mFlywheelRPM.setDouble(truncate(mShooter.getShooterRPM()));
-        mKickerRPM.setDouble(truncate(mShooter.getKickerRPM()));
-        /* Indexer */
-        mIndexerState.setString(mIndexer.getState().toString());
-        mTopBeamBreak.setBoolean(mIndexer.getTopBeamBreak());
-        mBottomBeamBreak.setBoolean(mIndexer.getBottomBeamBreak());
+        // /* Shooter */
+        // mFlywheelRPM.setDouble(truncate(mShooter.getShooterRPM()));
+        // mKickerRPM.setDouble(truncate(mShooter.getKickerRPM()));
+        // /* Indexer */
+        // mIndexerState.setString(mIndexer.getState().toString());
+        // mTopBeamBreak.setBoolean(mIndexer.getTopBeamBreak());
+        // mBottomBeamBreak.setBoolean(mIndexer.getBottomBeamBreak());
 
-        mElevatorDemand.setDouble(mIndexer.getElevatorDemand());
-        mElevatorCurrent.setDouble(mIndexer.getElevatorCurrent());
-        mElevatorVoltage.setDouble(mIndexer.getElevatorVoltage());
+        // mElevatorDemand.setDouble(mIndexer.getElevatorDemand());
+        // mElevatorCurrent.setDouble(mIndexer.getElevatorCurrent());
+        // mElevatorVoltage.setDouble(mIndexer.getElevatorVoltage());
 
-        mHopperDemand.setDouble(mIndexer.getHopperDemand());
-        mHopperCurrent.setDouble(mIndexer.getHopperCurrent());
-        mHopperVoltage.setDouble(mIndexer.getHopperVoltage());
+        // mHopperDemand.setDouble(mIndexer.getHopperDemand());
+        // mHopperCurrent.setDouble(mIndexer.getHopperCurrent());
+        // mHopperVoltage.setDouble(mIndexer.getHopperVoltage());
 
         /* Vision */
         mSeesTarget.setBoolean(mLimelight.hasTarget());
@@ -357,34 +363,37 @@ public class ShuffleBoardInteractions {
         
         /* SWERVE */
 
-        // Update cancoders at a slower period to avoid stale can frames
-        double dt = Timer.getFPGATimestamp();
-        if (dt > lastCancoderUpdate + 0.1) {
-            for (int i = 0; i < mSwerveCancoders.length; i++) {
-                mSwerveCancoders[i].setDouble(truncate(mSwerveModules[i].getCanCoder().getDegrees()));
-            }
-            lastCancoderUpdate = dt;
-        }
+        // // Update cancoders at a slower period to avoid stale can frames
+        // double dt = Timer.getFPGATimestamp();
+        // if (dt > lastCancoderUpdate + 0.1) {
+        //     for (int i = 0; i < mSwerveCancoders.length; i++) {
+        //         mSwerveCancoders[i].setDouble(truncate(mSwerveModules[i].getCanCoder().getDegrees()));
+        //     }
+        //     lastCancoderUpdate = dt;
+        // }
         
-        for (int i = 0; i < mSwerveCancoders.length; i++) {
-            mSwerveIntegrated[i].setDouble(truncate(MathUtil.inputModulus(mSwerveModules[i].getState().angle.getDegrees(), 0, 360)));
-            mSwerveDrivePercent[i].setDouble(truncate(mSwerveModules[i].getState().speedMetersPerSecond));
+        // for (int i = 0; i < mSwerveCancoders.length; i++) {
+        //     mSwerveIntegrated[i].setDouble(truncate(MathUtil.inputModulus(mSwerveModules[i].getState().angle.getDegrees(), 0, 360)));
+        //     mSwerveDrivePercent[i].setDouble(truncate(mSwerveModules[i].getState().speedMetersPerSecond));
 
-            mModuleAngleCurrent[i].setDouble(truncate(MathUtil.inputModulus(mSwerveModules[i].getState().angle.getDegrees(), 0, 360)));
-            mModuleAngleGoals[i].setDouble(truncate(MathUtil.inputModulus(mSwerveModules[i].getTargetAngle(), 0, 360)));
+        //     mModuleAngleCurrent[i].setDouble(truncate(MathUtil.inputModulus(mSwerveModules[i].getState().angle.getDegrees(), 0, 360)));
+        //     mModuleAngleGoals[i].setDouble(truncate(MathUtil.inputModulus(mSwerveModules[i].getTargetAngle(), 0, 360)));
 
-        }
-        mSwerveOdometryX.setDouble(truncate(mSwerve.getPose().getX()));
-        mSwerveOdometryY.setDouble(truncate(mSwerve.getPose().getY()));
-        mSwerveOdometryRot.setDouble(truncate(MathUtil.inputModulus(mSwerve.getPose().getRotation().getDegrees(), 0, 360)));
+        // }
+        // mSwerveOdometryX.setDouble(truncate(mSwerve.getPose().getX()));
+        // mSwerveOdometryY.setDouble(truncate(mSwerve.getPose().getY()));
+        // mSwerveOdometryRot.setDouble(truncate(MathUtil.inputModulus(mSwerve.getPose().getRotation().getDegrees(), 0, 360)));
 
-        if(mPIDEnableToggle.getValue().getBoolean()) {
-            mSwerve.setAnglePIDValues(mDesiredAngleP.getValue().getDouble(), mDesiredAngleI.getValue().getDouble(), mDesiredAngleD.getValue().getDouble());
-        }
-        double[] currentPIDVals = mSwerve.getAnglePIDValues(0);
-        mCurrentAngleP.setDouble(currentPIDVals[0]);
-        mCurrentAngleI.setDouble(currentPIDVals[1]);
-        mCurrentAngleD.setDouble(currentPIDVals[2]);
+        // mSwerveOdometryPlot.setRobotPose(mSwerve.getPose());
+        // SmartDashboard.putData("Swerve Odometry", mSwerveOdometryPlot);
+
+        // if(mPIDEnableToggle.getValue().getBoolean()) {
+        //     mSwerve.setAnglePIDValues(mDesiredAngleP.getValue().getDouble(), mDesiredAngleI.getValue().getDouble(), mDesiredAngleD.getValue().getDouble());
+        // }
+        // double[] currentPIDVals = mSwerve.getAnglePIDValues(0);
+        // mCurrentAngleP.setDouble(currentPIDVals[0]);
+        // mCurrentAngleI.setDouble(currentPIDVals[1]);
+        // mCurrentAngleD.setDouble(currentPIDVals[2]);
     }
 
     /* Truncates number to 2 decimal places for cleaner numbers */
