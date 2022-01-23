@@ -320,6 +320,7 @@ public class Constants {
         public static final double kExtentionHeight = 8.0;
         public static final double kSolenoidDeployTime = 3.0;
         public static final double kSolenoidUndeployTime = 3.0;
+        public static final double kInitialHeight = 0.0;
 
     }
 

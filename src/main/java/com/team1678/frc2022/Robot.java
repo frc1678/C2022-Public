@@ -14,6 +14,7 @@ import com.team1678.frc2022.controlboard.ControlBoard.SwerveCardinal;
 import com.team1678.frc2022.loops.CrashTracker;
 import com.team1678.frc2022.loops.Looper;
 import com.team1678.frc2022.subsystems.Climber;
+import com.team1678.frc2022.subsystems.Climber.ControlState;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Infrastructure;
 import com.team1678.frc2022.subsystems.Intake;
@@ -186,10 +187,13 @@ public class Robot extends TimedRobot {
 			if (mClimbMode) {
 				if (mTraversalClimb) {
 					TimeDelayedBoolean mSolenoidTimer = new TimeDelayedBoolean();
+					//Extend first arm to first bar
+					while (Util.epsilonEquals(mClimber.getClimberPosition(), Constants.ClimberConstants.kInitialHeight, 0.0)) {
+						mClimber.getInitialArmExtention();
+					}
 					//Extend to traversal bar
 					while (Util.epsilonEquals(mClimber.getClimberPosition(), Constants.ClimberConstants.kExtentionHeight, 5.0)) {
 						mClimber.setClimberOpenLoop(mClimber.mPeriodicIO.climber_stator_current);
-
 					}
 					//Deploy solenoid
 					while (mSolenoidTimer.update(mClimber.getClimberSolenoidDeployed(), Constants.ClimberConstants.kSolenoidDeployTime)) {
