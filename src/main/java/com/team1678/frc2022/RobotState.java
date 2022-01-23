@@ -254,7 +254,7 @@ public class RobotState {
             return Optional.empty();
         }
 
-        Pose2d vehicleToGoal = getFieldToVehicle(timestamp).inverse().transformBy(report.field_to_target);
+        Pose2d vehicleToGoal = report.field_to_target.transformBy(getFieldToVehicle(timestamp).inverse());
 
         AimingParameters params = new AimingParameters(vehicleToGoal, report.field_to_target,
                 report.field_to_target.getRotation(), report.latest_timestamp, report.stability, report.id);

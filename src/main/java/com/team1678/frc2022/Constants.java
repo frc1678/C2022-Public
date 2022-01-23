@@ -143,8 +143,8 @@ public class Constants {
     }
 
     public static final class VisionAlignConstants {
-        public static final double kP = 9.0;
-        public static final double kI = 0;
+        public static final double kP = 7.0;
+        public static final double kI = 0.0;
         public static final double kD = 1.1;
         public static final double kVisionAlignTimeout = 0.25;
         public static final double kVisionAlignEpsilon = 1.0;
