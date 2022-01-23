@@ -4,6 +4,7 @@
 
 package com.team1678.frc2022;
 
+import java.sql.Time;
 import java.util.Optional;
 
 import com.team1678.frc2022.auto.AutoModeExecutor;
@@ -188,9 +189,8 @@ public class Robot extends TimedRobot {
 				if (mTraversalClimb) {
 					TimeDelayedBoolean mSolenoidTimer = new TimeDelayedBoolean();
 					//Extend first arm to first bar
-					while (Util.epsilonEquals(mClimber.getClimberPosition(), Constants.ClimberConstants.kInitialHeight, 0.0)) {
+					while (Util.epsilonEquals(mClimber.getClimberPosition(), Constants.ClimberConstants.kInitialHeight))
 						mClimber.getInitialArmExtention();
-					}
 					//Extend to traversal bar
 					while (Util.epsilonEquals(mClimber.getClimberPosition(), Constants.ClimberConstants.kExtentionHeight, 5.0)) {
 						mClimber.setClimberOpenLoop(mClimber.mPeriodicIO.climber_stator_current);
