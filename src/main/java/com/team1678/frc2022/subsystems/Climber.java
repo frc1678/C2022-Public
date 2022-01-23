@@ -24,7 +24,7 @@ public class Climber extends Subsystem {
     private final TalonFX mClimberSlave;
     public final Solenoid mLeftClimberSolenoid;
     public final Solenoid mRightClimberSolenoid;
-    public final LatchedBoolean mInitialArmBoolean;
+    public final LatchedBoolean mInitialArmExtensionBoolean;
 
     private TimeDelayedBoolean mClimberCalibrated = new TimeDelayedBoolean();
 
@@ -62,7 +62,7 @@ public class Climber extends Subsystem {
         mLeftClimberSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.CLIMBER_LEFT_SOLENOID);
         mRightClimberSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.CLIMBER_RIGHT_SOLENOID);
 
-        mInitialArmBoolean = new LatchedBoolean();
+        mInitialArmExtensionBoolean = new LatchedBoolean();
     }
 
     public static synchronized Climber getInstance() {
@@ -180,8 +180,8 @@ public class Climber extends Subsystem {
         return mControlState;
     }
 
-    public LatchedBoolean getInitialArmExtention() {
-        return mInitialArmBoolean;
+    public LatchedBoolean getInitialArmExtension() {
+        return mInitialArmExtensionBoolean;
     }
 
     public boolean checkSystem() {

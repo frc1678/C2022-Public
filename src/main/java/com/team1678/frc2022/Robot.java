@@ -188,11 +188,12 @@ public class Robot extends TimedRobot {
 			if (mClimbMode) {
 				if (mTraversalClimb) {
 					TimeDelayedBoolean mSolenoidTimer = new TimeDelayedBoolean();
-					//Extend first arm to first bar
-					while (Util.epsilonEquals(mClimber.getClimberPosition(), Constants.ClimberConstants.kInitialHeight))
-						mClimber.getInitialArmExtention();
+					//Extend first arm to climb onto first bar
+					while (Util.inRange(mClimber.getClimberPosition(), Constants.ClimberConstants.kInitialExtensionHeight)) {
+						mClimber.getInitialArmExtension();
+					}
 					//Extend to traversal bar
-					while (Util.epsilonEquals(mClimber.getClimberPosition(), Constants.ClimberConstants.kExtentionHeight, 5.0)) {
+					while (Util.inRange(mClimber.getClimberPosition(), Constants.ClimberConstants.kTraversalExtentionHeight)) {
 						mClimber.setClimberOpenLoop(mClimber.mPeriodicIO.climber_stator_current);
 					}
 					//Deploy solenoid

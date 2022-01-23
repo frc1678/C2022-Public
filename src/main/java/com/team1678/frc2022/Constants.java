@@ -317,10 +317,10 @@ public class Constants {
         public static final double kCalibratingVoltage = 5.0;
         public static final double kStatorCurrentLimit = 8.0;
         public static final double kCalibrationTimeoutSeconds = 10.0;
-        public static final double kExtentionHeight = 8.0;
+        public static final double kTraversalExtentionHeight = 8.0;
         public static final double kSolenoidDeployTime = 3.0;
         public static final double kSolenoidUndeployTime = 3.0;
-        public static final double kInitialHeight = 0.0;
+        public static final double kInitialExtensionHeight = 4.0;
 
     }
 
