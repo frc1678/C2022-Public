@@ -10,6 +10,7 @@ import com.team1678.frc2022.Constants.ClimberConstants;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.subsystems.Intake.PeriodicIO;
 import com.team254.lib.drivers.TalonFXFactory;
+import com.team254.lib.util.LatchedBoolean;
 import com.team254.lib.util.TimeDelayedBoolean;
 import com.team254.lib.util.Util;
 
@@ -21,8 +22,9 @@ public class Climber extends Subsystem {
 
     private final TalonFX mClimberMaster;
     private final TalonFX mClimberSlave;
-    private final Solenoid mLeftClimberSolenoid;
-    private final Solenoid mRightClimberSolenoid;
+    public final Solenoid mLeftClimberSolenoid;
+    public final Solenoid mRightClimberSolenoid;
+    public final LatchedBoolean mInitialArmBoolean;
 
     private TimeDelayedBoolean mClimberCalibrated = new TimeDelayedBoolean();
 
@@ -59,6 +61,8 @@ public class Climber extends Subsystem {
 
         mLeftClimberSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.CLIMBER_LEFT_SOLENOID);
         mRightClimberSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.CLIMBER_RIGHT_SOLENOID);
+
+        mInitialArmBoolean = new LatchedBoolean();
     }
 
     public static synchronized Climber getInstance() {
@@ -174,6 +178,10 @@ public class Climber extends Subsystem {
 
     public ControlState getControlState() {
         return mControlState;
+    }
+
+    public LatchedBoolean getInitialArmExtention() {
+        return mInitialArmBoolean;
     }
 
     public boolean checkSystem() {
