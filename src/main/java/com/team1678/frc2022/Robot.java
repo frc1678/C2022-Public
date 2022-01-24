@@ -110,6 +110,7 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void robotPeriodic() {
+		mEnabledLooper.outputToSmartDashboard();
 		mShuffleBoardInteractions.update();
 		// mRobotState.outputToSmartDashboard();
 	}
@@ -193,6 +194,7 @@ public class Robot extends TimedRobot {
 			}
 
 		} catch (Throwable t) {
+			t.printStackTrace();
 			CrashTracker.logThrowableCrash(t);
 			throw t;
 		}
@@ -227,6 +229,8 @@ public class Robot extends TimedRobot {
 	@Override
 	public void disabledPeriodic() {
 		try {
+
+			mDisabledLooper.outputToSmartDashboard();
 
 			mAutoModeSelector.updateModeCreator();
 			// [mSwerve.resetAnglesToAbsolute();
