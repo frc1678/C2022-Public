@@ -4,14 +4,39 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="07305a32-dfb9-4fdb-bcda-a4b1f72f9444" name="Changes" comment="" />
+    <list default="true" id="07305a32-dfb9-4fdb-bcda-a4b1f72f9444" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/team1678/frc2022/Robot.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/team1678/frc2022/Robot.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/team1678/frc2022/controlboard/ControlBoard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/team1678/frc2022/controlboard/ControlBoard.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/team1678/frc2022/subsystems/Swerve.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/team1678/frc2022/subsystems/Swerve.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <projects_view>
+          <tree_state>
+            <expand />
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
   </component>
   <component name="ProjectId" id="23kB9Tztz73d0pGNh7ZX9bya6vW" />
   <component name="ProjectViewState">

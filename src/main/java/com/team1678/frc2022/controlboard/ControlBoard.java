@@ -169,6 +169,10 @@ public class ControlBoard {
         return driver.getButton(Button.RB);
     }
 
+    public boolean getBrake() {
+        return driver.getButton(Button.LB);
+    }
+
     //Intake Controls
     public boolean getIntake() {
         return operator.getTrigger(Side.RIGHT);
