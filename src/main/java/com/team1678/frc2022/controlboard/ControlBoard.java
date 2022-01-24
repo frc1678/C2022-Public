@@ -154,7 +154,7 @@ public class ControlBoard {
         return driver.getButton(Button.RB);
     }
 
-    public boolean getBreak() {
+    public boolean getBrake() {
         return driver.getButton(Button.LB);
     }
 
