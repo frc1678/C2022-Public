@@ -88,7 +88,7 @@ public class ShuffleBoardInteractions {
 
     /* Swerve Modules */
     private final String[] kSwervePlacements = {"Front Left", "Front Right", "Back Left", "Back Right"};
-    private final NetworkTableEntry mSwerveBreakMode;
+    private final NetworkTableEntry mSwerveBrakeMode;
     private final ShuffleboardLayout[] mSwerveAngles = new ShuffleboardLayout[4];
     private final NetworkTableEntry[] mSwerveCancoders = new NetworkTableEntry[4];
     private final NetworkTableEntry[] mSwerveIntegrated = new NetworkTableEntry[4];
