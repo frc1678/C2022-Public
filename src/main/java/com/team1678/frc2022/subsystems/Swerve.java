@@ -139,6 +139,8 @@ public class Swerve extends Subsystem {
             rotation = visionPIDController.calculate(currentAngle, currentAngle + targetOffset);
         }
         drive(translation2d, rotation, fieldRelative, isOpenLoop);
+
+        // System.out.println(Timer.getFPGATimestamp());
     }
 
     public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {

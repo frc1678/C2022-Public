@@ -10,6 +10,7 @@ import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class RobotStateEstimator extends Subsystem {
@@ -48,10 +49,15 @@ public class RobotStateEstimator extends Subsystem {
 
         @Override
         public synchronized void onLoop(double timestamp) {
+
             mRobotState.outputToSmartDashboard();
+
+            /*
             if (prev_swerve_pose_ == null) {
                 prev_swerve_pose_ = mRobotState.getLatestFieldToVehicle().getValue();
             }
+
+            final double start_time = Timer.getFPGATimestamp();
 
             Pose2d swerve_pose_ = new Pose2d(mSwerve.getPose());
 
@@ -80,6 +86,13 @@ public class RobotStateEstimator extends Subsystem {
 
             prev_swerve_pose_ = swerve_pose_;
             prev_timestamp_ = timestamp;
+
+            final double end_time = Timer.getFPGATimestamp();
+            double loop_dt = end_time - start_time;
+
+            SmartDashboard.putNumber("Robot State Estimator dt", loop_dt);
+            
+            */
 
             /*
             // Shuffleboard outputs for logic checks

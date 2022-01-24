@@ -97,7 +97,7 @@ public class Indexer extends Subsystem {
 
             @Override
             public void onLoop(double timestamp) {
-                synchronized (Indexer.this){
+                synchronized (Indexer.this) {
                     runStateMachine();
                 }
             }
