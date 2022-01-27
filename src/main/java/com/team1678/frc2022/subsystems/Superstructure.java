@@ -51,11 +51,9 @@ public class Superstructure extends Subsystem {
 
             @Override
             public void onLoop(double timestamp) {
+                updateAimingParameters();
                 setSetpoints();
-
-                SmartDashboard.putBoolean("Want Spin Up", mWantsSpinUp);
-                SmartDashboard.putBoolean("Want Shoot", mWantsShoot);
-                SmartDashboard.putBoolean("Is Spun Up", isSpunUp());
+                outputTelemetry();
             }
 
             @Override
@@ -140,6 +138,13 @@ public class Superstructure extends Subsystem {
     public boolean checkSystem() {
         // TODO Auto-generated method stub
         return false;
+    }
+
+    public void outputTelemetry() {
+        SmartDashboard.putBoolean("Want Spin Up", mWantsSpinUp);
+        SmartDashboard.putBoolean("Want Shoot", mWantsShoot);
+        SmartDashboard.putBoolean("Is Spun Up", isSpunUp());
+
     }
 
     /*

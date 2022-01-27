@@ -31,9 +31,6 @@ public class RobotState {
 
     private static final int kObservationBufferSize = 1;
 
-    // required instances
-    private final Superstructure mSuperstructure = Superstructure.getInstance();
-
     /*
      * RobotState keeps track of the poses of various coordinate frames throughout
      * the match. A coordinate frame is simply a point and direction in space that
@@ -278,13 +275,5 @@ public class RobotState {
         SmartDashboard.putNumber("Robot Y", getLatestFieldToVehicle().getValue().getTranslation().y());
         SmartDashboard.putNumber("Robot Theta", getLatestFieldToVehicle().getValue().getRotation().getDegrees());
 
-        Optional<AimingParameters> aiming_params_ = mSuperstructure.getLatestAimingParameters();
-        SmartDashboard.putBoolean("Has Aiming Parameters", aiming_params_.isPresent());
-        if (aiming_params_.isPresent()) {
-            SmartDashboard.putString("Vehicle to Target", aiming_params_.get().getVehicleToGoal().toString());
-            SmartDashboard.putNumber("Vehicle to Target Angle", aiming_params_.get().getVehicleToGoalRotation().getDegrees());
-            SmartDashboard.putString("Field To Target", aiming_params_.get().getFieldToGoal().toString());
-
-        }
     }
 }
