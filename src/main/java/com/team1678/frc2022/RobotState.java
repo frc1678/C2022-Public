@@ -274,6 +274,5 @@ public class RobotState {
         SmartDashboard.putNumber("Robot X", getLatestFieldToVehicle().getValue().getTranslation().x());
         SmartDashboard.putNumber("Robot Y", getLatestFieldToVehicle().getValue().getTranslation().y());
         SmartDashboard.putNumber("Robot Theta", getLatestFieldToVehicle().getValue().getRotation().getDegrees());
-
     }
 }

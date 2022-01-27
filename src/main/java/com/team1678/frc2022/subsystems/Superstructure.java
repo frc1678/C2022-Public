@@ -145,6 +145,11 @@ public class Superstructure extends Subsystem {
         SmartDashboard.putBoolean("Want Shoot", mWantsShoot);
         SmartDashboard.putBoolean("Is Spun Up", isSpunUp());
 
+        SmartDashboard.putBoolean("Has Aiming Parameters", mLatestAimingParameters.isPresent());
+        if (mLatestAimingParameters.isPresent()) {
+            SmartDashboard.putNumber("Vehicle to Target", mLatestAimingParameters.get().getRange());
+            SmartDashboard.putNumber("Vehicle to TargetAngle", mLatestAimingParameters.get().getVehicleToGoalRotation().getDegrees());
+
     }
 
     /*
