@@ -50,9 +50,8 @@ public class RobotStateEstimator extends Subsystem {
         @Override
         public synchronized void onLoop(double timestamp) {
 
-            mRobotState.outputToSmartDashboard();
+            // mRobotState.outputToSmartDashboard();
 
-            /*
             if (prev_swerve_pose_ == null) {
                 prev_swerve_pose_ = mRobotState.getLatestFieldToVehicle().getValue();
             }
@@ -91,8 +90,6 @@ public class RobotStateEstimator extends Subsystem {
             double loop_dt = end_time - start_time;
 
             SmartDashboard.putNumber("Robot State Estimator dt", loop_dt);
-            
-            */
 
             /*
             // Shuffleboard outputs for logic checks

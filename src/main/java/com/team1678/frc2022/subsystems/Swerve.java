@@ -31,10 +31,7 @@ public class Swerve extends Subsystem {
     private static Swerve mInstance;
 
     // required instances for vision align
-    public Limelight mLimelight = Limelight.getInstance();
-    public RobotState mRobotState = RobotState.getInstance();
-    private Optional<AimingParameters> mLatestAimingParameters = Optional.empty();
-    private int mTrackId = -1;
+    private final Superstructure mSuperstructure = Superstructure.getInstance();
 
     // wants vision aim during auto
     public boolean mWantsAutoVisionAim = false;
@@ -131,11 +128,10 @@ public class Swerve extends Subsystem {
     public void visionAlignDrive(Translation2d translation2d, boolean fieldRelative, boolean isOpenLoop) {
         double rotation = 0.0;
 
-        mLatestAimingParameters = mRobotState.getAimingParameters(mTrackId, Constants.VisionConstants.kMaxGoalTrackAge);
-        if (mLatestAimingParameters.isPresent()) {
-            mTrackId = mLatestAimingParameters.get().getTrackId();
+        Optional<AimingParameters> aiming_params_ = mSuperstructure.getLatestAimingParameters();
+        if (aiming_params_.isPresent()) {
             double currentAngle = getPose().getRotation().getRadians();
-            double targetOffset = mLatestAimingParameters.get().getVehicleToGoalRotation().getRadians();
+            double targetOffset = aiming_params_.get().getVehicleToGoalRotation().getRadians();
             rotation = visionPIDController.calculate(currentAngle, currentAngle + targetOffset);
         }
         drive(translation2d, rotation, fieldRelative, isOpenLoop);

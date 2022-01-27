@@ -1,10 +1,15 @@
 package com.team1678.frc2022.subsystems;
 
 import com.team1678.frc2022.loops.Loop;
+import com.team254.lib.vision.AimingParameters;
 
 import edu.wpi.first.wpilibj.Encoder.IndexingType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import java.util.Optional;
+
+import com.team1678.frc2022.Constants;
+import com.team1678.frc2022.RobotState;
 import com.team1678.frc2022.loops.ILooper;
 
 public class Superstructure extends Subsystem {
@@ -20,16 +25,21 @@ public class Superstructure extends Subsystem {
         return mInstance;
     };
 
-    /* Required Subsystem Instances */
+    /* Required Instances */
     // private final Hood mHood = Hood.getInstance();
     private final Shooter mShooter = Shooter.getInstance();
     private final Indexer mIndexer = Indexer.getInstance();
     private final Intake mIntake = Intake.getInstance();
+    private final RobotState mRobotState = RobotState.getInstance();
 
     /* Status Variables */
     public double mShooterSetpoint = 0.0;
     public boolean mWantsSpinUp = false;
     public boolean mWantsShoot = false;
+
+    // Aiming Parameters
+    public Optional<AimingParameters> mLatestAimingParameters = Optional.empty();
+    public int mTrackId = -1;
 
     @Override
     public void registerEnabledLoops(ILooper enabledLooper) {
@@ -42,6 +52,7 @@ public class Superstructure extends Subsystem {
             @Override
             public void onLoop(double timestamp) {
                 setSetpoints();
+
                 SmartDashboard.putBoolean("Want Spin Up", mWantsSpinUp);
                 SmartDashboard.putBoolean("Want Shoot", mWantsShoot);
                 SmartDashboard.putBoolean("Is Spun Up", isSpunUp());
@@ -82,6 +93,17 @@ public class Superstructure extends Subsystem {
 
     public void setShooterVelocity(double velocity) {
         mShooterSetpoint = velocity;
+    }
+    
+    public Optional<AimingParameters> getLatestAimingParameters() {
+        return mLatestAimingParameters;
+    }
+
+    public void updateAimingParameters() {
+        mLatestAimingParameters = mRobotState.getAimingParameters(mTrackId, Constants.VisionConstants.kMaxGoalTrackAge);
+        if (mLatestAimingParameters.isPresent()) {
+            mTrackId = mLatestAimingParameters.get().getTrackId();
+        }
     }
 
     public void setSetpoints() {

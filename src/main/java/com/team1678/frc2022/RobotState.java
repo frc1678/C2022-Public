@@ -1,7 +1,7 @@
 package com.team1678.frc2022;
 
 import com.team1678.frc2022.subsystems.Limelight;
-
+import com.team1678.frc2022.subsystems.Superstructure;
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
@@ -30,6 +30,9 @@ public class RobotState {
     }
 
     private static final int kObservationBufferSize = 1;
+
+    // required instances
+    private final Superstructure mSuperstructure = Superstructure.getInstance();
 
     /*
      * RobotState keeps track of the poses of various coordinate frames throughout
@@ -65,7 +68,6 @@ public class RobotState {
     private Pose2d vehicle_velocity_predicted_;
     private Pose2d vehicle_velocity_measured_;
     private double distance_driven_;
-
 
     private GoalTracker vision_target_ = new GoalTracker();
 
@@ -275,12 +277,13 @@ public class RobotState {
         SmartDashboard.putNumber("Robot X", getLatestFieldToVehicle().getValue().getTranslation().x());
         SmartDashboard.putNumber("Robot Y", getLatestFieldToVehicle().getValue().getTranslation().y());
         SmartDashboard.putNumber("Robot Theta", getLatestFieldToVehicle().getValue().getRotation().getDegrees());
-        Optional<AimingParameters> params = getAimingParameters(-1, Constants.VisionConstants.kMaxGoalTrackAge);
-        SmartDashboard.putBoolean("Has Aiming Parameters", params.isPresent());
-        if (params.isPresent()) {
-            SmartDashboard.putString("Vehicle to Target", params.get().getVehicleToGoal().toString());
-            SmartDashboard.putNumber("Vehicle to Target Angle", params.get().getVehicleToGoalRotation().getDegrees());
-            SmartDashboard.putString("Field To Target", params.get().getFieldToGoal().toString());
+
+        Optional<AimingParameters> aiming_params_ = mSuperstructure.getLatestAimingParameters();
+        SmartDashboard.putBoolean("Has Aiming Parameters", aiming_params_.isPresent());
+        if (aiming_params_.isPresent()) {
+            SmartDashboard.putString("Vehicle to Target", aiming_params_.get().getVehicleToGoal().toString());
+            SmartDashboard.putNumber("Vehicle to Target Angle", aiming_params_.get().getVehicleToGoalRotation().getDegrees());
+            SmartDashboard.putString("Field To Target", aiming_params_.get().getFieldToGoal().toString());
 
         }
     }
