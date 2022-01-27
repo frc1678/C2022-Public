@@ -48,7 +48,7 @@ public class Indexer extends Subsystem {
         mElevator = TalonFXFactory.createDefaultTalon(Ports.ELEVATOR_ID);
         mHopperMaster = TalonFXFactory.createDefaultTalon(Ports.HOPPER_MASTER_ID);
 
-        if (Constants.isAlpha) {
+        if (Constants.version == Constants.RobotVersion.ALPHA) {
             mHopperSlave = TalonFXFactory.createPermanentSlaveTalon(Ports.HOPPER_SLAVE_ID, Ports.HOPPER_MASTER_ID);
         } else {
             mHopperSlave = null;
@@ -58,7 +58,7 @@ public class Indexer extends Subsystem {
         mTopBeamBreak = new DigitalInput(Ports.TOP_BEAM_BREAK);
 
         mHopperMaster.setInverted(true);
-        if (Constants.isAlpha) {
+        if (Constants.version == Constants.RobotVersion.ALPHA) {
             mHopperSlave.setInverted(true);
         }
         
