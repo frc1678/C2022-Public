@@ -18,6 +18,9 @@ public class Constants {
 	// robot loop time
 	public static final double kLooperDt = 0.02;
 
+    // robot toggle
+    public static final boolean isAlpha = true;
+
 	/* Control Board */
 	public static final double kJoystickThreshold = 0.2;
 	public static final int kButtonGamepadPort = 1;
@@ -38,8 +41,8 @@ public class Constants {
         public static final double openLoopRamp = 0.25;
         public static final double closedLoopRamp = 0.0;
 
-        public static final double driveGearRatio = 6.92307; // TODO: Check value
-        public static final double angleGearRatio = 11.57142; // TODO: Check value
+        public static final double driveGearRatio = (isAlpha ? (6.92307) : (6.74603)); // TODO: Check value
+        public static final double angleGearRatio = (isAlpha ? (11.57142) : (21.42857)); // TODO: Check value
 
         public static final SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(
                 new edu.wpi.first.math.geometry.Translation2d(wheelBase / 2.0, trackWidth / 2.0),

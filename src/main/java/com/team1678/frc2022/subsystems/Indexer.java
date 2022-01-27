@@ -4,10 +4,8 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
-import com.team1678.frc2022.controlboard.ControlBoard.TurretCardinal;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
-import com.team1678.frc2022.subsystems.Intake.State;
 import com.team254.lib.drivers.TalonFXFactory;
 
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -47,13 +45,21 @@ public class Indexer extends Subsystem {
 
         mElevator = TalonFXFactory.createDefaultTalon(Ports.ELEVATOR_ID);
         mHopperMaster = TalonFXFactory.createDefaultTalon(Ports.HOPPER_MASTER_ID);
-        mHopperSlave = TalonFXFactory.createPermanentSlaveTalon(Ports.HOPPER_SLAVE_ID, Ports.HOPPER_MASTER_ID);
 
+        if (Constants.isAlpha) {
+            mHopperSlave = TalonFXFactory.createPermanentSlaveTalon(Ports.HOPPER_SLAVE_ID, Ports.HOPPER_MASTER_ID);
+        } else {
+            mHopperSlave = null;
+        }
+      
         mBottomBeamBreak = new DigitalInput(Ports.BOTTOM_BEAM_BREAK);
         mTopBeamBreak = new DigitalInput(Ports.TOP_BEAM_BREAK);
 
         mHopperMaster.setInverted(true);
-        mHopperSlave.setInverted(true);
+        if (Constants.isAlpha) {
+            mHopperSlave.setInverted(true);
+        }
+        
     }
 
     public static synchronized Indexer getInstance() {

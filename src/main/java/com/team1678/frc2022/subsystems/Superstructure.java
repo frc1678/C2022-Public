@@ -3,7 +3,6 @@ package com.team1678.frc2022.subsystems;
 import com.team1678.frc2022.loops.Loop;
 import com.team254.lib.vision.AimingParameters;
 
-import edu.wpi.first.wpilibj.Encoder.IndexingType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.Optional;
@@ -145,11 +144,13 @@ public class Superstructure extends Subsystem {
         SmartDashboard.putBoolean("Want Shoot", mWantsShoot);
         SmartDashboard.putBoolean("Is Spun Up", isSpunUp());
 
+        /*
         SmartDashboard.putBoolean("Has Aiming Parameters", mLatestAimingParameters.isPresent());
         if (mLatestAimingParameters.isPresent()) {
             SmartDashboard.putNumber("Vehicle to Target", mLatestAimingParameters.get().getRange());
             SmartDashboard.putNumber("Vehicle to TargetAngle", mLatestAimingParameters.get().getVehicleToGoalRotation().getDegrees());
 
+        */
     }
 
     /*
