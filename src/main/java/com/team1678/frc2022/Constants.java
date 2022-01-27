@@ -221,15 +221,12 @@ public class Constants {
 
         public static final double kMaxTrackerDistance = 15.0;
         public static final double kMaxGoalTrackAge = 30.0;
-        public static final double kMaxGoalTrackAgeNotTracking = 0.3;
         public static final double kMaxGoalTrackSmoothingTime = 1.5;
         public static final double kTrackStabilityWeight = 0.0;
         public static final double kTrackAgeWeight = 10.0;
         public static final double kTrackSwitchingWeight = 100.0;
-        public static final boolean kEnableCachedGoal = true;
 
         public static final double kCameraFrameRate = 90.0;
-        public static final double kMinStability = 0.5;
         public static final int kDefaultPipeline = 0;
         public static final double kGoalHeight = 2.63; // meters
         public static final double kGoalRadius = 0.678; // meters
