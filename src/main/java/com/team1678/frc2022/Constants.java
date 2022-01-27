@@ -103,28 +103,44 @@ public class Constants {
 
         /* Front Left Module - Module 0 */
         public static final class Mod0 {
-            public static final double angleOffset = 58; // 126; // 234 //334
+            public static final double angleOffset = 58; 
+            /*** ALPHA: 334
+             *   BETA: 58
+             *   COMP:
+             */
             public static final SwerveModuleConstants constants =
                     new SwerveModuleConstants(Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER, angleOffset);
         }
 
         /* Front Right Module - Module 1 */
         public static final class Mod1 {
-            public static final double angleOffset = 341; // 357; // 3 //216
+            public static final double angleOffset = 341;
+            /*** ALPHA: 216
+             *   BETA: 341
+             *   COMP:
+             */
             public static final SwerveModuleConstants constants =
                     new SwerveModuleConstants(Ports.FR_DRIVE, Ports.FR_ROTATION, Ports.FR_CANCODER, angleOffset);
         }
 
         /* Back Left Module - Module 2 */
         public static final class Mod2 {
-            public static final double angleOffset = 345; // 323; // 37 //183
+            public static final double angleOffset = 345; 
+            /*** ALPHA: 183
+             *   BETA: 345
+             *   COMP:
+             */
             public static final SwerveModuleConstants constants =
                     new SwerveModuleConstants(Ports.BL_DRIVE, Ports.BL_ROTATION, Ports.BL_CANCODER, angleOffset);
         }
 
         /* Back Right Module - Module 3 */
         public static final class Mod3 {
-            public static final double angleOffset = 255; // 204; // 155  //53
+            public static final double angleOffset = 255;
+            /*** ALPHA: 53
+             *   BETA: 255
+             *   COMP:
+             */
             public static final SwerveModuleConstants constants =
                     new SwerveModuleConstants(Ports.BR_DRIVE, Ports.BR_ROTATION, Ports.BR_CANCODER, angleOffset);
         }
