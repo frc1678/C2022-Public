@@ -226,8 +226,7 @@ public class RobotState {
         return getFieldToVehicle(timestamp).inverse().transformBy(fieldToVisionTarget);
     }
 
-    public synchronized Optional<AimingParameters> getAimingParameters(int prev_track_id,
-            double max_track_age) {
+    public synchronized Optional<AimingParameters> getAimingParameters(int prev_track_id, double max_track_age) {
         GoalTracker tracker = vision_target_;
         List<GoalTracker.TrackReport> reports = tracker.getTracks();
 
@@ -238,8 +237,13 @@ public class RobotState {
         double timestamp = Timer.getFPGATimestamp();
 
         // Find the best track.
-        TrackReportComparator comparator = new TrackReportComparator(Constants.VisionConstants.kTrackStabilityWeight,
-                Constants.VisionConstants.kTrackAgeWeight, Constants.VisionConstants.kTrackSwitchingWeight, prev_track_id, timestamp);
+        TrackReportComparator comparator = new TrackReportComparator(
+                Constants.VisionConstants.kTrackStabilityWeight,
+                Constants.VisionConstants.kTrackAgeWeight,
+                Constants.VisionConstants.kTrackSwitchingWeight,
+                prev_track_id,
+                timestamp);
+                
         reports.sort(comparator);
 
         GoalTracker.TrackReport report = null;
