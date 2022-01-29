@@ -41,7 +41,7 @@ public class Constants {
         public static final double closedLoopRamp = 0.0;
 
         public static final double driveGearRatio = 6.75;
-        public static final double angleGearRatio = 12.8;
+        public static final double angleGearRatio = 21.43;
 
         public static final SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(
                 new edu.wpi.first.math.geometry.Translation2d(wheelBase / 2.0, trackWidth / 2.0),
@@ -103,7 +103,7 @@ public class Constants {
 
         /* Front Left Module - Module 0 */
         public static final class Mod0 {
-            public static final double betaAngleOffset = 58;
+            public static final double betaAngleOffset = 52.64;
             public static final double compAngleOffset = 123;
 
             public static SwerveModuleConstants SwerveModuleConstants() {
@@ -114,32 +114,32 @@ public class Constants {
 
         /* Front Right Module - Module 1 */
         public static final class Mod1 {
-            public static final double betaAngleOffset = 241;
+            public static final double betaAngleOffset = 341.63;
             public static final double compAngleOffset = 138;  
             public static SwerveModuleConstants SwerveModuleConstants() {
-                return new SwerveModuleConstants(Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER,
+                return new SwerveModuleConstants(Ports.FR_DRIVE, Ports.FR_ROTATION, Ports.FR_CANCODER,
                         isBeta ? betaAngleOffset : compAngleOffset);
             }
         }
 
         /* Back Left Module - Module 2 */
         public static final class Mod2 {
-            public static final double betaAngleOffset = 345;
+            public static final double betaAngleOffset = 343.91;
             public static final double compAngleOffset = 100;
 
             public static SwerveModuleConstants SwerveModuleConstants() {
-                return new SwerveModuleConstants(Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER,
+                return new SwerveModuleConstants(Ports.BL_DRIVE, Ports.BL_ROTATION, Ports.BL_CANCODER,
                         isBeta ? betaAngleOffset : compAngleOffset);
             }
         }
 
         /* Back Right Module - Module 3 */
         public static final class Mod3 {
-            public static final double betaAngleOffset = 255;
+            public static final double betaAngleOffset = 256.2;
             public static final double compAngleOffset = 134;
 
             public static SwerveModuleConstants SwerveModuleConstants() {
-                return new SwerveModuleConstants(Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER,
+                return new SwerveModuleConstants(Ports.BR_DRIVE, Ports.BR_ROTATION, Ports.BR_CANCODER,
                         isBeta ? betaAngleOffset : compAngleOffset);
             }
         }
@@ -240,7 +240,7 @@ public class Constants {
     /*** SUBSYSTEM CONSTANTS ***/
 
     public static final class IntakeConstants {
-        public static final double kIntakingVoltage = 7;
+        public static final double kIntakingVoltage = 10;
         public static final double kSpittingVoltage = -8;
     }
 
