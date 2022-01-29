@@ -1,6 +1,5 @@
 package com.team1678.frc2022;
 
-import com.ctre.phoenix.motorcontrol.MotorCommutation;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Intake;
