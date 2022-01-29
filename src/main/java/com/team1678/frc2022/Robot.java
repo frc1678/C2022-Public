@@ -121,6 +121,7 @@ public class Robot extends TimedRobot {
 
 	}
 
+
 	@Override
 	public void autonomousPeriodic() {
 		mSwerve.updateSwerveOdometry();
@@ -163,6 +164,8 @@ public class Robot extends TimedRobot {
 			} else {
 				mSwerve.drive(swerveTranslation, swerveRotation, true, true);
 			}
+
+			mSwerve.mLocked = mControlBoard.getBrake();
 
 			// Intake
 			if (mControlBoard.getIntake()) {

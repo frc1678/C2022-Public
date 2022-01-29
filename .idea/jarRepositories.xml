@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="RemoteRepositoriesConfiguration">
+    <remote-repository>
+      <option name="id" value="central" />
+      <option name="name" value="Maven Central repository" />
+      <option name="url" value="https://repo1.maven.org/maven2" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="jboss.community" />
+      <option name="name" value="JBoss Community repository" />
+      <option name="url" value="https://repository.jboss.org/nexus/content/repositories/public/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="WPIFRCMavenVendorCacheRelease" />
+      <option name="name" value="WPIFRCMavenVendorCacheRelease" />
+      <option name="url" value="https://frcmaven.wpi.edu/artifactory/vendor-mvn-release" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="MavenRepo" />
+      <option name="name" value="MavenRepo" />
+      <option name="url" value="https://repo.maven.apache.org/maven2/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="WPIOfficialRelease" />
+      <option name="name" value="WPIOfficialRelease" />
+      <option name="url" value="https://frcmaven.wpi.edu/artifactory/release" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="WPIab676553-b602-441f-a38d-f1296eff6537_0Release" />
+      <option name="name" value="WPIab676553-b602-441f-a38d-f1296eff6537_0Release" />
+      <option name="url" value="https://maven.ctr-electronics.com/release/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="WPILocal" />
+      <option name="name" value="WPILocal" />
+      <option name="url" value="file:/$PROJECT_DIR$/../../../Public/wpilib/2022/maven/" />
+    </remote-repository>
+  </component>
+</project>
