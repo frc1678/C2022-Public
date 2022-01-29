@@ -59,8 +59,8 @@ public class Climber extends Subsystem {
         mClimberMaster.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
         mClimberMaster.enableVoltageCompensation(true);
 
-        mLeftClimberSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.CLIMBER_LEFT_SOLENOID);
-        mRightClimberSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.CLIMBER_RIGHT_SOLENOID);
+        mLeftClimberSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.CLIMBER_CHOPSTICK_SOLENOID);
+        mRightClimberSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.CLIMBER_HOOK_RELEASE_SOLENOID);
 
         mInitialArmExtensionBoolean = new LatchedBoolean();
     }
