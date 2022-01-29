@@ -22,8 +22,8 @@ public class Climber extends Subsystem {
 
     private final TalonFX mClimberMaster;
     private final TalonFX mClimberSlave;
-    public final Solenoid mLeftClimberSolenoid;
-    public final Solenoid mRightClimberSolenoid;
+    public final Solenoid mChopstickClimberSolenoid;
+    public final Solenoid mHookReleaseClimberSolenoid;
     public final LatchedBoolean mInitialArmExtensionBoolean;
 
     private TimeDelayedBoolean mClimberCalibrated = new TimeDelayedBoolean();
@@ -59,8 +59,8 @@ public class Climber extends Subsystem {
         mClimberMaster.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
         mClimberMaster.enableVoltageCompensation(true);
 
-        mLeftClimberSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.CLIMBER_CHOPSTICK_SOLENOID);
-        mRightClimberSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.CLIMBER_HOOK_RELEASE_SOLENOID);
+        mChopstickClimberSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.CLIMBER_CHOPSTICK_SOLENOID);
+        mHookReleaseClimberSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.CLIMBER_HOOK_RELEASE_SOLENOID);
 
         mInitialArmExtensionBoolean = new LatchedBoolean();
     }
@@ -116,8 +116,8 @@ public class Climber extends Subsystem {
             mClimberMaster.set(ControlMode.MotionMagic,0.0);
                 break;
         }
-        mRightClimberSolenoid.set(mPeriodicIO.deploy_solenoid);
-        mLeftClimberSolenoid.set(mPeriodicIO.deploy_solenoid);
+        mHookReleaseClimberSolenoid.set(mPeriodicIO.deploy_solenoid);
+        mChopstickClimberSolenoid.set(mPeriodicIO.deploy_solenoid);
     }
 
     public void setClimberOpenLoop(double wantedDemand) {
