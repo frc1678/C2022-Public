@@ -26,7 +26,7 @@ public class Swerve extends Subsystem {
     public Limelight mLimelight = Limelight.getInstance();
 
     public boolean mLocked = false;
-
+    
     // wants vision aim during auto
     public boolean mWantsAutoVisionAim = false;
 

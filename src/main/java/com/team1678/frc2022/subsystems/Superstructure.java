@@ -44,9 +44,6 @@ public class Superstructure extends Subsystem {
             @Override
             public void onLoop(double timestamp) {
                 setSetpoints();
-                SmartDashboard.putBoolean("Want Spin Up", mWantsSpinUp);
-                SmartDashboard.putBoolean("Want Shoot", mWantsShoot);
-                SmartDashboard.putBoolean("Is Spun Up", isSpunUp());
             }
 
             @Override
@@ -84,6 +81,14 @@ public class Superstructure extends Subsystem {
 
     public void setShooterVelocity(double velocity) {
         mShooterSetpoint = velocity;
+    }
+
+    public boolean getWantsSpinUp() {
+        return mWantsSpinUp;
+    }
+
+    public boolean getWantsShoot() {
+        return mWantsShoot;
     }
 
     public void setSetpoints() {

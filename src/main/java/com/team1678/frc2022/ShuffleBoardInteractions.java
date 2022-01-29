@@ -1,5 +1,7 @@
 package com.team1678.frc2022;
 
+import javax.security.auth.login.FailedLoginException;
+
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.team1678.frc2022.Constants.EjectorConstants;
 import com.team1678.frc2022.subsystems.Ejector;
@@ -7,6 +9,7 @@ import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Intake;
 import com.team1678.frc2022.subsystems.Limelight;
 import com.team1678.frc2022.subsystems.Shooter;
+import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.Timer;
@@ -39,6 +42,7 @@ public class ShuffleBoardInteractions {
     private final Shooter mShooter;
     private final Indexer mIndexer;
     private final Ejector mEjector;
+    private final Superstructure mSuperstructure;
 
     /* Status Variable */
     private double lastCancoderUpdate = 0.0;
@@ -51,8 +55,14 @@ public class ShuffleBoardInteractions {
     private ShuffleboardTab SHOOTER_TAB;
     private ShuffleboardTab INDEXER_TAB;
     private ShuffleboardTab EJECTOR_TAB;
+    private ShuffleboardTab SUPERSTRUCTURE_TAB;
 
     /* ENTRIES */
+
+    /* Superstructure */
+    private final NetworkTableEntry mWantsSpinUp;
+    private final NetworkTableEntry mWantsShoot;
+    private final NetworkTableEntry isSpunUp;
 
     /* Intake */
     private final NetworkTableEntry mIntakeCurrent;
@@ -132,6 +142,7 @@ public class ShuffleBoardInteractions {
         mShooter = Shooter.getInstance();
         mIndexer = Indexer.getInstance();
         mEjector = Ejector.getInstance();
+        mSuperstructure = Superstructure.getInstance();
 
         /* Get Tabs */
         VISION_TAB = Shuffleboard.getTab("Vision");
@@ -141,6 +152,7 @@ public class ShuffleBoardInteractions {
         SHOOTER_TAB = Shuffleboard.getTab("Shooter");
         INDEXER_TAB = Shuffleboard.getTab("Indexer");
         EJECTOR_TAB = Shuffleboard.getTab("Ejector");
+        SUPERSTRUCTURE_TAB = Shuffleboard.getTab("Superstructure");
         
         /* Create Entries */
         mLimelightOk = VISION_TAB
@@ -284,6 +296,17 @@ public class ShuffleBoardInteractions {
         mIntakeDeployed = INTAKE_TAB
                 .add("Intake Deployed", mIntake.mPeriodicIO.deploy)
                 .getEntry();
+        
+        /* Superstructure */
+        mWantsSpinUp = SUPERSTRUCTURE_TAB 
+            .add("Wants Spin Up", mSuperstructure.mWantsSpinUp)
+            .getEntry();
+        mWantsShoot = SUPERSTRUCTURE_TAB
+            .add("Want Shoot", mSuperstructure.mWantsShoot)
+            .getEntry();
+        isSpunUp = SUPERSTRUCTURE_TAB
+            .add("Is Spun Up", mSuperstructure.isSpunUp())
+            .getEntry();
                 
         /* Shooter */
         mFlywheelRPM = SHOOTER_TAB
@@ -371,6 +394,11 @@ public class ShuffleBoardInteractions {
         mIntakeDemand.setDouble(mIntake.getMotorDemand());
         mIntakeDeployed.setBoolean(mIntake.getDeployed());
         mIntakeCurrent.setDouble(mIntake.getMotorCurrent());
+
+        /* Superstructure */
+        mWantsSpinUp.setBoolean(mSuperstructure.getWantsSpinUp());
+        mWantsShoot.setBoolean(mSuperstructure.getWantsShoot());
+        isSpunUp.setBoolean(mSuperstructure.isSpunUp());
 
         /* Shooter */
         mFlywheelRPM.setDouble(truncate(mShooter.getShooterRPM()));
