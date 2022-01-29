@@ -1,15 +1,10 @@
 package com.team1678.frc2022.auto.modes;
 
-import java.io.IOException;
-import java.util.List;
-
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.auto.AutoModeEndedException;
 import com.team1678.frc2022.auto.AutoTrajectoryReader;
 import com.team1678.frc2022.auto.actions.LambdaAction;
-import com.team1678.frc2022.auto.actions.ParallelAction;
 import com.team1678.frc2022.auto.actions.SwerveTrajectoryAction;
-import com.team1678.frc2022.auto.actions.VisionAlignAction;
 import com.team1678.frc2022.auto.actions.WaitAction;
 import com.team1678.frc2022.subsystems.Intake;
 import com.team1678.frc2022.subsystems.Superstructure;
@@ -19,11 +14,8 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.WPILibVersion;
 
 public class FiveBallMode extends AutoModeBase {
     

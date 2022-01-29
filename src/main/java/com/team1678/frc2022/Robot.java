@@ -50,13 +50,13 @@ public class Robot extends TimedRobot {
 	private final ControlBoard mControlBoard = ControlBoard.getInstance();
 
 	private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
-	private final Superstructure mSuperstructure = Superstructure.getInstance();
-	private final Shooter mShooter = Shooter.getInstance();
+	// private final Superstructure mSuperstructure = Superstructure.getInstance();
+	// private final Shooter mShooter = Shooter.getInstance();
 	private final Swerve mSwerve = Swerve.getInstance();
 	private final Intake mIntake = Intake.getInstance();
-	private final Limelight mLimelight = Limelight.getInstance();
+	// private final Limelight mLimelight = Limelight.getInstance();
 	private final Infrastructure mInfrastructure = Infrastructure.getInstance();
-	private final Indexer mIndexer = Indexer.getInstance();
+	// private final Indexer mIndexer = Indexer.getInstance();
 
 	// instantiate enabled and disabled loopers
 	private final Looper mEnabledLooper = new Looper();
@@ -80,12 +80,12 @@ public class Robot extends TimedRobot {
 
 			mSubsystemManager.setSubsystems(
 					mSwerve,
-					mInfrastructure,
-					mIntake,
-					mIndexer,
-					mShooter,
-					mSuperstructure,
-					mLimelight
+					// mInfrastructure,
+					mIntake // ,
+					// mIndexer,
+					// mShooter,
+					// mSuperstructure,
+					// mLimelight
 			);
 
 			mSubsystemManager.registerEnabledLoops(mEnabledLooper);
@@ -158,11 +158,11 @@ public class Robot extends TimedRobot {
 					mControlBoard.getSwerveTranslation().y());
 			double swerveRotation = mControlBoard.getSwerveRotation();
 
-			if (mControlBoard.getVisionAlign()) {
-				mSwerve.visionAlignDrive(swerveTranslation, true, true);
-			} else {
+			// if (mControlBoard.getVisionAlign()) {
+			// 	mSwerve.visionAlignDrive(swerveTranslation, true, true);
+			// } else {
 				mSwerve.drive(swerveTranslation, swerveRotation, true, true);
-			}
+			// }
 
 			// Intake
 			if (mControlBoard.getIntake()) {
@@ -175,14 +175,14 @@ public class Robot extends TimedRobot {
 				mIntake.setState(Intake.WantedAction.NONE);
 			}
 
-			if (mControlBoard.operator.getController().getYButtonPressed()) {
-				mSuperstructure.setWantShoot();
-			}
+			// if (mControlBoard.operator.getController().getYButtonPressed()) {
+			// 	mSuperstructure.setWantShoot();
+			// }
 
-			if (mControlBoard.operator.getController().getAButtonPressed()) {
-				mSuperstructure.setShooterVelocity(1800);
-				mSuperstructure.setWantSpinUp();
-			}
+			// if (mControlBoard.operator.getController().getAButtonPressed()) {
+			// 	mSuperstructure.setShooterVelocity(1800);
+			// 	mSuperstructure.setWantSpinUp();
+			// }
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
@@ -221,8 +221,8 @@ public class Robot extends TimedRobot {
 			mAutoModeSelector.updateModeCreator();
 			// [mSwerve.resetAnglesToAbsolute();
 
-			mLimelight.setLed(Limelight.LedMode.ON);
-			mLimelight.writePeriodicOutputs();
+			// mLimelight.setLed(Limelight.LedMode.ON);
+			// mLimelight.writePeriodicOutputs();
 
 			Optional<AutoModeBase> autoMode = mAutoModeSelector.getAutoMode();
 			if (autoMode.isPresent() && autoMode.get() != mAutoModeExecutor.getAutoMode()) {

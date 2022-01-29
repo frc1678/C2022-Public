@@ -4,10 +4,8 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
-import com.team1678.frc2022.controlboard.ControlBoard.TurretCardinal;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
-import com.team1678.frc2022.subsystems.Intake.State;
 import com.team254.lib.drivers.TalonFXFactory;
 
 import edu.wpi.first.wpilibj.DigitalInput;

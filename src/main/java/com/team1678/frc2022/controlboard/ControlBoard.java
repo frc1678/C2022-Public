@@ -6,11 +6,8 @@ import com.team1678.frc2022.controlboard.CustomXboxController.Button;
 import com.team1678.frc2022.controlboard.CustomXboxController.Side;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
-import com.team254.lib.util.Deadband;
 import com.team254.lib.util.DelayedBoolean;
 
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class ControlBoard {
