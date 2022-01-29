@@ -2,7 +2,6 @@ package com.team1678.frc2022.subsystems;
 
 import com.team1678.frc2022.loops.Loop;
 
-import edu.wpi.first.wpilibj.Encoder.IndexingType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.team1678.frc2022.loops.ILooper;
