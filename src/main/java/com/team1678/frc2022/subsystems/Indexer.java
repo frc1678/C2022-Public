@@ -4,11 +4,10 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
-import com.team1678.frc2022.controlboard.ControlBoard.TurretCardinal;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
-import com.team1678.frc2022.subsystems.Intake.State;
 import com.team254.lib.drivers.TalonFXFactory;
+import com.team254.lib.util.ReflectingCSVWriter;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
@@ -20,7 +19,9 @@ public class Indexer extends Subsystem {
     private final TalonFX mHopperSlave;
 
     private static Indexer mInstance;
+
     public PeriodicIO mPeriodicIO = new PeriodicIO();
+    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
 
     private final DigitalInput mBottomBeamBreak;
     private final DigitalInput mTopBeamBreak;
@@ -87,6 +88,10 @@ public class Indexer extends Subsystem {
 
         mPeriodicIO.elevator_current = mElevator.getStatorCurrent();
         mPeriodicIO.elevator_voltage = mElevator.getMotorOutputVoltage();
+
+        if (mCSVWriter != null) {
+            mCSVWriter.add(mPeriodicIO);
+        }
     }
 
     @Override
@@ -101,6 +106,7 @@ public class Indexer extends Subsystem {
             @Override
             public void onStart(double timestamp) {
                 mState = State.IDLE;
+                startLogging();
             }
 
             @Override
@@ -113,6 +119,7 @@ public class Indexer extends Subsystem {
             @Override
             public void onStop(double timestamp) {
                 mState = State.IDLE;
+                stopLogging();
                 stop();
             }
         });
@@ -225,7 +232,7 @@ public class Indexer extends Subsystem {
     }
 
     public static class PeriodicIO {
-        //INPUTS
+        // INPUTS
         public double timestamp;
 
         public double elevator_voltage;
@@ -237,11 +244,22 @@ public class Indexer extends Subsystem {
         public boolean bottom_break;
         public boolean correctColor;
 
-        //OUTPUTS
+        // OUTPUTS
         public double elevator_demand;
         public double hopper_demand;
         public boolean eject;
     }
 
+    public synchronized void startLogging() {
+        if (mCSVWriter == null) {
+            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/INTAKE-LOGS.csv", PeriodicIO.class);
+        }
+    }
 
+    public synchronized void stopLogging() {
+        if (mCSVWriter != null) {
+            mCSVWriter.flush();
+            mCSVWriter = null;
+        }
+    }
 }

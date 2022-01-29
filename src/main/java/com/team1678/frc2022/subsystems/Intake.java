@@ -12,7 +12,6 @@ import com.team254.lib.util.TimeDelayedBoolean;
 
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Intake extends Subsystem {
 
@@ -119,9 +118,10 @@ public class Intake extends Subsystem {
         mPeriodicIO.intake_out = mIntakeSolenoidTimer.update(mPeriodicIO.deploy, 0.2);
         mPeriodicIO.current =  mMaster.getStatorCurrent();
         mPeriodicIO.voltage = mMaster.getMotorOutputVoltage();
-       if (mCSVWriter != null) {
-           mCSVWriter.add(mPeriodicIO);
-       }
+        
+        if (mCSVWriter != null) {
+            mCSVWriter.add(mPeriodicIO);
+        }
    }
 
    @Override
@@ -133,20 +133,21 @@ public class Intake extends Subsystem {
    @Override
    public void registerEnabledLoops(ILooper enabledLooper) {
        enabledLooper.register(new Loop() {
-           @Override
-           public void onStart(double timestamp) {
-               mState = State.IDLE;
-           }
+            @Override
+            public void onStart(double timestamp) {
+                mState = State.IDLE;
+                startLogging();
+            }
 
-           @Override
-           public void onLoop(double timestamp) {
-               runStateMachine();
-           }
+            @Override
+            public void onLoop(double timestamp) {
+                runStateMachine();
+            }
 
-           @Override
-           public void onStop(double timestamp) {
-
-           }
+            @Override
+            public void onStop(double timestamp) {
+                stopLogging();
+            }
        });
    }
 
@@ -156,15 +157,28 @@ public class Intake extends Subsystem {
     }
 
     public static class PeriodicIO {
-            // INPUTS
-            public double current;
-            public boolean intake_out;
-            public double voltage;
+        // INPUTS
+        public double current;
+        public boolean intake_out;
+        public double voltage;
 
-            // OUTPUTS
-            public double demand;
-            public boolean deploy;
+        // OUTPUTS
+        public double demand;
+        public boolean deploy;
+    }
+
+    public synchronized void startLogging() {
+        if (mCSVWriter == null) {
+            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/INTAKE-LOGS.csv", PeriodicIO.class);
         }
+    }
+
+    public synchronized void stopLogging() {
+        if (mCSVWriter != null) {
+            mCSVWriter.flush();
+            mCSVWriter = null;
+        }
+    }
 
     public double getMotorVoltage() {
         return mPeriodicIO.voltage;

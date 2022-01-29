@@ -10,6 +10,7 @@ import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
 import com.team254.lib.drivers.TalonFXFactory;
+import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.util.Util;
 
 import edu.wpi.first.wpilibj.Timer;
@@ -27,6 +28,7 @@ public class Shooter extends Subsystem {
     }
 
     private PeriodicIO mPeriodicIO = new PeriodicIO();
+    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
 
     private boolean mIsOpenLoop = false;
 
@@ -64,7 +66,7 @@ public class Shooter extends Subsystem {
         enabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
-
+                startLogging();
             }
 
             @Override
@@ -75,6 +77,7 @@ public class Shooter extends Subsystem {
 
             @Override
             public void onStop(double timestamp) {
+                stopLogging();
                 stop();
             }
         });
@@ -86,6 +89,10 @@ public class Shooter extends Subsystem {
         mPeriodicIO.falcon_current = mMaster.getSupplyCurrent();
         mPeriodicIO.falcon_voltage = mMaster.getMotorOutputVoltage();
         mPeriodicIO.falcon_velocity = mMaster.getSelectedSensorVelocity();
+
+        if (mCSVWriter != null) {
+            mCSVWriter.add(mPeriodicIO);
+        }
     }
 
     @Override
@@ -130,14 +137,27 @@ public class Shooter extends Subsystem {
     }
 
     public static class PeriodicIO {
-        /* Inputs */
+        // INPUTS
         public double timestamp;
         public double falcon_velocity;
         public double falcon_voltage;
         public double falcon_current;
 
-        /* Outputs */
+        // OUTPUTS
         public double flywheel_demand;
+    }
+
+    public synchronized void startLogging() {
+        if (mCSVWriter == null) {
+            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/INTAKE-LOGS.csv", PeriodicIO.class);
+        }
+    }
+
+    public synchronized void stopLogging() {
+        if (mCSVWriter != null) {
+            mCSVWriter.flush();
+            mCSVWriter = null;
+        }
     }
 
     @Override
