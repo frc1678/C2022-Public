@@ -7,13 +7,10 @@ import com.ctre.phoenix.sensors.CANCoder;
 import com.lib.math.Conversions;
 import com.lib.util.CTREModuleState;
 import com.lib.util.SwerveModuleConstants;
-
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
-import com.ctre.phoenix.sensors.CANCoderStatusFrame;
 
 public class SwerveModule {
     public int moduleNumber;

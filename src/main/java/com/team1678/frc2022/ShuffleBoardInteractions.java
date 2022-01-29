@@ -1,6 +1,5 @@
 package com.team1678.frc2022;
 
-import com.ctre.phoenix.motorcontrol.MotorCommutation;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.team1678.frc2022.Constants.EjectorConstants;
 import com.team1678.frc2022.subsystems.Ejector;
@@ -9,7 +8,6 @@ import com.team1678.frc2022.subsystems.Intake;
 import com.team1678.frc2022.subsystems.Limelight;
 import com.team1678.frc2022.subsystems.Shooter;
 import com.team1678.frc2022.subsystems.Swerve;
-
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
@@ -105,6 +103,7 @@ public class ShuffleBoardInteractions {
 
     /* Swerve Modules */
     private final String[] kSwervePlacements = {"Front Left", "Front Right", "Back Left", "Back Right"};
+    private final NetworkTableEntry mSwerveBrakeMode;
     private final ShuffleboardLayout[] mSwerveAngles = new ShuffleboardLayout[4];
     private final NetworkTableEntry[] mSwerveCancoders = new NetworkTableEntry[4];
     private final NetworkTableEntry[] mSwerveIntegrated = new NetworkTableEntry[4];
@@ -176,6 +175,8 @@ public class ShuffleBoardInteractions {
             .withPosition(1, 1)
             .withSize(1, 1)
             .getEntry();
+        
+        mSwerveBrakeMode = SWERVE_TAB.add("Swerve Break Mode", false).getEntry();
 
         for (int i = 0; i < mSwerveCancoders.length; i++) {
             mSwerveAngles[i] = SWERVE_TAB
@@ -405,6 +406,7 @@ public class ShuffleBoardInteractions {
         mLimelightTy.setDouble(mLimelight.getOffset()[1]);
         
         /* SWERVE */
+        mSwerveBrakeMode.setBoolean(mSwerve.mLocked);
 
         // Update cancoders at a slower period to avoid stale can frames
         double dt = Timer.getFPGATimestamp();

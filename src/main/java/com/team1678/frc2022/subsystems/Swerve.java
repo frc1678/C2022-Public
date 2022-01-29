@@ -1,15 +1,12 @@
 package com.team1678.frc2022.subsystems;
 
 import com.ctre.phoenix.sensors.PigeonIMU;
-
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.SwerveModule;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
 import com.team254.lib.util.TimeDelayedBoolean;
-
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
@@ -19,7 +16,6 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Swerve extends Subsystem {
@@ -28,6 +24,8 @@ public class Swerve extends Subsystem {
 
     // required instance for vision align
     public Limelight mLimelight = Limelight.getInstance();
+
+    public boolean mLocked = false;
 
     // wants vision aim during auto
     public boolean mWantsAutoVisionAim = false;
@@ -139,20 +137,30 @@ public class Swerve extends Subsystem {
             } else {
                 maybeStopSnap(true);
             }
-        } 
-        SwerveModuleState[] swerveModuleStates =
-            Constants.SwerveConstants.swerveKinematics.toSwerveModuleStates(
-                fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(
-                                    translation.getX(), 
-                                    translation.getY(), 
-                                    rotation, 
-                                    getYaw()
-                                )
-                                : new ChassisSpeeds(
-                                    translation.getX(), 
-                                    translation.getY(), 
-                                    rotation)
-                                );
+        }
+        SwerveModuleState[] swerveModuleStates = null;
+        if (mLocked) {
+            swerveModuleStates = new SwerveModuleState[]{
+                new SwerveModuleState(0.1, Rotation2d.fromDegrees(45)),
+                new SwerveModuleState(0.1, Rotation2d.fromDegrees(315)),
+                new SwerveModuleState(0.1, Rotation2d.fromDegrees(135)),
+                new SwerveModuleState(0.1, Rotation2d.fromDegrees(225))
+            };
+        } else {
+            swerveModuleStates =
+                Constants.SwerveConstants.swerveKinematics.toSwerveModuleStates(
+                    fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(
+                                        translation.getX(), 
+                                        translation.getY(), 
+                                        rotation, 
+                                        getYaw()
+                                    )
+                                    : new ChassisSpeeds(
+                                        translation.getX(), 
+                                        translation.getY(), 
+                                        rotation)
+                                    );
+        }
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.SwerveConstants.maxSpeed);
 
         for (SwerveModule mod : mSwerveMods) {
