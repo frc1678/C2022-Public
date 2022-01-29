@@ -6,12 +6,12 @@ import com.team1678.frc2022.subsystems.Limelight.LimelightConstants;
 import com.team1678.frc2022.subsystems.ServoMotorSubsystem.ServoMotorSubsystemConstants;
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
-import com.team254.lib.geometry.Translation2d;
-
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.util.Color;
 
 public class Constants {
 	
@@ -20,6 +20,9 @@ public class Constants {
 
     // robot toggle
     public static final boolean isAlpha = false;
+
+    //alliance color
+    public static final boolean isRedAlliance = true;
 
 	/* Control Board */
 	public static final double kJoystickThreshold = 0.2;
@@ -91,7 +94,7 @@ public class Constants {
         public static final boolean angleMotorInvert = true;
 
         /* Angle Encoder Invert */
-        public static final boolean canCoderInvert = true;
+        public static final boolean canCoderInvert = true; 
 
         /* Controller Invert */
         public static final boolean invertXAxis = false; // TODO: Check value 
@@ -103,28 +106,44 @@ public class Constants {
 
         /* Front Left Module - Module 0 */
         public static final class Mod0 {
-            public static final double angleOffset = 123; // 126; // 234 //Beta: 334
+            public static final double angleOffset = 58; 
+            /*** ALPHA: 334
+             *   BETA: 58
+             *   COMP: 123
+             */
             public static final SwerveModuleConstants constants =
                     new SwerveModuleConstants(Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER, angleOffset);
         }
 
         /* Front Right Module - Module 1 */
         public static final class Mod1 {
-            public static final double angleOffset = 138; // 357; // 3 //Beta: 216
+            public static final double angleOffset = 341;
+            /*** ALPHA: 216
+             *   BETA: 341
+             *   COMP: 138
+             */
             public static final SwerveModuleConstants constants =
                     new SwerveModuleConstants(Ports.FR_DRIVE, Ports.FR_ROTATION, Ports.FR_CANCODER, angleOffset);
         }
 
         /* Back Left Module - Module 2 */
         public static final class Mod2 {
-            public static final double angleOffset = 100; // 323; // 37 //Beta: 183
+            public static final double angleOffset = 345; 
+            /*** ALPHA: 183
+             *   BETA: 345
+             *   COMP: 100
+             */
             public static final SwerveModuleConstants constants =
                     new SwerveModuleConstants(Ports.BL_DRIVE, Ports.BL_ROTATION, Ports.BL_CANCODER, angleOffset);
         }
 
         /* Back Right Module - Module 3 */
         public static final class Mod3 {
-            public static final double angleOffset = 134; // 204; // 155 //Beta: 53
+            public static final double angleOffset = 255;
+            /*** ALPHA: 53
+             *   BETA: 255
+             *   COMP: 134
+             */
             public static final SwerveModuleConstants constants =
                     new SwerveModuleConstants(Ports.BR_DRIVE, Ports.BR_ROTATION, Ports.BR_CANCODER, angleOffset);
         }
@@ -310,6 +329,13 @@ public class Constants {
         public static final double kHopperReversingVoltage = -5;
         public static final double kFeedingVoltage = 6.0;
 
+    }
+
+    public static final class EjectorConstants {
+
+        public static final Color kBlueBallColor = new Color(0.134, 0.432, 0.434);
+        public static final Color kRedBallColor = new Color(0.485, 0.364, 0.150);
+        public static final double kColorSensorThreshold = 0.689; 
     }
         
     public static final class ClimberConstants {
