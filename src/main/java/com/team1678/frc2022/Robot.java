@@ -168,20 +168,34 @@ public class Robot extends TimedRobot {
 					mControlBoard.getSwerveTranslation().y());
 			double swerveRotation = mControlBoard.getSwerveRotation();
 
-			if (mControlBoard.getVisionAlign()) {
-				mSwerve.visionAlignDrive(swerveTranslation, true, true);
-			} else {
+			// if (mControlBoard.getVisionAlign()) {
+			// 	mSwerve.visionAlignDrive(swerveTranslation, true, true);
+			// } else {
 				mSwerve.drive(swerveTranslation, swerveRotation, true, true);
-			}
+			// }
 
 			if (mControlBoard.operator.getController().getYButtonPressed()) {
 				mSuperstructure.setWantShoot();
 			}
-
-			if (mControlBoard.operator.getController().getAButtonPressed()) {
-				mSuperstructure.setShooterVelocity(1800);
-				mSuperstructure.setWantSpinUp();
+			// Intake
+			if (mControlBoard.getIntake()) {
+				mIntake.setState(Intake.WantedAction.INTAKE);
+			} else if (mControlBoard.getOuttake()) {
+				mIntake.setState(Intake.WantedAction.REVERSE);
+			} else if (mControlBoard.getSpitting()) {
+				mIntake.setState(Intake.WantedAction.SPIT);
+			} else {
+				mIntake.setState(Intake.WantedAction.NONE);
 			}
+
+			// if (mControlBoard.operator.getController().getYButtonPressed()) {
+			// 	mSuperstructure.setWantShoot();
+			// }
+
+			// if (mControlBoard.operator.getController().getAButtonPressed()) {
+			// 	mSuperstructure.setShooterVelocity(1800);
+			// 	mSuperstructure.setWantSpinUp();
+			// }
 
 			mClimbMode = mControlBoard.getClimbMode();
 			mTraversalClimb = mControlBoard.getTrasversalClimb();
@@ -263,8 +277,8 @@ public class Robot extends TimedRobot {
 			mAutoModeSelector.updateModeCreator();
 			// [mSwerve.resetAnglesToAbsolute();
 
-			mLimelight.setLed(Limelight.LedMode.ON);
-			mLimelight.writePeriodicOutputs();
+			// mLimelight.setLed(Limelight.LedMode.ON);
+			// mLimelight.writePeriodicOutputs();
 
 			Optional<AutoModeBase> autoMode = mAutoModeSelector.getAutoMode();
 			if (autoMode.isPresent() && autoMode.get() != mAutoModeExecutor.getAutoMode()) {

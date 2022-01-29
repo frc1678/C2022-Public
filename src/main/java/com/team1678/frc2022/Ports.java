@@ -1,7 +1,5 @@
 package com.team1678.frc2022;
 
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
-
 public class Ports {
 
     /*** SWERVE MODULE PORTS ***/
