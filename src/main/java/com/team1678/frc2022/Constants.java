@@ -19,7 +19,7 @@ public class Constants {
 	public static final double kLooperDt = 0.02;
 
     // robot toggle
-    public static final boolean isAlpha = true;
+    public static final boolean isAlpha = false;
 
 	/* Control Board */
 	public static final double kJoystickThreshold = 0.2;
