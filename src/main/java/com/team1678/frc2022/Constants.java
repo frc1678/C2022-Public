@@ -98,7 +98,7 @@ public class Constants {
 
         /* Controller Invert */
         public static final boolean invertXAxis = false; // TODO: Check value 
-        public static final boolean invertYAxis = false; // TODO: Check value
+        public static final boolean invertYAxis = true; // TODO: Check value
         public static final boolean invertRAxis = false; // TODO: Check value
 
 
@@ -106,7 +106,7 @@ public class Constants {
 
         /* Front Left Module - Module 0 */
         public static final class Mod0 {
-            public static final double angleOffset = 58; 
+            public static final double angleOffset = 123; 
             /*** ALPHA: 334
              *   BETA: 58
              *   COMP: 123
@@ -117,7 +117,7 @@ public class Constants {
 
         /* Front Right Module - Module 1 */
         public static final class Mod1 {
-            public static final double angleOffset = 341;
+            public static final double angleOffset = 138;
             /*** ALPHA: 216
              *   BETA: 341
              *   COMP: 138
@@ -128,10 +128,10 @@ public class Constants {
 
         /* Back Left Module - Module 2 */
         public static final class Mod2 {
-            public static final double angleOffset = 345; 
+            public static final double angleOffset = 101; 
             /*** ALPHA: 183
              *   BETA: 345
-             *   COMP: 100
+             *   COMP: 101
              */
             public static final SwerveModuleConstants constants =
                     new SwerveModuleConstants(Ports.BL_DRIVE, Ports.BL_ROTATION, Ports.BL_CANCODER, angleOffset);
@@ -139,10 +139,10 @@ public class Constants {
 
         /* Back Right Module - Module 3 */
         public static final class Mod3 {
-            public static final double angleOffset = 255;
+            public static final double angleOffset = 131;
             /*** ALPHA: 53
              *   BETA: 255
-             *   COMP: 134
+             *   COMP: 131
              */
             public static final SwerveModuleConstants constants =
                     new SwerveModuleConstants(Ports.BR_DRIVE, Ports.BR_ROTATION, Ports.BR_CANCODER, angleOffset);
