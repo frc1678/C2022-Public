@@ -78,7 +78,7 @@ public class Limelight extends Subsystem {
                     if (mSeesTarget) {
                         updateDistanceToTarget();
                     }
-                    
+
                     outputTelemetry();
                     startLogging();
                 }
@@ -214,12 +214,16 @@ public class Limelight extends Subsystem {
     }
 
     public synchronized void outputTelemetry() {
-        SmartDashboard.putBoolean(mConstants.kName + ": Has Target", mSeesTarget);
         SmartDashboard.putBoolean("Limelight Ok", mPeriodicIO.has_comms);
         SmartDashboard.putNumber(mConstants.kName + ": Pipeline Latency (ms)", mPeriodicIO.latency);
+        SmartDashboard.putNumber("Limelight dt", mPeriodicIO.dt);
+
+        SmartDashboard.putBoolean(mConstants.kName + ": Has Target", mSeesTarget);
         SmartDashboard.putNumber("Limelight Tx: ", mPeriodicIO.xOffset);
         SmartDashboard.putNumber("Limelight Ty: ", mPeriodicIO.yOffset);
-        SmartDashboard.putNumber("Limelight dt", mPeriodicIO.dt);
+
+        SmartDashboard.putNumber("Distance To Target", mDistanceToTarget.get());
+
         if (mCSVWriter != null) {
             mCSVWriter.write();
         }
