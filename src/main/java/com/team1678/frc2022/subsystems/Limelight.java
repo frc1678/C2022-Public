@@ -79,7 +79,7 @@ public class Limelight extends Subsystem {
                         updateDistanceToTarget();
                     }
 
-                    outputTelemetry();
+                    // outputTelemetry();
                     startLogging();
                 }
 
@@ -146,7 +146,7 @@ public class Limelight extends Subsystem {
         double goal_theta = Constants.VisionConstants.kLimelightConstants.kHorizontalPlaneToLens.getRadians() + Math.toRadians(mPeriodicIO.yOffset);
         double height_diff = Constants.VisionConstants.kGoalHeight - Constants.VisionConstants.kLimelightConstants.kHeight;
 
-        mDistanceToTarget = Optional.of(height_diff / Math.tan(goal_theta)  + Constants.VisionConstants.kGoalRadius); // add goal radius for offset to center of target
+        mDistanceToTarget = Optional.of(height_diff / Math.tan(goal_theta) + Constants.VisionConstants.kGoalRadius); // add goal radius for offset to center of target
     }
 
     @Override
@@ -222,7 +222,9 @@ public class Limelight extends Subsystem {
         SmartDashboard.putNumber("Limelight Tx: ", mPeriodicIO.xOffset);
         SmartDashboard.putNumber("Limelight Ty: ", mPeriodicIO.yOffset);
 
-        SmartDashboard.putNumber("Distance To Target", mDistanceToTarget.get());
+        if (mDistanceToTarget.isPresent()) {
+            SmartDashboard.putNumber("Distance To Target", mDistanceToTarget.get());
+        }
 
         if (mCSVWriter != null) {
             mCSVWriter.write();
