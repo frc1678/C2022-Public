@@ -32,10 +32,12 @@ public class Intake extends Subsystem {
     public State mState = State.IDLE;
 
     private final TalonFX mMaster;
+    private final TalonFX mSingulator;
     private Solenoid mSolenoid;
 
     private Intake() {
         mMaster = TalonFXFactory.createDefaultTalon(Ports.INTAKE_ID);
+        mSingulator = TalonFXFactory.createPermanentSlaveTalon(Ports.SINGULATOR, Ports.INTAKE_ID);
         mSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.DEPLOY_SOLENOID_ID);
     }
 
@@ -159,7 +161,7 @@ public class Intake extends Subsystem {
             public double current;
             public boolean intake_out;
             public double voltage;
-
+            
             // OUTPUTS
             public double demand;
             public boolean deploy;

@@ -80,7 +80,7 @@ public class Robot extends TimedRobot {
 
 			mSubsystemManager.setSubsystems(
 					mSwerve,
-					// mInfrastructure,
+					mInfrastructure,
 					mIntake // ,
 					// mIndexer,
 					// mShooter,

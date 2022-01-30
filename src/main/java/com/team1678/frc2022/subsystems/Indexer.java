@@ -14,8 +14,7 @@ import edu.wpi.first.wpilibj.Timer;
 public class Indexer extends Subsystem {
     
     private final TalonFX mElevator;
-    private final TalonFX mHopperMaster;
-    private final TalonFX mHopperSlave;
+   // private final TalonFX mHopperMaster;
 
     private static Indexer mInstance;
     public PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -44,21 +43,12 @@ public class Indexer extends Subsystem {
         //mSuperstructure = Superstructure.getInstance();
 
         mElevator = TalonFXFactory.createDefaultTalon(Ports.ELEVATOR_ID);
-        mHopperMaster = TalonFXFactory.createDefaultTalon(Ports.HOPPER_MASTER_ID);
-
-        if (Constants.isAlpha) {
-            mHopperSlave = TalonFXFactory.createPermanentSlaveTalon(Ports.HOPPER_SLAVE_ID, Ports.HOPPER_MASTER_ID);
-        } else {
-            mHopperSlave = null;
-        }
+        //mHopperMaster = TalonFXFactory.createDefaultTalon(Ports.HOPPER_MASTER_ID);
       
         mBottomBeamBreak = new DigitalInput(Ports.BOTTOM_BEAM_BREAK);
         mTopBeamBreak = new DigitalInput(Ports.TOP_BEAM_BREAK);
 
-        mHopperMaster.setInverted(true);
-        if (Constants.isAlpha) {
-            mHopperSlave.setInverted(true);
-        }
+       // mHopperMaster.setInverted(true);
         
     }
 
@@ -80,8 +70,8 @@ public class Indexer extends Subsystem {
         mPeriodicIO.top_break = !mBottomBeamBreak.get();
         mPeriodicIO.bottom_break = !mTopBeamBreak.get();
 
-        mPeriodicIO.hopper_current = mHopperMaster.getStatorCurrent();
-        mPeriodicIO.hopper_voltage = mHopperMaster.getMotorOutputVoltage();
+        //mPeriodicIO.hopper_current = mHopperMaster.getStatorCurrent();
+        //mPeriodicIO.hopper_voltage = mHopperMaster.getMotorOutputVoltage();
 
         mPeriodicIO.elevator_current = mElevator.getStatorCurrent();
         mPeriodicIO.elevator_voltage = mElevator.getMotorOutputVoltage();
@@ -90,7 +80,7 @@ public class Indexer extends Subsystem {
     @Override
     public void writePeriodicOutputs() {
         mElevator.set(ControlMode.PercentOutput, mPeriodicIO.elevator_demand / 12.0);
-        mHopperMaster.set(ControlMode.PercentOutput, mPeriodicIO.hopper_demand / 12.0);
+        //mHopperMaster.set(ControlMode.PercentOutput, mPeriodicIO.hopper_demand / 12.0);
     }
 
     @Override
@@ -212,7 +202,7 @@ public class Indexer extends Subsystem {
     
     @Override
     public void stop() {
-        mHopperMaster.set(ControlMode.PercentOutput, 0);
+        //mHopperMaster.set(ControlMode.PercentOutput, 0);
         mElevator.set(ControlMode.PercentOutput, 0);
 
     }
