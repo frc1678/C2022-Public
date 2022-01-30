@@ -74,9 +74,9 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mElevatorVoltage;
     private final NetworkTableEntry mElevatorCurrent;
 
-    private final NetworkTableEntry mHopperDemand;
-    private final NetworkTableEntry mHopperVoltage;
-    private final NetworkTableEntry mHopperCurrent;
+    private final NetworkTableEntry mTriggerDemand;
+    private final NetworkTableEntry mTriggerVoltage;
+    private final NetworkTableEntry mTriggerCurrent;
     
 
     /* Vision */
@@ -290,33 +290,33 @@ public class ShuffleBoardInteractions {
 
         /* INDEXER */
         mIndexerState = INDEXER_TAB
-            .add("Indexer State", mIndexer.getState().toString())
+            .add("Indexer State", "N/A")
             .getEntry();
         mTopBeamBreak = INDEXER_TAB
-            .add("Top Beam Break", mIndexer.mPeriodicIO.top_break)
+            .add("Top Beam Break", false)
             .getEntry();
         mBottomBeamBreak = INDEXER_TAB
-            .add("Bottom Beam Break", mIndexer.mPeriodicIO.bottom_break)
+            .add("Bottom Beam Break", false)
             .getEntry();
 
         mElevatorDemand = INDEXER_TAB
-            .add("Elevator Demand", mIndexer.mPeriodicIO.elevator_demand)
+            .add("Elevator Demand", 0.0)
             .getEntry();
         mElevatorVoltage = INDEXER_TAB
-            .add("Elevator Voltage", mIndexer.mPeriodicIO.elevator_voltage)
+            .add("Elevator Voltage", 0.0)
             .getEntry();
         mElevatorCurrent = INDEXER_TAB
-            .add("Elevator Current", mIndexer.mPeriodicIO.elevator_current)
+            .add("Elevator Current", 0.0)
             .getEntry();
 
-        mHopperDemand = INDEXER_TAB
-            .add("Hopper Demand", mIndexer.mPeriodicIO.hopper_demand)
+        mTriggerDemand = INDEXER_TAB
+            .add("Trigger Demand", 0.0)
             .getEntry();
-        mHopperVoltage = INDEXER_TAB
-            .add("Hopper Voltage", mIndexer.mPeriodicIO.hopper_voltage)
+        mTriggerVoltage = INDEXER_TAB
+            .add("Trigger Voltage", 0.0)
             .getEntry();
-        mHopperCurrent = INDEXER_TAB
-            .add("Hopper Current", mIndexer.mPeriodicIO.hopper_current)
+        mTriggerCurrent = INDEXER_TAB
+            .add("Trigger Current", 0.0)
             .getEntry();
     }
     
@@ -333,18 +333,19 @@ public class ShuffleBoardInteractions {
         /* Shooter */
         mFlywheelRPM.setDouble(truncate(mShooter.getShooterRPM()));
         mKickerRPM.setDouble(truncate(mShooter.getKickerRPM()));
+        
         /* Indexer */
         mIndexerState.setString(mIndexer.getState().toString());
         mTopBeamBreak.setBoolean(mIndexer.getTopBeamBreak());
         mBottomBeamBreak.setBoolean(mIndexer.getBottomBeamBreak());
 
-        mElevatorDemand.setDouble(mIndexer.getElevatorDemand());
-        mElevatorCurrent.setDouble(mIndexer.getElevatorCurrent());
-        mElevatorVoltage.setDouble(mIndexer.getElevatorVoltage());
+        mElevatorDemand.setDouble(truncate(mIndexer.getElevatorDemand()));
+        mElevatorCurrent.setDouble(truncate(mIndexer.getElevatorCurrent()));
+        mElevatorVoltage.setDouble(truncate(mIndexer.getElevatorVoltage()));
 
-        mHopperDemand.setDouble(mIndexer.getHopperDemand());
-        mHopperCurrent.setDouble(mIndexer.getHopperCurrent());
-        mHopperVoltage.setDouble(mIndexer.getHopperVoltage());
+        mTriggerDemand.setDouble(truncate(mIndexer.getTriggerDemand()));
+        mTriggerCurrent.setDouble(truncate(mIndexer.getTriggerCurrent()));
+        mTriggerVoltage.setDouble(truncate(mIndexer.getTriggerVoltage()));
 
         /* Vision */
         mSeesTarget.setBoolean(mLimelight.hasTarget());
