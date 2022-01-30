@@ -1,7 +1,6 @@
 package com.team1678.frc2022.subsystems;
 
 import com.team1678.frc2022.loops.Loop;
-import com.team1678.frc2022.subsystems.Intake.WantedAction;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -122,9 +121,10 @@ public class Superstructure extends Subsystem {
             }
         } else {
             if (mWantIntake) {
-                mIntake.setState(WantedAction.INTAKE);
+                mIntake.setState(Intake.WantedAction.INTAKE);
             } else if (mWantOuttake) {
-                mIntake.setState(WantedAction.REVERSE);
+                mIntake.setState(Intake.WantedAction.REVERSE);
+                real_indexer = Indexer.WantedAction.REVERSE;
             }
         }
 

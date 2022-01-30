@@ -160,7 +160,7 @@ public class Indexer extends Subsystem {
         }
     }
 
-    private boolean firstBallQueued() {
+    private boolean ballAtTrigger() {
         return mPeriodicIO.top_break;
     }
 
@@ -169,11 +169,11 @@ public class Indexer extends Subsystem {
     }
 
     private boolean stopIndexer() {
-        return ballAtIndexer() && firstBallQueued();
+        return ballAtIndexer() && ballAtTrigger();
     }
 
     private boolean runTrigger() {
-        return !firstBallQueued();
+        return !ballAtTrigger();
     }
 
     private void runStateMachine() {
