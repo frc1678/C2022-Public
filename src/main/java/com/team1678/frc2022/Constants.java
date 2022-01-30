@@ -13,12 +13,12 @@ import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
 public class Constants {
+
+    // which robot
+    public static final boolean isComp = true;
 	
 	// robot loop time
 	public static final double kLooperDt = 0.02;
-
-    // robot toggle
-    public static final boolean isAlpha = true;
 
 	/* Control Board */
 	public static final double kJoystickThreshold = 0.2;
@@ -31,8 +31,8 @@ public class Constants {
         public static final boolean invertGyro = false; // Always ensure Gyro is CCW+ CW-
 
         /* Drivetrain Constants */
-        public static final double trackWidth = Units.inchesToMeters(20.75); // TODO: Check value
-        public static final double wheelBase = Units.inchesToMeters(20.75); // TODO: Check value
+        public static final double trackWidth = Units.inchesToMeters(20.75);
+        public static final double wheelBase = Units.inchesToMeters(20.75);
 
         public static final double wheelDiameter = Units.inchesToMeters(4.0);
         public static final double wheelCircumference = wheelDiameter * Math.PI;
@@ -40,8 +40,8 @@ public class Constants {
         public static final double openLoopRamp = 0.25;
         public static final double closedLoopRamp = 0.0;
 
-        public static final double driveGearRatio = (isAlpha ? (6.92307) : (6.74603)); // TODO: Check value
-        public static final double angleGearRatio = (isAlpha ? (11.57142) : (21.42857)); // TODO: Check value
+        public static final double driveGearRatio = 6.75;
+        public static final double angleGearRatio = 21.43;
 
         public static final SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(
                 new edu.wpi.first.math.geometry.Translation2d(wheelBase / 2.0, trackWidth / 2.0),
@@ -86,46 +86,63 @@ public class Constants {
         public static final NeutralMode driveNeutralMode = NeutralMode.Brake;
 
         /* Motor Inverts */
-        public static final boolean driveMotorInvert = false; // TODO: Check value
+        public static final boolean driveMotorInvert = false;
         public static final boolean angleMotorInvert = true;
 
         /* Angle Encoder Invert */
         public static final boolean canCoderInvert = false;
 
         /* Controller Invert */
-        public static final boolean invertXAxis = false; // TODO: Check value 
-        public static final boolean invertYAxis = false; // TODO: Check value
-        public static final boolean invertRAxis = false; // TODO: Check value
+        public static final boolean invertYAxis = false;
+        public static final boolean invertRAxis = false;
+        public static final boolean invertXAxis = false; 
 
 
         /*** MODULE SPECIFIC CONSTANTS ***/
 
+
         /* Front Left Module - Module 0 */
         public static final class Mod0 {
-            public static final double angleOffset = 334; // 126; // 234
-            public static final SwerveModuleConstants constants =
-                    new SwerveModuleConstants(Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER, angleOffset);
+            public static final double betaAngleOffset = 52.64;
+            public static final double compAngleOffset = 123; // TODO: Check value
+
+            public static SwerveModuleConstants SwerveModuleConstants() {
+                return new SwerveModuleConstants(Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER,
+                        isComp ? compAngleOffset : betaAngleOffset);
+            }
         }
 
         /* Front Right Module - Module 1 */
         public static final class Mod1 {
-            public static final double angleOffset = 216; // 357; // 3
-            public static final SwerveModuleConstants constants =
-                    new SwerveModuleConstants(Ports.FR_DRIVE, Ports.FR_ROTATION, Ports.FR_CANCODER, angleOffset);
+            public static final double betaAngleOffset = 341.63;
+            public static final double compAngleOffset = 138; // TODO: Check value
+            
+            public static SwerveModuleConstants SwerveModuleConstants() {
+                return new SwerveModuleConstants(Ports.FR_DRIVE, Ports.FR_ROTATION, Ports.FR_CANCODER,
+                        isComp ? compAngleOffset : betaAngleOffset);
+            }
         }
 
         /* Back Left Module - Module 2 */
         public static final class Mod2 {
-            public static final double angleOffset = 183; // 323; // 37
-            public static final SwerveModuleConstants constants =
-                    new SwerveModuleConstants(Ports.BL_DRIVE, Ports.BL_ROTATION, Ports.BL_CANCODER, angleOffset);
+            public static final double betaAngleOffset = 343.91;
+            public static final double compAngleOffset = 100;   // TODO: Check value
+
+            public static SwerveModuleConstants SwerveModuleConstants() {
+                return new SwerveModuleConstants(Ports.BL_DRIVE, Ports.BL_ROTATION, Ports.BL_CANCODER,
+                        isComp ? compAngleOffset : betaAngleOffset);
+            }
         }
 
         /* Back Right Module - Module 3 */
         public static final class Mod3 {
-            public static final double angleOffset = 53; // 204; // 155
-            public static final SwerveModuleConstants constants =
-                    new SwerveModuleConstants(Ports.BR_DRIVE, Ports.BR_ROTATION, Ports.BR_CANCODER, angleOffset);
+            public static final double betaAngleOffset = 256.2;
+            public static final double compAngleOffset = 134;   // TODO: Check value
+
+            public static SwerveModuleConstants SwerveModuleConstants() {
+                return new SwerveModuleConstants(Ports.BR_DRIVE, Ports.BR_ROTATION, Ports.BR_CANCODER,
+                        isComp ? compAngleOffset : betaAngleOffset);
+            }
         }
     }
 	
@@ -228,7 +245,7 @@ public class Constants {
     /*** SUBSYSTEM CONSTANTS ***/
 
     public static final class IntakeConstants {
-        public static final double kIntakingVoltage = 7;
+        public static final double kIntakingVoltage = 10;
         public static final double kSpittingVoltage = -8;
     }
 
@@ -306,11 +323,12 @@ public class Constants {
         public static final int kBottomBeamBreak = 1;
         public static final int kTopBeamBreak = 0;
 
-        public static final double kElevatorIndexingVoltage = 5.0;
-        public static final double kElevatorReversingVoltage = -5.0;
+        public static final double kSingulatorVoltage = 10.0;
+        public static final double kIndexerIndexingVoltage = 5.0;
+        public static final double kIndexerReversingVoltage = -5.0;
         public static final double kIdleVoltage = 0.0;
-        public static final double kHopperIndexingVoltage = 5;
-        public static final double kHopperReversingVoltage = -5;
+        public static final double kTriggerIndexingVoltage = 5.0;
+        public static final double kTriggerReversingVoltage = -5.0;
         public static final double kFeedingVoltage = 6.0;
 
     }
