@@ -209,9 +209,8 @@ public class Constants {
 		    static {
                 kLimelightConstants.kName = "Limelight";
                 kLimelightConstants.kTableName = "limelight";
-                kLimelightConstants.kHeight = 24.5; // inches
-                kLimelightConstants.kTurretToLens = Pose2d.identity();
-                kLimelightConstants.kHorizontalPlaneToLens = Rotation2d.fromDegrees(0.0);
+                kLimelightConstants.kHeight = 0.79; // inches
+                kLimelightConstants.kHorizontalPlaneToLens = Rotation2d.fromDegrees(34.0);
             }
 
 		public static final double kHorizontalFOV = 59.6; // degrees
@@ -219,6 +218,11 @@ public class Constants {
 		public static final double kVPW = 2.0 * Math.tan(Math.toRadians(kHorizontalFOV / 2.0));
 		public static final double kVPH = 2.0 * Math.tan(Math.toRadians(kVerticalFOV / 2.0));
 		public static final double kImageCaptureLatency = 11.0 / 1000.0; // seconds
+
+        public static final double kCameraFrameRate = 90.0;
+        public static final int kDefaultPipeline = 0;
+        public static final double kGoalHeight = 2.63; // meters
+        public static final double kGoalRadius = 0.678; // meters
 	}
 
     /*** SUBSYSTEM CONSTANTS ***/

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Subsystem for interacting with the Limelight 2
@@ -33,6 +34,9 @@ public class Limelight extends Subsystem {
     private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
 
     private int mLatencyCounter = 0;
+
+    // distance to target
+    public Optional<Double> mDistanceToTarget = Optional.empty();
 
     public static class LimelightConstants {
         public String kName = "";
@@ -71,6 +75,10 @@ public class Limelight extends Subsystem {
                 final double start = Timer.getFPGATimestamp();
                 
                 synchronized (this) {
+                    if (mSeesTarget) {
+                        updateDistanceToTarget();
+                    }
+                    
                     outputTelemetry();
                     startLogging();
                 }
@@ -122,16 +130,23 @@ public class Limelight extends Subsystem {
     private List<TargetInfo> mTargets = new ArrayList<>();
     private boolean mSeesTarget = false;
 
-    public Pose2d getTurretToLens() {
-        return mConstants.kTurretToLens;
-    }
-
     public double getLensHeight() {
         return mConstants.kHeight;
     }
 
     public Rotation2d getHorizontalPlaneToLens() {
         return mConstants.kHorizontalPlaneToLens;
+    }
+
+    public Optional<Double> getDistanceToTarget() {
+        return mDistanceToTarget;
+    }
+
+    public void updateDistanceToTarget() {
+        double goal_theta = Constants.VisionConstants.kLimelightConstants.kHorizontalPlaneToLens.getRadians() + Math.toRadians(mPeriodicIO.yOffset);
+        double height_diff = Constants.VisionConstants.kGoalHeight - Constants.VisionConstants.kLimelightConstants.kHeight;
+
+        mDistanceToTarget = Optional.of(height_diff / Math.tan(goal_theta)  + Constants.VisionConstants.kGoalRadius); // add goal radius for offset to center of target
     }
 
     @Override
