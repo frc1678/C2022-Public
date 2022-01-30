@@ -6,7 +6,6 @@ import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
-import com.team1678.frc2022.Constants.ClimberConstants;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.subsystems.Intake.PeriodicIO;
 import com.team254.lib.drivers.TalonFXFactory;
