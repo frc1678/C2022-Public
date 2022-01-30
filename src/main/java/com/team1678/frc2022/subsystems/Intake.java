@@ -117,6 +117,7 @@ public class Intake extends Subsystem {
     @Override
     public void writePeriodicOutputs() {
         mMaster.set(ControlMode.PercentOutput, mPeriodicIO.intake_demand / 12.0);
+        mSingulator.set(ControlMode.PercentOutput, mPeriodicIO.singulator_demand / 12.0);
         mSolenoid.set(mPeriodicIO.deploy);
     }
 

@@ -70,9 +70,9 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mTopBeamBreak;
     private final NetworkTableEntry mBottomBeamBreak;
 
-    private final NetworkTableEntry mElevatorDemand;
-    private final NetworkTableEntry mElevatorVoltage;
-    private final NetworkTableEntry mElevatorCurrent;
+    private final NetworkTableEntry mTunnelDemand;
+    private final NetworkTableEntry mTunnelVoltage;
+    private final NetworkTableEntry mTunnelCurrent;
 
     private final NetworkTableEntry mTriggerDemand;
     private final NetworkTableEntry mTriggerVoltage;
@@ -299,14 +299,14 @@ public class ShuffleBoardInteractions {
             .add("Bottom Beam Break", false)
             .getEntry();
 
-        mElevatorDemand = INDEXER_TAB
-            .add("Elevator Demand", 0.0)
+        mTunnelDemand = INDEXER_TAB
+            .add("Tunnel Demand", 0.0)
             .getEntry();
-        mElevatorVoltage = INDEXER_TAB
-            .add("Elevator Voltage", 0.0)
+        mTunnelVoltage = INDEXER_TAB
+            .add("Tunnel Voltage", 0.0)
             .getEntry();
-        mElevatorCurrent = INDEXER_TAB
-            .add("Elevator Current", 0.0)
+        mTunnelCurrent = INDEXER_TAB
+            .add("Tunnel Current", 0.0)
             .getEntry();
 
         mTriggerDemand = INDEXER_TAB
@@ -339,9 +339,9 @@ public class ShuffleBoardInteractions {
         mTopBeamBreak.setBoolean(mIndexer.getTopBeamBreak());
         mBottomBeamBreak.setBoolean(mIndexer.getBottomBeamBreak());
 
-        mElevatorDemand.setDouble(truncate(mIndexer.getElevatorDemand()));
-        mElevatorCurrent.setDouble(truncate(mIndexer.getElevatorCurrent()));
-        mElevatorVoltage.setDouble(truncate(mIndexer.getElevatorVoltage()));
+        mTunnelDemand.setDouble(truncate(mIndexer.getTunnelDemand()));
+        mTunnelCurrent.setDouble(truncate(mIndexer.getTunnelCurrent()));
+        mTunnelVoltage.setDouble(truncate(mIndexer.getTunnelVoltage()));
 
         mTriggerDemand.setDouble(truncate(mIndexer.getTriggerDemand()));
         mTriggerCurrent.setDouble(truncate(mIndexer.getTriggerCurrent()));

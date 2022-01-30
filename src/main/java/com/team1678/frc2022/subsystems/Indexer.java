@@ -23,17 +23,17 @@ public class Indexer extends Subsystem {
     private final DigitalInput mTopBeamBreak;
     //TODO: private final DigitalInput mColorSensor = new DigitalInput(Ports.COLOR_SENOR);
 
-    private State mState = State.DISABLED;
+    private State mState = State.IDLE;
 
     public enum WantedAction {
-        DISABLE,
+        NONE,
         INDEX,
         FEED,
         REVERSE
     }
 
     public enum State {
-        DISABLED,
+        IDLE,
         INDEXING,
         FEEDING,
         REVERSING,
@@ -70,8 +70,8 @@ public class Indexer extends Subsystem {
         mPeriodicIO.trigger_current = mTrigger.getStatorCurrent();
         mPeriodicIO.trigger_voltage = mTrigger.getMotorOutputVoltage();
 
-        mPeriodicIO.elevator_current = mIndexer.getStatorCurrent();
-        mPeriodicIO.elevator_voltage = mIndexer.getMotorOutputVoltage();
+        mPeriodicIO.tunnel_current = mIndexer.getStatorCurrent();
+        mPeriodicIO.tunnel_voltage = mIndexer.getMotorOutputVoltage();
     }
 
     @Override
@@ -85,7 +85,7 @@ public class Indexer extends Subsystem {
         enabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
-                mState = State.DISABLED;
+                mState = State.IDLE;
             }
 
             @Override
@@ -97,7 +97,7 @@ public class Indexer extends Subsystem {
 
             @Override
             public void onStop(double timestamp) {
-                mState = State.DISABLED;
+                mState = State.IDLE;
                 stop();
             }
         });
@@ -119,16 +119,16 @@ public class Indexer extends Subsystem {
         return mPeriodicIO.bottom_break;
     }
 
-    public double getElevatorDemand() {
+    public double getTunnelDemand() {
         return mPeriodicIO.indexer_demand;
     }
 
-    public double getElevatorCurrent() {
-        return mPeriodicIO.elevator_current;
+    public double getTunnelCurrent() {
+        return mPeriodicIO.tunnel_current;
     }
     
-    public double getElevatorVoltage() {
-        return mPeriodicIO.elevator_voltage;
+    public double getTunnelVoltage() {
+        return mPeriodicIO.tunnel_voltage;
     }
 
     public double getTriggerDemand() {
@@ -145,8 +145,8 @@ public class Indexer extends Subsystem {
 
     public void setState(WantedAction wanted_state) {
         switch (wanted_state) {
-            case DISABLE:
-                mState = State.DISABLED;
+            case NONE:
+                mState = State.IDLE;
                 break;
             case INDEX:
                 mState = State.INDEXING;
@@ -178,7 +178,7 @@ public class Indexer extends Subsystem {
 
     private void runStateMachine() {
         switch (mState) {
-            case DISABLED:
+            case IDLE:
                 mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIdleVoltage;
                 mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIdleVoltage;
                 break;
@@ -221,8 +221,8 @@ public class Indexer extends Subsystem {
         //INPUTS
         public double timestamp;
 
-        public double elevator_voltage;
-        public double elevator_current;
+        public double tunnel_voltage;
+        public double tunnel_current;
         public double trigger_voltage;
         public double trigger_current;
 
