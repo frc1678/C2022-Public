@@ -13,8 +13,8 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class Indexer extends Subsystem {
     
-    private final TalonFX mElevator;
-   // private final TalonFX mHopperMaster;
+    private final TalonFX mIndexer;
+    private final TalonFX mTrigger;
 
     private static Indexer mInstance;
     public PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -42,14 +42,11 @@ public class Indexer extends Subsystem {
     private Indexer() {
         //mSuperstructure = Superstructure.getInstance();
 
-        mElevator = TalonFXFactory.createDefaultTalon(Ports.ELEVATOR_ID);
-        //mHopperMaster = TalonFXFactory.createDefaultTalon(Ports.HOPPER_MASTER_ID);
+        mIndexer = TalonFXFactory.createDefaultTalon(Ports.INDEXER_ID);
+        mTrigger = TalonFXFactory.createDefaultTalon(Ports.TRIGGER_ID);
       
         mBottomBeamBreak = new DigitalInput(Ports.BOTTOM_BEAM_BREAK);
         mTopBeamBreak = new DigitalInput(Ports.TOP_BEAM_BREAK);
-
-       // mHopperMaster.setInverted(true);
-        
     }
 
     public static synchronized Indexer getInstance() {
@@ -70,17 +67,17 @@ public class Indexer extends Subsystem {
         mPeriodicIO.top_break = !mBottomBeamBreak.get();
         mPeriodicIO.bottom_break = !mTopBeamBreak.get();
 
-        //mPeriodicIO.hopper_current = mHopperMaster.getStatorCurrent();
-        //mPeriodicIO.hopper_voltage = mHopperMaster.getMotorOutputVoltage();
+        mPeriodicIO.trigger_current = mTrigger.getStatorCurrent();
+        mPeriodicIO.trigger_voltage = mTrigger.getMotorOutputVoltage();
 
-        mPeriodicIO.elevator_current = mElevator.getStatorCurrent();
-        mPeriodicIO.elevator_voltage = mElevator.getMotorOutputVoltage();
+        mPeriodicIO.tunnel_current = mIndexer.getStatorCurrent();
+        mPeriodicIO.tunnel_voltage = mIndexer.getMotorOutputVoltage();
     }
 
     @Override
     public void writePeriodicOutputs() {
-        mElevator.set(ControlMode.PercentOutput, mPeriodicIO.elevator_demand / 12.0);
-        //mHopperMaster.set(ControlMode.PercentOutput, mPeriodicIO.hopper_demand / 12.0);
+        mIndexer.set(ControlMode.PercentOutput, mPeriodicIO.indexer_demand / 12.0);
+        mTrigger.set(ControlMode.PercentOutput, mPeriodicIO.trigger_demand / 12.0);
     }
 
     @Override
@@ -122,28 +119,28 @@ public class Indexer extends Subsystem {
         return mPeriodicIO.bottom_break;
     }
 
-    public double getElevatorDemand() {
-        return mPeriodicIO.elevator_demand;
+    public double getTunnelDemand() {
+        return mPeriodicIO.indexer_demand;
     }
 
-    public double getElevatorCurrent() {
-        return mPeriodicIO.elevator_current;
+    public double getTunnelCurrent() {
+        return mPeriodicIO.tunnel_current;
     }
     
-    public double getElevatorVoltage() {
-        return mPeriodicIO.elevator_voltage;
+    public double getTunnelVoltage() {
+        return mPeriodicIO.tunnel_voltage;
     }
 
-    public double getHopperDemand() {
-        return mPeriodicIO.hopper_demand;
+    public double getTriggerDemand() {
+        return mPeriodicIO.trigger_demand;
     }
 
-    public double getHopperCurrent() {
-        return mPeriodicIO.hopper_current;
+    public double getTriggerCurrent() {
+        return mPeriodicIO.trigger_current;
     }
     
-    public double getHopperVoltage() {
-        return mPeriodicIO.hopper_voltage;
+    public double getTriggerVoltage() {
+        return mPeriodicIO.trigger_voltage;
     }
 
     public void setState(WantedAction wanted_state) {
@@ -163,47 +160,55 @@ public class Indexer extends Subsystem {
         }
     }
 
-    private boolean firstBallQueued() {
+    private boolean ballAtTrigger() {
         return mPeriodicIO.top_break;
     }
 
-    private boolean ballAtElevator() {
+    private boolean ballAtIndexer() {
         return mPeriodicIO.bottom_break;
     }
 
-    private boolean stopHopper() {
-        return ballAtElevator() && firstBallQueued();
+    private boolean stopIndexer() {
+        return ballAtIndexer() && ballAtTrigger();
     }
 
-    private boolean runElevator() {
-        return !firstBallQueued();
+    private boolean runTrigger() {
+        return !ballAtTrigger();
     }
 
     private void runStateMachine() {
         switch (mState) {
             case IDLE:
-                mPeriodicIO.elevator_demand = Constants.IndexerConstants.kIdleVoltage;
-                mPeriodicIO.hopper_demand = Constants.IndexerConstants.kIdleVoltage;
+                mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIdleVoltage;
+                mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIdleVoltage;
                 break;
             case INDEXING:
-                mPeriodicIO.hopper_demand = !stopHopper() ? Constants.IndexerConstants.kHopperIndexingVoltage : Constants.IndexerConstants.kIdleVoltage;
-                mPeriodicIO.elevator_demand = runElevator() ? Constants.IndexerConstants.kElevatorIndexingVoltage : Constants.IndexerConstants.kIdleVoltage;
+                if (runTrigger()) {
+                    mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerIndexingVoltage;
+                } else {
+                    mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIdleVoltage;
+                }
+                if (stopIndexer()) {
+                    mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIdleVoltage;
+                } else {
+                    mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIndexingVoltage;
+                }
                 break;
             case FEEDING:
-                mPeriodicIO.hopper_demand = Constants.IndexerConstants.kFeedingVoltage;
-                mPeriodicIO.elevator_demand = Constants.IndexerConstants.kFeedingVoltage;
+                mPeriodicIO.trigger_demand = Constants.IndexerConstants.kFeedingVoltage;
+                mPeriodicIO.indexer_demand = Constants.IndexerConstants.kFeedingVoltage;
                 break;
             case REVERSING:
-                mPeriodicIO.hopper_demand = Constants.IndexerConstants.kHopperReversingVoltage;
-                mPeriodicIO.elevator_demand = Constants.IndexerConstants.kElevatorReversingVoltage;
+                mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerReversingVoltage;
+                mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerReversingVoltage;
                 break;
         }
     }
     
     @Override
     public void stop() {
-        //mHopperMaster.set(ControlMode.PercentOutput, 0);
-        mElevator.set(ControlMode.PercentOutput, 0);
+        //mTrigger.set(ControlMode.PercentOutput, 0);
+        mIndexer.set(ControlMode.PercentOutput, 0);
 
     }
 
@@ -216,18 +221,18 @@ public class Indexer extends Subsystem {
         //INPUTS
         public double timestamp;
 
-        public double elevator_voltage;
-        public double elevator_current;
-        public double hopper_voltage;
-        public double hopper_current;
+        public double tunnel_voltage;
+        public double tunnel_current;
+        public double trigger_voltage;
+        public double trigger_current;
 
         public boolean top_break;
         public boolean bottom_break;
         public boolean correctColor;
 
         //OUTPUTS
-        public double elevator_demand;
-        public double hopper_demand;
+        public double indexer_demand;
+        public double trigger_demand;
         public boolean eject;
     }
 

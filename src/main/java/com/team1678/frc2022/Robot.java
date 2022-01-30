@@ -50,7 +50,7 @@ public class Robot extends TimedRobot {
 	private final ControlBoard mControlBoard = ControlBoard.getInstance();
 
 	private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
-	// private final Superstructure mSuperstructure = Superstructure.getInstance();
+	private final Superstructure mSuperstructure = Superstructure.getInstance();
 	// private final Shooter mShooter = Shooter.getInstance();
 	private final Swerve mSwerve = Swerve.getInstance();
 	private final Intake mIntake = Intake.getInstance();
@@ -81,10 +81,10 @@ public class Robot extends TimedRobot {
 			mSubsystemManager.setSubsystems(
 					mSwerve,
 					mInfrastructure,
-					mIntake // ,
+					mIntake,
 					// mIndexer,
 					// mShooter,
-					// mSuperstructure,
+					mSuperstructure // ,
 					// mLimelight
 			);
 
@@ -166,13 +166,12 @@ public class Robot extends TimedRobot {
 
 			// Intake
 			if (mControlBoard.getIntake()) {
-				mIntake.setState(Intake.WantedAction.INTAKE);
+				mSuperstructure.setWantIntake(true);
 			} else if (mControlBoard.getOuttake()) {
-				mIntake.setState(Intake.WantedAction.REVERSE);
-			} else if (mControlBoard.getSpitting()) {
-				mIntake.setState(Intake.WantedAction.SPIT);
+				mSuperstructure.setWantOuttake(true);
 			} else {
-				mIntake.setState(Intake.WantedAction.NONE);
+				mSuperstructure.setWantIntake(false);
+				mSuperstructure.setWantOuttake(false);
 			}
 
 			// if (mControlBoard.operator.getController().getYButtonPressed()) {
