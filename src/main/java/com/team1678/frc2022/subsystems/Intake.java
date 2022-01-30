@@ -37,8 +37,8 @@ public class Intake extends Subsystem {
 
     private Intake() {
         mMaster = TalonFXFactory.createDefaultTalon(Ports.INTAKE_ID);
-        mSingulator = TalonFXFactory.createPermanentSlaveTalon(Ports.SINGULATOR, Ports.INTAKE_ID);
-        mSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.DEPLOY_SOLENOID_ID);
+        mSingulator = TalonFXFactory.createPermanentSlaveTalon(Ports.SINGULATOR_ID, Ports.INTAKE_ID);
+        mSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.INTAKE_SOLENOID_ID);
     }
 
     public static synchronized Intake getInstance() {
