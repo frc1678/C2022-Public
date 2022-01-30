@@ -251,16 +251,16 @@ public class ShuffleBoardInteractions {
         
         /* INTAKE */
         mIntakeCurrent = INTAKE_TAB
-            .add("Intake Current", mIntake.mPeriodicIO.current)
+            .add("Intake Current", mIntake.mPeriodicIO.intake_current)
             .getEntry();
         mIntakeState = INTAKE_TAB
             .add("Intake State", mIntake.getState().toString())
             .getEntry();
         mIntakeVoltage = INTAKE_TAB
-            .add("Intake Voltage", mIntake.mPeriodicIO.voltage)
+            .add("Intake Voltage", mIntake.mPeriodicIO.intake_voltage)
             .getEntry();
         mIntakeDemand = INTAKE_TAB
-                .add("Intake Demand", mIntake.mPeriodicIO.demand)
+                .add("Intake Demand", mIntake.mPeriodicIO.intake_demand)
                 .getEntry();
         mIntakeDeployed = INTAKE_TAB
                 .add("Intake Deployed", mIntake.mPeriodicIO.deploy)
@@ -325,10 +325,10 @@ public class ShuffleBoardInteractions {
         
         /* Intake */
         mIntakeState.setString(mIntake.getState().toString());
-        mIntakeVoltage.setDouble(mIntake.getMotorVoltage());
-        mIntakeDemand.setDouble(mIntake.getMotorDemand());
-        mIntakeDeployed.setBoolean(mIntake.getDeployed());
-        mIntakeCurrent.setDouble(mIntake.getMotorCurrent());
+        mIntakeVoltage.setDouble(mIntake.getIntakeVoltage());
+        mIntakeDemand.setDouble(mIntake.getIntakeDemand());
+        mIntakeDeployed.setBoolean(mIntake.getWantDeploy());
+        mIntakeCurrent.setDouble(mIntake.getIntakeCurrent());
 
         /* Shooter */
         mFlywheelRPM.setDouble(truncate(mShooter.getShooterRPM()));
