@@ -76,7 +76,7 @@ public class Indexer extends Subsystem {
 
     @Override
     public void writePeriodicOutputs() {
-        mIndexer.set(ControlMode.PercentOutput, mPeriodicIO.indexer_demand / 12.0);
+        mIndexer.set(ControlMode.PercentOutput, mPeriodicIO.tunnel_demand / 12.0);
         mTrigger.set(ControlMode.PercentOutput, mPeriodicIO.trigger_demand / 12.0);
     }
 
@@ -120,7 +120,7 @@ public class Indexer extends Subsystem {
     }
 
     public double getTunnelDemand() {
-        return mPeriodicIO.indexer_demand;
+        return mPeriodicIO.tunnel_demand;
     }
 
     public double getTunnelCurrent() {
@@ -179,7 +179,7 @@ public class Indexer extends Subsystem {
     private void runStateMachine() {
         switch (mState) {
             case IDLE:
-                mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIdleVoltage;
+                mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kIdleVoltage;
                 mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIdleVoltage;
                 break;
             case INDEXING:
@@ -189,18 +189,18 @@ public class Indexer extends Subsystem {
                     mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIdleVoltage;
                 }
                 if (stopIndexer()) {
-                    mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIdleVoltage;
+                    mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kIdleVoltage;
                 } else {
-                    mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIndexingVoltage;
+                    mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kIndexerIndexingVoltage;
                 }
                 break;
             case FEEDING:
                 mPeriodicIO.trigger_demand = Constants.IndexerConstants.kFeedingVoltage;
-                mPeriodicIO.indexer_demand = Constants.IndexerConstants.kFeedingVoltage;
+                mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kFeedingVoltage;
                 break;
             case REVERSING:
                 mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerReversingVoltage;
-                mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerReversingVoltage;
+                mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kIndexerReversingVoltage;
                 break;
         }
     }
@@ -231,7 +231,7 @@ public class Indexer extends Subsystem {
         public boolean correctColor;
 
         //OUTPUTS
-        public double indexer_demand;
+        public double tunnel_demand;
         public double trigger_demand;
         public boolean eject;
     }
