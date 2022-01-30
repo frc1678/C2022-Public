@@ -18,11 +18,11 @@ public class Intake extends Subsystem {
     private TimeDelayedBoolean mIntakeSolenoidTimer = new TimeDelayedBoolean();
 
     public enum WantedAction {
-        NONE, INTAKE, REVERSE, SPIT, STAY_OUT
+        NONE, INTAKE, REVERSE, STAY_OUT
     }
 
     public enum State {
-        IDLE, INTAKING, REVERSING, SPITTING, STAYING_OUT
+        IDLE, INTAKING, REVERSING, STAYING_OUT
     }
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -75,11 +75,6 @@ public class Intake extends Subsystem {
                 mPeriodicIO.intake_demand = -Constants.IntakeConstants.kIntakingVoltage;
                 mPeriodicIO.singulator_demand = -Constants.IndexerConstants.kSingulatorVoltage;
                 mPeriodicIO.deploy = true;
-            case SPITTING:
-                mPeriodicIO.intake_demand = Constants.IntakeConstants.kSpittingVoltage;
-                mPeriodicIO.singulator_demand = -Constants.IndexerConstants.kSingulatorVoltage;
-                mPeriodicIO.deploy = false;
-                break;
             case STAYING_OUT:
                 mPeriodicIO.intake_demand = 0;
                 mPeriodicIO.deploy = true;
@@ -102,9 +97,6 @@ public class Intake extends Subsystem {
                 break;
             case REVERSE:
                 mState = State.REVERSING;
-                break;
-            case SPIT:
-                mState = State.SPITTING;
                 break;
             case STAY_OUT:
                 mState = State.STAYING_OUT;
