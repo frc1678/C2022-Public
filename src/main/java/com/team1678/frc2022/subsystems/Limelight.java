@@ -264,6 +264,14 @@ public class Limelight extends Subsystem {
         return mSeesTarget;
     }
 
+    public synchronized boolean isAimed() {
+        if (hasTarget()) {
+            return Util.epsilonEquals(mPeriodicIO.xOffset, 0.0, Constants.VisionAlignConstants.kEpsilon);
+        } else {
+            return false;
+        }
+    }
+
     /**
      * @return two targets that make up one hatch/port or null if less than two
      *         targets are found
@@ -394,9 +402,5 @@ public class Limelight extends Subsystem {
 
     public double[] getOffset() {
         return new double[] {mPeriodicIO.xOffset, mPeriodicIO.yOffset};
-    }
-
-    public boolean getOnTarget() {
-        return Util.epsilonEquals(mPeriodicIO.xOffset, 0., Constants.VisionAlignConstants.kVisionAlignEpsilon);
     }
 }

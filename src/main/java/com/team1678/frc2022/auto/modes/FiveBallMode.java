@@ -109,7 +109,7 @@ public class FiveBallMode extends AutoModeBase {
         SmartDashboard.putBoolean("Auto Finished", false);
 
         runAction(new LambdaAction(() -> mSuperstructure.setShooterVelocity(1600)));
-        runAction(new LambdaAction(() -> mSuperstructure.setWantSpinUp(true)));
+        runAction(new LambdaAction(() -> mSuperstructure.setWantPrep(true)));
 
         runAction(new LambdaAction(() -> mSuperstructure.setShooterVelocity(1800)));
         
