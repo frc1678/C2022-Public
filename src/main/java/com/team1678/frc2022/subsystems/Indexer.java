@@ -23,17 +23,17 @@ public class Indexer extends Subsystem {
     private final DigitalInput mTopBeamBreak;
     //TODO: private final DigitalInput mColorSensor = new DigitalInput(Ports.COLOR_SENOR);
 
-    private State mState = State.IDLE;
+    private State mState = State.DISABLED;
 
     public enum WantedAction {
-        NONE,
+        DISABLE,
         INDEX,
         FEED,
         REVERSE
     }
 
     public enum State {
-        IDLE,
+        DISABLED,
         INDEXING,
         FEEDING,
         REVERSING,
@@ -88,7 +88,7 @@ public class Indexer extends Subsystem {
         enabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
-                mState = State.IDLE;
+                mState = State.DISABLED;
             }
 
             @Override
@@ -100,7 +100,7 @@ public class Indexer extends Subsystem {
 
             @Override
             public void onStop(double timestamp) {
-                mState = State.IDLE;
+                mState = State.DISABLED;
                 stop();
             }
         });
@@ -148,8 +148,8 @@ public class Indexer extends Subsystem {
 
     public void setState(WantedAction wanted_state) {
         switch (wanted_state) {
-            case NONE:
-                mState = State.IDLE;
+            case DISABLE:
+                mState = State.DISABLED;
                 break;
             case INDEX:
                 mState = State.INDEXING;
@@ -181,7 +181,7 @@ public class Indexer extends Subsystem {
 
     private void runStateMachine() {
         switch (mState) {
-            case IDLE:
+            case DISABLED:
                 mPeriodicIO.elevator_demand = Constants.IndexerConstants.kIdleVoltage;
                 mPeriodicIO.hopper_demand = Constants.IndexerConstants.kIdleVoltage;
                 break;

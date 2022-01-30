@@ -97,7 +97,7 @@ public class Superstructure extends Subsystem {
             if (isSpunUp()) {
                 real_indexer = Indexer.WantedAction.FEED;
             } else {
-                real_indexer = Indexer.WantedAction.NONE;
+                real_indexer = Indexer.WantedAction.DISABLE;
             }
         } else {
             /* SET INDEXER STATE */
@@ -106,7 +106,7 @@ public class Superstructure extends Subsystem {
             } else if (mIntake.getState() == Intake.State.REVERSING) {
                 real_indexer = Indexer.WantedAction.REVERSE;
             } else {
-                real_indexer = Indexer.WantedAction.NONE;
+                real_indexer = Indexer.WantedAction.DISABLE;
             }
         }
 
