@@ -158,11 +158,11 @@ public class Robot extends TimedRobot {
 					mControlBoard.getSwerveTranslation().y());
 			double swerveRotation = mControlBoard.getSwerveRotation();
 
-			// if (mControlBoard.getVisionAlign()) {
-			// 	mSwerve.visionAlignDrive(swerveTranslation, true, true);
-			// } else {
+			if (mControlBoard.getVisionAlign()) {
+				mSwerve.visionAlignDrive(swerveTranslation, true, true);
+			} else {
 				mSwerve.drive(swerveTranslation, swerveRotation, true, true);
-			// }
+			}
 
 			// Intake
 			if (mControlBoard.getIntake()) {

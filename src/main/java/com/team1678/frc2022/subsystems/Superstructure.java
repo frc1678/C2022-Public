@@ -1,6 +1,7 @@
 package com.team1678.frc2022.subsystems;
 
 import com.team1678.frc2022.loops.Loop;
+import com.team1678.frc2022.subsystems.Intake.WantedAction;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -107,7 +108,7 @@ public class Superstructure extends Subsystem {
 
     public void setSetpoints() {
         /* Default indexer wanted action to be set */
-        Indexer.WantedAction real_indexer = Indexer.WantedAction.INDEX;
+        Indexer.WantedAction real_indexer = Indexer.WantedAction.NONE;
 
         if (mWantSpinUp) {
             mShooter.setVelocity(mShooterSetpoint);
@@ -121,10 +122,13 @@ public class Superstructure extends Subsystem {
             }
         } else {
             if (mWantIntake) {
+                real_indexer = Indexer.WantedAction.INDEX;
                 mIntake.setState(Intake.WantedAction.INTAKE);
             } else if (mWantOuttake) {
                 mIntake.setState(Intake.WantedAction.REVERSE);
                 real_indexer = Indexer.WantedAction.REVERSE;
+            } else {
+                mIntake.setState(WantedAction.NONE);
             }
         }
 

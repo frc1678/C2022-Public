@@ -64,6 +64,7 @@ public class Intake extends Subsystem {
         switch (mState) {
             case IDLE:
                 mPeriodicIO.intake_demand = 0;
+                mPeriodicIO.singulator_demand = 0;
                 mPeriodicIO.deploy = false;
                 break;
             case INTAKING:
