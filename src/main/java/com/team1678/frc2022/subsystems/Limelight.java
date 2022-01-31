@@ -272,20 +272,6 @@ public class Limelight extends Subsystem {
         }
     }
 
-    /**
-     * @return two targets that make up one hatch/port or null if less than two
-     *         targets are found
-     */
-    public synchronized List<TargetInfo> getTarget() {
-        List<TargetInfo> targets = new ArrayList<TargetInfo>(); //getRawTargetInfos();
-        targets.add(new TargetInfo(Math.tan(Math.toRadians(-mPeriodicIO.xOffset)), Math.tan(Math.toRadians(mPeriodicIO.yOffset))));
-        if (hasTarget() && targets != null) {
-            return targets;
-        }
-
-        return null;
-    }
-
     private synchronized List<TargetInfo> getRawTargetInfos() {
         List<double[]> corners = getTopCorners();
         if (corners == null) {
