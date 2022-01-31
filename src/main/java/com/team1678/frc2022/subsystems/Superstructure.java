@@ -178,8 +178,8 @@ public class Superstructure extends Subsystem {
         if (mPeriodicIO.SHOOT) {
             mPeriodicIO.real_intake = Intake.WantedAction.NONE;
 
-            // only feed cargo to shoot when spun up
-            if (isSpunUp()) {
+            // only feed cargo to shoot when spun up and aimed
+            if (isSpunUp() && isAimed()) {
                 mPeriodicIO.real_indexer = Indexer.WantedAction.FEED;
             } else {
                 mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX;
@@ -240,8 +240,12 @@ public class Superstructure extends Subsystem {
         }
     }
 
+    // status checker methods
     public boolean isSpunUp() {
         return mShooter.spunUp();
+    }
+    public boolean isAimed() {
+        return mLimelight.isAimed();
     }
 
     @Override
