@@ -58,7 +58,7 @@ public class Superstructure extends Subsystem {
             @Override
             public void onLoop(double timestamp) {
                 updateOperatorCommands();
-                maybeUpdateGoalFromVision(timestamp);
+                maybeUpdateGoalFromVision();
                 setGoals();
                 outputTelemetry();
             }
@@ -128,7 +128,7 @@ public class Superstructure extends Subsystem {
     }
 
     /* UPDATE SHOOTER AND HOOD GOAL WHEN VISION AIMING */
-    public synchronized void maybeUpdateGoalFromVision(double timestamp) {
+    public synchronized void maybeUpdateGoalFromVision() {
         if (mLimelight.hasTarget()) {
             Optional<Double> distance_to_target = mLimelight.getDistanceToTarget();
             if (distance_to_target.isPresent()) {
