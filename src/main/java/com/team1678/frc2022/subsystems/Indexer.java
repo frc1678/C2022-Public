@@ -44,6 +44,7 @@ public class Indexer extends Subsystem {
 
         mIndexer = TalonFXFactory.createDefaultTalon(Ports.HOPPER_ID);
         mTrigger = TalonFXFactory.createDefaultTalon(Ports.TRIGGER_ID);
+        mTrigger.setInverted(true);
       
         mBottomBeamBreak = new DigitalInput(Ports.BOTTOM_BEAM_BREAK);
         mTopBeamBreak = new DigitalInput(Ports.TOP_BEAM_BREAK);

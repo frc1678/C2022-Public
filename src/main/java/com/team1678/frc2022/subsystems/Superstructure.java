@@ -27,7 +27,8 @@ public class Superstructure extends Subsystem {
     private final Intake mIntake = Intake.getInstance();
 
     /* Status Variables */
-    public double mShooterSetpoint = 0.0;
+    public double mFlywheelSetpoint = 0.0;
+    public double mAcceleratorSetpoint = 0.0;
     public boolean mWantSpinUp = false;
     public boolean mWantShoot = false;
     public boolean mWantIntake = false;
@@ -82,8 +83,9 @@ public class Superstructure extends Subsystem {
         mWantShoot = !mWantShoot;
     }
 
-    public void setShooterVelocity(double velocity) {
-        mShooterSetpoint = velocity;
+    public void setShooterVelocity(double flywheelVelocity, double acceleratorVelocity) {
+        mFlywheelSetpoint = flywheelVelocity;
+        mAcceleratorSetpoint = acceleratorVelocity;
     }
 
     public void setWantIntake() {
@@ -111,9 +113,9 @@ public class Superstructure extends Subsystem {
         Indexer.WantedAction real_indexer = Indexer.WantedAction.NONE;
 
         if (mWantSpinUp) {
-            mShooter.setVelocity(mShooterSetpoint);
+            mShooter.setVelocity(mFlywheelSetpoint, mAcceleratorSetpoint);
         } else {
-            mShooter.setOpenLoop(0.0);
+            mShooter.setOpenLoop(0.0, 0.0);
         }
 
         if (mWantShoot) {
