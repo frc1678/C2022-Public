@@ -5,6 +5,8 @@ import com.ctre.phoenix.motorcontrol.DemandType;
 import com.team1678.frc2022.Constants;
 import com.team254.lib.util.Util;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 public class Hood extends ServoMotorSubsystem {
 
     private static Hood mInstance;
@@ -55,6 +57,9 @@ public class Hood extends ServoMotorSubsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
+
+        outputTelemetry(); // TODO Remove this
+
         super.readPeriodicInputs();
         if (!mHomed) {
             mControlState = ControlState.OPEN_LOOP;
@@ -63,6 +68,16 @@ public class Hood extends ServoMotorSubsystem {
             }
 
         }
+    }
+
+    public void outputTelemetry() {
+        super.outputTelemetry();
+
+        SmartDashboard.putBoolean(mConstants.kName + " Calibrated", !mHomed);
+        SmartDashboard.putString("Hood Control State", mControlState.toString());
+        SmartDashboard.putBoolean("Hood at Homing Location", atHomingLocation());
+        SmartDashboard.putNumber("Hood Demand", mPeriodicIO.demand);
+        SmartDashboard.putNumber("Hood Current", mPeriodicIO.master_stator_current);
     }
 
     @Override
