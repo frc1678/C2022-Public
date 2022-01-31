@@ -10,6 +10,7 @@ import com.team254.lib.drivers.TalonFXFactory;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Indexer extends Subsystem {
     
@@ -24,6 +25,9 @@ public class Indexer extends Subsystem {
     //TODO: private final DigitalInput mColorSensor = new DigitalInput(Ports.COLOR_SENOR);
 
     private State mState = State.IDLE;
+
+    private boolean mBottomHadSeenBall = false;
+    private boolean mTopHadSeenBall = false;
 
     public enum WantedAction {
         NONE,
@@ -73,6 +77,28 @@ public class Indexer extends Subsystem {
 
         mPeriodicIO.tunnel_current = mIndexer.getStatorCurrent();
         mPeriodicIO.tunnel_voltage = mIndexer.getMotorOutputVoltage();
+
+        if (mPeriodicIO.bottom_break) {
+            if (!mBottomHadSeenBall) {
+                mBottomHadSeenBall = true;
+            }
+        } else {
+            if (mBottomHadSeenBall) {
+                mPeriodicIO.ball_count++;
+                mBottomHadSeenBall = false;
+            }
+        }
+
+        if (mPeriodicIO.top_break) {
+            if (!mTopHadSeenBall) {
+                mTopHadSeenBall = true;
+            }
+        } else {
+            if (mTopHadSeenBall) {
+                mPeriodicIO.ball_count--;
+                mTopHadSeenBall = false;
+            }
+        }
     }
 
     @Override
@@ -91,9 +117,10 @@ public class Indexer extends Subsystem {
 
             @Override
             public void onLoop(double timestamp) {
-                synchronized (Indexer.this){
+                synchronized (Indexer.this) {
                     runStateMachine();
                 }
+                outputTelemetry();
             }
 
             @Override
@@ -170,7 +197,10 @@ public class Indexer extends Subsystem {
     }
 
     private boolean stopTunnel() {
-        return ballAtTunnel() && ballAtTrigger();
+        if (mPeriodicIO.ball_count <= 1) {
+            return false;
+        } else
+            return true;
     }
 
     private boolean runTrigger() {
@@ -230,6 +260,7 @@ public class Indexer extends Subsystem {
         public boolean top_break;
         public boolean bottom_break;
         public boolean correctColor;
+        public double ball_count;
 
         //OUTPUTS
         public double tunnel_demand;
@@ -237,5 +268,10 @@ public class Indexer extends Subsystem {
         public boolean eject;
     }
 
+    public void outputTelemetry() {
+        SmartDashboard.putBoolean("Top had seen ball", mTopHadSeenBall);
+        SmartDashboard.putBoolean("Bottom had seen ball", mBottomHadSeenBall);
 
+        SmartDashboard.putNumber("Ball count", mPeriodicIO.ball_count);
+    }
 }
