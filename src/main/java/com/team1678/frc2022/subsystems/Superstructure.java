@@ -79,17 +79,30 @@ public class Superstructure extends Subsystem {
         });
     }
 
-    @Override
-    public void stop() {
-        // TODO Auto-generated method stub
+    /*** CONTAINER FOR OPERATOR COMMANDS CALLING SUPERSTRUCTURE ACTIONS ***/
+    public void updateOperatorCommands() {
+        // control intake vs. outtake actions
+        if (mControlBoard.operator.getTrigger(Side.RIGHT)) {
+            INTAKE = true;
+        } else if (mControlBoard.operator.getTrigger(Side.LEFT)) {
+            OUTTAKE = true;
+        } else {
+            INTAKE = false;
+            OUTTAKE = false;
+        }
 
+        // control shooting
+        if (mControlBoard.operator.getController().getYButtonPressed()) {
+            SHOOT = !SHOOT;
+        }
+
+        // control prepping
+        if (mControlBoard.operator.getController().getAButtonPressed()) {
+            PREP = !PREP;
+        }
     }
 
-    public boolean isSpunUp() {
-        return mShooter.spunUp();
-    }
-
-    /* hard set superstructure actions outside operator input */
+    /*** SETTERS FOR SUPERSTRUCTURE ACTIONS OUTSIDE OPERATOR INPUT ***/
     public void setWantIntake(boolean intake) {
         if (INTAKE != intake) {
             INTAKE = intake;
@@ -113,30 +126,7 @@ public class Superstructure extends Subsystem {
         setWantIntake(!INTAKE);
     }
 
-    /* UPDATE OPERATOR COMMANDS TO CALL SUPERSTRUCTURE ACTIONS */
-    public void updateOperatorCommands() {
-        // control intake vs. outtake actions
-        if (mControlBoard.operator.getTrigger(Side.RIGHT)) {
-            INTAKE = true;
-        } else if (mControlBoard.operator.getTrigger(Side.LEFT)) {
-            OUTTAKE = true;
-        } else {
-            INTAKE = false;
-            OUTTAKE = false;
-        }
-
-        // control shooting
-        if (mControlBoard.operator.getController().getYButtonPressed()) {
-            SHOOT = !SHOOT;
-        }
-
-        // control prepping
-        if (mControlBoard.operator.getController().getAButtonPressed()) {
-            PREP = !PREP;
-        }
-    }
-
-    /* UPDATE SHOOTER AND HOOD GOAL WHEN VISION AIMING */
+    /*** UPDATE SHOOTER AND HOOD GOAL WHEN VISION AIMING ***/
     public synchronized void maybeUpdateGoalFromVision() {
         if (mLimelight.hasTarget()) {
             Optional<Double> distance_to_target = mLimelight.getDistanceToTarget();
@@ -147,7 +137,13 @@ public class Superstructure extends Subsystem {
         }
     }
 
-    /* UPDATE SUBSYSTEM STATES + SETPOINTS AND SET GOALS */
+    /*** UPDATE SUBSYSTEM STATES + SETPOINTS AND SET GOALS
+     * 
+     * 1. updates wanted actions for intake and indexer subsystems based on requested superstructure action
+     * 2. updates shooter and hood setpoint goals from tracked vars
+     * 3. set subsystem states and shooting setpoints within subsystems
+     * 
+    */
     public void setGoals() {
         // subsystem wanted actions and setpoints to be set based on superstructure actions
         Intake.WantedAction real_intake;
@@ -155,7 +151,7 @@ public class Superstructure extends Subsystem {
         double real_shooter;
         double real_hood;
 
-        /* UPDATE SUBSYSTEM WANTED ACTIONS AS REQUESTED */
+        /* Update subsystem wanted actions and setpoints*/
 
         // update hood setpoint
         real_hood = mHoodSetpoint;
@@ -189,8 +185,8 @@ public class Superstructure extends Subsystem {
             }
         }
 
-        /* SET SUBSYSTEM STATES/SETPOINTS BASED ON WANTED ACTIONS */
-        
+        /* Set subsystem states + setpoints based on wanted actions */
+
         // set intake and indexer states
         mIntake.setState(real_intake);
         mIndexer.setState(real_indexer);
@@ -210,7 +206,8 @@ public class Superstructure extends Subsystem {
         mHood.setSetpointMotionMagic(real_hood);
     }
 
-    /* GET SHOOTER AND HOOD SETPOINTS FROM SUPERSTRUCTURE CONSTANTS REGRESSION */
+    /*** GET SHOOTER AND HOOD SETPOINTS FROM SUPERSTRUCTURE CONSTANTS REGRESSION ***/
+    // interpolates distance to target for shooter setpoint along regression
     private double getShooterSetpointFromRegression(double range) {
         if (ShooterRegression.kUseSmartdashboard) {
             return SmartDashboard.getNumber("Shooting RPM", 0);
@@ -220,6 +217,7 @@ public class Superstructure extends Subsystem {
             return ShooterRegression.kFlywheelAutoAimMap.getInterpolated(new InterpolatingDouble(range)).value;
         }
     }
+    // interpolates distance to target for hood setpoint along regression
     private double getHoodSetpointFromRegression(double range) {
         if (ShooterRegression.kUseSmartdashboard) {
             return SmartDashboard.getNumber("Hood Angle", 0);
@@ -230,10 +228,20 @@ public class Superstructure extends Subsystem {
         }
     }
 
+    
+    public boolean isSpunUp() {
+        return mShooter.spunUp();
+    }
+
     @Override
     public boolean checkSystem() {
         // TODO Auto-generated method stub
         return false;
+    }
+
+    @Override
+    public void stop() {
+        // TODO Auto-generated method stub
     }
 
     /* Output superstructure actions and other related statuses */
