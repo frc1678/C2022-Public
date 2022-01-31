@@ -226,7 +226,7 @@ public class Constants {
 		    static {
                 kLimelightConstants.kName = "Limelight";
                 kLimelightConstants.kTableName = "limelight";
-                kLimelightConstants.kHeight = 0.79; // inches
+                kLimelightConstants.kHeight = 0.79; // meters
                 kLimelightConstants.kHorizontalPlaneToLens = Rotation2d.fromDegrees(34.0);
             }
 
