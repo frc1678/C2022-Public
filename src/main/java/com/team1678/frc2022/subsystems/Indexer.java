@@ -165,12 +165,12 @@ public class Indexer extends Subsystem {
         return mPeriodicIO.top_break;
     }
 
-    private boolean ballAtIndexer() {
+    private boolean ballAtTunnel() {
         return mPeriodicIO.bottom_break;
     }
 
-    private boolean stopIndexer() {
-        return ballAtIndexer() && ballAtTrigger();
+    private boolean stopTunnel() {
+        return ballAtTunnel() && ballAtTrigger();
     }
 
     private boolean runTrigger() {
@@ -189,7 +189,7 @@ public class Indexer extends Subsystem {
                 } else {
                     mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIdleVoltage;
                 }
-                if (stopIndexer()) {
+                if (stopTunnel()) {
                     mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kIdleVoltage;
                 } else {
                     mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kIndexerIndexingVoltage;
