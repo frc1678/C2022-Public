@@ -1,6 +1,5 @@
 package com.team1678.frc2022;
 
-import com.ctre.phoenix.motorcontrol.MotorCommutation;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Intake;
@@ -71,13 +70,13 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mTopBeamBreak;
     private final NetworkTableEntry mBottomBeamBreak;
 
-    private final NetworkTableEntry mElevatorDemand;
-    private final NetworkTableEntry mElevatorVoltage;
-    private final NetworkTableEntry mElevatorCurrent;
+    private final NetworkTableEntry mTunnelDemand;
+    private final NetworkTableEntry mTunnelVoltage;
+    private final NetworkTableEntry mTunnelCurrent;
 
-    private final NetworkTableEntry mHopperDemand;
-    private final NetworkTableEntry mHopperVoltage;
-    private final NetworkTableEntry mHopperCurrent;
+    private final NetworkTableEntry mTriggerDemand;
+    private final NetworkTableEntry mTriggerVoltage;
+    private final NetworkTableEntry mTriggerCurrent;
     
 
     /* Vision */
@@ -252,16 +251,16 @@ public class ShuffleBoardInteractions {
         
         /* INTAKE */
         mIntakeCurrent = INTAKE_TAB
-            .add("Intake Current", mIntake.mPeriodicIO.current)
+            .add("Intake Current", mIntake.mPeriodicIO.intake_current)
             .getEntry();
         mIntakeState = INTAKE_TAB
             .add("Intake State", mIntake.getState().toString())
             .getEntry();
         mIntakeVoltage = INTAKE_TAB
-            .add("Intake Voltage", mIntake.mPeriodicIO.voltage)
+            .add("Intake Voltage", mIntake.mPeriodicIO.intake_voltage)
             .getEntry();
         mIntakeDemand = INTAKE_TAB
-                .add("Intake Demand", mIntake.mPeriodicIO.demand)
+                .add("Intake Demand", mIntake.mPeriodicIO.intake_demand)
                 .getEntry();
         mIntakeDeployed = INTAKE_TAB
                 .add("Intake Deployed", mIntake.mPeriodicIO.deploy)
@@ -291,33 +290,33 @@ public class ShuffleBoardInteractions {
 
         /* INDEXER */
         mIndexerState = INDEXER_TAB
-            .add("Indexer State", mIndexer.getState().toString())
+            .add("Indexer State", "N/A")
             .getEntry();
         mTopBeamBreak = INDEXER_TAB
-            .add("Top Beam Break", mIndexer.mPeriodicIO.top_break)
+            .add("Top Beam Break", false)
             .getEntry();
         mBottomBeamBreak = INDEXER_TAB
-            .add("Bottom Beam Break", mIndexer.mPeriodicIO.bottom_break)
+            .add("Bottom Beam Break", false)
             .getEntry();
 
-        mElevatorDemand = INDEXER_TAB
-            .add("Elevator Demand", mIndexer.mPeriodicIO.elevator_demand)
+        mTunnelDemand = INDEXER_TAB
+            .add("Tunnel Demand", 0.0)
             .getEntry();
-        mElevatorVoltage = INDEXER_TAB
-            .add("Elevator Voltage", mIndexer.mPeriodicIO.elevator_voltage)
+        mTunnelVoltage = INDEXER_TAB
+            .add("Tunnel Voltage", 0.0)
             .getEntry();
-        mElevatorCurrent = INDEXER_TAB
-            .add("Elevator Current", mIndexer.mPeriodicIO.elevator_current)
+        mTunnelCurrent = INDEXER_TAB
+            .add("Tunnel Current", 0.0)
             .getEntry();
 
-        mHopperDemand = INDEXER_TAB
-            .add("Hopper Demand", mIndexer.mPeriodicIO.hopper_demand)
+        mTriggerDemand = INDEXER_TAB
+            .add("Trigger Demand", 0.0)
             .getEntry();
-        mHopperVoltage = INDEXER_TAB
-            .add("Hopper Voltage", mIndexer.mPeriodicIO.hopper_voltage)
+        mTriggerVoltage = INDEXER_TAB
+            .add("Trigger Voltage", 0.0)
             .getEntry();
-        mHopperCurrent = INDEXER_TAB
-            .add("Hopper Current", mIndexer.mPeriodicIO.hopper_current)
+        mTriggerCurrent = INDEXER_TAB
+            .add("Trigger Current", 0.0)
             .getEntry();
     }
     
@@ -326,26 +325,27 @@ public class ShuffleBoardInteractions {
         
         /* Intake */
         mIntakeState.setString(mIntake.getState().toString());
-        mIntakeVoltage.setDouble(mIntake.getMotorVoltage());
-        mIntakeDemand.setDouble(mIntake.getMotorDemand());
-        mIntakeDeployed.setBoolean(mIntake.getDeployed());
-        mIntakeCurrent.setDouble(mIntake.getMotorCurrent());
+        mIntakeVoltage.setDouble(mIntake.getIntakeVoltage());
+        mIntakeDemand.setDouble(mIntake.getIntakeDemand());
+        mIntakeDeployed.setBoolean(mIntake.getWantDeploy());
+        mIntakeCurrent.setDouble(mIntake.getIntakeCurrent());
 
         /* Shooter */
         mFlywheelRPM.setDouble(truncate(mShooter.getShooterRPM()));
         mKickerRPM.setDouble(truncate(mShooter.getKickerRPM()));
+        
         /* Indexer */
         mIndexerState.setString(mIndexer.getState().toString());
         mTopBeamBreak.setBoolean(mIndexer.getTopBeamBreak());
         mBottomBeamBreak.setBoolean(mIndexer.getBottomBeamBreak());
 
-        mElevatorDemand.setDouble(mIndexer.getElevatorDemand());
-        mElevatorCurrent.setDouble(mIndexer.getElevatorCurrent());
-        mElevatorVoltage.setDouble(mIndexer.getElevatorVoltage());
+        mTunnelDemand.setDouble(truncate(mIndexer.getTunnelDemand()));
+        mTunnelCurrent.setDouble(truncate(mIndexer.getTunnelCurrent()));
+        mTunnelVoltage.setDouble(truncate(mIndexer.getTunnelVoltage()));
 
-        mHopperDemand.setDouble(mIndexer.getHopperDemand());
-        mHopperCurrent.setDouble(mIndexer.getHopperCurrent());
-        mHopperVoltage.setDouble(mIndexer.getHopperVoltage());
+        mTriggerDemand.setDouble(truncate(mIndexer.getTriggerDemand()));
+        mTriggerCurrent.setDouble(truncate(mIndexer.getTriggerCurrent()));
+        mTriggerVoltage.setDouble(truncate(mIndexer.getTriggerVoltage()));
 
         /* Vision */
         mSeesTarget.setBoolean(mLimelight.hasTarget());

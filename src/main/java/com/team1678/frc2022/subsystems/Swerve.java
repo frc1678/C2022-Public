@@ -9,7 +9,6 @@ import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
 import com.team254.lib.util.TimeDelayedBoolean;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
@@ -69,10 +68,10 @@ public class Swerve extends Subsystem {
 
 
         mSwerveMods = new SwerveModule[] {
-            new SwerveModule(0, Constants.SwerveConstants.Mod0.constants),
-            new SwerveModule(1, Constants.SwerveConstants.Mod1.constants),
-            new SwerveModule(2, Constants.SwerveConstants.Mod2.constants),
-            new SwerveModule(3, Constants.SwerveConstants.Mod3.constants)
+            new SwerveModule(0, Constants.SwerveConstants.Mod0.SwerveModuleConstants()),
+            new SwerveModule(1, Constants.SwerveConstants.Mod1.SwerveModuleConstants()),
+            new SwerveModule(2, Constants.SwerveConstants.Mod2.SwerveModuleConstants()),
+            new SwerveModule(3, Constants.SwerveConstants.Mod3.SwerveModuleConstants())
         };
     }
 
