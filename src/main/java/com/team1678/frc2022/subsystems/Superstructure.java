@@ -5,6 +5,7 @@ import com.team1678.frc2022.regressions.ShooterRegression;
 import com.team254.lib.util.InterpolatingDouble;
 import com.team254.lib.util.Util;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.Optional;
@@ -36,16 +37,19 @@ public class Superstructure extends Subsystem {
     private final Limelight mLimelight = Limelight.getInstance();
 
     /* SUPERSTRUCTURE ACTIONS */
-    public boolean NONE = false;
-    public boolean INTAKE = false;
-    public boolean OUTTAKE = false;
-    public boolean PREP = false;
-    public boolean SHOOT = false;
-    public boolean FENDOR = false;
+    public boolean NONE = false; // do nothing
+    public boolean INTAKE = false; // run the intake to pick up cargo
+    public boolean OUTTAKE = false; // reverse the intake to spit out cargo
+    public boolean PREP = false; // spin up and aim with shooting setpoints
+    public boolean SHOOT = false; // shoot cargo
+    public boolean FENDOR = false; // shoot cargo from up against the hub
 
     /* SETPOINT VARIABLES */
     public double mShooterSetpoint = 0.0;
     public double mHoodSetpoint = 10.0; // TODO: arbitrary value, change
+
+    // other status variables
+    double mDt = 0.0;
 
     @Override
     public void registerEnabledLoops(ILooper enabledLooper) {
@@ -57,10 +61,15 @@ public class Superstructure extends Subsystem {
 
             @Override
             public void onLoop(double timestamp) {
+                final double start = Timer.getFPGATimestamp();
+
                 updateOperatorCommands();
                 maybeUpdateGoalFromVision();
                 setGoals();
                 outputTelemetry();
+
+                final double end = Timer.getFPGATimestamp();
+                mDt = end - start;
             }
 
             @Override
