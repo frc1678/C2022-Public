@@ -52,7 +52,8 @@ public class Superstructure extends Subsystem {
         public boolean SHOOT = false; // shoot cargo
         public boolean FENDOR = false; // shoot cargo from up against the hub
 
-        // looper dt measurement
+        // time measurements
+        public double timestamp;
         public double dt;
 
         // OUTPUTS
@@ -278,6 +279,7 @@ public class Superstructure extends Subsystem {
     // included to continue logging while disabled
     @Override
     public void readPeriodicInputs() {
+        mPeriodicIO.timestamp = Timer.getFPGATimestamp();
         // write inputs and ouputs from PeriodicIO to csv 
         if (mCSVWriter != null) {
             mCSVWriter.add(mPeriodicIO);
