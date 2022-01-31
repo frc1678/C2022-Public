@@ -73,7 +73,7 @@ public class Superstructure extends Subsystem {
         enabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
-
+                startLogging();
             }
 
             @Override
@@ -91,7 +91,7 @@ public class Superstructure extends Subsystem {
 
             @Override
             public void onStop(double timestamp) {
-
+                stopLogging();
             }
         });
     }
@@ -143,7 +143,7 @@ public class Superstructure extends Subsystem {
         setWantIntake(!mPeriodicIO.INTAKE);
     }
 
-    /*** UPDATE SHOOTER AND HOOD GOAL WHEN VISION AIMING ***/
+    /*** UPDATE SHOOTER AND HOOD SETPOINTS WHEN VISION AIMING ***/
     public synchronized void maybeUpdateGoalFromVision() {
         if (mLimelight.hasTarget()) {
             Optional<Double> distance_to_target = mLimelight.getDistanceToTarget();
@@ -174,10 +174,11 @@ public class Superstructure extends Subsystem {
             mPeriodicIO.real_shooter = 0.0;
         }
 
-        // intake and indexer actions
+        // update intake and indexer actions
         if (mPeriodicIO.SHOOT) {
             mPeriodicIO.real_intake = Intake.WantedAction.NONE;
 
+            // only feed cargo to shoot when spun up
             if (isSpunUp()) {
                 mPeriodicIO.real_indexer = Indexer.WantedAction.FEED;
             } else {
@@ -192,7 +193,7 @@ public class Superstructure extends Subsystem {
                 mPeriodicIO.real_indexer = Indexer.WantedAction.REVERSE;
             } else {
                 mPeriodicIO.real_intake = Intake.WantedAction.NONE;
-                mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX;
+                mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX; // always in indexing state
             }
         }
 
@@ -210,7 +211,7 @@ public class Superstructure extends Subsystem {
         }
 
         // set hood subsystem setpoint
-        // clamp the hood goal between min and max hard stops for hood angle
+        // safety clamp the hood goal between min and max hard stops for hood angle
         mPeriodicIO.real_hood = Util.clamp(mPeriodicIO.real_hood,
                 Constants.HoodConstants.kHoodServoConstants.kMinUnitsLimit,
                 Constants.HoodConstants.kHoodServoConstants.kMaxUnitsLimit); 
@@ -269,4 +270,29 @@ public class Superstructure extends Subsystem {
         SmartDashboard.putBoolean("Has Vision Target", mLimelight.hasTarget());
         SmartDashboard.putBoolean("Is Vision Aimed", mLimelight.isAimed());
     }
+
+    // included to continue logging while disabled
+    @Override
+    public void readPeriodicInputs() {
+        // write inputs and ouputs from PeriodicIO to csv 
+        if (mCSVWriter != null) {
+            mCSVWriter.add(mPeriodicIO);
+        }
+    }
+
+    // instantiate csv writer
+    public synchronized void startLogging() {
+        if (mCSVWriter == null) {
+            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/INDEXER-LOGS.csv", PeriodicIO.class);
+        }
+    }
+
+    // send written csv data to file and end log
+    public synchronized void stopLogging() {
+        if (mCSVWriter != null) {
+            mCSVWriter.flush();
+            mCSVWriter = null;
+        }
+    }
+    
 }
