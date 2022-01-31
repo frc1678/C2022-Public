@@ -42,7 +42,7 @@ public class Indexer extends Subsystem {
     private Indexer() {
         //mSuperstructure = Superstructure.getInstance();
 
-        mIndexer = TalonFXFactory.createDefaultTalon(Ports.INDEXER_ID);
+        mIndexer = TalonFXFactory.createDefaultTalon(Ports.HOPPER_ID);
         mTrigger = TalonFXFactory.createDefaultTalon(Ports.TRIGGER_ID);
       
         mBottomBeamBreak = new DigitalInput(Ports.BOTTOM_BEAM_BREAK);

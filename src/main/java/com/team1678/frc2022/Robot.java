@@ -56,7 +56,7 @@ public class Robot extends TimedRobot {
 	private final Intake mIntake = Intake.getInstance();
 	// private final Limelight mLimelight = Limelight.getInstance();
 	private final Infrastructure mInfrastructure = Infrastructure.getInstance();
-	// private final Indexer mIndexer = Indexer.getInstance();
+	private final Indexer mIndexer = Indexer.getInstance();
 
 	// instantiate enabled and disabled loopers
 	private final Looper mEnabledLooper = new Looper();
@@ -82,7 +82,7 @@ public class Robot extends TimedRobot {
 					mSwerve,
 					mInfrastructure,
 					mIntake,
-					// mIndexer,
+					mIndexer,
 					// mShooter,
 					mSuperstructure // ,
 					// mLimelight
