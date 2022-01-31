@@ -13,9 +13,6 @@ public class ShooterRegression {
     public static final double[] kPadding = {
             kShooterPaddingVelocity, kHoodPaddingDegrees};
 
-    //turret
-    public static final double kTurretDOF = 360;
-
     //hood
     public static double kDefaultHoodAngle = Math.toRadians(0);
     public static boolean kUseHoodAutoAimPolynomial = false;
