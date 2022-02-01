@@ -262,12 +262,18 @@ public class Superstructure extends Subsystem {
 
     /* Output superstructure actions and other related statuses */
     public void outputTelemetry() {
-        // superstructure action statuses
+        // superstructure actions requested
         SmartDashboard.putBoolean("Intaking", mPeriodicIO.INTAKE);
         SmartDashboard.putBoolean("Outtaking", mPeriodicIO.OUTTAKE);
         SmartDashboard.putBoolean("Prepping", mPeriodicIO.PREP);
         SmartDashboard.putBoolean("Shooting", mPeriodicIO.SHOOT);
         SmartDashboard.putBoolean("Fendor Shooting", mPeriodicIO.FENDOR);
+
+        // superstructure goals being set
+        SmartDashboard.putString("Intake Goal", mPeriodicIO.real_intake.toString());
+        SmartDashboard.putString("Indexer Goal", mPeriodicIO.real_indexer.toString());
+        SmartDashboard.putNumber("Shooter Goal", mPeriodicIO.real_shooter);
+        SmartDashboard.putNumber("Hood Goal", mPeriodicIO.real_hood);
 
         // other status variables
         SmartDashboard.putNumber("Superstructure dt", mPeriodicIO.dt);
