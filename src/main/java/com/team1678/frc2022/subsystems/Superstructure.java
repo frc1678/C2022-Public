@@ -289,7 +289,7 @@ public class Superstructure extends Subsystem {
     // instantiate csv writer
     public synchronized void startLogging() {
         if (mCSVWriter == null) {
-            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/INDEXER-LOGS.csv", PeriodicIO.class);
+            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/SUPERSTRUCTURE-LOGS.csv", PeriodicIO.class);
         }
     }
 
