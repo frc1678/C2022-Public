@@ -29,6 +29,10 @@ public class Indexer extends Subsystem {
     private boolean mBottomHadSeenBall = false;
     private boolean mTopHadSeenBall = false;
 
+    private final double kReverseAtTopTime = 1.0;
+    private Timer mReverseTriggerTimer = new Timer();
+    private boolean mWantTriggerReverse = false;
+
     public enum WantedAction {
         NONE,
         INDEX,
@@ -216,9 +220,31 @@ public class Indexer extends Subsystem {
             case INDEXING:
                 if (runTrigger()) {
                     mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerIndexingVoltage;
-                } else {
+                } else { 
                     mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIdleVoltage;
                 }
+
+                
+                if (ballAtTrigger()) {
+                    mReverseTriggerTimer.start();
+                    mWantTriggerReverse = true;
+                }
+
+                if (!mReverseTriggerTimer.hasElapsed(kReverseAtTopTime) && mWantTriggerReverse) {
+                    mPeriodicIO.trigger_demand = -Constants.IndexerConstants.kTriggerIndexingVoltage;    
+                } else if (mReverseTriggerTimer.hasElapsed(kReverseAtTopTime) && mWantTriggerReverse){
+                    mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIdleVoltage;
+                    mWantTriggerReverse = false;
+                    mReverseTriggerTimer.reset();
+                    mPeriodicIO.ball_count++;
+                } else {
+                    if (mPeriodicIO.ball_count > 0) {
+                        mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIdleVoltage;
+                    } else {
+                        mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerIndexingVoltage;
+                    }
+                }
+
                 if (stopTunnel()) {
                     mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kIdleVoltage;
                 } else {
