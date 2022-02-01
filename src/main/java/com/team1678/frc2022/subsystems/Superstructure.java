@@ -2,9 +2,11 @@ package com.team1678.frc2022.subsystems;
 
 import com.team1678.frc2022.loops.Loop;
 import com.team1678.frc2022.subsystems.Intake.WantedAction;
+import com.team254.lib.util.Util;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.loops.ILooper;
 
 public class Superstructure extends Subsystem {
@@ -21,7 +23,7 @@ public class Superstructure extends Subsystem {
     };
 
     /* Required Subsystem Instances */
-    // private final Hood mHood = Hood.getInstance();
+    private final Hood mHood = Hood.getInstance();
     private final Shooter mShooter = Shooter.getInstance();
     private final Indexer mIndexer = Indexer.getInstance();
     private final Intake mIntake = Intake.getInstance();
@@ -29,6 +31,7 @@ public class Superstructure extends Subsystem {
     /* Status Variables */
     public double mFlywheelSetpoint = 0.0;
     public double mAcceleratorSetpoint = 0.0;
+    public double mHoodSetpoint = 20.0;
     public boolean mWantSpinUp = false;
     public boolean mWantShoot = false;
     public boolean mWantIntake = false;
@@ -118,6 +121,10 @@ public class Superstructure extends Subsystem {
             mShooter.setOpenLoop(0.0, 0.0);
         }
 
+        double real_hood = Util.clamp(mHoodSetpoint,
+                Constants.HoodConstants.kHoodServoConstants.kMinUnitsLimit,
+                Constants.HoodConstants.kHoodServoConstants.kMaxUnitsLimit);
+
         if (mWantShoot) {
             if (isSpunUp()) {
                 real_indexer = Indexer.WantedAction.FEED;
@@ -134,7 +141,9 @@ public class Superstructure extends Subsystem {
             }
         }
 
+
         mIndexer.setState(real_indexer);
+        mHood.setSetpointMotionMagic(real_hood);
     }
 
     @Override

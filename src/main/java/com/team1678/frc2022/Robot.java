@@ -13,6 +13,7 @@ import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.ControlBoard.SwerveCardinal;
 import com.team1678.frc2022.loops.CrashTracker;
 import com.team1678.frc2022.loops.Looper;
+import com.team1678.frc2022.subsystems.Hood;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Infrastructure;
 import com.team1678.frc2022.subsystems.Intake;
@@ -52,6 +53,7 @@ public class Robot extends TimedRobot {
 	private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
 	private final Superstructure mSuperstructure = Superstructure.getInstance();
 	private final Shooter mShooter = Shooter.getInstance();
+	private final Hood mHood = Hood.getInstance();
 	private final Swerve mSwerve = Swerve.getInstance();
 	private final Intake mIntake = Intake.getInstance();
 	// private final Limelight mLimelight = Limelight.getInstance();
@@ -84,6 +86,7 @@ public class Robot extends TimedRobot {
 					mIntake,
 					mIndexer,
 					mShooter,
+					mHood,
 					mSuperstructure // ,
 					// mLimelight
 			);
