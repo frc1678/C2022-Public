@@ -20,7 +20,6 @@ import edu.wpi.first.wpilibj.I2C.Port;
 public class Climber extends Subsystem {
 
     private final TalonFX mClimberMaster;
-    private final TalonFX mClimberSlave;
     public final Solenoid mChopstickClimberSolenoid;
     public final Solenoid mHookReleaseClimberSolenoid;
     public final LatchedBoolean mInitialArmExtensionBoolean;
@@ -37,11 +36,9 @@ public class Climber extends Subsystem {
 
     private Climber() {
         mClimberMaster = TalonFXFactory.createDefaultTalon(Ports.CLIMBER_MASTER_ID);
-        mClimberSlave = TalonFXFactory.createPermanentSlaveTalon(Ports.CLIMBER_SLAVE_ID, Ports.CLIMBER_SLAVE_ID);
 
         mClimberMaster.set(ControlMode.PercentOutput, 0);
         mClimberMaster.setInverted(false);
-        mClimberSlave.setInverted(true);
 
         mClimberMaster.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
 
@@ -53,7 +50,6 @@ public class Climber extends Subsystem {
         mClimberMaster.config_kF(0, 0.05);
 
         mClimberMaster.setNeutralMode(NeutralMode.Brake);
-        mClimberSlave.setNeutralMode(NeutralMode.Brake);
 
         mClimberMaster.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
         mClimberMaster.enableVoltageCompensation(true);

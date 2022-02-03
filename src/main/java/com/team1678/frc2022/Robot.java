@@ -208,7 +208,6 @@ public class Robot extends TimedRobot {
 					}
 					//Extend to traversal bar
 					while (Util.inRange(mClimber.getClimberPosition(), Constants.ClimberConstants.kTraversalExtentionHeight)) {
-						mClimber.setClimberOpenLoop(mClimber.mPeriodicIO.climber_stator_current);
 					}
 					//Deploy solenoid
 					while (mSolenoidTimer.update(mClimber.getClimberSolenoidDeployed(), Constants.ClimberConstants.kSolenoidDeployTime)) {
