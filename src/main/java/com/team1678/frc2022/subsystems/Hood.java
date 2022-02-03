@@ -23,9 +23,6 @@ public class Hood extends ServoMotorSubsystem {
     private Hood() {
         super(Constants.HoodConstants.kHoodServoConstants);
         mMaster.setInverted(false);
-        mMaster.setSelectedSensorPosition(
-                getHoodDegreesToTicks(Constants.HoodConstants.kHoodServoConstants.kMinUnitsLimit));
-
     }
 
     public boolean isHomed() {

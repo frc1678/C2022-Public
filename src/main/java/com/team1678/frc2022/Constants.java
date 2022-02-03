@@ -251,13 +251,13 @@ public class Constants {
         public static final double kAccleratorVelocityConversion = 600.0 / 2048.0 * (1.3 / 1.0);
         
         public static final double kFlywheelTolerance = 500;
-        public static final double kShooterP = 0.1; // TODO Retune these
+        public static final double kShooterP = 0.1; 
         public static final double kShooterI = 0.0;
         public static final double kShooterD = 0.0;
         public static final double kShooterF = 0.0545;
         public static final double kClosedLoopRamp = 0.1;
 
-        public static final double kAcceleratorP = 0.05; // TODO Retune these
+        public static final double kAcceleratorP = 0.05;
         public static final double kAcceleratorI = 0.0;
         public static final double kAcceleratorD = 0.0;
         public static final double kAcceleratorF = 0.045;
@@ -325,8 +325,8 @@ public class Constants {
         public static final int kTopBeamBreak = 0;
 
         public static final double kSingulatorVoltage = 10.0;
-        public static final double kIndexerIndexingVoltage = 5.0;
-        public static final double kIndexerReversingVoltage = -5.0;
+        public static final double kTunnelIndexingVoltage = 5.0;
+        public static final double kTunnelReversingVoltage = -5.0;
         public static final double kIdleVoltage = 0.0;
         public static final double kTriggerIndexingVoltage = 5.0;
         public static final double kTriggerReversingVoltage = -5.0;

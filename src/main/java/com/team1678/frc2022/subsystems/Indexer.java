@@ -248,7 +248,7 @@ public class Indexer extends Subsystem {
                 if (stopTunnel()) {
                     mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kIdleVoltage;
                 } else {
-                    mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kIndexerIndexingVoltage;
+                    mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVoltage;
                 }
                 break;
             case FEEDING:
@@ -257,7 +257,7 @@ public class Indexer extends Subsystem {
                 break;
             case REVERSING:
                 mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerReversingVoltage;
-                mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kIndexerReversingVoltage;
+                mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelReversingVoltage;
                 break;
         }
     }
