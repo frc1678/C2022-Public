@@ -16,8 +16,6 @@ import edu.wpi.first.wpilibj.util.Color;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.revrobotics.ColorMatch;
 
 public class Ejector extends Subsystem {
@@ -30,13 +28,12 @@ public class Ejector extends Subsystem {
     public PeriodicIO mPeriodicIO = new PeriodicIO();
     private REVColorSensorV3Wrapper mColorSensor;
     private Solenoid mSolenoid;
-    private TalonFX mMaster;
     
-    public ColorSensor mColorSensorThread = new ColorSensor(mColorSensor, commandQueue, outputQueue);
+    //public ColorSensor mColorSensorThread = new ColorSensor(mColorSensor, commandQueue, outputQueue);
     private final ColorMatch mColorMatcher = new ColorMatch();
 
     public ColorChoices mAllianceColor;
-    public ColorChoices mMathcedColor;
+    public ColorChoices mMatchedColor;
 
     public enum ColorChoices {
         RED, BLUE, NONE
@@ -51,12 +48,14 @@ public class Ejector extends Subsystem {
 
     private Ejector() {
         mAllianceColor = Constants.isRedAlliance ? ColorChoices.RED : ColorChoices.BLUE;
-        mMathcedColor = ColorChoices.NONE;
+        mMatchedColor = ColorChoices.NONE;
         mColorSensor = new REVColorSensorV3Wrapper(I2C.Port.kOnboard);
         mSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.EJECTOR_SOLENOID_ID);
 
         mColorMatcher.addColorMatch(Constants.EjectorConstants.kRedBallColor);
         mColorMatcher.addColorMatch(Constants.EjectorConstants.kBlueBallColor);
+
+        mColorSensor.start();
     }
 
     @Override
@@ -64,8 +63,8 @@ public class Ejector extends Subsystem {
        enabledLooper.register(new Loop() {
            @Override
            public void onStart(double timestamp) {
-                mColorSensorThread.start();
-                mPeriodicIO.eject = false;
+                //mColorSensorThread.start();
+                //mPeriodicIO.eject = false;
            }
 
            @Override
@@ -74,7 +73,7 @@ public class Ejector extends Subsystem {
 
            @Override
            public void onStop(double timestamp) {
-                mColorSensorThread.stop();
+                //mColorSensorThread.stop();
            }
        });
    }
@@ -82,11 +81,12 @@ public class Ejector extends Subsystem {
    @Override
    public synchronized void readPeriodicInputs() {
 
+    /*
         try {
             commandQueue.put(1);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-        }
+        }*/
 
    }
 
@@ -95,11 +95,15 @@ public class Ejector extends Subsystem {
 
         /* This should usually be in read periodic inputs — 
         only put into write periodic outputs to accomodate for timing of color sensor thread*/
+        /*
         try { 
             mPeriodicIO.rawColorData = outputQueue.take();
+            System.out.println(mPeriodicIO.rawColorData.timestamp);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-        }
+        }*/
+        mPeriodicIO.rawColorData = mColorSensor.getLatestReading();
+        System.out.print("Checking color data");
 
         if (mPeriodicIO.rawColorData != null) {
             mPeriodicIO.rawColor = mPeriodicIO.rawColorData.color;
@@ -108,19 +112,20 @@ public class Ejector extends Subsystem {
 
             if (mPeriodicIO.distance < Constants.EjectorConstants.kColorSensorThreshold) {
                 mPeriodicIO.eject = false;
-                mMathcedColor = ColorChoices.NONE;
+                mMatchedColor = ColorChoices.NONE;
             } else {
                 if (mPeriodicIO.matchedColor.equals(Constants.EjectorConstants.kRedBallColor)) {
-                mMathcedColor = ColorChoices.RED;
+                mMatchedColor = ColorChoices.RED;
                 } else if (mPeriodicIO.matchedColor.equals(Constants.EjectorConstants.kBlueBallColor)) {
-                mMathcedColor = ColorChoices.BLUE;
+                mMatchedColor = ColorChoices.BLUE;
                 }
-                mPeriodicIO.eject = mMathcedColor == mAllianceColor;
+                mPeriodicIO.eject = mMatchedColor == mAllianceColor;
             }
+        } else {
+            System.out.print("Null color data");
         }
         
         mSolenoid.set(mPeriodicIO.eject);
-        mMaster.set(ControlMode.PercentOutput, mPeriodicIO.demand);
    }
 
     @Override
@@ -140,14 +145,23 @@ public class Ejector extends Subsystem {
     }
 
     public double getDetectedRValue() {
+        if (mPeriodicIO.rawColor == null) {
+            return 5;
+        }
         return mPeriodicIO.rawColor.red;
     }
 
     public double getDetectedGValue() {
+        if (mPeriodicIO.rawColor == null) {
+            return 0;
+        }
         return mPeriodicIO.rawColor.green;
     }
 
     public double getDetectedBValue() {
+        if (mPeriodicIO.rawColor == null) {
+            return 0;
+        }
         return mPeriodicIO.rawColor.blue;
     }
 
@@ -156,7 +170,7 @@ public class Ejector extends Subsystem {
     }
 
     public String getMatchedColor() {
-        return mMathcedColor.toString();
+        return mMatchedColor.toString();
     }
 
     public static class PeriodicIO {

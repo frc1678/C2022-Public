@@ -345,19 +345,19 @@ public class ShuffleBoardInteractions {
             .getLayout("Detected Color", BuiltInLayouts.kGrid)
             .withSize(2, 2);
         mRValue = mDetectedColor
-            .add("Red Value", mEjector.mPeriodicIO.rawColor.red)
+            .add("Red Value", 0)
             .getEntry();
         mGValue = mDetectedColor
-            .add("Green Value", mEjector.mPeriodicIO.rawColor.green)
+            .add("Green Value", 0)
             .getEntry();
         mBValue = mDetectedColor
-            .add("Blue Value", mEjector.mPeriodicIO.rawColor.blue)
+            .add("Blue Value", 0)
             .getEntry();
         mMatchedColor = EJECTOR_TAB
-            .add("Matched Color", mEjector.mPeriodicIO.matchedColor)
+            .add("Matched Color", "nothing yet :/")
             .getEntry();
         mDistance = EJECTOR_TAB
-            .add("Color Distance", mEjector.mPeriodicIO.distance)
+            .add("Color Distance", 0)
             .getEntry();
     }
     
@@ -389,12 +389,12 @@ public class ShuffleBoardInteractions {
         mHopperVoltage.setDouble(mIndexer.getHopperVoltage());
 
         /* Ejector */
-        mEject.getBoolean(mEjector.getEject());
-        mRValue.getDouble(mEjector.getDetectedRValue());
-        mGValue.getDouble(mEjector.getDetectedGValue());
-        mBValue.getDouble(mEjector.getDetectedBValue());
-        mMatchedColor.getString(mEjector.getMatchedColor());
-        mDistance.getDouble(mEjector.getDistance());
+        mEject.setBoolean(mEjector.getEject());
+        mRValue.setDouble(mEjector.getDetectedRValue());
+        mGValue.setDouble(mEjector.getDetectedGValue());
+        mBValue.setDouble(mEjector.getDetectedBValue());
+        mMatchedColor.setString(mEjector.getMatchedColor());
+        mDistance.setDouble(mEjector.getDistance());
 
         /* Vision */
         mSeesTarget.setBoolean(mLimelight.hasTarget());
