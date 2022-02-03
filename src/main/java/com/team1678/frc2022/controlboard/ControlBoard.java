@@ -175,7 +175,7 @@ public class ControlBoard {
         return operator.getTrigger(Side.LEFT);
     }
 
-    public boolean getSpitting() {
+    public boolean getStayingOut() {
         return operator.getController().getRightBumper();
     }
 

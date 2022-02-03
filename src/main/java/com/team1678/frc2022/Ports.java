@@ -31,24 +31,26 @@ public class Ports {
 
     /*** SUBSYSTEM IDS ***/
     public static final int INTAKE_ID = 8;
-    public static final int DEPLOY_SOLENOID_ID = 7;
+    public static final int INTAKE_SOLENOID_ID = 1;
 
-    public static final int SINGULATOR = 9;
-    public static final int HOPPER = 10;
-    public static final int ELEVATOR_ID = 11;
-    public static final int TOP_BEAM_BREAK = 0;
-    public static final int BOTTOM_BEAM_BREAK = 1;
+    public static final int SINGULATOR_ID = 9;
+    public static final int HOPPER_ID = 10;
+    public static final int TRIGGER_ID = 11;
+    public static final int EJECTOR_SOLENOID_ID = 0;
+    public static final int TOP_BEAM_BREAK = 9;
+    public static final int BOTTOM_BEAM_BREAK = 8;
 
     public static final int FLYWHEEL_MASTER_ID = 12;
     public static final int FLYWHEEL_SLAVE_ID = 16;
     public static final int HOOD_ID = 13;
-
+    public static final int ACCELERATOR_ID = 18;
+    
     public static final int CLIMBER_MASTER_ID = 14;
-    public static final int CLIMBER_SLAVE_ID = 15;
-    public static final int CLIMBER_CHOPSTICK_SOLENOID = 6;
-    public static final int CLIMBER_HOOK_RELEASE_SOLENOID = 17;
-    public static final int CLIMBER_INITIAL_RELEASE_SOLENOID = 19; //TODO: find value
-    public static final int CLIMBER_HOOKING_ARM_SOLENOID = 20; //TODO: find value
+    public static final int CLIMBER_SLAVE_ID = 15; 
+    public static final int CLIMBER_CHOPSTICK_SOLENOID = 20; //TODO: find actual values
+    public static final int CLIMBER_HOOK_RELEASE_SOLENOID = 21; //TODO: find actual values
+    public static final int CLIMBER_INITIAL_RELEASE_SOLENOID = 22; //TODO: find actual values
+    public static final int CLIMBER_HOOKING_ARM_SOLENOID = 23; //TODO: find actual values
 
     // Infrastucture
     public static final int PCM = 21;

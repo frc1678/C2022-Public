@@ -182,13 +182,12 @@ public class Robot extends TimedRobot {
 			}
 			// Intake
 			if (mControlBoard.getIntake()) {
-				mIntake.setState(Intake.WantedAction.INTAKE);
+				mSuperstructure.setWantIntake(true);
 			} else if (mControlBoard.getOuttake()) {
-				mIntake.setState(Intake.WantedAction.REVERSE);
-			} else if (mControlBoard.getSpitting()) {
-				mIntake.setState(Intake.WantedAction.SPIT);
+				mSuperstructure.setWantOuttake(true);
 			} else {
-				mIntake.setState(Intake.WantedAction.NONE);
+				mSuperstructure.setWantIntake(false);
+				mSuperstructure.setWantOuttake(false);
 			}
 
 			// if (mControlBoard.operator.getController().getYButtonPressed()) {
@@ -210,23 +209,27 @@ public class Robot extends TimedRobot {
 						mClimber.mPeriodicIO.deploy_solenoid = true;
 						mClimber.mInitialReleaseClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
 						mClimber.getInitialArmExtension();
+						Thread.sleep(((long)(1000*Constants.kLooperDt)));
 					}
 					//Extend to traversal bar and hook on
 					while (Util.inRange(mClimber.getClimberPosition(), Constants.ClimberConstants.kTraversalExtentionHeight)) {
 						mClimber.mPeriodicIO.deploy_solenoid = true;
 						mClimber.mHookingArmClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
 						mClimber.mPeriodicIO.climber_demand = Constants.ClimberConstants.kClimbingVoltage;
+						Thread.sleep(((long)(1000*Constants.kLooperDt)));
 					}
 					//Extend second arm
 					while (mSolenoidTimer.update(mClimber.getClimberSolenoidDeployed(), Constants.ClimberConstants.kSolenoidDeployTime)) {
 						mClimber.mPeriodicIO.deploy_solenoid = true;
         				mClimber.mChopstickClimberBarSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
+						Thread.sleep(((long)(1000*Constants.kLooperDt)));
 					}
 					//Undeploy solenoids and hook
 					while (mSolenoidTimer.update(mClimber.getClimberSolenoidDeployed(), Constants.ClimberConstants.kSolenoidUndeployTime)) {
 						mClimber.mPeriodicIO.deploy_solenoid = false;
 						mClimber.mHookClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
 						mClimber.mHookingArmClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
+						Thread.sleep(((long)(1000*Constants.kLooperDt)));
 					}
 					//Other Subsystems
 					mIntake.setState(Intake.WantedAction.STAY_OUT);
@@ -238,8 +241,8 @@ public class Robot extends TimedRobot {
 						mIntake.setState(Intake.WantedAction.INTAKE);
 					} else if (mControlBoard.getOuttake()) {
 						mIntake.setState(Intake.WantedAction.REVERSE);
-					} else if (mControlBoard.getSpitting()) {
-						mIntake.setState(Intake.WantedAction.SPIT);
+					} else if (mControlBoard.getStayingOut()) {
+						mIntake.setState(Intake.WantedAction.STAY_OUT);
 					} else {
 						mIntake.setState(Intake.WantedAction.NONE);
 				}
@@ -248,7 +251,12 @@ public class Robot extends TimedRobot {
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
-			throw t;
+			try {
+				throw t;
+			} catch (Throwable e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
