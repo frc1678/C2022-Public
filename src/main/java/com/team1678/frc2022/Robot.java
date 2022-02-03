@@ -24,6 +24,9 @@ import com.team1678.frc2022.subsystems.Shooter;
 import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
 
+import java.io.*;
+import java.lang.Thread;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
@@ -204,22 +207,26 @@ public class Robot extends TimedRobot {
 					TimeDelayedBoolean mSolenoidTimer = new TimeDelayedBoolean();
 					//Extend first arm to climb onto first bar
 					while (Util.inRange(mClimber.getClimberPosition(), Constants.ClimberConstants.kInitialExtensionHeight)) {
+						mClimber.mPeriodicIO.deploy_solenoid = true;
+						mClimber.mInitialReleaseClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
 						mClimber.getInitialArmExtension();
 					}
-					//Extend to traversal bar
+					//Extend to traversal bar and hook on
 					while (Util.inRange(mClimber.getClimberPosition(), Constants.ClimberConstants.kTraversalExtentionHeight)) {
+						mClimber.mPeriodicIO.deploy_solenoid = true;
+						mClimber.mHookingArmClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
+						mClimber.mPeriodicIO.climber_demand = Constants.ClimberConstants.kClimbingVoltage;
 					}
-					//Deploy solenoid
+					//Extend second arm
 					while (mSolenoidTimer.update(mClimber.getClimberSolenoidDeployed(), Constants.ClimberConstants.kSolenoidDeployTime)) {
 						mClimber.mPeriodicIO.deploy_solenoid = true;
-						mClimber.mHookReleaseClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
         				mClimber.mChopstickClimberBarSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
 					}
-					//Undeploy solenoid
+					//Undeploy solenoids and hook
 					while (mSolenoidTimer.update(mClimber.getClimberSolenoidDeployed(), Constants.ClimberConstants.kSolenoidUndeployTime)) {
 						mClimber.mPeriodicIO.deploy_solenoid = false;
-						mClimber.mHookReleaseClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
-						mClimber.mChopstickClimberBarSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
+						mClimber.mHookClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
+						mClimber.mHookingArmClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
 					}
 					//Other Subsystems
 					mIntake.setState(Intake.WantedAction.STAY_OUT);

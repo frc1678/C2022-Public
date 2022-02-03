@@ -337,6 +337,7 @@ public class Constants {
         public static final double kSolenoidDeployTime = 3.0;
         public static final double kSolenoidUndeployTime = 3.0;
         public static final double kInitialExtensionHeight = 4.0;
+        public static final double kClimbingVoltage = 8.0;
 
     }
 

@@ -203,5 +203,19 @@ public class ControlBoard {
     public boolean getTrasversalClimb() {
         return operator.getTrigger(Side.LEFT) && operator.getTrigger(Side.RIGHT);
     }
+    //controls for bringup:
+    public boolean getInitialRelaseSolenoidTriggered() {
+        return operator.getButton(Button.Y);
+    }
+    public boolean getChopstickSolenoidTriggered() {
+        return operator.getButton(Button.X);
+    }
+    public boolean getHookingArmSolenoidTriggered() {
+        return operator.getButton(Button.A);
+    }
+    public boolean getHookReleaseSolenoidTriggered() {
+        return operator.getButton(Button.B);
+    }
+
 }
 

@@ -21,10 +21,10 @@ public class Climber extends Subsystem {
 
     private final TalonFX mClimberMaster;
     private final TalonFX mClimberSlave;
+    public final Solenoid mInitialReleaseClimberSolenoid;
+    public final Solenoid mHookingArmClimberSolenoid;
     public final Solenoid mChopstickClimberBarSolenoid;
-    private final Solenoid mInitialReleaseClimberSolenoid;
-    private final Solenoid mHookingArmClimberSolenoid;
-    public final Solenoid mHookReleaseClimberSolenoid;
+    public final Solenoid mHookClimberSolenoid;
     public final LatchedBoolean mInitialArmExtensionBoolean;
 
     private TimeDelayedBoolean mClimberCalibrated = new TimeDelayedBoolean();
@@ -61,7 +61,7 @@ public class Climber extends Subsystem {
         mClimberMaster.enableVoltageCompensation(true);
 
         mChopstickClimberBarSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.CLIMBER_CHOPSTICK_SOLENOID);
-        mHookReleaseClimberSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.CLIMBER_HOOK_RELEASE_SOLENOID);
+        mHookClimberSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.CLIMBER_HOOK_RELEASE_SOLENOID);
         mInitialReleaseClimberSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.CLIMBER_INITIAL_RELEASE_SOLENOID);
         mHookingArmClimberSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.CLIMBER_HOOKING_ARM_SOLENOID);
 
@@ -119,7 +119,7 @@ public class Climber extends Subsystem {
             mClimberMaster.set(ControlMode.MotionMagic,0.0);
                 break;
         }
-        mHookReleaseClimberSolenoid.set(mPeriodicIO.deploy_solenoid);
+        mHookClimberSolenoid.set(mPeriodicIO.deploy_solenoid);
         mChopstickClimberBarSolenoid.set(mPeriodicIO.deploy_solenoid);
         mHookingArmClimberSolenoid.set(mPeriodicIO.deploy_solenoid);
         mInitialReleaseClimberSolenoid.set(mPeriodicIO.deploy_solenoid);
@@ -187,6 +187,11 @@ public class Climber extends Subsystem {
 
     public LatchedBoolean getInitialArmExtension() {
         return mInitialArmExtensionBoolean;
+    }
+
+    public boolean getInitialArmSolenoidTriggered() {
+        mInitialReleaseClimberSolenoid.set(mPeriodicIO.deploy_solenoid);
+        return mPeriodicIO.deploy_solenoid;
     }
 
     public boolean checkSystem() {
