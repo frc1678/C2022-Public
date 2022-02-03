@@ -11,6 +11,8 @@ import com.team1678.lib.drivers.REVColorSensorV3Wrapper.ColorSensorData;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 
 import java.util.concurrent.BlockingQueue;
@@ -34,6 +36,14 @@ public class Ejector extends Subsystem {
 
     public ColorChoices mAllianceColor;
     public ColorChoices mMatchedColor;
+
+    public boolean mStopIndexer = false;
+
+    public long detectTimestamp = 0;
+
+
+    private final double kEjectTimeDelay = 2.0;
+    private Timer mEjectTimer = new Timer();
 
     public enum ColorChoices {
         RED, BLUE, NONE
@@ -111,7 +121,10 @@ public class Ejector extends Subsystem {
             mPeriodicIO.matchedColor = mColorMatcher.matchClosestColor(mPeriodicIO.rawColor).color; 
 
             if (mPeriodicIO.distance < Constants.EjectorConstants.kColorSensorThreshold) {
-                mPeriodicIO.eject = false;
+                if (mEjectTimer.hasElapsed(kEjectTimeDelay)) {
+                    mEjectTimer.reset();
+                    mPeriodicIO.eject = false;
+                }
                 mMatchedColor = ColorChoices.NONE;
             } else {
                 if (mPeriodicIO.matchedColor.equals(Constants.EjectorConstants.kRedBallColor)) {
@@ -119,13 +132,30 @@ public class Ejector extends Subsystem {
                 } else if (mPeriodicIO.matchedColor.equals(Constants.EjectorConstants.kBlueBallColor)) {
                 mMatchedColor = ColorChoices.BLUE;
                 }
-                mPeriodicIO.eject = mMatchedColor == mAllianceColor;
+
+                //mPeriodicIO.eject = mMatchedColor == mAllianceColor;
+                if (mMatchedColor == mAllianceColor && mPeriodicIO.eject == false) {
+                    mEjectTimer.start();
+                    mPeriodicIO.eject = true;
+                    mStopIndexer = true;
+                    detectTimestamp = System.currentTimeMillis();
+                }
+
+                if (mEjectTimer.hasElapsed(kEjectTimeDelay)) {
+                    mEjectTimer.reset();
+                    mPeriodicIO.eject = false;
+                }
+
+                if (mEjectTimer.hasElapsed(0.25)) {
+                    mStopIndexer = false;
+                }
             }
         } else {
             System.out.print("Null color data");
         }
         
         mSolenoid.set(mPeriodicIO.eject);
+        SmartDashboard.putNumber("Eject Latency", (System.currentTimeMillis() - detectTimestamp) / 1000);
    }
 
     @Override
@@ -142,6 +172,10 @@ public class Ejector extends Subsystem {
 
     public boolean getEject() {
         return mPeriodicIO.eject;
+    }
+    
+    public boolean shouldStopHoppper() {
+        return mStopIndexer;
     }
 
     public double getDetectedRValue() {

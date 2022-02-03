@@ -1,7 +1,5 @@
 package com.team1678.frc2022;
 
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
-
 public class Ports {
 
     /*** SWERVE MODULE PORTS ***/
@@ -33,21 +31,21 @@ public class Ports {
 
     /*** SUBSYSTEM IDS ***/
     public static final int INTAKE_ID = 8;
-    public static final int SINGULATOR_ID = 17;
-    public static final int DEPLOY_SOLENOID_ID = 7;
+    public static final int INTAKE_SOLENOID_ID = 1;
 
-    public static final int HOPPER_MASTER_ID = 9;
-    public static final int HOPPER_SLAVE_ID = 10;
-    public static final int ELEVATOR_ID = 11;
-    public static final int TOP_BEAM_BREAK = 0;
-    public static final int BOTTOM_BEAM_BREAK = 1;
+    public static final int SINGULATOR_ID = 9;
+    public static final int HOPPER_ID = 10;
+    public static final int TRIGGER_ID = 11;
+    public static final int TOP_BEAM_BREAK = 9;
+    public static final int BOTTOM_BEAM_BREAK = 8;
 
     public static final int FLYWHEEL_MASTER_ID = 12;
     public static final int FLYWHEEL_SLAVE_ID = 16;
     public static final int HOOD_ID = 13;
-
-    public static final int CLIMBER_ID = 14;
-    public static final int CLIMBER_PIVOT_SOLENOID = 15;
+    public static final int ACCELERATOR_ID = 18;
+    
+    // public static final int CLIMBER_ID = 14;
+    // public static final int CLIMBER_PIVOT_SOLENOID = 15;
 
     public static final int EJECTOR_ID = 18;
     public static final int EJECTOR_SOLENOID_ID = 2;

@@ -14,6 +14,7 @@ import com.team1678.frc2022.controlboard.ControlBoard.SwerveCardinal;
 import com.team1678.frc2022.loops.CrashTracker;
 import com.team1678.frc2022.loops.Looper;
 import com.team1678.frc2022.subsystems.Ejector;
+import com.team1678.frc2022.subsystems.Hood;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Infrastructure;
 import com.team1678.frc2022.subsystems.Intake;
@@ -53,9 +54,10 @@ public class Robot extends TimedRobot {
 	private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
 	private final Superstructure mSuperstructure = Superstructure.getInstance();
 	private final Shooter mShooter = Shooter.getInstance();
+	private final Hood mHood = Hood.getInstance();
 	private final Swerve mSwerve = Swerve.getInstance();
 	private final Intake mIntake = Intake.getInstance();
-	private final Limelight mLimelight = Limelight.getInstance();
+	// private final Limelight mLimelight = Limelight.getInstance();
 	private final Infrastructure mInfrastructure = Infrastructure.getInstance();
 	private final Indexer mIndexer = Indexer.getInstance();
 	private final Ejector mEjector = Ejector.getInstance();
@@ -86,8 +88,9 @@ public class Robot extends TimedRobot {
 					mIntake,
 					mIndexer,
 					mShooter,
-					mSuperstructure,
-					mLimelight,
+					//mHood,
+					mSuperstructure, // ,
+					// mLimelight
 					mEjector
 			);
 
@@ -169,13 +172,12 @@ public class Robot extends TimedRobot {
 
 			// Intake
 			if (mControlBoard.getIntake()) {
-				mIntake.setState(Intake.WantedAction.INTAKE);
+				mSuperstructure.setWantIntake(true);
 			} else if (mControlBoard.getOuttake()) {
-				mIntake.setState(Intake.WantedAction.REVERSE);
-			} else if (mControlBoard.getSpitting()) {
-				mIntake.setState(Intake.WantedAction.SPIT);
+				mSuperstructure.setWantOuttake(true);
 			} else {
-				mIntake.setState(Intake.WantedAction.NONE);
+				mSuperstructure.setWantIntake(false);
+				mSuperstructure.setWantOuttake(false);
 			}
 
 			if (mControlBoard.operator.getController().getYButtonPressed()) {
@@ -183,7 +185,7 @@ public class Robot extends TimedRobot {
 			}
 
 			if (mControlBoard.operator.getController().getAButtonPressed()) {
-				mSuperstructure.setShooterVelocity(1800);
+				mSuperstructure.setShooterVelocity(3000, 4000);
 				mSuperstructure.setWantSpinUp();
 			}
 
@@ -224,8 +226,8 @@ public class Robot extends TimedRobot {
 			mAutoModeSelector.updateModeCreator();
 			// [mSwerve.resetAnglesToAbsolute();
 
-			mLimelight.setLed(Limelight.LedMode.ON);
-			mLimelight.writePeriodicOutputs();
+			// mLimelight.setLed(Limelight.LedMode.ON);
+			// mLimelight.writePeriodicOutputs();
 
 			Optional<AutoModeBase> autoMode = mAutoModeSelector.getAutoMode();
 			if (autoMode.isPresent() && autoMode.get() != mAutoModeExecutor.getAutoMode()) {
