@@ -47,6 +47,8 @@ public class Ports {
     public static final int CLIMBER_SLAVE_ID = 15;
     public static final int CLIMBER_CHOPSTICK_SOLENOID = 6;
     public static final int CLIMBER_HOOK_RELEASE_SOLENOID = 17;
+    public static final int CLIMBER_INITIAL_RELEASE_SOLENOID = 19; //TODO: find value
+    public static final int CLIMBER_HOOKING_ARM_SOLENOID = 20; //TODO: find value
 
     // Infrastucture
     public static final int PCM = 21;

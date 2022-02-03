@@ -213,13 +213,13 @@ public class Robot extends TimedRobot {
 					while (mSolenoidTimer.update(mClimber.getClimberSolenoidDeployed(), Constants.ClimberConstants.kSolenoidDeployTime)) {
 						mClimber.mPeriodicIO.deploy_solenoid = true;
 						mClimber.mHookReleaseClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
-        				mClimber.mChopstickClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
+        				mClimber.mChopstickClimberBarSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
 					}
 					//Undeploy solenoid
 					while (mSolenoidTimer.update(mClimber.getClimberSolenoidDeployed(), Constants.ClimberConstants.kSolenoidUndeployTime)) {
 						mClimber.mPeriodicIO.deploy_solenoid = false;
 						mClimber.mHookReleaseClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
-						mClimber.mChopstickClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
+						mClimber.mChopstickClimberBarSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
 					}
 					//Other Subsystems
 					mIntake.setState(Intake.WantedAction.STAY_OUT);
