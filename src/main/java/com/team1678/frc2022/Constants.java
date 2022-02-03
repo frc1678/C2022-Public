@@ -264,7 +264,7 @@ public class Constants {
     }
 
     public static final class HoodConstants {
-        public static final double kCalibratingVoltage = -1.0;
+        public static final double kCalibratingVoltage = 0.0;
         public static final double kCalibrationCurrentThreshold = 15.0;
 
         public static final ServoMotorSubsystemConstants kHoodServoConstants = new ServoMotorSubsystemConstants();

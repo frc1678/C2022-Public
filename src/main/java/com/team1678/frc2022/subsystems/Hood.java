@@ -11,7 +11,7 @@ public class Hood extends ServoMotorSubsystem {
 
     private static Hood mInstance;
 
-    private boolean mHomed = true;
+    private boolean mHomed = false;
 
     public static Hood getInstance() {
         if (mInstance == null) {
