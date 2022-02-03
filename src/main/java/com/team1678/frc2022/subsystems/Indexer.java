@@ -227,7 +227,6 @@ public class Indexer extends Subsystem {
                 break;
             case INDEXING:
                 if (Ejector.getInstance().shouldStopHoppper()) {
-                    mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kIdleVoltage;
                     mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIdleVoltage;
                 } else {
                     if (runTrigger()) {
