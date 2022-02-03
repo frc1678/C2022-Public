@@ -199,7 +199,7 @@ public class Robot extends TimedRobot {
 			// 	mSuperstructure.setWantSpinUp();
 			// }
 
-			//Climb Solenoid Controls
+			//Climb Solenoid Controls for bring up
 			if (mControlBoard.getInitialRelaseSolenoidTriggered()) {
 				mClimber.mPeriodicIO.deploy_solenoid = true;
 				mClimber.mInitialReleaseClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
