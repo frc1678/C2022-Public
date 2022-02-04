@@ -367,6 +367,7 @@ public class ShuffleBoardInteractions {
         
         /* SWERVE */
 
+        /*** Only uncomment when redoing cancoder offsets for modules
         // Update cancoders at a slower period to avoid stale can frames
         double dt = Timer.getFPGATimestamp();
         if (dt > lastCancoderUpdate + 0.1) {
@@ -375,6 +376,7 @@ public class ShuffleBoardInteractions {
             }
             lastCancoderUpdate = dt;
         }
+        */
         
         for (int i = 0; i < mSwerveCancoders.length; i++) {
             mSwerveIntegrated[i].setDouble(truncate(MathUtil.inputModulus(mSwerveModules[i].getState().angle.getDegrees(), 0, 360)));

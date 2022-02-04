@@ -2,6 +2,7 @@ package com.team1678.frc2022.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
@@ -85,6 +86,14 @@ public class Shooter extends Subsystem {
         mAccelerator.enableVoltageCompensation(true);
 
         setOpenLoop(0.0, 0.0);
+
+        // reduce can util
+        mMaster.changeMotionControlFramePeriod(255);
+        mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
+        mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
+        mAccelerator.changeMotionControlFramePeriod(255);
+        mAccelerator.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
+        mAccelerator.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
     }
 
     @Override

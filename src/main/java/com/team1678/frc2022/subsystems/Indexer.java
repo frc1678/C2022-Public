@@ -53,6 +53,7 @@ public class Indexer extends Subsystem {
         mTrigger = TalonFXFactory.createDefaultTalon(Ports.TRIGGER_ID);
         mTrigger.setInverted(true);
 
+        // reduce can util
         mTunnel.changeMotionControlFramePeriod(255);
         mTunnel.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
         mTunnel.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
