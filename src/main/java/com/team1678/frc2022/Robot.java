@@ -86,7 +86,7 @@ public class Robot extends TimedRobot {
 					mIntake,
 					mIndexer,
 					mShooter,
-					mHood,
+					// mHood,
 					mSuperstructure,
 					mLimelight
 			);
@@ -116,6 +116,7 @@ public class Robot extends TimedRobot {
 			mAutoModeExecutor.start();
 
 			mInfrastructure.setIsDuringAuto(true);
+			mLimelight.setPipeline(Constants.VisionConstants.kDefaultPipeline);
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
@@ -127,6 +128,7 @@ public class Robot extends TimedRobot {
 	@Override
 	public void autonomousPeriodic() {
 		mSwerve.updateSwerveOdometry();
+		mLimelight.setLed(Limelight.LedMode.ON);
 	}
 
 	@Override
@@ -138,6 +140,9 @@ public class Robot extends TimedRobot {
 
 			mInfrastructure.setIsDuringAuto(false);
 
+			mLimelight.setLed(Limelight.LedMode.ON);
+            mLimelight.setPipeline(Constants.VisionConstants.kDefaultPipeline);
+
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
 			throw t;
@@ -147,6 +152,8 @@ public class Robot extends TimedRobot {
 	@Override
 	public void teleopPeriodic() {
 		try {
+
+			mLimelight.outputTelemetry();
 			
 			/* SWERVE DRIVE */
 			if (mControlBoard.zeroGyro()) {
@@ -182,6 +189,9 @@ public class Robot extends TimedRobot {
 			mEnabledLooper.stop();
 			mDisabledLooper.start();
 
+			mLimelight.setLed(Limelight.LedMode.ON);
+            mLimelight.triggerOutputs();
+
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
 			throw t;
@@ -207,6 +217,7 @@ public class Robot extends TimedRobot {
 
 			mLimelight.setLed(Limelight.LedMode.ON);
 			mLimelight.writePeriodicOutputs();
+			mLimelight.outputTelemetry();
 
 			Optional<AutoModeBase> autoMode = mAutoModeSelector.getAutoMode();
 			if (autoMode.isPresent() && autoMode.get() != mAutoModeExecutor.getAutoMode()) {
