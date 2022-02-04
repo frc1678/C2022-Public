@@ -242,6 +242,7 @@ public class Robot extends TimedRobot {
 					while (Util.inRange(mClimber.getClimberPosition(), Constants.ClimberConstants.kTraversalExtentionHeight)) {
 						mClimber.mPeriodicIO.deploy_solenoid = true;
 						mClimber.mChopstickClimberBarSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
+						mClimber.mPeriodicIO.climber_demand = Constants.ClimberConstants.kClimbingVoltage;
 						Thread.sleep(((long)(2000*Constants.kLooperDt)));
 					}
 					//Extend second arm 
