@@ -166,7 +166,7 @@ public class Constants {
         public static final double kI = 0;
         public static final double kD = 0.0;
         public static final double kTimeout = 0.25;
-        public static final double kEpsilon = 1.0;
+        public static final double kEpsilon = 3.0;
 
         // Constraints for the profiled angle controller
         public static final double kMaxAngularSpeedRadiansPerSecond = 2.0 * Math.PI;
@@ -178,8 +178,7 @@ public class Constants {
 
     public static final class AutoConstants {
         public static final double kMaxSpeedMetersPerSecond = 2.2; // TODO: Revise this
-        public static final double kMaxAccelerationMetersPerSecondSquared = 2.3 // TODO: Revise this
-        ; // TODO: Revise this
+        public static final double kMaxAccelerationMetersPerSecondSquared = 2.3; // TODO: Revise this
         public static final double kMaxAngularSpeedRadiansPerSecond = 2.0*Math.PI; // TODO: Revise this
         public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.pow(kMaxAngularSpeedRadiansPerSecond, 2); // TODO: Revise this
 
