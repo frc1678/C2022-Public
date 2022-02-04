@@ -60,22 +60,20 @@ public class Hood extends ServoMotorSubsystem {
     public synchronized void readPeriodicInputs() {
 
         outputTelemetry(); // TODO Remove this
-        mControlState = ControlState.MOTION_MAGIC;
         super.readPeriodicInputs();
-        /*
+        
         if (!mHomed) {
             mControlState = ControlState.OPEN_LOOP;
             if (mPeriodicIO.master_stator_current > Constants.HoodConstants.kCalibrationCurrentThreshold) {
                 zeroHood();
             }
         }
-        */
     }
 
     public void outputTelemetry() {
         super.outputTelemetry();
 
-        SmartDashboard.putBoolean(mConstants.kName + " Calibrated", !mHomed);
+        SmartDashboard.putBoolean(mConstants.kName + " Calibrated", mHomed);
         SmartDashboard.putString("Hood Control State", mControlState.toString());
         SmartDashboard.putBoolean("Hood at Homing Location", atHomingLocation());
         SmartDashboard.putNumber("Hood Demand", mPeriodicIO.demand);

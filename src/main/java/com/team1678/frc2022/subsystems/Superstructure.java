@@ -2,6 +2,7 @@ package com.team1678.frc2022.subsystems;
 
 import com.team1678.frc2022.loops.Loop;
 import com.team1678.frc2022.subsystems.Intake.WantedAction;
+import com.team1678.frc2022.subsystems.ServoMotorSubsystem.ControlState;
 import com.team254.lib.util.Util;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -143,7 +144,9 @@ public class Superstructure extends Subsystem {
 
 
         mIndexer.setState(real_indexer);
-        mHood.setSetpointMotionMagic(real_hood);
+        if (mHood.mControlState != ControlState.OPEN_LOOP) {
+            mHood.setSetpointMotionMagic(real_hood);
+        } 
     }
 
     @Override
