@@ -200,6 +200,11 @@ public class ControlBoard {
     public boolean getClimbMode() {
         return operator.getButton(Button.LB) && operator.getButton(Button.RB) && operator.getTrigger(Side.LEFT) && operator.getTrigger(Side.RIGHT);
     }
+
+    public boolean getLeaveClimbMode() {
+        return operator.getButton(Button.BACK) && operator.getButton(Button.START);
+    }
+
     public boolean getTraversalClimb() {
         return operator.getTrigger(Side.LEFT) && operator.getTrigger(Side.RIGHT);
     }
