@@ -10,6 +10,7 @@ import com.team254.lib.drivers.TalonFXFactory;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Indexer extends Subsystem {
     
@@ -24,6 +25,13 @@ public class Indexer extends Subsystem {
     //TODO: private final DigitalInput mColorSensor = new DigitalInput(Ports.COLOR_SENOR);
 
     private State mState = State.IDLE;
+
+    private boolean mBottomHadSeenBall = false;
+    private boolean mTopHadSeenBall = false;
+
+    private final double kReverseAtTopTime = 1.0;
+    private Timer mReverseTriggerTimer = new Timer();
+    private boolean mWantTriggerReverse = false;
 
     public enum WantedAction {
         NONE,
@@ -44,6 +52,7 @@ public class Indexer extends Subsystem {
 
         mIndexer = TalonFXFactory.createDefaultTalon(Ports.HOPPER_ID);
         mTrigger = TalonFXFactory.createDefaultTalon(Ports.TRIGGER_ID);
+        mTrigger.setInverted(true);
       
         mBottomBeamBreak = new DigitalInput(Ports.BOTTOM_BEAM_BREAK);
         mTopBeamBreak = new DigitalInput(Ports.TOP_BEAM_BREAK);
@@ -72,11 +81,33 @@ public class Indexer extends Subsystem {
 
         mPeriodicIO.tunnel_current = mIndexer.getStatorCurrent();
         mPeriodicIO.tunnel_voltage = mIndexer.getMotorOutputVoltage();
+
+        if (mPeriodicIO.bottom_break) {
+            if (!mBottomHadSeenBall) {
+                mBottomHadSeenBall = true;
+            }
+        } else {
+            if (mBottomHadSeenBall) {
+                mPeriodicIO.ball_count++;
+                mBottomHadSeenBall = false;
+            }
+        }
+
+        if (mPeriodicIO.top_break) {
+            if (!mTopHadSeenBall) {
+                mTopHadSeenBall = true;
+            }
+        } else {
+            if (mTopHadSeenBall) {
+                mPeriodicIO.ball_count--;
+                mTopHadSeenBall = false;
+            }
+        }
     }
 
     @Override
     public void writePeriodicOutputs() {
-        mIndexer.set(ControlMode.PercentOutput, mPeriodicIO.indexer_demand / 12.0);
+        mIndexer.set(ControlMode.PercentOutput, mPeriodicIO.tunnel_demand / 12.0);
         mTrigger.set(ControlMode.PercentOutput, mPeriodicIO.trigger_demand / 12.0);
     }
 
@@ -90,9 +121,10 @@ public class Indexer extends Subsystem {
 
             @Override
             public void onLoop(double timestamp) {
-                synchronized (Indexer.this){
+                synchronized (Indexer.this) {
                     runStateMachine();
                 }
+                outputTelemetry();
             }
 
             @Override
@@ -120,7 +152,7 @@ public class Indexer extends Subsystem {
     }
 
     public double getTunnelDemand() {
-        return mPeriodicIO.indexer_demand;
+        return mPeriodicIO.tunnel_demand;
     }
 
     public double getTunnelCurrent() {
@@ -164,12 +196,15 @@ public class Indexer extends Subsystem {
         return mPeriodicIO.top_break;
     }
 
-    private boolean ballAtIndexer() {
+    private boolean ballAtTunnel() {
         return mPeriodicIO.bottom_break;
     }
 
-    private boolean stopIndexer() {
-        return ballAtIndexer() && ballAtTrigger();
+    private boolean stopTunnel() {
+        if (mPeriodicIO.ball_count <= 1) {
+            return false;
+        } else
+            return true;
     }
 
     private boolean runTrigger() {
@@ -179,28 +214,50 @@ public class Indexer extends Subsystem {
     private void runStateMachine() {
         switch (mState) {
             case IDLE:
-                mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIdleVoltage;
+                mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kIdleVoltage;
                 mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIdleVoltage;
                 break;
             case INDEXING:
                 if (runTrigger()) {
                     mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerIndexingVoltage;
-                } else {
+                } else { 
                     mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIdleVoltage;
                 }
-                if (stopIndexer()) {
-                    mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIdleVoltage;
+
+                
+                if (ballAtTrigger()) {
+                    mReverseTriggerTimer.start();
+                    mWantTriggerReverse = true;
+                }
+
+                if (!mReverseTriggerTimer.hasElapsed(kReverseAtTopTime) && mWantTriggerReverse) {
+                    mPeriodicIO.trigger_demand = -Constants.IndexerConstants.kTriggerIndexingVoltage;    
+                } else if (mReverseTriggerTimer.hasElapsed(kReverseAtTopTime) && mWantTriggerReverse){
+                    mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIdleVoltage;
+                    mWantTriggerReverse = false;
+                    mReverseTriggerTimer.reset();
+                    mPeriodicIO.ball_count++;
                 } else {
-                    mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIndexingVoltage;
+                    if (mPeriodicIO.ball_count > 0) {
+                        mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIdleVoltage;
+                    } else {
+                        mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerIndexingVoltage;
+                    }
+                }
+
+                if (stopTunnel()) {
+                    mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kIdleVoltage;
+                } else {
+                    mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVoltage;
                 }
                 break;
             case FEEDING:
                 mPeriodicIO.trigger_demand = Constants.IndexerConstants.kFeedingVoltage;
-                mPeriodicIO.indexer_demand = Constants.IndexerConstants.kFeedingVoltage;
+                mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kFeedingVoltage;
                 break;
             case REVERSING:
                 mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerReversingVoltage;
-                mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerReversingVoltage;
+                mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelReversingVoltage;
                 break;
         }
     }
@@ -229,12 +286,18 @@ public class Indexer extends Subsystem {
         public boolean top_break;
         public boolean bottom_break;
         public boolean correctColor;
+        public double ball_count;
 
         //OUTPUTS
-        public double indexer_demand;
+        public double tunnel_demand;
         public double trigger_demand;
         public boolean eject;
     }
 
+    public void outputTelemetry() {
+        SmartDashboard.putBoolean("Top had seen ball", mTopHadSeenBall);
+        SmartDashboard.putBoolean("Bottom had seen ball", mBottomHadSeenBall);
 
+        SmartDashboard.putNumber("Ball count", mPeriodicIO.ball_count);
+    }
 }

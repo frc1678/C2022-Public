@@ -13,6 +13,7 @@ import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.ControlBoard.SwerveCardinal;
 import com.team1678.frc2022.loops.CrashTracker;
 import com.team1678.frc2022.loops.Looper;
+import com.team1678.frc2022.subsystems.Hood;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Infrastructure;
 import com.team1678.frc2022.subsystems.Intake;
@@ -51,7 +52,8 @@ public class Robot extends TimedRobot {
 
 	private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
 	private final Superstructure mSuperstructure = Superstructure.getInstance();
-	// private final Shooter mShooter = Shooter.getInstance();
+	private final Shooter mShooter = Shooter.getInstance();
+	private final Hood mHood = Hood.getInstance();
 	private final Swerve mSwerve = Swerve.getInstance();
 	private final Intake mIntake = Intake.getInstance();
 	// private final Limelight mLimelight = Limelight.getInstance();
@@ -83,7 +85,8 @@ public class Robot extends TimedRobot {
 					mInfrastructure,
 					mIntake,
 					mIndexer,
-					// mShooter,
+					mShooter,
+					mHood,
 					mSuperstructure // ,
 					// mLimelight
 			);
@@ -158,11 +161,11 @@ public class Robot extends TimedRobot {
 					mControlBoard.getSwerveTranslation().y());
 			double swerveRotation = mControlBoard.getSwerveRotation();
 
-			// if (mControlBoard.getVisionAlign()) {
-			// 	mSwerve.visionAlignDrive(swerveTranslation, true, true);
-			// } else {
+			if (mControlBoard.getVisionAlign()) {
+				mSwerve.visionAlignDrive(swerveTranslation, true, true);
+			} else {
 				mSwerve.drive(swerveTranslation, swerveRotation, true, true);
-			// }
+			}
 
 			// Intake
 			if (mControlBoard.getIntake()) {
@@ -174,14 +177,14 @@ public class Robot extends TimedRobot {
 				mSuperstructure.setWantOuttake(false);
 			}
 
-			// if (mControlBoard.operator.getController().getYButtonPressed()) {
-			// 	mSuperstructure.setWantShoot();
-			// }
+			if (mControlBoard.operator.getController().getYButtonPressed()) {
+				mSuperstructure.setWantShoot();
+			}
 
-			// if (mControlBoard.operator.getController().getAButtonPressed()) {
-			// 	mSuperstructure.setShooterVelocity(1800);
-			// 	mSuperstructure.setWantSpinUp();
-			// }
+			if (mControlBoard.operator.getController().getAButtonPressed()) {
+				mSuperstructure.setShooterVelocity(3000, 4000);
+				mSuperstructure.setWantSpinUp();
+			}
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
