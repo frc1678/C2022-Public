@@ -23,6 +23,7 @@ import com.team254.lib.util.Util;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * Abstract base class for a subsystem with a single sensored servo-mechanism.
@@ -561,6 +562,14 @@ public abstract class ServoMotorSubsystem extends Subsystem {
 
     public synchronized boolean hasBeenZeroed() {
         return mHasBeenZeroed;
+    }
+
+    public void outputTelemetry() {
+        SmartDashboard.putNumber(mConstants.kName + ": Position (units)", mPeriodicIO.position_units);
+        SmartDashboard.putNumber(mConstants.kName + ": goal (units)", mPeriodicIO.demand);
+        SmartDashboard.putBoolean(mConstants.kName + ": Homing Location", atHomingLocation());
+        SmartDashboard.putNumber(mConstants.kName + " dt", mPeriodicIO.dt);
+        SmartDashboard.putNumber(mConstants.kName + ": voltage", mPeriodicIO.output_voltage);
     }
 
     @Override

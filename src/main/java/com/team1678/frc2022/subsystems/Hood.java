@@ -5,6 +5,8 @@ import com.ctre.phoenix.motorcontrol.DemandType;
 import com.team1678.frc2022.Constants;
 import com.team254.lib.util.Util;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 public class Hood extends ServoMotorSubsystem {
 
     private static Hood mInstance;
@@ -20,6 +22,7 @@ public class Hood extends ServoMotorSubsystem {
 
     private Hood() {
         super(Constants.HoodConstants.kHoodServoConstants);
+        mMaster.setInverted(false);
     }
 
     public boolean isHomed() {
@@ -32,7 +35,7 @@ public class Hood extends ServoMotorSubsystem {
 
     public void zeroHood() {
         mControlState = ControlState.MOTION_MAGIC;
-        mMaster.setSelectedSensorPosition(this.mReverseSoftLimitTicks);
+        mMaster.setSelectedSensorPosition(getHoodDegreesToTicks(Constants.HoodConstants.kHoodServoConstants.kMinUnitsLimit));
         mHomed = true;
     }
 
@@ -55,14 +58,39 @@ public class Hood extends ServoMotorSubsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
+
+        outputTelemetry(); // TODO Remove this
         super.readPeriodicInputs();
+        
         if (!mHomed) {
             mControlState = ControlState.OPEN_LOOP;
             if (mPeriodicIO.master_stator_current > Constants.HoodConstants.kCalibrationCurrentThreshold) {
                 zeroHood();
             }
-
         }
+    }
+
+    public void outputTelemetry() {
+        super.outputTelemetry();
+
+        SmartDashboard.putBoolean(mConstants.kName + " Calibrated", mHomed);
+        SmartDashboard.putString("Hood Control State", mControlState.toString());
+        SmartDashboard.putBoolean("Hood at Homing Location", atHomingLocation());
+        SmartDashboard.putNumber("Hood Demand", mPeriodicIO.demand);
+        SmartDashboard.putNumber("Hood Current", mPeriodicIO.master_stator_current);
+        SmartDashboard.putNumber("Hood Angle", getHoodAngle());
+    }
+
+    public synchronized double getHoodAngle() {
+        return getTicksToHoodDegrees(mMaster.getSelectedSensorPosition());
+    }
+
+    public double getTicksToHoodDegrees(double ticks) {
+        return ticks / Constants.HoodConstants.kHoodServoConstants.kTicksPerUnitDistance;
+    }
+
+    public double getHoodDegreesToTicks(double degrees) {
+        return degrees * Constants.HoodConstants.kHoodServoConstants.kTicksPerUnitDistance;
     }
 
     @Override

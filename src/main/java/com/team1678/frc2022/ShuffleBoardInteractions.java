@@ -71,7 +71,10 @@ public class ShuffleBoardInteractions {
 
     /* Shooter */
     private final NetworkTableEntry mFlywheelRPM;
-    private final NetworkTableEntry mKickerRPM;
+    private final NetworkTableEntry mAcceleratorRPM;
+    private final NetworkTableEntry mShooterOpenLoop;
+    private final NetworkTableEntry mFlywheelDemand;
+    private final NetworkTableEntry mAcceleratorDemand;
 
     // private final NetworkTableEntry mFlywheelManualPIDToggle;
     // private final NetworkTableEntry mFlywheelP;
@@ -307,24 +310,28 @@ public class ShuffleBoardInteractions {
         /* Shooter */
         mFlywheelRPM = SHOOTER_TAB
                 .add("Shooter RPM", 0.0)
-                .withPosition(0, 0)
                 .withSize(2, 1)
                 .getEntry();
 
-        mKickerRPM = SHOOTER_TAB
-                .add("Kicker RPM", 0.0)
-                .withPosition(2, 0)
+        mAcceleratorRPM = SHOOTER_TAB
+                .add("Accelerator RPM", 0.0)
                 .withSize(2, 1)
                 .getEntry();
 
-        // mFlywheelManualPIDToggle = SHOOTER_TAB
-        //         .add("Apply PID", false)
-        //         .withWidget(BuiltInWidgets.kToggleButton)
-        //         .withPosition(1, 2)
-        //         .withSize(2, 2)
-        //         .getEntry()
+        mFlywheelDemand = SHOOTER_TAB
+                .add("Shooter Demand", 0.0)
+                .withSize(2, 1)
+                .getEntry();
 
-        //mFlywheelP = SHOOTER_TAB.add("Shooter P", 0.0)
+        mAcceleratorDemand = SHOOTER_TAB
+                .add("Accelerator Demand", 0.0)
+                .withSize(2, 1)
+                .getEntry();
+
+        mShooterOpenLoop = SHOOTER_TAB
+                .add("Shooter Open Loop", false)
+                .withSize(2, 1)
+                .getEntry();
 
         /* INDEXER */
         mIndexerState = INDEXER_TAB
@@ -378,8 +385,11 @@ public class ShuffleBoardInteractions {
         mClimberControlState.setString(mClimber.getControlState().toString());
 
         /* Shooter */
-        mFlywheelRPM.setDouble(truncate(mShooter.getShooterRPM()));
-        mKickerRPM.setDouble(truncate(mShooter.getKickerRPM()));
+        mFlywheelRPM.setDouble(truncate(mShooter.getFlywheelRPM()));
+        mAcceleratorRPM.setDouble(truncate(mShooter.getAcceleratorRPM()));
+        mShooterOpenLoop.setBoolean(mShooter.getIsOpenLoop());
+        mFlywheelDemand.setDouble(truncate(mShooter.getFlywheelDemand()));
+        mAcceleratorDemand.setDouble(truncate(mShooter.getAcceleratorDemand()));
         
         /* Indexer */
         mIndexerState.setString(mIndexer.getState().toString());
