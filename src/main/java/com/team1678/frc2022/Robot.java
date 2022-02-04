@@ -15,7 +15,6 @@ import com.team1678.frc2022.controlboard.ControlBoard.SwerveCardinal;
 import com.team1678.frc2022.loops.CrashTracker;
 import com.team1678.frc2022.loops.Looper;
 import com.team1678.frc2022.subsystems.Climber;
-import com.team1678.frc2022.subsystems.Climber.ControlState;
 import com.team1678.frc2022.subsystems.Hood;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Infrastructure;
@@ -25,7 +24,6 @@ import com.team1678.frc2022.subsystems.Shooter;
 import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
 
-import java.io.*;
 import java.lang.Thread;
 
 import edu.wpi.first.math.geometry.Pose2d;
