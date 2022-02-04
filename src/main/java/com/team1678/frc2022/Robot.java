@@ -226,27 +226,27 @@ public class Robot extends TimedRobot {
 						mClimber.mPeriodicIO.deploy_solenoid = true;
 						mClimber.mInitialReleaseClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
 						mClimber.getInitialArmExtension();
-						Thread.sleep(((long)(1000*Constants.kLooperDt)));
+						Thread.sleep(((long)(2000*Constants.kLooperDt)));
 					}
 					//Extend to traversal bar and hook on
 					while (Util.inRange(mClimber.getClimberPosition(), Constants.ClimberConstants.kTraversalExtentionHeight)) {
 						mClimber.mPeriodicIO.deploy_solenoid = true;
 						mClimber.mHookingArmClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
 						mClimber.mPeriodicIO.climber_demand = Constants.ClimberConstants.kClimbingVoltage;
-						Thread.sleep(((long)(1000*Constants.kLooperDt)));
+						Thread.sleep(((long)(2000*Constants.kLooperDt)));
 					}
 					//Extend second arm
 					while (mSolenoidTimer.update(mClimber.getClimberSolenoidDeployed(), Constants.ClimberConstants.kSolenoidDeployTime)) {
 						mClimber.mPeriodicIO.deploy_solenoid = true;
         				mClimber.mChopstickClimberBarSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
-						Thread.sleep(((long)(1000*Constants.kLooperDt)));
+						Thread.sleep(((long)(2000*Constants.kLooperDt)));
 					}
 					//Undeploy solenoids and hook
 					while (mSolenoidTimer.update(mClimber.getClimberSolenoidDeployed(), Constants.ClimberConstants.kSolenoidUndeployTime)) {
 						mClimber.mPeriodicIO.deploy_solenoid = false;
 						mClimber.mHookClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
 						mClimber.mHookingArmClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
-						Thread.sleep(((long)(1000*Constants.kLooperDt)));
+						Thread.sleep(((long)(2000*Constants.kLooperDt)));
 					}
 					//Other Subsystems
 					mIntake.setState(Intake.WantedAction.STAY_OUT);
