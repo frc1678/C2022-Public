@@ -3,6 +3,7 @@ package com.team1678.frc2022;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Intake;
+import com.team1678.frc2022.subsystems.LEDs;
 import com.team1678.frc2022.subsystems.Limelight;
 import com.team1678.frc2022.subsystems.Shooter;
 import com.team1678.frc2022.subsystems.Swerve;
@@ -33,6 +34,7 @@ public class ShuffleBoardInteractions {
     private final Swerve mSwerve;
     private final SwerveModule[] mSwerveModules;
     private final Intake mIntake;
+    private final LEDs mLEDs;
     private final Shooter mShooter;
     private final Indexer mIndexer;
 
@@ -43,6 +45,7 @@ public class ShuffleBoardInteractions {
     private ShuffleboardTab VISION_TAB;
     private ShuffleboardTab SWERVE_TAB;
     private ShuffleboardTab PID_TAB;
+    private ShuffleboardTab CANDLE_TAB;
     private ShuffleboardTab INTAKE_TAB;
     private ShuffleboardTab SHOOTER_TAB;
     private ShuffleboardTab INDEXER_TAB;
@@ -90,6 +93,9 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mLimelightTx;
     private final NetworkTableEntry mLimelightTy;
 
+    /* CANdl */
+    private final NetworkTableEntry mLedState;
+
     /* Swerve Modules */
     private final String[] kSwervePlacements = {"Front Left", "Front Right", "Back Left", "Back Right"};
     private final ShuffleboardLayout[] mSwerveAngles = new ShuffleboardLayout[4];
@@ -119,11 +125,13 @@ public class ShuffleBoardInteractions {
         mIntake = Intake.getInstance();
         mShooter = Shooter.getInstance();
         mIndexer = Indexer.getInstance();
+        mLEDs = LEDs.getInstance();
 
         /* Get Tabs */
         VISION_TAB = Shuffleboard.getTab("Vision");
         SWERVE_TAB = Shuffleboard.getTab("Swerve");
         PID_TAB = Shuffleboard.getTab("Module PID");
+        CANDLE_TAB = Shuffleboard.getTab("Candle");
         INTAKE_TAB = Shuffleboard.getTab("Intake");
         SHOOTER_TAB = Shuffleboard.getTab("Shooter");
         INDEXER_TAB = Shuffleboard.getTab("Indexer");
@@ -251,6 +259,8 @@ public class ShuffleBoardInteractions {
             .withPosition(2,1)
             .withSize(1, 1)
             .getEntry();
+
+        mLedState = CANDLE_TAB.add("State", 0.0).getEntry();
         
         /* INTAKE */
         mIntakeCurrent = INTAKE_TAB
@@ -364,6 +374,8 @@ public class ShuffleBoardInteractions {
         mLimelightDt.setDouble(mLimelight.getDt());
         mLimelightTx.setDouble(mLimelight.getOffset()[0]);
         mLimelightTy.setDouble(mLimelight.getOffset()[1]);
+        
+        mLedState.setString(mLEDs.getState().toString());
         
         /* SWERVE */
 

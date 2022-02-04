@@ -51,5 +51,8 @@ public class Ports {
     // Infrastucture
     public static final int PCM = 21;
 
+    // Candle
+    public static final int CANDLE = 69; // TODO: Update ID
+
 
 }
