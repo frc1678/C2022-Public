@@ -32,11 +32,16 @@ public class Shooter extends Subsystem {
 
     private TalonFX mMaster;
     private TalonFX mSlave;
+    
+    private TalonFX mAccelerator;
 
     private Shooter() {
+
+        /* MAIN FLYWHEEl */
         mMaster = TalonFXFactory.createDefaultTalon(Ports.FLYWHEEL_MASTER_ID);
-        mMaster.setInverted(false);
+        mMaster.setInverted(true);
         mMaster.setNeutralMode(NeutralMode.Coast);
+
         /* Tuning Values */
         mMaster.config_kP(0, Constants.ShooterConstants.kShooterP, Constants.kLongCANTimeoutMs);
         mMaster.config_kI(0, Constants.ShooterConstants.kShooterI, Constants.kLongCANTimeoutMs);
@@ -45,18 +50,41 @@ public class Shooter extends Subsystem {
         mMaster.config_IntegralZone(0, (int) (200.0 / Constants.ShooterConstants.kFlywheelVelocityConversion));
         mMaster.selectProfileSlot(0, 0);
         mMaster.configClosedloopRamp(0.1);
+
         /* Current and voltage limits */
-        SupplyCurrentLimitConfiguration curr_lim = new SupplyCurrentLimitConfiguration(true, 40, 100, 0.02);
-        mMaster.configSupplyCurrentLimit(curr_lim);
+        SupplyCurrentLimitConfiguration main_curr_lim = new SupplyCurrentLimitConfiguration(true, 40, 100, 0.02);
+        mMaster.configSupplyCurrentLimit(main_curr_lim);
         mMaster.configVoltageCompSaturation(12, Constants.kLongCANTimeoutMs);
         mMaster.enableVoltageCompensation(true);
+
         /* Use integrated encoder for velocity control */
         mMaster.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
 
+        /* FLYWHEEL SLAVE */
         mSlave = TalonFXFactory.createPermanentSlaveTalon(Ports.FLYWHEEL_SLAVE_ID, Ports.FLYWHEEL_MASTER_ID);
         mSlave.setInverted(true);
 
-        setOpenLoop(0.0);
+
+        /* ACCELERATOR */
+        mAccelerator = TalonFXFactory.createDefaultTalon(Ports.ACCELERATOR_ID);
+        mAccelerator.setInverted(true);
+        mAccelerator.setNeutralMode(NeutralMode.Coast);
+
+        mAccelerator.config_kP(0, Constants.ShooterConstants.kAcceleratorP, Constants.kLongCANTimeoutMs);
+        mAccelerator.config_kI(0, Constants.ShooterConstants.kAcceleratorI, Constants.kLongCANTimeoutMs);
+        mAccelerator.config_kD(0, Constants.ShooterConstants.kAcceleratorD, Constants.kLongCANTimeoutMs);
+        mAccelerator.config_kF(0, Constants.ShooterConstants.kAcceleratorF, Constants.kLongCANTimeoutMs);
+        mAccelerator.config_IntegralZone(0, (int) (200.0 / Constants.ShooterConstants.kFlywheelVelocityConversion));
+        mAccelerator.selectProfileSlot(0, 0);
+        mAccelerator.configClosedloopRamp(0.1);
+
+        /* Current and voltage limits */
+        SupplyCurrentLimitConfiguration accel_curr_lim = new SupplyCurrentLimitConfiguration(true, 40, 100, 0.02);
+        mAccelerator.configSupplyCurrentLimit(accel_curr_lim);
+        mAccelerator.configVoltageCompSaturation(12, Constants.kLongCANTimeoutMs);
+        mAccelerator.enableVoltageCompensation(true);
+
+        setOpenLoop(0.0, 0.0);
     }
 
     @Override
@@ -69,8 +97,7 @@ public class Shooter extends Subsystem {
 
             @Override
             public void onLoop(double timestamp) {
-                SmartDashboard.putBoolean("Open Loop Shooter", mIsOpenLoop);
-                SmartDashboard.putNumber("Shooter Demand", mPeriodicIO.flywheel_demand);
+                
             }
 
             @Override
@@ -83,48 +110,77 @@ public class Shooter extends Subsystem {
     @Override
     public void readPeriodicInputs() {
         mPeriodicIO.timestamp = Timer.getFPGATimestamp();
-        mPeriodicIO.falcon_current = mMaster.getSupplyCurrent();
-        mPeriodicIO.falcon_voltage = mMaster.getMotorOutputVoltage();
-        mPeriodicIO.falcon_velocity = mMaster.getSelectedSensorVelocity();
+        mPeriodicIO.flywheel_current = mMaster.getSupplyCurrent();
+        mPeriodicIO.flywheel_voltage = mMaster.getMotorOutputVoltage();
+        mPeriodicIO.flywheel_velocity = mMaster.getSelectedSensorVelocity();
+
+        mPeriodicIO.accelerator_current = mAccelerator.getSupplyCurrent();
+        mPeriodicIO.accelerator_voltage = mAccelerator.getMotorOutputVoltage();
+        mPeriodicIO.accelerator_velocity = mAccelerator.getSelectedSensorVelocity();
     }
 
     @Override
     public void writePeriodicOutputs() {
         if (mIsOpenLoop) {
             mMaster.set(ControlMode.PercentOutput, mPeriodicIO.flywheel_demand);
+            mAccelerator.set(ControlMode.PercentOutput, mPeriodicIO.accelerator_demand);
         } else {
+            SmartDashboard.putNumber("Flywheel Input Demand",
+                    mPeriodicIO.flywheel_demand / Constants.ShooterConstants.kFlywheelVelocityConversion);
+            SmartDashboard.putNumber("Accelerator Input Demand",
+                    mPeriodicIO.accelerator_demand / Constants.ShooterConstants.kFlywheelVelocityConversion);
             mMaster.set(ControlMode.Velocity,
                     mPeriodicIO.flywheel_demand / Constants.ShooterConstants.kFlywheelVelocityConversion);
+            mAccelerator.set(ControlMode.Velocity,
+                    mPeriodicIO.accelerator_demand / Constants.ShooterConstants.kAccleratorVelocityConversion);
         }
     }
 
-    public void setOpenLoop(double demand) {
+    public void setOpenLoop(double flywheelDemand, double acceleratorDemand) {
         if (mIsOpenLoop != true) {
             mIsOpenLoop = true;
         }
-        mPeriodicIO.flywheel_demand = demand <= 12.0 ? demand : 12.0;
+        mPeriodicIO.flywheel_demand = flywheelDemand <= 12.0 ? flywheelDemand : 12.0;
+        mPeriodicIO.accelerator_demand = acceleratorDemand <= 12.0 ? acceleratorDemand : 12.0;
     }
 
-    public void setVelocity(double demand) {
+    public void setVelocity(double demand, double accleratorDemand) {
         if (mIsOpenLoop != false) {
             mIsOpenLoop = false;
         }
         mPeriodicIO.flywheel_demand = demand;
+        mPeriodicIO.accelerator_demand = accleratorDemand;
     }
 
-    public synchronized double getShooterRPM() {
-        return mPeriodicIO.falcon_velocity * Constants.ShooterConstants.kFlywheelVelocityConversion;
+    public synchronized double getFlywheelRPM() {
+        return mPeriodicIO.flywheel_velocity * Constants.ShooterConstants.kFlywheelVelocityConversion;
     }
 
-    public synchronized double getKickerRPM() {
-        return mPeriodicIO.falcon_velocity * Constants.ShooterConstants.kKickerVelocityConversion;
+    public synchronized double getAcceleratorRPM() {
+        return mPeriodicIO.accelerator_velocity * Constants.ShooterConstants.kAccleratorVelocityConversion;
+    }
+    
+    public synchronized double getFlywheelDemand() {
+        return mPeriodicIO.flywheel_demand;
+    }
+
+    public synchronized double getAcceleratorDemand() {
+        return mPeriodicIO.accelerator_demand;
+    }
+
+    public synchronized boolean getIsOpenLoop() {
+        return mIsOpenLoop;
     }
 
     public synchronized boolean spunUp() {
         if (mPeriodicIO.flywheel_demand > 0) {
-            return Util.epsilonEquals(mPeriodicIO.flywheel_demand,
-                                      mPeriodicIO.falcon_velocity * Constants.ShooterConstants.kFlywheelVelocityConversion,
-                                      Constants.ShooterConstants.kFlywheelTolerance);
+            boolean flywheelSpunUp = Util.epsilonEquals(mPeriodicIO.flywheel_demand,
+                                      mPeriodicIO.flywheel_velocity * Constants.ShooterConstants.kFlywheelVelocityConversion,
+                    Constants.ShooterConstants.kFlywheelTolerance);
+            boolean acceleratorSpunUp = Util.epsilonEquals(mPeriodicIO.accelerator_demand,
+                    mPeriodicIO.flywheel_velocity * Constants.ShooterConstants.kAccleratorVelocityConversion,
+                    Constants.ShooterConstants.kFlywheelTolerance);
+            return flywheelSpunUp && acceleratorSpunUp;
         }
         return false;
     }
@@ -132,18 +188,23 @@ public class Shooter extends Subsystem {
     public static class PeriodicIO {
         /* Inputs */
         public double timestamp;
-        public double falcon_velocity;
-        public double falcon_voltage;
-        public double falcon_current;
+        public double flywheel_velocity;
+        public double flywheel_voltage;
+        public double flywheel_current;
+
+        public double accelerator_velocity;
+        public double accelerator_voltage;
+        public double accelerator_current;
 
         /* Outputs */
         public double flywheel_demand;
+        public double accelerator_demand;
     }
 
     @Override
     public void stop() {
         /* Set motor to open loop to avoid hard slowdown */
-        setOpenLoop(0.0);
+        setOpenLoop(0.0, 0.0);
     }
 
     public boolean checkSystem() {

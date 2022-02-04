@@ -15,7 +15,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 public class Constants {
 
     // which robot
-    public static final boolean isComp = true;
+    public static final boolean isComp = false;
 	
 	// robot loop time
 	public static final double kLooperDt = 0.02;
@@ -103,7 +103,7 @@ public class Constants {
 
         /* Front Left Module - Module 0 */
         public static final class Mod0 {
-            public static final double betaAngleOffset = 52.64;
+            public static final double betaAngleOffset = 58.09;
             public static final double compAngleOffset = 123; // TODO: Check value
 
             public static SwerveModuleConstants SwerveModuleConstants() {
@@ -114,7 +114,7 @@ public class Constants {
 
         /* Front Right Module - Module 1 */
         public static final class Mod1 {
-            public static final double betaAngleOffset = 341.63;
+            public static final double betaAngleOffset = 340.63;
             public static final double compAngleOffset = 138; // TODO: Check value
             
             public static SwerveModuleConstants SwerveModuleConstants() {
@@ -251,19 +251,26 @@ public class Constants {
 
     public static final class ShooterConstants {
 
-        public static final double kFlywheelVelocityConversion = 600.0 / 2048.0 * (3.0/4.0); 
-        public static final double kKickerVelocityConversion = 600.0 / 2048.0; // 1:1 ratio on the kicker
+        public static final double kFlywheelVelocityConversion = 600.0 / 2048.0; 
+        public static final double kAccleratorVelocityConversion = 600.0 / 2048.0 * (1.3 / 1.0);
+
+        public static final double kAcceleratorMultiplier = 1.2;
         
         public static final double kFlywheelTolerance = 500;
-        public static final double kShooterP = 0.1; // TODO Retune these
+        public static final double kShooterP = 0.1; 
         public static final double kShooterI = 0.0;
         public static final double kShooterD = 0.0;
-        public static final double kShooterF = 0.05;
+        public static final double kShooterF = 0.0545;
         public static final double kClosedLoopRamp = 0.1;
+
+        public static final double kAcceleratorP = 0.05;
+        public static final double kAcceleratorI = 0.0;
+        public static final double kAcceleratorD = 0.0;
+        public static final double kAcceleratorF = 0.045;
     }
 
     public static final class HoodConstants {
-        public static final double kCalibratingVoltage = -2.0;
+        public static final double kCalibratingVoltage = -1.0;
         public static final double kCalibrationCurrentThreshold = 15.0;
 
         public static final ServoMotorSubsystemConstants kHoodServoConstants = new ServoMotorSubsystemConstants();
@@ -276,7 +283,7 @@ public class Constants {
 
             // Unit == Degrees
             kHoodServoConstants.kHomePosition = 0.0; // Degrees
-            kHoodServoConstants.kTicksPerUnitDistance = (2048.0) / 360.0; // TODO Add real gear ratio
+            kHoodServoConstants.kTicksPerUnitDistance = (2048.0 / 360.0) * (118.4 / 1.0);
             kHoodServoConstants.kKp = 0.55;
             kHoodServoConstants.kKi = 0;
             kHoodServoConstants.kKd = 0;
@@ -293,8 +300,8 @@ public class Constants {
             kHoodServoConstants.kPositionIZone = 0; // Ticks
             kHoodServoConstants.kPositionDeadband = 0; // Ticks
 
-            kHoodServoConstants.kMinUnitsLimit = 0; // TODO Add actual min/max limits (in degrees)
-            kHoodServoConstants.kMaxUnitsLimit = 1;
+            kHoodServoConstants.kMinUnitsLimit = 5; // TODO Add actual min/max limits (in degrees)
+            kHoodServoConstants.kMaxUnitsLimit = 30;
 
             kHoodServoConstants.kCruiseVelocity = 20000; // Ticks / 100ms
             kHoodServoConstants.kAcceleration = 20000; // Ticks / 100ms / s
@@ -324,8 +331,8 @@ public class Constants {
         public static final int kTopBeamBreak = 0;
 
         public static final double kSingulatorVoltage = 10.0;
-        public static final double kIndexerIndexingVoltage = 5.0;
-        public static final double kIndexerReversingVoltage = -5.0;
+        public static final double kTunnelIndexingVoltage = 5.0;
+        public static final double kTunnelReversingVoltage = -5.0;
         public static final double kIdleVoltage = 0.0;
         public static final double kTriggerIndexingVoltage = 5.0;
         public static final double kTriggerReversingVoltage = -5.0;

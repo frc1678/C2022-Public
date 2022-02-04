@@ -1,7 +1,5 @@
 package com.team1678.frc2022.subsystems;
 
-import com.team1678.frc2022.loops.Loop;
-import com.team1678.frc2022.regressions.ShooterRegression;
 import com.team254.lib.util.InterpolatingDouble;
 import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.util.Util;
@@ -11,10 +9,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.Optional;
 
+import com.team1678.frc2022.loops.Loop;
+import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.Constants;
+import com.team1678.frc2022.regressions.ShooterRegression;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.CustomXboxController.Side;
-import com.team1678.frc2022.loops.ILooper;
 
 public class Superstructure extends Subsystem {
 
@@ -122,26 +122,16 @@ public class Superstructure extends Subsystem {
 
     /*** SETTERS FOR SUPERSTRUCTURE ACTIONS OUTSIDE OPERATOR INPUT ***/
     public void setWantIntake(boolean intake) {
-        if (mPeriodicIO.INTAKE != intake) {
-            mPeriodicIO.INTAKE = intake;
-        }
+        mPeriodicIO.INTAKE = intake;
     }
     public void setWantOuttake(boolean outtake) {
-        if (mPeriodicIO.OUTTAKE != outtake) {
-            mPeriodicIO.OUTTAKE = outtake;
-        }
+        mPeriodicIO.OUTTAKE = outtake;
     }
     public void setWantPrep(boolean wants_prep) {
         mPeriodicIO.PREP = wants_prep;
     }
     public void setWantShoot(boolean wants_shoot) {
         mPeriodicIO.SHOOT = wants_shoot;
-    }
-    public void setShooterVelocity(double velocity) {
-        mShooterSetpoint = velocity;
-    }
-    public void setWantIntake() {
-        setWantIntake(!mPeriodicIO.INTAKE);
     }
 
     /*** UPDATE SHOOTER AND HOOD SETPOINTS WHEN VISION AIMING ***/
@@ -206,9 +196,9 @@ public class Superstructure extends Subsystem {
 
         // set shooter subsystem setpoint
         if (Math.abs(mPeriodicIO.real_shooter) < Util.kEpsilon) {
-            mShooter.setOpenLoop(0); // open loop if rpm goal is 0, to smooth spin down and stop belt skipping
+            mShooter.setOpenLoop(0, 0); // open loop if rpm goal is 0, to smooth spin down and stop belt skipping
         } else {
-            mShooter.setVelocity(mShooterSetpoint);
+            mShooter.setVelocity(mShooterSetpoint, mShooterSetpoint * Constants.ShooterConstants.kAcceleratorMultiplier);
         }
 
         // set hood subsystem setpoint
