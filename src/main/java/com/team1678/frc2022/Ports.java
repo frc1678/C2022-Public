@@ -34,7 +34,7 @@ public class Ports {
     public static final int INTAKE_SOLENOID_ID = 1;
 
     public static final int SINGULATOR_ID = 9;
-    public static final int HOPPER_ID = 10;
+    public static final int TUNNEL_ID = 10;
     public static final int TRIGGER_ID = 11;
     public static final int EJECTOR_SOLENOID_ID = 0;
     public static final int BOTTOM_BEAM_BREAK = 8;
