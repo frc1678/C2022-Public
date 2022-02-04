@@ -1,6 +1,7 @@
 package com.team1678.frc2022.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
@@ -14,7 +15,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Indexer extends Subsystem {
     
-    private final TalonFX mIndexer;
+    private final TalonFX mTunnel;
     private final TalonFX mTrigger;
 
     private static Indexer mInstance;
@@ -48,11 +49,16 @@ public class Indexer extends Subsystem {
     }
 
     private Indexer() {
-        //mSuperstructure = Superstructure.getInstance();
-
-        mIndexer = TalonFXFactory.createDefaultTalon(Ports.HOPPER_ID);
+        mTunnel = TalonFXFactory.createDefaultTalon(Ports.TUNNEL_ID);
         mTrigger = TalonFXFactory.createDefaultTalon(Ports.TRIGGER_ID);
         mTrigger.setInverted(true);
+
+        mTunnel.changeMotionControlFramePeriod(255);
+        mTunnel.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
+        mTunnel.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
+        mTrigger.changeMotionControlFramePeriod(255);
+        mTrigger.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
+        mTrigger.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
       
         mBottomBeamBreak = new DigitalInput(Ports.BOTTOM_BEAM_BREAK);
         mTopBeamBreak = new DigitalInput(Ports.TOP_BEAM_BREAK);
@@ -79,8 +85,8 @@ public class Indexer extends Subsystem {
         mPeriodicIO.trigger_current = mTrigger.getStatorCurrent();
         mPeriodicIO.trigger_voltage = mTrigger.getMotorOutputVoltage();
 
-        mPeriodicIO.tunnel_current = mIndexer.getStatorCurrent();
-        mPeriodicIO.tunnel_voltage = mIndexer.getMotorOutputVoltage();
+        mPeriodicIO.tunnel_current = mTunnel.getStatorCurrent();
+        mPeriodicIO.tunnel_voltage = mTunnel.getMotorOutputVoltage();
 
         if (mPeriodicIO.bottom_break) {
             if (!mBottomHadSeenBall) {
@@ -107,7 +113,7 @@ public class Indexer extends Subsystem {
 
     @Override
     public void writePeriodicOutputs() {
-        mIndexer.set(ControlMode.PercentOutput, mPeriodicIO.tunnel_demand / 12.0);
+        mTunnel.set(ControlMode.PercentOutput, mPeriodicIO.tunnel_demand / 12.0);
         mTrigger.set(ControlMode.PercentOutput, mPeriodicIO.trigger_demand / 12.0);
     }
 
@@ -224,27 +230,6 @@ public class Indexer extends Subsystem {
                     mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIdleVoltage;
                 }
 
-                
-                if (ballAtTrigger()) {
-                    mReverseTriggerTimer.start();
-                    mWantTriggerReverse = true;
-                }
-
-                if (!mReverseTriggerTimer.hasElapsed(kReverseAtTopTime) && mWantTriggerReverse) {
-                    mPeriodicIO.trigger_demand = -Constants.IndexerConstants.kTriggerIndexingVoltage;    
-                } else if (mReverseTriggerTimer.hasElapsed(kReverseAtTopTime) && mWantTriggerReverse){
-                    mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIdleVoltage;
-                    mWantTriggerReverse = false;
-                    mReverseTriggerTimer.reset();
-                    mPeriodicIO.ball_count++;
-                } else {
-                    if (mPeriodicIO.ball_count > 0) {
-                        mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIdleVoltage;
-                    } else {
-                        mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerIndexingVoltage;
-                    }
-                }
-
                 if (stopTunnel()) {
                     mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kIdleVoltage;
                 } else {
@@ -265,7 +250,7 @@ public class Indexer extends Subsystem {
     @Override
     public void stop() {
         //mTrigger.set(ControlMode.PercentOutput, 0);
-        mIndexer.set(ControlMode.PercentOutput, 0);
+        mTunnel.set(ControlMode.PercentOutput, 0);
 
     }
 

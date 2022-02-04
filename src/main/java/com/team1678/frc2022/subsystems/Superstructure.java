@@ -13,6 +13,7 @@ import com.team1678.frc2022.loops.Loop;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.regressions.ShooterRegression;
+import com.team1678.frc2022.subsystems.ServoMotorSubsystem.ControlState;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.CustomXboxController.Side;
 
@@ -66,7 +67,7 @@ public class Superstructure extends Subsystem {
     }
 
     // setpoint tracker variables
-    public double mShooterSetpoint = 0.0;
+    public double mShooterSetpoint = 3000.0;
     public double mHoodSetpoint = 10.0; // TODO: arbitrary value, change
 
     @Override
@@ -82,7 +83,7 @@ public class Superstructure extends Subsystem {
                 final double start = Timer.getFPGATimestamp();
 
                 updateOperatorCommands();
-                maybeUpdateGoalFromVision();
+                // maybeUpdateGoalFromVision();
                 setGoals();
                 outputTelemetry();
 
@@ -170,7 +171,7 @@ public class Superstructure extends Subsystem {
             mPeriodicIO.real_intake = Intake.WantedAction.NONE;
 
             // only feed cargo to shoot when spun up and aimed
-            if (isSpunUp() && isAimed()) {
+            if (isSpunUp() /*&& isAimed()*/) {
                 mPeriodicIO.real_indexer = Indexer.WantedAction.FEED;
             } else {
                 mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX;
@@ -184,7 +185,7 @@ public class Superstructure extends Subsystem {
                 mPeriodicIO.real_indexer = Indexer.WantedAction.REVERSE;
             } else {
                 mPeriodicIO.real_intake = Intake.WantedAction.NONE;
-                mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX; // always in indexing state
+                mPeriodicIO.real_indexer = Indexer.WantedAction.NONE; // always in indexing state
             }
         }
 
@@ -206,7 +207,9 @@ public class Superstructure extends Subsystem {
         mPeriodicIO.real_hood = Util.clamp(mPeriodicIO.real_hood,
                 Constants.HoodConstants.kHoodServoConstants.kMinUnitsLimit,
                 Constants.HoodConstants.kHoodServoConstants.kMaxUnitsLimit); 
-        mHood.setSetpointMotionMagic(mPeriodicIO.real_hood);
+        if (mHood.mControlState != ControlState.OPEN_LOOP) {
+            mHood.setSetpointMotionMagic(mPeriodicIO.real_hood);
+        }
     }
 
     /*** GET SHOOTER AND HOOD SETPOINTS FROM SUPERSTRUCTURE CONSTANTS REGRESSION ***/
