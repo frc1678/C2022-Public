@@ -9,13 +9,18 @@ import com.team1678.frc2022.loops.Loop;
 import com.team254.lib.drivers.TalonFXFactory;
 import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.util.TimeDelayedBoolean;
-
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 
 public class Intake extends Subsystem {
 
     private TimeDelayedBoolean mIntakeSolenoidTimer = new TimeDelayedBoolean();
+
+    private static boolean mReverseAtThree = false;
+
+    private final double kReverseDelay = 2.0;
+    private Timer mReverseTimer = new Timer();
 
     public enum WantedAction {
         NONE, INTAKE, REVERSE, STAY_OUT
@@ -29,6 +34,7 @@ public class Intake extends Subsystem {
     private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
 
     private static Intake mInstance;
+    private static Indexer mIndexer;
     public State mState = State.IDLE;
 
     private final TalonFX mMaster;
@@ -82,6 +88,23 @@ public class Intake extends Subsystem {
                 break;
         }
     }
+
+    public void reverseAtThree() {
+        if (mIndexer.mPeriodicIO.ball_count == 3){
+            mReverseTimer.start();
+            mReverseAtThree = true;
+            mPeriodicIO.intake_demand = -Constants.IntakeConstants.kIntakingVoltage;
+            mPeriodicIO.singulator_demand = -Constants.IndexerConstants.kSingulatorVoltage;
+        }
+        if (mReverseTimer.hasElapsed(kReverseDelay)) {
+            mReverseTimer.reset();
+        }
+        else {
+            mReverseAtThree = false;
+        }
+    
+    }
+
 
     public synchronized State getState() {
         return mState;
