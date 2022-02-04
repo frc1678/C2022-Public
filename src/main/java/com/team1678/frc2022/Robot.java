@@ -200,21 +200,24 @@ public class Robot extends TimedRobot {
 			// }
 
 			//Climb Solenoid Controls for bring up
-			if (mControlBoard.getInitialRelaseSolenoidTriggered()) {
+			mClimbMode = mControlBoard.getClimbMode();
+			if (mClimbMode) {
+				if (mControlBoard.getInitialReleaseSolenoidTriggered()) {
 				mClimber.mPeriodicIO.deploy_solenoid = true;
 				mClimber.mInitialReleaseClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
 			} else if (mControlBoard.getChopstickSolenoidTriggered()){
 				mClimber.mPeriodicIO.deploy_solenoid = true;
         		mClimber.mChopstickClimberBarSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
-			}else if (mControlBoard.getHookReleaseSolenoidTriggered()) {
+			} else if (mControlBoard.getHookReleaseSolenoidTriggered()) {
 				mClimber.mPeriodicIO.deploy_solenoid = true;
 				mClimber.mHookClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
-			}else if (mControlBoard.getHookingArmSolenoidTriggered()) {
+			} else if (mControlBoard.getHookingArmSolenoidTriggered()) {
 				mClimber.mPeriodicIO.deploy_solenoid = true;
 				mClimber.mHookingArmClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
-			}else {
+			} else {
 				mClimber.mPeriodicIO.deploy_solenoid = false;
 			}
+		}
 
 			mClimbMode = mControlBoard.getClimbMode();
 			mTraversalClimb = mControlBoard.getTrasversalClimb();

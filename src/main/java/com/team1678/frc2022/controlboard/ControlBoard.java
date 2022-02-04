@@ -204,7 +204,7 @@ public class ControlBoard {
         return operator.getTrigger(Side.LEFT) && operator.getTrigger(Side.RIGHT);
     }
     //controls for bringup:
-    public boolean getInitialRelaseSolenoidTriggered() {
+    public boolean getInitialReleaseSolenoidTriggered() {
         return operator.getButton(Button.Y);
     }
     public boolean getChopstickSolenoidTriggered() {
