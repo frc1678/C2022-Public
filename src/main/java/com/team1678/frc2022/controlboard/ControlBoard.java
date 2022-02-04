@@ -200,7 +200,7 @@ public class ControlBoard {
     public boolean getClimbMode() {
         return operator.getButton(Button.LB) && operator.getButton(Button.RB) && operator.getTrigger(Side.LEFT) && operator.getTrigger(Side.RIGHT);
     }
-    public boolean getTrasversalClimb() {
+    public boolean getTraversalClimb() {
         return operator.getTrigger(Side.LEFT) && operator.getTrigger(Side.RIGHT);
     }
     //controls for bringup:

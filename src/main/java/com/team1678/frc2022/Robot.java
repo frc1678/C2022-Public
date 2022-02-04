@@ -220,7 +220,7 @@ public class Robot extends TimedRobot {
 		}
 
 			mClimbMode = mControlBoard.getClimbMode();
-			mTraversalClimb = mControlBoard.getTrasversalClimb();
+			mTraversalClimb = mControlBoard.getTraversalClimb();
 			if (mClimbMode) {
 				if (mTraversalClimb) {
 					TimeDelayedBoolean mSolenoidTimer = new TimeDelayedBoolean();
