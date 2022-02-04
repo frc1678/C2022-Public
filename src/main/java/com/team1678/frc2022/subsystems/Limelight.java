@@ -222,9 +222,7 @@ public class Limelight extends Subsystem {
         SmartDashboard.putNumber("Limelight Tx: ", mPeriodicIO.xOffset);
         SmartDashboard.putNumber("Limelight Ty: ", mPeriodicIO.yOffset);
 
-        if (mDistanceToTarget.isPresent()) {
-            SmartDashboard.putNumber("Distance To Target", mDistanceToTarget.get());
-        }
+        SmartDashboard.putNumber("Distance To Target", mDistanceToTarget.isPresent() ? mDistanceToTarget.get() : 0.0);
 
         if (mCSVWriter != null) {
             mCSVWriter.write();
