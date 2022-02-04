@@ -203,19 +203,19 @@ public class Robot extends TimedRobot {
 			mClimbMode = mControlBoard.getClimbMode();
 			if (mClimbMode) {
 				if (mControlBoard.getInitialReleaseSolenoidTriggered()) {
-				mClimber.mPeriodicIO.deploy_solenoid = true;
-				mClimber.mInitialReleaseClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
-			} else if (mControlBoard.getChopstickSolenoidTriggered()){
-				mClimber.mPeriodicIO.deploy_solenoid = true;
-        		mClimber.mChopstickClimberBarSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
-			} else if (mControlBoard.getHookReleaseSolenoidTriggered()) {
-				mClimber.mPeriodicIO.deploy_solenoid = true;
-				mClimber.mHookClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
-			} else if (mControlBoard.getHookingArmSolenoidTriggered()) {
-				mClimber.mPeriodicIO.deploy_solenoid = true;
-				mClimber.mHookingArmClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
-			} else {
-				mClimber.mPeriodicIO.deploy_solenoid = false;
+					mClimber.mPeriodicIO.deploy_solenoid = true;
+					mClimber.mInitialReleaseClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
+				} else if (mControlBoard.getChopstickSolenoidTriggered()){
+					mClimber.mPeriodicIO.deploy_solenoid = true;
+        			mClimber.mChopstickClimberBarSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
+				} else if (mControlBoard.getHookReleaseSolenoidTriggered()) {
+					mClimber.mPeriodicIO.deploy_solenoid = true;
+					mClimber.mHookClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
+				} else if (mControlBoard.getHookingArmSolenoidTriggered()) {
+					mClimber.mPeriodicIO.deploy_solenoid = true;
+					mClimber.mHookingArmClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
+				} else {
+					mClimber.mPeriodicIO.deploy_solenoid = false;
 			}
 		}
 
@@ -224,17 +224,20 @@ public class Robot extends TimedRobot {
 			if (mClimbMode) {
 				if (mTraversalClimb) {
 					TimeDelayedBoolean mSolenoidTimer = new TimeDelayedBoolean();
+					//Release solenoid for first arm
+					mClimber.mPeriodicIO.deploy_solenoid = true;
+					mClimber.mInitialReleaseClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
 					//Extend first arm to climb onto first bar
 					while (Util.inRange(mClimber.getClimberPosition(), Constants.ClimberConstants.kInitialExtensionHeight)) {
 						mClimber.mPeriodicIO.deploy_solenoid = true;
-						mClimber.mInitialReleaseClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
+						mClimber.mHookingArmClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
 						mClimber.getInitialArmExtension();
 						Thread.sleep(((long)(2000*Constants.kLooperDt)));
 					}
 					//Extend to traversal bar and hook on
 					while (Util.inRange(mClimber.getClimberPosition(), Constants.ClimberConstants.kTraversalExtentionHeight)) {
 						mClimber.mPeriodicIO.deploy_solenoid = true;
-						mClimber.mHookingArmClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
+						mClimber.mChopstickClimberBarSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
 						mClimber.mPeriodicIO.climber_demand = Constants.ClimberConstants.kClimbingVoltage;
 						Thread.sleep(((long)(2000*Constants.kLooperDt)));
 					}

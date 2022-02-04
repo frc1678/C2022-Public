@@ -216,6 +216,17 @@ public class ControlBoard {
     public boolean getHookReleaseSolenoidTriggered() {
         return operator.getButton(Button.B);
     }
+    public int getClimberJog() {
+        int povread = operator.getController().getPOV();
+        switch (povread) {
+            case 0:
+                return 1;
+            case 180:
+                return -1;
+            default:
+                return 0;
+        }
+    }
 
 }
 
