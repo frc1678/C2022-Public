@@ -283,7 +283,7 @@ public class Constants {
             // Unit == Degrees
             kHoodServoConstants.kHomePosition = 0.0; // Degrees
             kHoodServoConstants.kTicksPerUnitDistance = (2048.0 / 360.0) * (118.4 / 1.0);
-            kHoodServoConstants.kKp = 0.55;
+            kHoodServoConstants.kKp = 0.70;
             kHoodServoConstants.kKi = 0;
             kHoodServoConstants.kKd = 0;
             kHoodServoConstants.kKf = 0.05;
@@ -299,7 +299,7 @@ public class Constants {
             kHoodServoConstants.kPositionIZone = 0; // Ticks
             kHoodServoConstants.kPositionDeadband = 0; // Ticks
 
-            kHoodServoConstants.kMinUnitsLimit = 5; // TODO Add actual min/max limits (in degrees)
+            kHoodServoConstants.kMinUnitsLimit = 0; // TODO Add actual min/max limits (in degrees)
             kHoodServoConstants.kMaxUnitsLimit = 30;
 
             kHoodServoConstants.kCruiseVelocity = 20000; // Ticks / 100ms
@@ -335,7 +335,7 @@ public class Constants {
         public static final double kIdleVoltage = 0.0;
         public static final double kTriggerIndexingVoltage = 5.0;
         public static final double kTriggerReversingVoltage = -5.0;
-        public static final double kFeedingVoltage = 6.0;
+        public static final double kFeedingVoltage = 9.0;
 
     }
         
