@@ -7,12 +7,6 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
 import com.team254.lib.drivers.TalonFXFactory;
-import com.team254.lib.util.LatchedBoolean;
-import com.team254.lib.util.TimeDelayedBoolean;
-
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.Solenoid;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Climber extends Subsystem {
 
