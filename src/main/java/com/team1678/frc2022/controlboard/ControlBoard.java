@@ -166,6 +166,11 @@ public class ControlBoard {
         return driver.getButton(Button.RB);
     }
 
+    //Locks wheels in X formation
+    public boolean getBrake() {
+        return driver.getButton(Button.LB);
+    }
+
     //Intake Controls
     public boolean getIntake() {
         return operator.getTrigger(Side.RIGHT);

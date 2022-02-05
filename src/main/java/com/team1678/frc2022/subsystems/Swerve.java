@@ -40,6 +40,8 @@ public class Swerve extends Subsystem {
 
     public ProfiledPIDController visionPIDController;
 
+    public boolean mLocked = false;
+
     public static Swerve getInstance() {
         if (mInstance == null) {
             mInstance = new Swerve();
@@ -138,20 +140,30 @@ public class Swerve extends Subsystem {
             } else {
                 maybeStopSnap(true);
             }
-        } 
-        SwerveModuleState[] swerveModuleStates =
-            Constants.SwerveConstants.swerveKinematics.toSwerveModuleStates(
-                fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(
-                                    translation.getX(), 
-                                    translation.getY(), 
-                                    rotation, 
-                                    getYaw()
-                                )
-                                : new ChassisSpeeds(
-                                    translation.getX(), 
-                                    translation.getY(), 
-                                    rotation)
-                                );
+        }
+        SwerveModuleState[] swerveModuleStates = null;
+        if (mLocked) {
+            swerveModuleStates = new SwerveModuleState[]{
+                new SwerveModuleState(0.1, Rotation2d.fromDegrees(45)),
+                new SwerveModuleState(0.1, Rotation2d.fromDegrees(315)),
+                new SwerveModuleState(0.1, Rotation2d.fromDegrees(135)),
+                new SwerveModuleState(0.1, Rotation2d.fromDegrees(225))
+            };
+        } else {
+            swerveModuleStates =
+                Constants.SwerveConstants.swerveKinematics.toSwerveModuleStates(
+                    fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(
+                                        translation.getX(), 
+                                        translation.getY(), 
+                                        rotation, 
+                                        getYaw()
+                                    )
+                                    : new ChassisSpeeds(
+                                        translation.getX(), 
+                                        translation.getY(), 
+                                        rotation)
+                                    );
+        }
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.SwerveConstants.maxSpeed);
 
         for (SwerveModule mod : mSwerveMods) {

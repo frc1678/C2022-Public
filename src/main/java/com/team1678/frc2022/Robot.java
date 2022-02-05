@@ -83,10 +83,10 @@ public class Robot extends TimedRobot {
 			mSubsystemManager.setSubsystems(
 					mSwerve,
 					mInfrastructure,
-					mIntake,
-					mIndexer,
-					mShooter,
-					mHood,
+					//mIntake,
+					//mIndexer,
+					//mShooter,
+					//mHood,
 					mSuperstructure // ,
 					// mLimelight
 			);
@@ -148,6 +148,14 @@ public class Robot extends TimedRobot {
 	public void teleopPeriodic() {
 		try {
 			/* SWERVE DRIVE */
+			if (mControlBoard.getBrake()) {
+				mSwerve.mLocked = true;
+			}
+			else{
+				mSwerve.mLocked = false;
+			}
+
+
 			if (mControlBoard.zeroGyro()) {
 				mSwerve.zeroGyro();
 			}
