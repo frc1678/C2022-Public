@@ -192,7 +192,7 @@ public class Robot extends TimedRobot {
 				mSuperstructure.setShooterVelocity(3000, 4000);
 				mSuperstructure.setWantSpinUp();
 			}
-
+ 
 			/* CLIMBER */
 			if (mControlBoard.getClimbMode()) {
 				mClimbMode = true;
@@ -238,8 +238,8 @@ public class Robot extends TimedRobot {
 					}
 					//Pull up to traversal bar
 					else if (mClimber.getClimberPositionRight() >= Constants.ClimberConstants.kMidBarExtentionHeight) {
-						mClimber.setClimberDemandRight(-Constants.ClimberConstants.kClimbingVoltageRight);
 						mClimber.setClimberDemandLeft(Constants.ClimberConstants.kClimbingVoltageLeft);
+						mClimber.setClimberDemandRight(-Constants.ClimberConstants.kClimbingVoltageRight);
 					}
 					//Latch onto traversal bar
 					else if (mSwerve.getPitch().getDegrees() == Constants.ClimberConstants.kTraversalSwerveAngle) {
