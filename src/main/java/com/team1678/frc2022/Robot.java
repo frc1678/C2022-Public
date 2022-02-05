@@ -13,6 +13,7 @@ import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.ControlBoard.SwerveCardinal;
 import com.team1678.frc2022.loops.CrashTracker;
 import com.team1678.frc2022.loops.Looper;
+import com.team1678.frc2022.subsystems.Climber;
 import com.team1678.frc2022.subsystems.Hood;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Infrastructure;
@@ -59,10 +60,13 @@ public class Robot extends TimedRobot {
 	// private final Limelight mLimelight = Limelight.getInstance();
 	private final Infrastructure mInfrastructure = Infrastructure.getInstance();
 	private final Indexer mIndexer = Indexer.getInstance();
+	private final Climber mClimber = Climber.getInstance();
 
 	// instantiate enabled and disabled loopers
 	private final Looper mEnabledLooper = new Looper();
 	private final Looper mDisabledLooper = new Looper();
+
+	private final boolean mClimbMode = false;
 
 	// auto instances
 	private AutoModeExecutor mAutoModeExecutor;
@@ -87,7 +91,8 @@ public class Robot extends TimedRobot {
 					mIndexer,
 					mShooter,
 					mHood,
-					mSuperstructure // ,
+					mSuperstructure, 
+					mClimber
 					// mLimelight
 			);
 
@@ -184,6 +189,21 @@ public class Robot extends TimedRobot {
 			if (mControlBoard.operator.getController().getAButtonPressed()) {
 				mSuperstructure.setShooterVelocity(3000, 4000);
 				mSuperstructure.setWantSpinUp();
+			}
+
+			//Climber
+			if (mControlBoard.getClimbMode()) {
+				mClimbMode = true;
+			}
+
+			/* Manual Controls */
+			if (mClimbMode) {
+				if (mControlBoard.getExitClimbMode()) {
+					mClimbMode = false;
+				} 
+				if (mControlBoard.getClimberJogRight()) P{
+					mClimber.setClimberDemandRight(Constants.ClimberConstants.kClimbingVoltage);
+				}
 			}
 
 		} catch (Throwable t) {
