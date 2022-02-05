@@ -333,7 +333,7 @@ public class Constants {
         public static final double kFeedingVoltage = 6.0;
 
     }
-        
+    
     public static final class ClimberConstants {
         public static final double kCalibratingVoltage = 5.0;
         public static final double kStatorCurrentLimit = 8.0;
@@ -345,11 +345,9 @@ public class Constants {
         public static final double kInitialExtentionHeight = 4.0; //TODO: check values
         public static final double kMidBarExtentionHeight = 6.0; //TODO: check values
 
-
-        //degrees
-        public static final double kInitialSwerveAngle = 0.0; //TODO: check values
-        public static final double kMidBarSwerveAngle = 15.0; //TODO: check values
-        public static final double kTraversalSwerveAngle = 45.0; //TODO: check values
+        public static final double kInitialSwerveAngle = 0.0; //TODO: check values //degrees
+        public static final double kMidBarSwerveAngle = 15.0; //TODO: check values //degrees
+        public static final double kTraversalSwerveAngle = 45.0; //TODO: check values //degrees
 
 
     }
