@@ -228,7 +228,7 @@ public class Robot extends TimedRobot {
 					if (mSwerve.getPitch().getDegrees() == Constants.ClimberConstants.kInitialSwerveAngle) {
 						mClimber.setClimberDemandLeft(Constants.ClimberConstants.kClimbingVoltageLeft);
 					}
-					//Pull up to mid bar
+					//Pull up to first bar
 					else if (mClimber.getClimberPositionLeft() >= Constants.ClimberConstants.kInitialExtentionHeight) {
 						mClimber.setClimberDemandLeft(-Constants.ClimberConstants.kClimbingVoltageLeft);
 					}
@@ -239,10 +239,11 @@ public class Robot extends TimedRobot {
 					//Pull up to traversal bar
 					else if (mClimber.getClimberPositionRight() >= Constants.ClimberConstants.kMidBarExtentionHeight) {
 						mClimber.setClimberDemandRight(-Constants.ClimberConstants.kClimbingVoltageRight);
-					}
-					//Latch on to traversal bar
-					else if (mSwerve.getPitch().getDegrees() == Constants.ClimberConstants.kTraversalSwerveAngle) {
 						mClimber.setClimberDemandLeft(Constants.ClimberConstants.kClimbingVoltageLeft);
+					}
+					//Latch onto traversal bar
+					else if (mSwerve.getPitch().getDegrees() == Constants.ClimberConstants.kTraversalSwerveAngle) {
+						mClimber.setClimberDemandLeft(-Constants.ClimberConstants.kClimbingVoltageLeft);
 					}
 				} else {
 					mClimber.setClimberDemandLeft(0.0);
