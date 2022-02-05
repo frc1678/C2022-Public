@@ -37,7 +37,7 @@ public class Ports {
 
     public static final int OUTTAKE_ID = 9;
     public static final int INDEXER_ID = 10;
-    public static final int SHOOTER_ID = 11;
+    public static final int TRIGGER_ID = 11;
 
     public static final int FLYWHEEL_MASTER_ID = 12;
     public static final int FLYWHEEL_SLAVE_ID = 16;

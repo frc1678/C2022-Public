@@ -20,9 +20,9 @@ private TalonFX mTrigger;
 private State mState = State.IDLE;
 
 private Indexer() {
-    mOuttake = TalonFXFactory.createDefaultTalon(Ports.INDEXER_ID);
+    mOuttake = TalonFXFactory.createDefaultTalon(Ports.OUTTAKE_ID);
     mIndexer = TalonFXFactory.createDefaultTalon(Ports.INDEXER_ID);
-    mTrigger = TalonFXFactory.createDefaultTalon(Ports.INDEXER_ID);
+    mTrigger = TalonFXFactory.createDefaultTalon(Ports.TRIGGER_ID);
 }
         
     public void setState(WantedAction wanted_state) {
@@ -57,9 +57,6 @@ private Indexer() {
                 synchronized (Indexer.this) {
                     runStateMachine();
                 }
-            }
-    
-            private void runStateMachine() {
             }
 
             @Override
