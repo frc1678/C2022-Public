@@ -218,6 +218,8 @@ public class Robot extends TimedRobot {
 				}
 			}
 
+			/* Automation */
+
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
 			throw t;

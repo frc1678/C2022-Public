@@ -248,6 +248,13 @@ public class Swerve extends Subsystem {
         return (Constants.SwerveConstants.invertGyro) ? Rotation2d.fromDegrees(360 - ypr[0]) : Rotation2d.fromDegrees(ypr[0]);
     }
 
+    public Rotation2d getPitch() {
+        double[] ypr = new double[3];
+        gyro.getYawPitchRoll(ypr);
+        return (Constants.SwerveConstants.invertGyro) ? Rotation2d.fromDegrees(360 - ypr[1]) : Rotation2d.fromDegrees(ypr[1]);
+    }
+
+
     public void updateSwerveOdometry(){
         swerveOdometry.update(getYaw(), getStates());  
     }
