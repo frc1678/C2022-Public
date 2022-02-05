@@ -300,15 +300,7 @@ public class Constants {
         public static final int kIndexerMaxVelocity = 20000;
         public static final int kIndexerMaxAcceleration = 40000;
 
-        public static final int kBottomBeamBreak = 1;
-        public static final int kTopBeamBreak = 0;
-
-        public static final double kElevatorIndexingVoltage = 5.0;
-        public static final double kElevatorReversingVoltage = -5.0;
-        public static final double kIdleVoltage = 0.0;
-        public static final double kHopperIndexingVoltage = 5;
-        public static final double kHopperReversingVoltage = -5;
-        public static final double kFeedingVoltage = 6.0;
+        public static final double kIndexerIdleVoltage = 0.0;
 
     }
         

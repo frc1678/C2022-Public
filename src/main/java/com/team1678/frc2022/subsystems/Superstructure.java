@@ -41,7 +41,6 @@ public class Superstructure extends Subsystem {
 
             @Override
             public void onLoop(double timestamp) {
-                setSetpoints();
                 SmartDashboard.putBoolean("Want Spin Up", mWantsSpinUp);
                 SmartDashboard.putBoolean("Want Shoot", mWantsShoot);
                 SmartDashboard.putBoolean("Is Spun Up", isSpunUp());
@@ -82,36 +81,6 @@ public class Superstructure extends Subsystem {
 
     public void setShooterVelocity(double velocity) {
         mShooterSetpoint = velocity;
-    }
-
-    public void setSetpoints() {
-        /* Default indexer wanted action to be set */
-        Indexer.WantedAction real_indexer;
-
-        if (mWantsSpinUp) {
-            mShooter.setVelocity(mShooterSetpoint);
-        } else {
-            mShooter.setOpenLoop(0.0);
-        }
-
-        if (mWantsShoot) {
-            if (isSpunUp()) {
-                real_indexer = Indexer.WantedAction.FEED;
-            } else {
-                real_indexer = Indexer.WantedAction.NONE;
-            }
-        } else {
-            /* SET INDEXER STATE */
-            if (mIntake.getState() == Intake.State.INTAKING) {
-                real_indexer = Indexer.WantedAction.INDEX;
-            } else if (mIntake.getState() == Intake.State.REVERSING) {
-                real_indexer = Indexer.WantedAction.REVERSE;
-            } else {
-                real_indexer = Indexer.WantedAction.NONE;
-            }
-        }
-
-        mIndexer.setState(real_indexer);
     }
 
     @Override
