@@ -301,7 +301,9 @@ public class Constants {
         public static final int kIndexerMaxAcceleration = 40000;
 
         public static final double kIndexerIdleVoltage = 0.0;
-
+        public static final double kIndexerIndexingVoltage = 2.0;
+        public static final double kIndexerOuttakingVoltage = 5.0;
+        public static final double kIndexerReversingVoltage = -5.0;
     }
         
     public static final class ClimberConstants {
