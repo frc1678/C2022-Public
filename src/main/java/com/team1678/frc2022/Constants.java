@@ -338,8 +338,19 @@ public class Constants {
         public static final double kCalibratingVoltage = 5.0;
         public static final double kStatorCurrentLimit = 8.0;
         public static final double kCalibrationTimeoutSeconds = 10.0;
+        
         public static final double kClimbingVoltageRight = 8.0;
-        public static final double kClimberVoltageLeft =  8.0;
+        public static final double kClimbingVoltageLeft =  8.0;
+        
+        public static final double kInitialExtentionHeight = 4.0; //TODO: check values
+        public static final double kMidBarExtentionHeight = 6.0; //TODO: check values
+
+
+        //degrees
+        public static final double kInitialSwerveAngle = 0.0; //TODO: check values
+        public static final double kMidBarSwerveAngle = 15.0; //TODO: check values
+        public static final double kTraversalSwerveAngle = 45.0; //TODO: check values
+
 
     }
 

@@ -228,5 +228,10 @@ public class ControlBoard {
                 return 0;
         }
     }
+
+    public boolean getTraversalClimb() {
+        return operator.getTrigger(Side.LEFT) && operator.getTrigger(Side.RIGHT);
+    }
+    
 }
 

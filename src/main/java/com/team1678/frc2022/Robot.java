@@ -4,6 +4,7 @@
 
 package com.team1678.frc2022;
 
+import java.security.Principal;
 import java.util.Optional;
 
 import com.team1678.frc2022.auto.AutoModeExecutor;
@@ -67,6 +68,7 @@ public class Robot extends TimedRobot {
 	private final Looper mDisabledLooper = new Looper();
 
 	private boolean mClimbMode = false;
+	private boolean mTraversalClimb = false;
 
 	// auto instances
 	private AutoModeExecutor mAutoModeExecutor;
@@ -191,7 +193,7 @@ public class Robot extends TimedRobot {
 				mSuperstructure.setWantSpinUp();
 			}
 
-			//Climber
+			/* CLIMBER */
 			if (mControlBoard.getClimbMode()) {
 				mClimbMode = true;
 			}
@@ -216,9 +218,37 @@ public class Robot extends TimedRobot {
 				if (mControlBoard.operator.getController().getPOV() == 360) {
 					mClimber.setClimberOpenLoop(-8.0);
 				}
+				
+				/* Automation */ 
+				if (mControlBoard.getTraversalClimb()) {
+						mTraversalClimb = true; 
+				}
+				if (mTraversalClimb) {
+					//Extention to first bar
+					if (mSwerve.getPitch().getDegrees() == Constants.ClimberConstants.kInitialSwerveAngle) {
+						mClimber.setClimberDemandLeft(Constants.ClimberConstants.kClimbingVoltageLeft);
+					}
+					//Pull up to mid bar
+					else if (mClimber.getClimberPositionLeft() >= Constants.ClimberConstants.kInitialExtentionHeight) {
+						mClimber.setClimberDemandLeft(-Constants.ClimberConstants.kClimbingVoltageLeft);
+					}
+					//Latch on to mid bar
+					else if (mSwerve.getPitch().getDegrees() == Constants.ClimberConstants.kMidBarSwerveAngle) {
+						mClimber.setClimberDemandRight(Constants.ClimberConstants.kClimbingVoltageRight);
+					}
+					//Pull up to traversal bar
+					else if (mClimber.getClimberPositionRight() >= Constants.ClimberConstants.kMidBarExtentionHeight) {
+						mClimber.setClimberDemandRight(-Constants.ClimberConstants.kClimbingVoltageRight);
+					}
+					//Latch on to traversal bar
+					else if (mSwerve.getPitch().getDegrees() == Constants.ClimberConstants.kTraversalSwerveAngle) {
+						mClimber.setClimberDemandLeft(Constants.ClimberConstants.kClimbingVoltageLeft);
+					}
+				} else {
+					mClimber.setClimberDemandLeft(0.0);
+					mClimber.setClimberDemandRight(0.0);
+				}
 			}
-
-			/* Automation */
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
