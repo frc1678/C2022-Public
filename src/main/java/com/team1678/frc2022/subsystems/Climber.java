@@ -6,40 +6,33 @@ import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
-import com.team1678.frc2022.loops.ILooper;
-import com.team1678.frc2022.subsystems.Intake.PeriodicIO;
 import com.team254.lib.drivers.TalonFXFactory;
 import com.team254.lib.util.LatchedBoolean;
 import com.team254.lib.util.TimeDelayedBoolean;
-import com.team254.lib.util.Util;
 
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
-import edu.wpi.first.wpilibj.I2C.Port;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Climber extends Subsystem {
 
     private final TalonFX mClimberMaster;
     private final TalonFX mClimberSlave;
+
     public final Solenoid mInitialReleaseClimberSolenoid;
-    public final Solenoid mHookingArmClimberSolenoid;
     public final Solenoid mChopstickClimberBarSolenoid;
     public final Solenoid mHookClimberSolenoid;
-    public final LatchedBoolean mInitialArmExtensionBoolean;
-
-    private TimeDelayedBoolean mClimberCalibrated = new TimeDelayedBoolean();
-
     public boolean mHomed;
 
     private static Climber mInstance;
 
-    public ControlState mControlState = ControlState.HOMING;
+    public ControlState mControlState = ControlState.OPEN_LOOP;
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
 
     private Climber() {
         mClimberMaster = TalonFXFactory.createDefaultTalon(Ports.CLIMBER_MASTER_ID);
-        mClimberSlave = TalonFXFactory.createPermanentSlaveTalon(Ports.CLIMBER_SLAVE_ID, Ports.CLIMBER_SLAVE_ID);
+        mClimberSlave = TalonFXFactory.createPermanentSlaveTalon(Ports.CLIMBER_SLAVE_ID, Ports.CLIMBER_MASTER_ID);
 
         mClimberMaster.set(ControlMode.PercentOutput, 0);
         mClimberMaster.setInverted(false);
@@ -63,9 +56,7 @@ public class Climber extends Subsystem {
         mChopstickClimberBarSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.CLIMBER_CHOPSTICK_SOLENOID);
         mHookClimberSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.CLIMBER_HOOK_RELEASE_SOLENOID);
         mInitialReleaseClimberSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.CLIMBER_INITIAL_RELEASE_SOLENOID);
-        mHookingArmClimberSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.CLIMBER_HOOKING_ARM_SOLENOID);
 
-        mInitialArmExtensionBoolean = new LatchedBoolean();
     }
 
     public static synchronized Climber getInstance() {
@@ -85,51 +76,38 @@ public class Climber extends Subsystem {
         mPeriodicIO.climber_stator_current = mClimberMaster.getStatorCurrent();
         mPeriodicIO.climber_motor_velocity = mClimberMaster.getSelectedSensorVelocity();
         mPeriodicIO.climber_motor_position = mClimberMaster.getSelectedSensorPosition();
-        
-        if(!mHomed) {
-            if (mControlState != ControlState.HOMING) {
-                mControlState = ControlState.HOMING;
-            }
-            if (mClimberCalibrated.update(Util.epsilonEquals(mPeriodicIO.climber_motor_velocity, 0, 500),
-            Constants.ClimberConstants.kCalibrationTimeoutSeconds) && mPeriodicIO.climber_stator_current > 30) {
-        setClimberOpenLoop(0.0);
-        zeroEncoders();
-        }
     }
-}
 
     @Override
     public void writePeriodicOutputs() {
         switch (mControlState) {
-            case HOMING:
-                mClimberMaster.set(ControlMode.PercentOutput, Constants.ClimberConstants.kCalibratingVoltage);
-                break;
             case OPEN_LOOP:
                 /* If holding position, set to position control to avoid sag */
-                if (mPeriodicIO.climber_demand == 0.0) {
-                    setClimberPositionDelta(0.0);
-                } else {
-                    mClimberMaster.set(ControlMode.PercentOutput, mPeriodicIO.climber_demand / 12);
-                }
+                // if (mPeriodicIO.climber_demand == 0.0) {
+                    // setClimberPositionDelta(0.0);
+                // } else {
+                    mClimberMaster.set(ControlMode.PercentOutput, mPeriodicIO.climber_demand / 12.0);
+                    // mClimberSlave.set(ControlMode.PercentOutput, mPeriodicIO.climber_demand / 12.0);
+                //}
                 break;
             case MOTION_MAGIC:
-            mClimberMaster.set(ControlMode.MotionMagic, mPeriodicIO.climber_demand);
+                mClimberMaster.set(ControlMode.MotionMagic, mPeriodicIO.climber_demand);
                 break;
             default:
-            mClimberMaster.set(ControlMode.MotionMagic,0.0);
+                mClimberMaster.set(ControlMode.MotionMagic,0.0);
                 break;
         }
-        mHookClimberSolenoid.set(mPeriodicIO.deploy_solenoid);
-        mChopstickClimberBarSolenoid.set(mPeriodicIO.deploy_solenoid);
-        mHookingArmClimberSolenoid.set(mPeriodicIO.deploy_solenoid);
-        mInitialReleaseClimberSolenoid.set(mPeriodicIO.deploy_solenoid);
+        
+        mInitialReleaseClimberSolenoid.set(mPeriodicIO.release_solenoid);
+        mChopstickClimberBarSolenoid.set(mPeriodicIO.chopsticks_solenoid);
+        mHookClimberSolenoid.set(mPeriodicIO.hook_solenoid);
     }
 
     public void setClimberOpenLoop(double wantedDemand) {
         if (mControlState != ControlState.OPEN_LOOP) {
             mControlState = ControlState.OPEN_LOOP;
         }
-        mPeriodicIO.climber_demand = (wantedDemand > 8 ? 8 : wantedDemand);
+        mPeriodicIO.climber_demand = (wantedDemand > 12 ? 12 : wantedDemand);
     }
 
     public void setClimberPosition(double wantedPositionTicks) {
@@ -158,7 +136,7 @@ public class Climber extends Subsystem {
     }
 
     public boolean getClimberSolenoidDeployed() {
-       return mPeriodicIO.deploy_solenoid;
+       return mPeriodicIO.chopsticks_solenoid;
     }
 
     public double getClimberVelocity() {
@@ -185,29 +163,57 @@ public class Climber extends Subsystem {
         return mControlState;
     }
 
-    public LatchedBoolean getInitialArmExtension() {
-        return mInitialArmExtensionBoolean;
-    }
-
-    public boolean getInitialArmSolenoidTriggered() {
-        mInitialReleaseClimberSolenoid.set(mPeriodicIO.deploy_solenoid);
-        return mPeriodicIO.deploy_solenoid;
-    }
-
     public boolean checkSystem() {
         return true;
     }
 
+    public void setClimberDemand(double demand) {
+        mPeriodicIO.climber_demand = demand;
+    }
+
+    public void toggleReleaseSolenoid() {
+        mPeriodicIO.release_solenoid = !mPeriodicIO.release_solenoid;
+    }
+
+    public void setReleaseSolenoid(boolean releaseSolenoid) {
+        mPeriodicIO.release_solenoid = releaseSolenoid;
+    }
+
+    public void setHookSolenoid(boolean hookSolenoid) {
+        mPeriodicIO.hook_solenoid = hookSolenoid;
+    }
+
+    public void setChopstickSolenoid(boolean chopstickSolenoid) {
+        mPeriodicIO.chopsticks_solenoid = chopstickSolenoid;
+    }
+
+    public void toggleChopsticksSolenoid() {
+        mPeriodicIO.chopsticks_solenoid = !mPeriodicIO.chopsticks_solenoid;
+    }
+
+    public void toggleHookSolenoid() {
+        mPeriodicIO.hook_solenoid = !mPeriodicIO.hook_solenoid;
+    }
+
     public boolean hasEmergency = false;
 
+    public void outputTelemetry() {
+        SmartDashboard.putBoolean("Release Solenoid", mPeriodicIO.release_solenoid);
+        SmartDashboard.putBoolean("Chopsticks Solenoid", mPeriodicIO.chopsticks_solenoid);
+        SmartDashboard.putBoolean("Hook Solenoid", mPeriodicIO.hook_solenoid);
+    }
+
     public static class PeriodicIO {
-         /* Inputs */
-         public double climber_stator_current;
-         public double climber_motor_position;
-         public double climber_motor_velocity;
- 
-         /* Outputs */
-         public double climber_demand;
-         public boolean deploy_solenoid;
+        /* Inputs */
+        public double climber_stator_current;
+        public double climber_motor_position;
+        public double climber_motor_velocity;
+
+        /* Outputs */
+        public double climber_demand;
+
+        public boolean release_solenoid;
+        public boolean chopsticks_solenoid;
+        public boolean hook_solenoid;
     }
 }   

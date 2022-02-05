@@ -92,13 +92,13 @@ public class Robot extends TimedRobot {
 			mSubsystemManager.setSubsystems(
 					mSwerve,
 					mInfrastructure,
-					mIntake,
-					mIndexer,
-					mShooter,
-					mSuperstructure,
-					mLimelight,
-					mClimber,
-					mHood
+					// mIntake,
+					// mIndexer,
+					// mShooter,
+					// mSuperstructure,
+					// mLimelight,
+					mClimber //,
+					// mHood
 			);
 
 			mSubsystemManager.registerEnabledLoops(mEnabledLooper);
@@ -156,6 +156,10 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopPeriodic() {
+		try {
+			
+			mClimber.outputTelemetry();
+
 			/* SWERVE DRIVE */
 			if (mControlBoard.zeroGyro()) {
 				mSwerve.zeroGyro();
@@ -176,47 +180,71 @@ public class Robot extends TimedRobot {
 				mSwerve.drive(swerveTranslation, swerveRotation, true, true);
 			}
 
-			if (mControlBoard.operator.getController().getYButtonPressed()) {
-				mSuperstructure.setWantShoot();
-			}
-			// Intake
-			if (mControlBoard.getIntake()) {
-				mSuperstructure.setWantIntake(true);
-			} else if (mControlBoard.getOuttake()) {
-				mSuperstructure.setWantOuttake(true);
-			} else {
-				mSuperstructure.setWantIntake(false);
-				mSuperstructure.setWantOuttake(false);
+			if (mControlBoard.getClimbMode()) {
+				mClimbMode = true;
 			}
 
-			if (mControlBoard.operator.getController().getYButtonPressed()) {
-				mSuperstructure.setWantShoot();
-			}
-
-			if (mControlBoard.operator.getController().getAButtonPressed()) {
-				mSuperstructure.setShooterVelocity(3000, 4000);
-				mSuperstructure.setWantSpinUp();
-			}
-
-			//Climb Solenoid Controls for bring up
-			mClimbMode = mControlBoard.getClimbMode();
 			if (mClimbMode) {
-				if (mControlBoard.getInitialReleaseSolenoidTriggered()) {
-					mClimber.mPeriodicIO.deploy_solenoid = true;
-					mClimber.mInitialReleaseClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
-				} else if (mControlBoard.getChopstickSolenoidTriggered()){
-					mClimber.mPeriodicIO.deploy_solenoid = true;
-        			mClimber.mChopstickClimberBarSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
-				} else if (mControlBoard.getHookReleaseSolenoidTriggered()) {
-					mClimber.mPeriodicIO.deploy_solenoid = true;
-					mClimber.mHookClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
-				} else if (mControlBoard.getHookingArmSolenoidTriggered()) {
-					mClimber.mPeriodicIO.deploy_solenoid = true;
-					mClimber.mHookingArmClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
+
+				/* Manual Controls*/
+				if (mControlBoard.getLeaveClimbMode()) {
+					mClimbMode = false;
+				}
+
+				if (mControlBoard.operator.getController().getAButtonPressed()) {
+					mClimber.toggleReleaseSolenoid();
+				}
+				if (mControlBoard.operator.getController().getBButtonPressed()) {
+					mClimber.toggleChopsticksSolenoid();
+				}
+				if (mControlBoard.operator.getController().getYButtonPressed()) {
+					mClimber.toggleHookSolenoid();
+				}
+
+				if (mControlBoard.operator.getController().getPOV() == 0) {
+					mClimber.setClimberOpenLoop(8.0);
+				}
+				if (mControlBoard.operator.getController().getPOV() == 180) {
+					mClimber.setClimberOpenLoop(-8.0);
+				}
+				if (mControlBoard.operator.getController().getPOV() == -1) {
+					mClimber.setClimberOpenLoop(0.0);
+				}
+
+				/*Automation*/
+				if (mTraversalClimb) {
+					mClimber.setReleaseSolenoid(true);
+					if (mClimber.getClimberPosition() == Constants.ClimberConstants.kInitialExtensionHeight) {
+						mClimber.setClimberDemand(Constants.ClimberConstants.kClimbingVoltage);
+					} else if (mClimber.getClimberPosition() == Constants.ClimberConstants.kMidBarExtensionHeight) {
+						mClimber.setChopstickSolenoid(true);
+					} else if (mClimber.getClimberPosition() == Constants.ClimberConstants.kTraversalExtentionHeight) {
+						mClimber.setHookSolenoid(true);
+					}
+				}
+
+
+				
+			} else {
+				
+				if (mControlBoard.operator.getController().getYButtonPressed()) {
+					mSuperstructure.setWantShoot();
+				}
+
+				// Intake
+				if (mControlBoard.getIntake()) {
+					mSuperstructure.setWantIntake(false);
+				} else if (mControlBoard.getOuttake()) {
+					mSuperstructure.setWantOuttake(false);
 				} else {
-					mClimber.mPeriodicIO.deploy_solenoid = false;
+					mClimber.setChopstickSolenoid(false);
+					mClimber.setHookSolenoid(false);
+					mClimber.setReleaseSolenoid(false);
 				}
 			}
+
+			
+			mTraversalClimb = mControlBoard.getTraversalClimb();
 		
 
 			mClimbMode = mControlBoard.getClimbMode();
@@ -226,14 +254,14 @@ public class Robot extends TimedRobot {
 					TimeDelayedBoolean mSolenoidTimer = new TimeDelayedBoolean();
 					//Release solenoid for first arm
 					while (Util.inRange(mClimber.getClimberPosition(), Constants.ClimberConstants.kStartingClimberHeight)) {
-						mClimber.mPeriodicIO.deploy_solenoid = true;
-						mClimber.mInitialReleaseClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
+						mClimber.mPeriodicIO.release_solenoid = true;
+						mClimber.mInitialReleaseClimberSolenoid.set(mClimber.mPeriodicIO.release_solenoid);
 						//Thread.sleep(((long)(2000*Constants.kLooperDt)));
 					}
 					//Extend first arm to climb onto first bar
 					while (Util.inRange(mClimber.getClimberPosition(), Constants.ClimberConstants.kInitialExtensionHeight)) {
-						mClimber.mPeriodicIO.deploy_solenoid = true;
-						mClimber.mHookingArmClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
+						mClimber.mPeriodicIO.hook_solenoid = true;
+						mClimber.mHookingArmClimberSolenoid.set(mClimber.mPeriodicIO.hook_solenoid);
 						mClimber.getInitialArmExtension();
 						mClimber.mPeriodicIO.climber_demand = Constants.ClimberConstants.kClimbingVoltage;
 						//Thread.sleep(((long)(2000*Constants.kLooperDt)));
@@ -261,18 +289,27 @@ public class Robot extends TimedRobot {
 					//Other Subsystems
 					mIntake.setState(Intake.WantedAction.STAY_OUT);
 					mIndexer.setState(Indexer.WantedAction.NONE);
-
-				} else {
-					// Intake
-					if (mControlBoard.getIntake()) {
-						mIntake.setState(Intake.WantedAction.INTAKE);
-					} else if (mControlBoard.getOuttake()) {
-						mIntake.setState(Intake.WantedAction.REVERSE);
-					} else if (mControlBoard.getStayingOut()) {
-						mIntake.setState(Intake.WantedAction.STAY_OUT);
-					} else {
-						mIntake.setState(Intake.WantedAction.NONE);
+					mSuperstructure.setWantIntake(false);
+					mSuperstructure.setWantOuttake(false);
 				}
+
+				if (mControlBoard.operator.getController().getYButtonPressed()) {
+					mSuperstructure.setWantShoot();
+				}
+
+				if (mControlBoard.operator.getController().getAButtonPressed()) {
+					mSuperstructure.setShooterVelocity(3000, 4000);
+					mSuperstructure.setWantSpinUp();
+				}
+
+			}
+		} catch (Throwable t) {
+			CrashTracker.logThrowableCrash(t);
+			try {
+				throw t;
+			} catch (Throwable e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 	}
@@ -304,6 +341,8 @@ public class Robot extends TimedRobot {
 	@Override
 	public void disabledPeriodic() {
 		try {
+
+			mClimber.outputTelemetry();
 
 			mAutoModeSelector.updateModeCreator();
 			// [mSwerve.resetAnglesToAbsolute();

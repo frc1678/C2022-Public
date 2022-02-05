@@ -47,10 +47,9 @@ public class Ports {
     
     public static final int CLIMBER_MASTER_ID = 14;
     public static final int CLIMBER_SLAVE_ID = 15; 
-    public static final int CLIMBER_CHOPSTICK_SOLENOID = 20; //TODO: find actual values
-    public static final int CLIMBER_HOOK_RELEASE_SOLENOID = 21; //TODO: find actual values
-    public static final int CLIMBER_INITIAL_RELEASE_SOLENOID = 22; //TODO: find actual values
-    public static final int CLIMBER_HOOKING_ARM_SOLENOID = 23; //TODO: find actual values
+    public static final int CLIMBER_CHOPSTICK_SOLENOID = 4;
+    public static final int CLIMBER_HOOK_RELEASE_SOLENOID = 3;
+    public static final int CLIMBER_INITIAL_RELEASE_SOLENOID = 0; //TODO: find actual values
 
     // Infrastucture
     public static final int PCM = 21;

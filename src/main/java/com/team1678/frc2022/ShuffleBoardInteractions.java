@@ -286,7 +286,7 @@ public class ShuffleBoardInteractions {
 
         /* Climber */
         mClimberSolenoidDepolyed = CLIMBER_TAB
-            .add("Climber Solenoid is Deplayed", mClimber.mPeriodicIO.deploy_solenoid)
+            .add("Climber Solenoid is Deplayed", mClimber.mPeriodicIO.chopsticks_solenoid)
             .getEntry();
         mClimberVelocity = CLIMBER_TAB 
             .add("Climber Velocity", mClimber.mPeriodicIO.climber_motor_velocity)
@@ -304,7 +304,7 @@ public class ShuffleBoardInteractions {
             .add("Climber is Homed", mClimber.mHomed)
             .getEntry();
         mClimberControlState = CLIMBER_TAB
-            .add("Climber Control State", mClimber.mControlState)
+            .add("Climber Control State", mClimber.mControlState.toString())
             .getEntry();
                 
         /* Shooter */

@@ -342,8 +342,8 @@ public class Constants {
         public static final double kTraversalExtentionHeight = 8.0;
         public static final double kSolenoidDeployTime = 3.0;
         public static final double kSolenoidUndeployTime = 3.0;
-        public static final double kInitialExtensionHeight = 4.0;
-        public static final double kStartingClimberHeight = 0.1;
+        public static final double kInitialExtensionHeight = 0.0;
+        public static final double kMidBarExtensionHeight = 5.0;
         public static final double kClimbingVoltage = 8.0;
 
     }
