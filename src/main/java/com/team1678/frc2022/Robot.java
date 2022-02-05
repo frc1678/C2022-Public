@@ -156,7 +156,6 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopPeriodic() {
-		try {
 			/* SWERVE DRIVE */
 			if (mControlBoard.zeroGyro()) {
 				mSwerve.zeroGyro();
@@ -216,8 +215,9 @@ public class Robot extends TimedRobot {
 					mClimber.mHookingArmClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
 				} else {
 					mClimber.mPeriodicIO.deploy_solenoid = false;
+				}
 			}
-		}
+		
 
 			mClimbMode = mControlBoard.getClimbMode();
 			mTraversalClimb = mControlBoard.getTraversalClimb();
@@ -228,7 +228,7 @@ public class Robot extends TimedRobot {
 					while (Util.inRange(mClimber.getClimberPosition(), Constants.ClimberConstants.kStartingClimberHeight)) {
 						mClimber.mPeriodicIO.deploy_solenoid = true;
 						mClimber.mInitialReleaseClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
-						Thread.sleep(((long)(2000*Constants.kLooperDt)));
+						//Thread.sleep(((long)(2000*Constants.kLooperDt)));
 					}
 					//Extend first arm to climb onto first bar
 					while (Util.inRange(mClimber.getClimberPosition(), Constants.ClimberConstants.kInitialExtensionHeight)) {
@@ -236,27 +236,27 @@ public class Robot extends TimedRobot {
 						mClimber.mHookingArmClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
 						mClimber.getInitialArmExtension();
 						mClimber.mPeriodicIO.climber_demand = Constants.ClimberConstants.kClimbingVoltage;
-						Thread.sleep(((long)(2000*Constants.kLooperDt)));
+						//Thread.sleep(((long)(2000*Constants.kLooperDt)));
 					}
 					//Extend to traversal bar and hook on
 					while (Util.inRange(mClimber.getClimberPosition(), Constants.ClimberConstants.kTraversalExtentionHeight)) {
 						mClimber.mPeriodicIO.deploy_solenoid = true;
 						mClimber.mChopstickClimberBarSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
 						mClimber.mPeriodicIO.climber_demand = Constants.ClimberConstants.kClimbingVoltage;
-						Thread.sleep(((long)(2000*Constants.kLooperDt)));
+						//Thread.sleep(((long)(2000*Constants.kLooperDt)));
 					}
 					//Extend second arm 
 					while (mSolenoidTimer.update(mClimber.getClimberSolenoidDeployed(), Constants.ClimberConstants.kSolenoidDeployTime)) {
 						mClimber.mPeriodicIO.deploy_solenoid = true;
         				mClimber.mChopstickClimberBarSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
-						Thread.sleep(((long)(2000*Constants.kLooperDt)));
+						//Thread.sleep(((long)(2000*Constants.kLooperDt)));
 					}
 					//Undeploy solenoids and hook
 					while (mSolenoidTimer.update(mClimber.getClimberSolenoidDeployed(), Constants.ClimberConstants.kSolenoidUndeployTime)) {
 						mClimber.mPeriodicIO.deploy_solenoid = false;
 						mClimber.mHookClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
 						mClimber.mHookingArmClimberSolenoid.set(mClimber.mPeriodicIO.deploy_solenoid);
-						Thread.sleep(((long)(2000*Constants.kLooperDt)));
+						//Thread.sleep(((long)(2000*Constants.kLooperDt)));
 					}
 					//Other Subsystems
 					mIntake.setState(Intake.WantedAction.STAY_OUT);
@@ -273,16 +273,6 @@ public class Robot extends TimedRobot {
 					} else {
 						mIntake.setState(Intake.WantedAction.NONE);
 				}
-			}
-		}
-
-		} catch (Throwable t) {
-			CrashTracker.logThrowableCrash(t);
-			try {
-				throw t;
-			} catch (Throwable e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 		}
 	}
