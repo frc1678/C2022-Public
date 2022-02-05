@@ -5,6 +5,7 @@ import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Intake;
 import com.team1678.frc2022.subsystems.Limelight;
 import com.team1678.frc2022.subsystems.Shooter;
+import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -35,6 +36,7 @@ public class ShuffleBoardInteractions {
     private final Intake mIntake;
     private final Shooter mShooter;
     private final Indexer mIndexer;
+    private final Superstructure mSuperstructure;
 
     /* Status Variable */
     private double lastCancoderUpdate = 0.0;
@@ -46,6 +48,7 @@ public class ShuffleBoardInteractions {
     private ShuffleboardTab INTAKE_TAB;
     private ShuffleboardTab SHOOTER_TAB;
     private ShuffleboardTab INDEXER_TAB;
+    private ShuffleboardTab MANUAL_PARAMS;
 
     /* ENTRIES */
 
@@ -110,6 +113,10 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mCurrentAngleI;
     private final NetworkTableEntry mCurrentAngleD;
 
+    // shooting params
+    private final NetworkTableEntry mManualShooterRPM;
+    private final NetworkTableEntry mManualHoodAngle;
+    private final NetworkTableEntry mShootingSetpointsEnableToggle;
 
     public ShuffleBoardInteractions() {
         /* Get Subsystems */
@@ -119,6 +126,7 @@ public class ShuffleBoardInteractions {
         mIntake = Intake.getInstance();
         mShooter = Shooter.getInstance();
         mIndexer = Indexer.getInstance();
+        mSuperstructure = Superstructure.getInstance();
 
         /* Get Tabs */
         VISION_TAB = Shuffleboard.getTab("Vision");
@@ -127,6 +135,7 @@ public class ShuffleBoardInteractions {
         INTAKE_TAB = Shuffleboard.getTab("Intake");
         SHOOTER_TAB = Shuffleboard.getTab("Shooter");
         INDEXER_TAB = Shuffleboard.getTab("Indexer");
+        MANUAL_PARAMS = Shuffleboard.getTab("Manual Params");
         
         /* Create Entries */
         mLimelightOk = VISION_TAB
@@ -216,6 +225,20 @@ public class ShuffleBoardInteractions {
             .add("Apply PID", false)
             .withWidget(BuiltInWidgets.kToggleButton)
             .withPosition(3, 0)
+            .withSize(2, 1)
+            .getEntry();
+
+        mManualShooterRPM = MANUAL_PARAMS
+            .add("Manual Shooter Goal", 0.0)
+            .withSize(2, 1)
+            .getEntry();
+        mManualHoodAngle = MANUAL_PARAMS
+            .add("Manual Hood Goal", 0.0)
+            .withSize(2, 1)
+            .getEntry();
+        mShootingSetpointsEnableToggle = MANUAL_PARAMS
+            .add("Apply Manual Shooting Params", false)
+            .withWidget(BuiltInWidgets.kToggleButton)
             .withSize(2, 1)
             .getEntry();
 
@@ -397,6 +420,11 @@ public class ShuffleBoardInteractions {
         mCurrentAngleP.setDouble(currentPIDVals[0]);
         mCurrentAngleI.setDouble(currentPIDVals[1]);
         mCurrentAngleD.setDouble(currentPIDVals[2]);
+
+        // hood
+        if(mShootingSetpointsEnableToggle.getValue().getBoolean()) {
+            mSuperstructure.setShootingParameters(mManualShooterRPM.getDouble(0.0), mManualHoodAngle.getDouble(0.0));
+        }
     }
 
     /* Truncates number to 2 decimal places for cleaner numbers */

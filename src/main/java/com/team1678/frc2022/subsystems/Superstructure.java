@@ -68,7 +68,9 @@ public class Superstructure extends Subsystem {
 
     // setpoint tracker variables
     public double mShooterSetpoint = 3000.0;
-    public double mHoodSetpoint = 10.0; // TODO: arbitrary value, change
+    public double mHoodSetpoint = 10.0; // TODO: arbitrary value, change4
+    private double mHoodAngleAdjustment = 0.0;
+    private boolean mResetHoodAngleAdjustment = false;
 
     @Override
     public void registerEnabledLoops(ILooper enabledLooper) {
@@ -119,6 +121,24 @@ public class Superstructure extends Subsystem {
         if (mControlBoard.operator.getController().getAButtonPressed()) {
             mPeriodicIO.PREP = !mPeriodicIO.PREP;
         }
+
+        // control for adding manual hood adjustment
+        switch(mControlBoard.getHoodManualAdjustment()) {
+            case 1:
+                mHoodAngleAdjustment += 1;
+                break;
+            case -1:
+                mHoodAngleAdjustment += -1;
+                break;
+            case 0:
+                mHoodAngleAdjustment += 0;
+                break;
+        }
+        // reset manual hood adjustment if necessary
+        if (mControlBoard.operator.getController().getXButtonPressed()) {
+            mResetHoodAngleAdjustment = true;
+        }
+
     }
 
     /*** SETTERS FOR SUPERSTRUCTURE ACTIONS OUTSIDE OPERATOR INPUT ***/
@@ -133,6 +153,10 @@ public class Superstructure extends Subsystem {
     }
     public void setWantShoot(boolean wants_shoot) {
         mPeriodicIO.SHOOT = wants_shoot;
+    }
+    public void setShootingParameters(double flywheel, double hood) {
+        mShooterSetpoint = flywheel;
+        mHoodSetpoint = hood;
     }
 
     /*** UPDATE SHOOTER AND HOOD SETPOINTS WHEN VISION AIMING ***/
@@ -156,8 +180,13 @@ public class Superstructure extends Subsystem {
     public void setGoals() {
         /* Update subsystem wanted actions and setpoints*/
 
+        // reset hood angle adjustment if called
+        if (mResetHoodAngleAdjustment) {
+            mHoodAngleAdjustment = 0.0;
+            mResetHoodAngleAdjustment = false;
+        }
         // update hood setpoint
-        mPeriodicIO.real_hood = mHoodSetpoint;
+        mPeriodicIO.real_hood = mHoodSetpoint + mHoodAngleAdjustment;
 
         // update shooter setpoint
         if (mPeriodicIO.PREP) {
@@ -174,18 +203,20 @@ public class Superstructure extends Subsystem {
             if (isSpunUp() /*&& isAimed()*/) {
                 mPeriodicIO.real_indexer = Indexer.WantedAction.FEED;
             } else {
-                mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX;
+                // mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX;
+                mPeriodicIO.real_indexer = Indexer.WantedAction.FEED;
             }
         } else {
+            mPeriodicIO.real_indexer = Indexer.WantedAction.FEED;
             if (mPeriodicIO.INTAKE) {
                 mPeriodicIO.real_intake = Intake.WantedAction.INTAKE;
-                mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX;
+                // mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX;
             } else if (mPeriodicIO.OUTTAKE) {
                 mPeriodicIO.real_intake = Intake.WantedAction.REVERSE;
-                mPeriodicIO.real_indexer = Indexer.WantedAction.REVERSE;
+                // mPeriodicIO.real_indexer = Indexer.WantedAction.REVERSE;
             } else {
                 mPeriodicIO.real_intake = Intake.WantedAction.NONE;
-                mPeriodicIO.real_indexer = Indexer.WantedAction.NONE; // always in indexing state
+                // mPeriodicIO.real_indexer = Indexer.WantedAction.NONE; // always in indexing state
             }
         }
 
