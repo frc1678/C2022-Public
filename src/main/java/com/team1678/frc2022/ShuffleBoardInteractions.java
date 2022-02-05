@@ -1,5 +1,6 @@
 package com.team1678.frc2022;
 
+import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Intake;
@@ -9,6 +10,7 @@ import com.team1678.frc2022.subsystems.Shooter;
 import com.team1678.frc2022.subsystems.Swerve;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.wpilibj.CAN;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -93,7 +95,7 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mLimelightTx;
     private final NetworkTableEntry mLimelightTy;
 
-    /* CANdl */
+    /* CANdle */
     private final NetworkTableEntry mLedState;
 
     /* Swerve Modules */
@@ -260,7 +262,9 @@ public class ShuffleBoardInteractions {
             .withSize(1, 1)
             .getEntry();
 
+        /* CANdle */
         mLedState = CANDLE_TAB.add("State", 0.0).getEntry();
+
         
         /* INTAKE */
         mIntakeCurrent = INTAKE_TAB
@@ -374,6 +378,11 @@ public class ShuffleBoardInteractions {
         mLimelightDt.setDouble(mLimelight.getDt());
         mLimelightTx.setDouble(mLimelight.getOffset()[0]);
         mLimelightTy.setDouble(mLimelight.getOffset()[1]);
+
+        /* CANdle */
+        if (LEDs.State.valueOf(mLedState.getString("DISABLED")) != null) {
+            LEDs.getInstance().setState(LEDs.State.valueOf(mLedState.getString("DISABLED")));
+        }
         
         mLedState.setString(mLEDs.getState().toString());
         
