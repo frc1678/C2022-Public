@@ -338,7 +338,8 @@ public class Constants {
         public static final double kCalibratingVoltage = 5.0;
         public static final double kStatorCurrentLimit = 8.0;
         public static final double kCalibrationTimeoutSeconds = 10.0;
-        public static final double kClimbingVoltage = 8.0;
+        public static final double kClimbingVoltageRight = 8.0;
+        public static final double kClimberVoltageLeft =  8.0;
 
     }
 

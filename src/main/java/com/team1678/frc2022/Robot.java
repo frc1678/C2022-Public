@@ -66,7 +66,7 @@ public class Robot extends TimedRobot {
 	private final Looper mEnabledLooper = new Looper();
 	private final Looper mDisabledLooper = new Looper();
 
-	private final boolean mClimbMode = false;
+	private boolean mClimbMode = false;
 
 	// auto instances
 	private AutoModeExecutor mAutoModeExecutor;
@@ -201,8 +201,20 @@ public class Robot extends TimedRobot {
 				if (mControlBoard.getExitClimbMode()) {
 					mClimbMode = false;
 				} 
-				if (mControlBoard.getClimberJogRight()) P{
-					mClimber.setClimberDemandRight(Constants.ClimberConstants.kClimbingVoltage);
+				if (mControlBoard.operator.getController().getPOV() == 0) {
+					mClimber.setClimberOpenLoop(8.0);
+				}
+				if (mControlBoard.operator.getController().getPOV() == 180) {
+					mClimber.setClimberOpenLoop(-8.0);
+				}
+				if (mControlBoard.operator.getController().getPOV() == -1) {
+					mClimber.setClimberOpenLoop(0.0);
+				}
+				if (mControlBoard.operator.getController().getPOV() == 90) {
+					mClimber.setClimberOpenLoop(8.0);
+				}
+				if (mControlBoard.operator.getController().getPOV() == 360) {
+					mClimber.setClimberOpenLoop(-8.0);
 				}
 			}
 
