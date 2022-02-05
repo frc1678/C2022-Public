@@ -1,6 +1,11 @@
 package com.team1678.frc2022;
 
+import java.security.Principal;
+
+import javax.security.auth.login.FailedLoginException;
+
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
+import com.team1678.frc2022.subsystems.Climber;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Intake;
 import com.team1678.frc2022.subsystems.Limelight;
@@ -35,6 +40,7 @@ public class ShuffleBoardInteractions {
     private final Intake mIntake;
     private final Shooter mShooter;
     private final Indexer mIndexer;
+    private final Climber mClimber;
 
     /* Status Variable */
     private double lastCancoderUpdate = 0.0;
@@ -46,6 +52,7 @@ public class ShuffleBoardInteractions {
     private ShuffleboardTab INTAKE_TAB;
     private ShuffleboardTab SHOOTER_TAB;
     private ShuffleboardTab INDEXER_TAB;
+    private ShuffleboardTab CLIMBER_TAB;
 
     /* ENTRIES */
 
@@ -80,6 +87,18 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mTriggerDemand;
     private final NetworkTableEntry mTriggerVoltage;
     private final NetworkTableEntry mTriggerCurrent;
+
+    /* Climber */
+    private final NetworkTableEntry mClimberVelocityRight;
+    private final NetworkTableEntry mClimberVelocityLeft;
+    private final NetworkTableEntry mClimberDemandRight;
+    private final NetworkTableEntry mClimberDemandLeft;
+    private final NetworkTableEntry mClimberPositionRight;
+    private final NetworkTableEntry mClimberPositionLeft;
+    private final NetworkTableEntry mClimberCurrentRight;
+    private final NetworkTableEntry mClimberCurrentLeft;
+    private final NetworkTableEntry mClimberHomed;
+    private final NetworkTableEntry mClimberControlState;
     
 
     /* Vision */
@@ -119,6 +138,7 @@ public class ShuffleBoardInteractions {
         mIntake = Intake.getInstance();
         mShooter = Shooter.getInstance();
         mIndexer = Indexer.getInstance();
+        mClimber = Climber.getInstance();
 
         /* Get Tabs */
         VISION_TAB = Shuffleboard.getTab("Vision");
@@ -127,6 +147,7 @@ public class ShuffleBoardInteractions {
         INTAKE_TAB = Shuffleboard.getTab("Intake");
         SHOOTER_TAB = Shuffleboard.getTab("Shooter");
         INDEXER_TAB = Shuffleboard.getTab("Indexer");
+        CLIMBER_TAB = Shuffleboard.getTab("Climber");
         
         /* Create Entries */
         mLimelightOk = VISION_TAB
@@ -325,6 +346,38 @@ public class ShuffleBoardInteractions {
         mTriggerCurrent = INDEXER_TAB
             .add("Trigger Current", 0.0)
             .getEntry();
+
+        /* CLIMBER */
+        mClimberVelocityRight = CLIMBER_TAB
+            .add("Right Climber Velocity", 0.0)
+            .getEntry();
+        mClimberVelocityLeft = CLIMBER_TAB
+            .add("Left Climber Velocity", 0.0)
+            .getEntry();
+        mClimberDemandRight = CLIMBER_TAB
+            .add("Right Climber Demand", 0.0)
+            .getEntry();
+        mClimberDemandLeft = CLIMBER_TAB
+            .add("Left Climber Demand", 0.0)
+            .getEntry();
+        mClimberPositionRight = CLIMBER_TAB
+            .add("Right Climber Position", 0.0)
+            .getEntry();
+        mClimberPositionLeft = CLIMBER_TAB
+            .add("Left Climber Position", 0.0)
+            .getEntry();
+        mClimberCurrentRight = CLIMBER_TAB
+            .add("Right Climber Current", 0.0)
+            .getEntry();
+        mClimberCurrentLeft = CLIMBER_TAB 
+            .add("Left Climber Current", 0.0)
+            .getEntry();
+        mClimberHomed = CLIMBER_TAB
+            .add("Climber is Homed", false)
+            .getEntry();
+        mClimberControlState = CLIMBER_TAB
+            .add("Climber Control State", mClimber.mControlState.toString())
+            .getEntry();
     }
     
 
@@ -356,6 +409,22 @@ public class ShuffleBoardInteractions {
         mTriggerDemand.setDouble(truncate(mIndexer.getTriggerDemand()));
         mTriggerCurrent.setDouble(truncate(mIndexer.getTriggerCurrent()));
         mTriggerVoltage.setDouble(truncate(mIndexer.getTriggerVoltage()));
+
+        /* Climber */
+        mClimberVelocityRight.setDouble(mClimber.getClimberVelocityRight());
+        mClimberVelocityLeft.setDouble(mClimber.getClimberVelocityLeft());
+        
+        mClimberDemandRight.setDouble(mClimber.getClimberDemandRight());
+        mClimberDemandLeft.setDouble(mClimber.getClimberPositionLeft());
+
+        mClimberPositionRight.setDouble(mClimber.getClimberPositionRight());
+        mClimberPositionLeft.setDouble(mClimber.getClimberPositionLeft());
+
+        mClimberCurrentRight.setDouble(mClimber.getClimberCurrentRight());
+        mClimberCurrentLeft.setDouble(mClimber.getClimberCurrentLeft());
+        
+        mClimberHomed.setBoolean(mClimber.getHomed());
+        mClimberControlState.setString(mClimber.getControlState().toString());
 
         /* Vision */
         mSeesTarget.setBoolean(mLimelight.hasTarget());
