@@ -200,7 +200,7 @@ public class Climber extends Subsystem {
         return true;
     }
 
-    public void setClimberDemandRight(int demand) {
+    public void setClimberDemandRight(double demand) {
         mPeriodicIO.climber_demand_right = demand;
     }
 
