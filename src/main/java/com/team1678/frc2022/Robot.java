@@ -6,6 +6,9 @@ package com.team1678.frc2022;
 
 import java.util.Optional;
 
+import javax.management.loading.MLet;
+import javax.swing.text.AbstractDocument.LeafElement;
+
 import com.team1678.frc2022.auto.AutoModeExecutor;
 import com.team1678.frc2022.auto.AutoModeSelector;
 import com.team1678.frc2022.auto.modes.AutoModeBase;
@@ -17,6 +20,7 @@ import com.team1678.frc2022.subsystems.Hood;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Infrastructure;
 import com.team1678.frc2022.subsystems.Intake;
+import com.team1678.frc2022.subsystems.LEDs;
 import com.team1678.frc2022.subsystems.Limelight;
 import com.team1678.frc2022.subsystems.Shooter;
 import com.team1678.frc2022.subsystems.Superstructure;
@@ -51,14 +55,15 @@ public class Robot extends TimedRobot {
 	private final ControlBoard mControlBoard = ControlBoard.getInstance();
 
 	private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
-	private final Superstructure mSuperstructure = Superstructure.getInstance();
-	private final Shooter mShooter = Shooter.getInstance();
-	private final Hood mHood = Hood.getInstance();
-	private final Swerve mSwerve = Swerve.getInstance();
-	private final Intake mIntake = Intake.getInstance();
+	// private final Superstructure mSuperstructure = Superstructure.getInstance();
+	//private final Shooter mShooter = Shooter.getInstance();
+	//private final Hood mHood = Hood.getInstance();
+	// private final Swerve mSwerve = Swerve.getInstance();
+	//private final Intake mIntake = Intake.getInstance();
 	// private final Limelight mLimelight = Limelight.getInstance();
 	private final Infrastructure mInfrastructure = Infrastructure.getInstance();
-	private final Indexer mIndexer = Indexer.getInstance();
+	//private final Indexer mIndexer = Indexer.getInstance();
+	private final LEDs mLEDs = LEDs.getInstance();
 
 	// instantiate enabled and disabled loopers
 	private final Looper mEnabledLooper = new Looper();
@@ -81,20 +86,21 @@ public class Robot extends TimedRobot {
 			CrashTracker.logRobotInit();
 
 			mSubsystemManager.setSubsystems(
-					mSwerve,
-					mInfrastructure,
-					mIntake,
-					mIndexer,
-					mShooter,
-					mHood,
-					mSuperstructure // ,
+					//mSwerve,
+					//mInfrastructure,
+					//mIntake,
+					//mIndexer,
+					//mShooter,
+					//mHood,
+					//mSuperstructure // ,
 					// mLimelight
+					mLEDs
 			);
 
 			mSubsystemManager.registerEnabledLoops(mEnabledLooper);
 			mSubsystemManager.registerDisabledLoops(mDisabledLooper);
 
-			mSwerve.resetOdometry(new Pose2d());
+			// mSwerve.resetOdometry(new Pose2d());
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
 			throw t;
@@ -126,7 +132,7 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void autonomousPeriodic() {
-		mSwerve.updateSwerveOdometry();
+		// mSwerve.updateSwerveOdometry();
 	}
 
 	@Override
@@ -146,9 +152,10 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopPeriodic() {
+		mLEDs.updateLights();
 		try {
 			/* SWERVE DRIVE */
-			if (mControlBoard.zeroGyro()) {
+			/* if (mControlBoard.zeroGyro()) {
 				mSwerve.zeroGyro();
 			}
 
@@ -185,6 +192,7 @@ public class Robot extends TimedRobot {
 				mSuperstructure.setShooterVelocity(3000, 4000);
 				mSuperstructure.setWantSpinUp();
 			}
+			*/
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
@@ -218,6 +226,7 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void disabledPeriodic() {
+		mLEDs.updateLights();
 		try {
 
 			mAutoModeSelector.updateModeCreator();

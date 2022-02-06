@@ -97,6 +97,7 @@ public class ShuffleBoardInteractions {
 
     /* CANdle */
     private final NetworkTableEntry mLedState;
+    private final NetworkTableEntry mLedApply;
 
     /* Swerve Modules */
     private final String[] kSwervePlacements = {"Front Left", "Front Right", "Back Left", "Back Right"};
@@ -263,7 +264,13 @@ public class ShuffleBoardInteractions {
             .getEntry();
 
         /* CANdle */
-        mLedState = CANDLE_TAB.add("State", 0.0).getEntry();
+        mLedState = CANDLE_TAB.add("State", "Nothing yet :/").getEntry();
+        mLedApply = CANDLE_TAB
+            .add("Apply State", false)
+            .withWidget(BuiltInWidgets.kToggleSwitch)
+            .withPosition(3, 0)
+            .withSize(2, 1)
+            .getEntry();
 
         
         /* INTAKE */
@@ -380,11 +387,15 @@ public class ShuffleBoardInteractions {
         mLimelightTy.setDouble(mLimelight.getOffset()[1]);
 
         /* CANdle */
-        if (LEDs.State.valueOf(mLedState.getString("DISABLED")) != null) {
-            LEDs.getInstance().setState(LEDs.State.valueOf(mLedState.getString("DISABLED")));
+        
+        if (mLedApply.getValue().getBoolean()) {
+            if (LEDs.State.valueOf(mLedState.getValue().getString()) != null) {
+                LEDs.getInstance().setState(LEDs.State.valueOf(mLedState.getValue().getString()));
+            }
+        } else {
+            //mLedState.setString(mLEDs.getState().toString());
         }
         
-        mLedState.setString(mLEDs.getState().toString());
         
         /* SWERVE */
 
