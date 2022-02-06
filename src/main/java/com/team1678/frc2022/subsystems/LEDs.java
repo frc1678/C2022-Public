@@ -100,9 +100,23 @@ public class LEDs extends Subsystem {
     }
 
     public void updateState() {
+        setState(State.IDLE);
+
         if (mSuperstructure.hasEmergency) {
             setState(State.EMERGENCY);
             return;
+        }
+
+        if (mIndexer.getBallCount() == 1) {
+            setState(State.ONE_BALL);
+        }
+        
+        if (mIndexer.getBallCount() == 2) {
+            setState(State.TWO_BALL);
+        }
+
+        if (mSuperstructure.isSpunUp()) {
+            setState(State.SHOT_READY);
         }
     }
 
@@ -125,7 +139,7 @@ public class LEDs extends Subsystem {
         double deltaTime = timestamp - lastTimestamp;
         mLastTimestamp = timestamp;
 
-        // Basic oscillation between 0 and onTime then 0 ofTime
+        // Basic oscillation between 0 and onTime then 0 offTime
         if (mRising) {
             mPhase = mPhase + deltaTime;
             if (mPhase > mState.onTime) {
@@ -221,6 +235,7 @@ public class LEDs extends Subsystem {
             @Override
             public void onLoop(double timestamp) {
                 writePeriodicOutputs();
+                updateState();
                 SmartDashboard.putString("LEDs state", mState.toString());
                 SmartDashboard.putNumber("LEDs temp", mCandle.getTemperature());
             }
