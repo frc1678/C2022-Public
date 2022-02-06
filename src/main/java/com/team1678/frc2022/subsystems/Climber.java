@@ -217,7 +217,6 @@ public class Climber extends Subsystem {
         public double climber_motor_position_left;
         public double climber_motor_velocity_left;
 
-
         /* Outputs */
         public double climber_demand_right;
         public double climber_demand_left;

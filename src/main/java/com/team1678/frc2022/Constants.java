@@ -348,8 +348,6 @@ public class Constants {
         public static final double kInitialSwerveAngle = 0.0; //TODO: check values //degrees
         public static final double kMidBarSwerveAngle = 15.0; //TODO: check values //degrees
         public static final double kTraversalSwerveAngle = 45.0; //TODO: check values //degrees
-
-
     }
 
     // Timeout constants
