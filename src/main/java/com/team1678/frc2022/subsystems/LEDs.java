@@ -26,6 +26,9 @@ public class LEDs extends Subsystem {
     public double mPhase = 0;
     public int mColorPhase = 0;
 
+    public final Superstructure mSuperstructure = Superstructure.getInstance();
+    public final Indexer mIndexer = Indexer.getInstance();
+
     public static LEDs getInstance() {
         if (mInstance == null) {
             mInstance = new LEDs();
@@ -94,6 +97,13 @@ public class LEDs extends Subsystem {
         config.brightnessScalar = 1; // dim the LEDs to half brightness
         mCandle.configAllSettings(config);
 
+    }
+
+    public void updateState() {
+        if (mSuperstructure.hasEmergency) {
+            setState(State.EMERGENCY);
+            return;
+        }
     }
 
     public void updateLights() {
