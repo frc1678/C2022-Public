@@ -125,29 +125,7 @@ public class Superstructure extends Subsystem {
         double real_hood = Util.clamp(mHoodSetpoint,
                 Constants.HoodConstants.kHoodServoConstants.kMinUnitsLimit,
                 Constants.HoodConstants.kHoodServoConstants.kMaxUnitsLimit);
-
-        if (mWantShoot) {
-            if (isSpunUp()) {
-                real_indexer = Indexer.WantedAction.FEED;
             }
-        } else {
-            if (mWantIntake) {
-                real_indexer = Indexer.WantedAction.INDEX;
-                mIntake.setState(Intake.WantedAction.INTAKE);
-            } else if (mWantOuttake) {
-                mIntake.setState(Intake.WantedAction.REVERSE);
-                real_indexer = Indexer.WantedAction.REVERSE;
-            } else {
-                mIntake.setState(WantedAction.NONE);
-            }
-        }
-
-
-        mIndexer.setState(real_indexer);
-        if (mHood.mControlState != ControlState.OPEN_LOOP) {
-            mHood.setSetpointMotionMagic(real_hood);
-        } 
-    }
 
     @Override
     public boolean checkSystem() {

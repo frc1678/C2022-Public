@@ -6,6 +6,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.loops.Loop;
+import com.team1678.frc2022.subsystems.ServoMotorSubsystem.TalonFXConstants;
 import com.team254.lib.drivers.TalonFXFactory;
 import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.util.TimeDelayedBoolean;

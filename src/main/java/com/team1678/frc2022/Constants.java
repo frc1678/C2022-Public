@@ -8,9 +8,11 @@ import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.util.Color;
 
 public class Constants {
 
@@ -19,6 +21,9 @@ public class Constants {
 	
 	// robot loop time
 	public static final double kLooperDt = 0.02;
+
+    //alliance color
+    public static final boolean isRedAlliance = true;
 
 	/* Control Board */
 	public static final double kJoystickThreshold = 0.2;
@@ -331,6 +336,13 @@ public class Constants {
         public static final double kTriggerReversingVoltage = -5.0;
         public static final double kOuttakeIndexingVoltage = 5.0;
         public static final double kOuttakeReversingVoltage = -5.0;
+    }
+
+    public static final class EjectorConstants {
+
+        public static final Color kBlueBallColor = new Color(0.140, 0.369, 0.493);
+        public static final Color kRedBallColor = new Color(0.543, 0.322, 0.136);
+        public static final double kColorSensorThreshold = 125;
     }
         
     public static final class ClimberConstants {

@@ -8,12 +8,20 @@ import com.team1678.lib.drivers.REVColorSensorV3Wrapper;
 import com.team1678.lib.drivers.REVColorSensorV3Wrapper.ColorSensorData;
 import com.team254.lib.drivers.TalonFXFactory;
 
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj.I2C;
-import com.revrobotics.ColorMatch;
+import javax.lang.model.util.ElementScanner6;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.revrobotics.ColorMatch;
+import com.revrobotics.ColorMatchResult;
+
+import edu.wpi.first.math.trajectory.constraint.RectangularRegionConstraint;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.I2C;
+
 
 public class Indexer extends Subsystem {
     
@@ -44,6 +52,20 @@ private boolean mRunTrigger() {
 
 private boolean mBallAtTrigger() {
     return mPeriodicIO.topLightBeamBreakSensor;
+}
+
+mColorMatcher.addColorMatch(Constants.EjectorConstants.kBlueBallColor);
+mColorMatcher.addColorMatch(Constants.EjectorConstants.kRedBallColor);
+
+if (Constants.EjectorConstants.isRedAlliance) {
+    mAllianceColor = Constants.EjectorConstants.kRedBallColor;
+    mOpponentColor = Constants.EjectorConstants.kBlueBallColor;
+} else {
+    mAllianceColor = Constants.EjectorConstants.kBlueBallColor;
+    mOpponentColor = Constants.EjectorConstants.kRedBallColor;
+}
+
+mColorSensor.start();
 }
 
 private State mState = State.IDLE;
@@ -115,7 +137,6 @@ private Indexer() {
         }
     }
     
-    m
     @Override
     public void registerEnabledLoops(ILooper enabledLooper) {
         enabledLooper.register(new Loop() {
@@ -185,7 +206,7 @@ private Indexer() {
     public boolean checkSystem() {
         // TODO Auto-generated method stub
         return false;
-    }
+    } 
 
     public static Indexer getInstance() {
         return null;
