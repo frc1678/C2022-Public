@@ -150,6 +150,16 @@ public class Indexer extends Subsystem {
     public boolean getBottomBeamBreak() {
         return mPeriodicIO.bottom_break;
     }
+    
+    /**
+     * Calculates the number of balls in the system
+     */
+    public double getBallCount() {
+        int count = 0;
+        if (getTopBeamBreak()) count++;
+        if (getBottomBeamBreak()) count++;
+        return count;
+    }
 
     public double getTunnelDemand() {
         return mPeriodicIO.tunnel_demand;
