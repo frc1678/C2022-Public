@@ -126,6 +126,10 @@ public class Shooter extends Subsystem {
         mPeriodicIO.accelerator_current = mAccelerator.getSupplyCurrent();
         mPeriodicIO.accelerator_voltage = mAccelerator.getMotorOutputVoltage();
         mPeriodicIO.accelerator_velocity = mAccelerator.getSelectedSensorVelocity();
+
+        mPeriodicIO.slave_current = mSlave.getSupplyCurrent();
+        mPeriodicIO.slave_velocity = mSlave.getSelectedSensorVelocity();
+        mPeriodicIO.slave_voltage = mSlave.getMotorOutputVoltage();
     }
 
     @Override
@@ -143,6 +147,9 @@ public class Shooter extends Subsystem {
             mAccelerator.set(ControlMode.Velocity,
                     mPeriodicIO.accelerator_demand / Constants.ShooterConstants.kAccleratorVelocityConversion);
         }
+        SmartDashboard.putNumber("Slave Current", mPeriodicIO.slave_current);
+        SmartDashboard.putNumber("Slave Velocity", mPeriodicIO.slave_velocity);
+        SmartDashboard.putNumber("Slave Voltage", mPeriodicIO.slave_voltage);
     }
 
     public void setOpenLoop(double flywheelDemand, double acceleratorDemand) {
@@ -197,9 +204,14 @@ public class Shooter extends Subsystem {
     public static class PeriodicIO {
         /* Inputs */
         public double timestamp;
+
         public double flywheel_velocity;
         public double flywheel_voltage;
         public double flywheel_current;
+        
+        public double slave_velocity;
+        public double slave_voltage;
+        public double slave_current;
 
         public double accelerator_velocity;
         public double accelerator_voltage;
