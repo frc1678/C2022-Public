@@ -55,14 +55,14 @@ public class Robot extends TimedRobot {
 	private final ControlBoard mControlBoard = ControlBoard.getInstance();
 
 	private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
-	// private final Superstructure mSuperstructure = Superstructure.getInstance();
-	//private final Shooter mShooter = Shooter.getInstance();
-	//private final Hood mHood = Hood.getInstance();
-	// private final Swerve mSwerve = Swerve.getInstance();
-	//private final Intake mIntake = Intake.getInstance();
-	// private final Limelight mLimelight = Limelight.getInstance();
+	private final Superstructure mSuperstructure = Superstructure.getInstance();
+	private final Shooter mShooter = Shooter.getInstance();
+	private final Hood mHood = Hood.getInstance();
+	private final Swerve mSwerve = Swerve.getInstance();
+	private final Intake mIntake = Intake.getInstance();
+	private final Limelight mLimelight = Limelight.getInstance();
 	private final Infrastructure mInfrastructure = Infrastructure.getInstance();
-	//private final Indexer mIndexer = Indexer.getInstance();
+	private final Indexer mIndexer = Indexer.getInstance();
 	private final LEDs mLEDs = LEDs.getInstance();
 
 	// instantiate enabled and disabled loopers
@@ -86,14 +86,14 @@ public class Robot extends TimedRobot {
 			CrashTracker.logRobotInit();
 
 			mSubsystemManager.setSubsystems(
-					//mSwerve,
-					//mInfrastructure,
-					//mIntake,
-					//mIndexer,
-					//mShooter,
-					//mHood,
-					//mSuperstructure // ,
-					// mLimelight
+					mSwerve,
+					mInfrastructure,
+					mIntake,
+					mIndexer,
+					mShooter,
+					mHood,
+					mSuperstructure,
+					mLimelight,
 					mLEDs
 			);
 
