@@ -100,7 +100,7 @@ public class Robot extends TimedRobot {
 			mSubsystemManager.registerEnabledLoops(mEnabledLooper);
 			mSubsystemManager.registerDisabledLoops(mDisabledLooper);
 
-			// mSwerve.resetOdometry(new Pose2d());
+			mSwerve.resetOdometry(new Pose2d());
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
 			throw t;
@@ -132,7 +132,7 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void autonomousPeriodic() {
-		// mSwerve.updateSwerveOdometry();
+		mSwerve.updateSwerveOdometry();
 	}
 
 	@Override
@@ -155,7 +155,7 @@ public class Robot extends TimedRobot {
 		mLEDs.updateLights();
 		try {
 			/* SWERVE DRIVE */
-			/* if (mControlBoard.zeroGyro()) {
+			if (mControlBoard.zeroGyro()) {
 				mSwerve.zeroGyro();
 			}
 
@@ -192,7 +192,7 @@ public class Robot extends TimedRobot {
 				mSuperstructure.setShooterVelocity(3000, 4000);
 				mSuperstructure.setWantSpinUp();
 			}
-			*/
+			
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
@@ -230,7 +230,7 @@ public class Robot extends TimedRobot {
 		try {
 
 			mAutoModeSelector.updateModeCreator();
-			// [mSwerve.resetAnglesToAbsolute();
+			mSwerve.resetAnglesToAbsolute();
 
 			// mLimelight.setLed(Limelight.LedMode.ON);
 			// mLimelight.writePeriodicOutputs();
