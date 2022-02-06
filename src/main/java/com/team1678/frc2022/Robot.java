@@ -205,18 +205,22 @@ public class Robot extends TimedRobot {
 				} 
 				if (mControlBoard.operator.getController().getPOV() == 0) {
 					mClimber.setClimberOpenLoop(8.0);
+					//mClimber.setClimberPosition(Constants.ClimberConstants.kClimberHeight);
 				}
 				if (mControlBoard.operator.getController().getPOV() == 180) {
 					mClimber.setClimberOpenLoop(-8.0);
+					//mClimber.setClimberPosition(Constants.ClimberConstants.kRetractedHeight);
 				}
 				if (mControlBoard.operator.getController().getPOV() == -1) {
 					mClimber.setClimberOpenLoop(0.0);
 				}
 				if (mControlBoard.operator.getController().getPOV() == 90) {
 					mClimber.setClimberOpenLoop(8.0);
+					//mClimber.setClimberPosition(Constants.ClimberConstants.kClimberHeight);
 				}
 				if (mControlBoard.operator.getController().getPOV() == 360) {
 					mClimber.setClimberOpenLoop(-8.0);
+					//mClimber.setClimberPosition(Constants.ClimberConstants.kRetractedHeight);
 				}
 				
 				/* Automation */ 

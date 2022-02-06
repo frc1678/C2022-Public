@@ -344,6 +344,9 @@ public class Constants {
         
         public static final double kInitialExtentionHeight = 4.0; //TODO: check values
         public static final double kMidBarExtentionHeight = 6.0; //TODO: check values
+        public static final double kClimberHeight = 25; //TODO: check values
+        public static final double kRetractedHeight = 5; //TODO: check values
+
 
         public static final double kInitialSwerveAngle = 0.0; //TODO: check values //degrees
         public static final double kMidBarSwerveAngle = 15.0; //TODO: check values //degrees
