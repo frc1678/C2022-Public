@@ -38,13 +38,13 @@ public class LEDs extends Subsystem {
 
     public enum State {
         OFF(0, 0, 0, Double.POSITIVE_INFINITY, 0.0, false),
-        DISABLED(255, 20, 30, 4.0, 4.0, true), // breathing pink
-        IDLE(0, 0, 255, Double.POSITIVE_INFINITY, 0.0, false), // solid blue
-        EMERGENCY(255, 0, 0, 0.3, 0.3, false), // blinking red
+        DISABLED(255, 20, 30, 4.0, 4.0, true),
+        IDLE(0, 0, 255, Double.POSITIVE_INFINITY, 0.0, false),
+        EMERGENCY(255, 0, 0, 0.3, 0.3, false),
         ONE_BALL(0.2, 0.2, false, new Color(0.5, 0.1, 0.1), new Color(0.1, 0.1, 0.5)),
         TWO_BALL(0.05, 0.05, false, new Color(0.5, 0.1, 0.1), new Color(0.1, 0.1, 0.5)),
-        TARGET_VISIBLE(255, 255, 0, Double.POSITIVE_INFINITY, 0.0, false), // solid yellow
-        SHOT_READY(255, 255, 0, 0.05, 0.05, false), // blinking yellow
+        TARGET_VISIBLE(255, 255, 0, Double.POSITIVE_INFINITY, 0.0, false),
+        SHOT_READY(255, 255, 0, 0.05, 0.05, false),
         WHITE(255, 255, 255, 10, 5, false),
         MERICA(0.3, 0, false, new Color(1, 1, 1), new Color(1, 0, 0), new Color(0, 0, 1)),
         CITRUS(0.5, 0.5, true, new Color(0.23, 0.83, 0.18), new Color(0, 1, 0)),
@@ -190,15 +190,7 @@ public class LEDs extends Subsystem {
         }
 
         mCandle.setLEDs(red, green, blue);
-        SmartDashboard.putNumber("LEDs bright", percentBrightness);
-        SmartDashboard.putNumber("LEDs red", red);
-        SmartDashboard.putNumber("LEDs green", green);
-        SmartDashboard.putNumber("LEDs blue", blue);
-        SmartDashboard.putNumber("LEDs color phase", mColorPhase);
         mCandle.configBrightnessScalar(percentBrightness);
-
-        
-
 
     }
 
@@ -236,8 +228,6 @@ public class LEDs extends Subsystem {
             public void onLoop(double timestamp) {
                 writePeriodicOutputs();
                 updateState();
-                SmartDashboard.putString("LEDs state", mState.toString());
-                SmartDashboard.putNumber("LEDs temp", mCandle.getTemperature());
             }
 
             @Override
