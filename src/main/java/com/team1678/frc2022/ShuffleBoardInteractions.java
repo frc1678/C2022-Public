@@ -98,9 +98,9 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mClimberCurrentRight;
     private final NetworkTableEntry mClimberCurrentLeft;
     private final NetworkTableEntry mClimberHomed;
-    private final NetworkTableEntry mClimberControlState;
+    private final NetworkTableEntry mClimberLeftControlState;
+    private final NetworkTableEntry mClimberRightControlState;
     
-
     /* Vision */
     private final NetworkTableEntry mSeesTarget;
     private final NetworkTableEntry mLimelightOk;
@@ -375,8 +375,11 @@ public class ShuffleBoardInteractions {
         mClimberHomed = CLIMBER_TAB
             .add("Climber is Homed", false)
             .getEntry();
-        mClimberControlState = CLIMBER_TAB
-            .add("Climber Control State", mClimber.mControlState.toString())
+        mClimberLeftControlState = CLIMBER_TAB
+            .add("Climber Left Control State", mClimber.mLeftControlState.toString())
+            .getEntry();
+        mClimberRightControlState = CLIMBER_TAB
+            .add("Climber Right Control State", mClimber.mLeftControlState.toString())
             .getEntry();
     }
     
@@ -424,7 +427,8 @@ public class ShuffleBoardInteractions {
         mClimberCurrentLeft.setDouble(mClimber.getClimberCurrentLeft());
         
         mClimberHomed.setBoolean(mClimber.getHomed());
-        mClimberControlState.setString(mClimber.getControlState().toString());
+        mClimberLeftControlState.setString(mClimber.getLeftControlState().toString());
+        mClimberRightControlState.setString(mClimber.getRightControlState().toString());
 
         /* Vision */
         mSeesTarget.setBoolean(mLimelight.hasTarget());

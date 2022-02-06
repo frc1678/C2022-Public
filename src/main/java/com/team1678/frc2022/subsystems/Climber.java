@@ -8,6 +8,8 @@ import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
 import com.team254.lib.drivers.TalonFXFactory;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 public class Climber extends Subsystem {
 
     private final TalonFX mClimberRight;
@@ -17,7 +19,8 @@ public class Climber extends Subsystem {
 
     private static Climber mInstance;
 
-    public ControlState mControlState = ControlState.OPEN_LOOP;
+    public RightControlState mRightControlState = RightControlState.OPEN_LOOP;
+    public LeftControlState mLeftControlState = LeftControlState.OPEN_LOOP;
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
 
@@ -25,9 +28,9 @@ public class Climber extends Subsystem {
         mClimberRight = TalonFXFactory.createDefaultTalon(Ports.CLIMBER_RIGHT_ID);
         mClimberLeft = TalonFXFactory.createDefaultTalon(Ports.CLIMBER_LEFT_ID);
 
-        //For Right motor
+        // for right motor
         mClimberRight.set(ControlMode.PercentOutput, 0);
-        mClimberRight.setInverted(false);
+        mClimberRight.setInverted(true);
 
         mClimberRight.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
 
@@ -43,7 +46,7 @@ public class Climber extends Subsystem {
         mClimberRight.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
         mClimberRight.enableVoltageCompensation(true);
 
-        //For left motor
+        // for left motor
         mClimberLeft.set(ControlMode.PercentOutput, 0);
         mClimberLeft.setInverted(false);
 
@@ -78,10 +81,12 @@ public class Climber extends Subsystem {
 
     @Override
     public void readPeriodicInputs() {
+        mPeriodicIO.climber_voltage_right = mClimberRight.getMotorOutputVoltage();
         mPeriodicIO.climber_stator_current_right = mClimberRight.getStatorCurrent();
         mPeriodicIO.climber_motor_velocity_right = mClimberRight.getSelectedSensorVelocity();
         mPeriodicIO.climber_motor_position_right = mClimberRight.getSelectedSensorPosition();
         
+        mPeriodicIO.climber_voltage_left = mClimberLeft.getMotorOutputVoltage();
         mPeriodicIO.climber_stator_current_left = mClimberLeft.getStatorCurrent();
         mPeriodicIO.climber_motor_velocity_left = mClimberLeft.getSelectedSensorVelocity();
         mPeriodicIO.climber_motor_position_left = mClimberLeft.getSelectedSensorPosition();
@@ -89,57 +94,96 @@ public class Climber extends Subsystem {
 
     @Override
     public void writePeriodicOutputs() {
-        switch (mControlState) {
+        switch (mRightControlState) {
             case OPEN_LOOP:
-                /* If holding position, set to position control to avoid sag */
-                // if (mPeriodicIO.climber_demand == 0.0) {
-                    // setClimberPositionDelta(0.0);
-                // } else {
-                    mClimberRight.set(ControlMode.PercentOutput, mPeriodicIO.climber_demand_right / 12.0);
-                    mClimberLeft.set(ControlMode.PercentOutput, mPeriodicIO.climber_demand_left / 12.0);
-                    // mClimberSlave.set(ControlMode.PercentOutput, mPeriodicIO.climber_demand / 12.0);
-                //}
+                mClimberRight.set(ControlMode.PercentOutput, mPeriodicIO.climber_demand_right / 12.0);
                 break;
             case MOTION_MAGIC:
                 mClimberRight.set(ControlMode.MotionMagic, mPeriodicIO.climber_demand_right);
-                mClimberLeft.set(ControlMode.MotionMagic, mPeriodicIO.climber_demand_left);
                 break;
             default:
                 mClimberRight.set(ControlMode.MotionMagic,0.0);
+                break;
+        }
+
+        switch (mLeftControlState) {
+            case OPEN_LOOP:
+                mClimberLeft.set(ControlMode.PercentOutput, mPeriodicIO.climber_demand_left / 12.0);
+                break;
+            case MOTION_MAGIC:
+                mClimberLeft.set(ControlMode.MotionMagic, mPeriodicIO.climber_demand_left);
+                break;
+            default:
                 mClimberLeft.set(ControlMode.MotionMagic, 0.0);
                 break;
         }
 
     }
 
-    public void setClimberOpenLoop(double wantedDemand) {
-        if (mControlState != ControlState.OPEN_LOOP) {
-            mControlState = ControlState.OPEN_LOOP;
+    public synchronized void setBrakeMode(boolean brake) {
+        mClimberRight.setNeutralMode(brake ? NeutralMode.Brake : NeutralMode.Coast);
+        mClimberLeft.setNeutralMode(brake ? NeutralMode.Brake : NeutralMode.Coast);
+    }
+
+    public void setRightClimberOpenLoop(double wantedDemand) {
+        if (mRightControlState != RightControlState.OPEN_LOOP) {
+            mRightControlState = RightControlState.OPEN_LOOP;
         }
+
         mPeriodicIO.climber_demand_right = (wantedDemand > 12 ? 12 : wantedDemand);
+
+    }
+
+    public void setLeftClimberOpenLoop(double wantedDemand) {
+        if (mLeftControlState != LeftControlState.OPEN_LOOP) {
+            mLeftControlState = LeftControlState.OPEN_LOOP;
+        }
+
         mPeriodicIO.climber_demand_left = (wantedDemand > 12 ? 12 : wantedDemand);
 
     }
 
-    public void setClimberPosition(double wantedPositionTicks) {
-        if (mControlState != ControlState.MOTION_MAGIC) {
-            mControlState = ControlState.MOTION_MAGIC;
+    public void setRightClimberPosition(double wantedPositionTicks) {
+        if (mRightControlState != RightControlState.MOTION_MAGIC) {
+            mRightControlState = RightControlState.MOTION_MAGIC;
         }
+        
         mPeriodicIO.climber_demand_right = wantedPositionTicks;
+    }
+
+    public void setLeftClimberPosition(double wantedPositionTicks) {
+        if (mLeftControlState != LeftControlState.MOTION_MAGIC) {
+            mLeftControlState = LeftControlState.MOTION_MAGIC;
+        }
+
         mPeriodicIO.climber_demand_left = wantedPositionTicks;
     }
 
-    public void setClimberPositionDelta(double wantedPositionDelta) {
-        if (mControlState != ControlState.MOTION_MAGIC) {
-            mControlState = ControlState.MOTION_MAGIC;
+    public void setRightClimberPositionDelta(double wantedPositionDelta) {
+        if (mRightControlState != RightControlState.MOTION_MAGIC) {
+            mRightControlState = RightControlState.MOTION_MAGIC;
             mPeriodicIO.climber_demand_right = mPeriodicIO.climber_motor_position_right;
+        }
+
+        mPeriodicIO.climber_demand_right = mPeriodicIO.climber_demand_right + wantedPositionDelta;
+    }
+
+    public void setLeftClimberPositionDelta(double wantedPositionDelta) {
+        if (mLeftControlState != LeftControlState.MOTION_MAGIC) {
+            mLeftControlState = LeftControlState.MOTION_MAGIC;
             mPeriodicIO.climber_demand_left = mPeriodicIO.climber_motor_position_left;
         }
-        mPeriodicIO.climber_demand_right = mPeriodicIO.climber_demand_right + wantedPositionDelta;
+
         mPeriodicIO.climber_demand_left = mPeriodicIO.climber_demand_left + wantedPositionDelta;
     }
 
-    public enum ControlState {
+    public enum RightControlState {
+        HOMING,
+        OPEN_LOOP,
+        MOTION_MAGIC
+    }
+
+    public enum LeftControlState {
         HOMING,
         OPEN_LOOP,
         MOTION_MAGIC
@@ -186,8 +230,12 @@ public class Climber extends Subsystem {
         return mHomed;
     }
 
-    public ControlState getControlState() {
-        return mControlState;
+    public RightControlState getRightControlState() {
+        return mRightControlState;
+    }
+
+    public LeftControlState getLeftControlState() {
+        return mLeftControlState;
     }
 
     public boolean checkSystem() {
@@ -205,14 +253,23 @@ public class Climber extends Subsystem {
     public boolean hasEmergency = false;
 
     public void outputTelemetry() {
+        SmartDashboard.putNumber("Climber Demand Right", mPeriodicIO.climber_demand_right);
+        SmartDashboard.putNumber("Climber Voltage Right", mPeriodicIO.climber_voltage_right);
+        SmartDashboard.putNumber("Climber Current Right", mPeriodicIO.climber_stator_current_right);
+
+        SmartDashboard.putNumber("Climber Demand Left", mPeriodicIO.climber_demand_left);
+        SmartDashboard.putNumber("Climber Voltage Left", mPeriodicIO.climber_voltage_left);
+        SmartDashboard.putNumber("Climber Current Left", mPeriodicIO.climber_stator_current_left);
     }
 
     public static class PeriodicIO {
         /* Inputs */
+        public double climber_voltage_right;
         public double climber_stator_current_right;
         public double climber_motor_position_right;
         public double climber_motor_velocity_right;
         
+        public double climber_voltage_left;
         public double climber_stator_current_left;
         public double climber_motor_position_left;
         public double climber_motor_velocity_left;

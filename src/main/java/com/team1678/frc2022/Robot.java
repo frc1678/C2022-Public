@@ -53,14 +53,14 @@ public class Robot extends TimedRobot {
 	private final ControlBoard mControlBoard = ControlBoard.getInstance();
 
 	private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
-	private final Superstructure mSuperstructure = Superstructure.getInstance();
-	private final Shooter mShooter = Shooter.getInstance();
-	private final Hood mHood = Hood.getInstance();
+	// private final Superstructure mSuperstructure = Superstructure.getInstance();
+	// private final Shooter mShooter = Shooter.getInstance();
+	// private final Hood mHood = Hood.getInstance();
 	private final Swerve mSwerve = Swerve.getInstance();
-	private final Intake mIntake = Intake.getInstance();
+	// private final Intake mIntake = Intake.getInstance();
 	// private final Limelight mLimelight = Limelight.getInstance();
-	private final Infrastructure mInfrastructure = Infrastructure.getInstance();
-	private final Indexer mIndexer = Indexer.getInstance();
+	// private final Infrastructure mInfrastructure = Infrastructure.getInstance();
+	// private final Indexer mIndexer = Indexer.getInstance();
 	private final Climber mClimber = Climber.getInstance();
 
 	// instantiate enabled and disabled loopers
@@ -88,12 +88,12 @@ public class Robot extends TimedRobot {
 
 			mSubsystemManager.setSubsystems(
 					mSwerve,
-					mInfrastructure,
-					mIntake,
-					mIndexer,
-					mShooter,
-					mHood,
-					mSuperstructure, 
+					// mInfrastructure,
+					// mIntake,
+					// mIndexer,
+					// mShooter,
+					// mHood,
+					// mSuperstructure, 
 					mClimber
 					// mLimelight
 			);
@@ -111,6 +111,7 @@ public class Robot extends TimedRobot {
 	@Override
 	public void robotPeriodic() {
 		mShuffleBoardInteractions.update();
+		mClimber.outputTelemetry();
 	}
 
 	@Override
@@ -122,7 +123,7 @@ public class Robot extends TimedRobot {
 			mEnabledLooper.start();
 			mAutoModeExecutor.start();
 
-			mInfrastructure.setIsDuringAuto(true);
+			// mInfrastructure.setIsDuringAuto(true);
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
@@ -143,7 +144,9 @@ public class Robot extends TimedRobot {
 			mDisabledLooper.stop();
 			mEnabledLooper.start();
 
-			mInfrastructure.setIsDuringAuto(false);
+			// mInfrastructure.setIsDuringAuto(false);
+
+			mClimber.setBrakeMode(true);
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
@@ -174,6 +177,7 @@ public class Robot extends TimedRobot {
 				mSwerve.drive(swerveTranslation, swerveRotation, true, true);
 			}
 
+			/*
 			// Intake
 			if (mControlBoard.getIntake()) {
 				mSuperstructure.setWantIntake(true);
@@ -192,6 +196,7 @@ public class Robot extends TimedRobot {
 				mSuperstructure.setShooterVelocity(3000, 4000);
 				mSuperstructure.setWantSpinUp();
 			}
+			*/
  
 			/* CLIMBER */
 			if (mControlBoard.getClimbMode()) {
@@ -203,27 +208,34 @@ public class Robot extends TimedRobot {
 				if (mControlBoard.getExitClimbMode()) {
 					mClimbMode = false;
 				} 
+
+				// set left climber motor
 				if (mControlBoard.operator.getController().getPOV() == 0) {
-					mClimber.setClimberOpenLoop(8.0);
+					mClimber.setLeftClimberOpenLoop(8.0);
 					//mClimber.setClimberPosition(Constants.ClimberConstants.kClimberHeight);
-				}
-				if (mControlBoard.operator.getController().getPOV() == 180) {
-					mClimber.setClimberOpenLoop(-8.0);
+				} else if (mControlBoard.operator.getController().getPOV() == 180) {
+					mClimber.setLeftClimberOpenLoop(-8.0);
 					//mClimber.setClimberPosition(Constants.ClimberConstants.kRetractedHeight);
+				} else {
+					mClimber.setLeftClimberOpenLoop(0.0);
+					// mClimber.setLeftClimberPositionDelta(0.0);
 				}
-				if (mControlBoard.operator.getController().getPOV() == -1) {
-					mClimber.setClimberOpenLoop(0.0);
-				}
-				if (mControlBoard.operator.getController().getPOV() == 90) {
-					mClimber.setClimberOpenLoop(8.0);
+
+				// set right climber motor
+				if (mControlBoard.operator.getController().getYButton()) {
+					mClimber.setRightClimberOpenLoop(8.0);
 					//mClimber.setClimberPosition(Constants.ClimberConstants.kClimberHeight);
-				}
-				if (mControlBoard.operator.getController().getPOV() == 360) {
-					mClimber.setClimberOpenLoop(-8.0);
+				} else if (mControlBoard.operator.getController().getAButton()) {
+					mClimber.setRightClimberOpenLoop(-8.0);
 					//mClimber.setClimberPosition(Constants.ClimberConstants.kRetractedHeight);
+				} else {
+					mClimber.setRightClimberOpenLoop(0.0);
+					// mClimber.setRightClimberPositionDelta(0.0);
 				}
 				
+				
 				/* Automation */ 
+				/*
 				if (mControlBoard.getTraversalClimb()) {
 						mTraversalClimb = true; 
 				}
@@ -253,6 +265,7 @@ public class Robot extends TimedRobot {
 					mClimber.setClimberDemandLeft(0.0);
 					mClimber.setClimberDemandRight(0.0);
 				}
+				*/
 			}
 
 		} catch (Throwable t) {
