@@ -342,11 +342,6 @@ public class Constants {
         public static final double kClimbingVoltageRight = 8.0;
         public static final double kClimbingVoltageLeft =  8.0;
         
-        public static final double kInitialExtentionHeight = 4.0; //TODO: check values
-        public static final double kMidBarExtentionHeight = 6.0; //TODO: check values
-        public static final double kClimberHeight = 25; //TODO: check values
-        public static final double kRetractedHeight = 5; //TODO: check values
-
         public static final int kLeftMinHeight = -8635; // ticks
         public static final int kLeftMaxHeight = 276768; // ticks
         public static final int kLeftTravelDistance = kLeftMaxHeight - kLeftMinHeight - 10; // ticks
@@ -357,9 +352,10 @@ public class Constants {
         public static final int kRightTravelDistance = kRightMaxHeight - kRightMinHeight - 10; // ticks
         public static final int kRightPartialTravelDistance = 237910; // kRightTravelDistance * 0.80
 
-        public static final double kInitialSwerveAngle = 0.0; //TODO: check values //degrees
-        public static final double kMidBarSwerveAngle = 15.0; //TODO: check values //degrees
-        public static final double kTraversalSwerveAngle = 45.0; //TODO: check values //degrees
+        public static final double kTravelDistanceEpsilon = 100;
+
+        public static final double kBarContactAngle = 36.5; //TODO: check values // degrees
+        public static final double kBarContactAngleEpsilon = 2.0; // degrees
     }
 
     // Timeout constants

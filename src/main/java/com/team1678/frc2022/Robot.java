@@ -29,6 +29,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import com.team254.lib.util.Util;
 import com.team254.lib.wpilib.TimedRobot;
 
 /**
@@ -222,7 +223,7 @@ public class Robot extends TimedRobot {
 					mResetClimberPosition = true;
 				}
 
-				SmartDashboard.putBoolean("open loop climb", mOpenLoopClimbControlMode);
+				SmartDashboard.putBoolean("Open Loop Climb", mOpenLoopClimbControlMode);
 
 				if (mResetClimberPosition) {
 					mClimber.resetClimberPosition();
@@ -235,7 +236,7 @@ public class Robot extends TimedRobot {
 					} else if (mControlBoard.operator.getController().getBButtonPressed()) {
 						mClimber.setRightClimberPosition(Constants.ClimberConstants.kRightPartialTravelDistance);
 					} else if (mControlBoard.operator.getController().getAButtonPressed()){
-						mClimber.setRightClimberPosition(10.0);
+						mClimber.setRightClimberPosition(0.0);
 					}
 
 					int pov = mControlBoard.operator.getController().getPOV();
@@ -244,7 +245,7 @@ public class Robot extends TimedRobot {
 					} else if (pov == 270) {
 						mClimber.setLeftClimberPosition(Constants.ClimberConstants.kLeftPartialTravelDistance);
 					} else if (pov == 180) {
-						mClimber.setLeftClimberPosition(10.0);
+						mClimber.setLeftClimberPosition(0.0);
 					}
 				} else {
 					// set left climber motor
@@ -276,33 +277,43 @@ public class Robot extends TimedRobot {
 				/* Automation */ 
 				/*
 				if (mControlBoard.getTraversalClimb()) {
-						mTraversalClimb = true; 
+					mTraversalClimb = true; 
+				} else {
+					mTraversalClimb = false;
 				}
+
 				if (mTraversalClimb) {
-					//Extention to first bar
-					if (mSwerve.getPitch().getDegrees() == Constants.ClimberConstants.kInitialSwerveAngle) {
-						mClimber.setClimberDemandLeft(Constants.ClimberConstants.kClimbingVoltageLeft);
+					// pull up with the right arm to the mid bar
+					mClimber.setRightClimberPosition(0.0);
+					mClimber.setLeftClimberPosition(Constants.ClimberConstants.kLeftTravelDistance);
+
+					// pull up with left arm on upper bar while extending right arm to traversal bar
+					if (Util.epsilonEquals(mSwerve.getPitch().getDegrees(), // check if dt pitch is at bar contact angle before climbing to next bar
+										   Constants.ClimberConstants.kBarContactAngle,
+										   Constants.ClimberConstants.kBarContactAngleEpsilon)
+						&&
+						Util.epsilonEquals(mClimber.getClimberPositionLeft(), // don't climb unless left arm is fully extended
+										   Constants.ClimberConstants.kLeftTravelDistance,
+										   Constants.ClimberConstants.kTravelDistanceEpsilon)) {
+
+						mClimber.setRightClimberPosition(Constants.ClimberConstants.kRightTravelDistance);
+						mClimber.setLeftClimberPosition(0.0);
 					}
-					//Pull up to first bar
-					else if (mClimber.getClimberPositionLeft() >= Constants.ClimberConstants.kInitialExtentionHeight) {
-						mClimber.setClimberDemandLeft(-Constants.ClimberConstants.kClimbingVoltageLeft);
-					}
-					//Latch on to mid bar
-					else if (mSwerve.getPitch().getDegrees() == Constants.ClimberConstants.kMidBarSwerveAngle) {
-						mClimber.setClimberDemandRight(Constants.ClimberConstants.kClimbingVoltageRight);
-					}
-					//Pull up to traversal bar
-					else if (mClimber.getClimberPositionRight() >= Constants.ClimberConstants.kMidBarExtentionHeight) {
-						mClimber.setClimberDemandLeft(Constants.ClimberConstants.kClimbingVoltageLeft);
-						mClimber.setClimberDemandRight(-Constants.ClimberConstants.kClimbingVoltageRight);
-					}
-					//Latch onto traversal bar
-					else if (mSwerve.getPitch().getDegrees() == Constants.ClimberConstants.kTraversalSwerveAngle) {
-						mClimber.setClimberDemandLeft(-Constants.ClimberConstants.kClimbingVoltageLeft);
+
+					// pull up with right arm to partial height on traversal bar
+					else if (Util.epsilonEquals(mSwerve.getPitch().getDegrees(), // check if dt pitch is at bar contact angle before climbing to next bar
+												Constants.ClimberConstants.kBarContactAngle,
+												Constants.ClimberConstants.kBarContactAngleEpsilon)
+							&&
+							Util.epsilonEquals(mClimber.getClimberPositionRight(), // don't climb unless right arm is fully extended
+												Constants.ClimberConstants.kRightTravelDistance,
+												Constants.ClimberConstants.kTravelDistanceEpsilon)) {
+
+						mClimber.setRightClimberPosition(Constants.ClimberConstants.kRightPartialTravelDistance);
 					}
 				} else {
-					mClimber.setClimberDemandLeft(0.0);
-					mClimber.setClimberDemandRight(0.0);
+					mClimber.setRightClimberPosition(0.0);
+					mClimber.setLeftClimberPosition(0.0);
 				}
 				*/
 			}
