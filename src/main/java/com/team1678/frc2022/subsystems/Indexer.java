@@ -214,7 +214,7 @@ public class Indexer extends Subsystem {
     }
 
     private boolean stopTunnel() {
-        if ((ballAtTunnel()) || mPeriodicIO.forceTunnelOn) {
+        if ((ballAtTunnel()) || (mPeriodicIO.forceTunnelOn && !ballAtTunnel())) {
             return false;
         } else
             return true;
