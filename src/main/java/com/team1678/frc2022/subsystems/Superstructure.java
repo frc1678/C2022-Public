@@ -86,7 +86,7 @@ public class Superstructure extends Subsystem {
                 final double start = Timer.getFPGATimestamp();
 
                 updateOperatorCommands();
-                // maybeUpdateGoalFromVision();
+                maybeUpdateGoalFromVision();
                 setGoals();
                 outputTelemetry();
 
