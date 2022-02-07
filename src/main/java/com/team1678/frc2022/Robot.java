@@ -213,7 +213,7 @@ public class Robot extends TimedRobot {
 		try {
 
 			mAutoModeSelector.updateModeCreator();
-			mSwerve.resetAnglesToAbsolute();
+			// mSwerve.resetAnglesToAbsolute();
 
 			mLimelight.setLed(Limelight.LedMode.ON);
 			mLimelight.writePeriodicOutputs();
