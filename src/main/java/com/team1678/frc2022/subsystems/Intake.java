@@ -86,6 +86,7 @@ public class Intake extends Subsystem {
                 mPeriodicIO.intake_demand = -Constants.IntakeConstants.kIntakingVoltage;
                 mPeriodicIO.singulator_demand = -Constants.IndexerConstants.kSingulatorVoltage;
                 mPeriodicIO.deploy = true;
+                break;
             case STAYING_OUT:
                 mPeriodicIO.intake_demand = 0;
                 mPeriodicIO.deploy = true;
