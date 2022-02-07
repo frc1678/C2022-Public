@@ -369,7 +369,7 @@ public class ShuffleBoardInteractions {
         mLimelightTy.setDouble(mLimelight.getOffset()[1]);
         
         /* SWERVE */
-        mSwerveBrakeMode.setBoolean(mSwerve.mLocked);
+        mSwerveBrakeMode.setBoolean(mSwerve.getLocked());
 
         // Update cancoders at a slower period to avoid stale can frames
         double dt = Timer.getFPGATimestamp();

@@ -149,10 +149,10 @@ public class Robot extends TimedRobot {
 		try {
 			/* SWERVE DRIVE */
 			if (mControlBoard.getBrake()) {
-				mSwerve.mLocked = true;
+				mSwerve.setLocked(true);
 			}
 			else{
-				mSwerve.mLocked = false;
+				mSwerve.setLocked(false);
 			}
 
 
