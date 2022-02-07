@@ -13,6 +13,7 @@ import com.team1678.frc2022.loops.Loop;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.regressions.ShooterRegression;
+import com.team1678.frc2022.subsystems.Intake.WantedAction;
 import com.team1678.frc2022.subsystems.ServoMotorSubsystem.ControlState;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.CustomXboxController.Side;
@@ -203,20 +204,18 @@ public class Superstructure extends Subsystem {
             if (isSpunUp() /*&& isAimed()*/) {
                 mPeriodicIO.real_indexer = Indexer.WantedAction.FEED;
             } else {
-                // mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX;
-                mPeriodicIO.real_indexer = Indexer.WantedAction.FEED;
+                mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX;
             }
         } else {
-            mPeriodicIO.real_indexer = Indexer.WantedAction.FEED;
             if (mPeriodicIO.INTAKE) {
                 mPeriodicIO.real_intake = Intake.WantedAction.INTAKE;
-                // mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX;
+                mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX;
             } else if (mPeriodicIO.OUTTAKE) {
                 mPeriodicIO.real_intake = Intake.WantedAction.REVERSE;
-                // mPeriodicIO.real_indexer = Indexer.WantedAction.REVERSE;
+                mPeriodicIO.real_indexer = Indexer.WantedAction.REVERSE;
             } else {
                 mPeriodicIO.real_intake = Intake.WantedAction.NONE;
-                // mPeriodicIO.real_indexer = Indexer.WantedAction.NONE; // always in indexing state
+                mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX; // always in indexing state
             }
         }
 
@@ -224,6 +223,7 @@ public class Superstructure extends Subsystem {
 
         // set intake and indexer states
         mIntake.setState(mPeriodicIO.real_intake);
+        mIndexer.setForceTunnel(mPeriodicIO.real_intake == WantedAction.INTAKE);
         mIndexer.setState(mPeriodicIO.real_indexer);
 
         // set shooter subsystem setpoint

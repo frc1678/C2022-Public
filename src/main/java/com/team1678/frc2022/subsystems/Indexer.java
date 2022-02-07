@@ -95,7 +95,11 @@ public class Indexer extends Subsystem {
             }
         } else {
             if (mBottomHadSeenBall) {
-                mPeriodicIO.ball_count++;
+                if (mState == State.REVERSING) {
+                    mPeriodicIO.ball_count--;
+                } else {
+                    mPeriodicIO.ball_count++;
+                }
                 mBottomHadSeenBall = false;
             }
         }
@@ -106,7 +110,9 @@ public class Indexer extends Subsystem {
             }
         } else {
             if (mTopHadSeenBall) {
-                mPeriodicIO.ball_count--;
+                if (mState == State.FEEDING) {
+                    mPeriodicIO.ball_count--;
+                }
                 mTopHadSeenBall = false;
             }
         }
@@ -208,14 +214,18 @@ public class Indexer extends Subsystem {
     }
 
     private boolean stopTunnel() {
-        if (mPeriodicIO.ball_count <= 1) {
+        if ((ballAtTunnel()) || mPeriodicIO.forceTunnelOn) {
             return false;
         } else
             return true;
     }
 
     private boolean runTrigger() {
-        return !ballAtTrigger();
+        return !ballAtTrigger() && mPeriodicIO.ball_count > 0;
+    }
+
+    public void setForceTunnel(boolean enable) {
+        mPeriodicIO.forceTunnelOn = enable;
     }
 
     private void runStateMachine() {
@@ -273,6 +283,8 @@ public class Indexer extends Subsystem {
         public boolean bottom_break;
         public boolean correctColor;
         public double ball_count;
+
+        public boolean forceTunnelOn;
 
         //OUTPUTS
         public double tunnel_demand;
