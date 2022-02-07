@@ -7,6 +7,7 @@ package com.team1678.frc2022;
 import java.security.Principal;
 import java.util.Optional;
 
+import com.ctre.phoenix.motorcontrol.can.MotControllerJNI;
 import com.team1678.frc2022.auto.AutoModeExecutor;
 import com.team1678.frc2022.auto.AutoModeSelector;
 import com.team1678.frc2022.auto.modes.AutoModeBase;
@@ -26,6 +27,7 @@ import com.team1678.frc2022.subsystems.Swerve;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.team254.lib.wpilib.TimedRobot;
 
@@ -68,6 +70,8 @@ public class Robot extends TimedRobot {
 	private final Looper mDisabledLooper = new Looper();
 
 	private boolean mClimbMode = false;
+	private boolean mOpenLoopClimbControlMode = false;
+	private boolean mResetClimberPosition = false;
 	private boolean mTraversalClimb = false;
 
 	// auto instances
@@ -111,6 +115,7 @@ public class Robot extends TimedRobot {
 	@Override
 	public void robotPeriodic() {
 		mShuffleBoardInteractions.update();
+		mSwerve.outputTelemetry();
 		mClimber.outputTelemetry();
 	}
 
@@ -207,32 +212,66 @@ public class Robot extends TimedRobot {
 			if (mClimbMode) {
 				if (mControlBoard.getExitClimbMode()) {
 					mClimbMode = false;
-				} 
-
-				// set left climber motor
-				if (mControlBoard.operator.getController().getPOV() == 0) {
-					mClimber.setLeftClimberOpenLoop(8.0);
-					//mClimber.setClimberPosition(Constants.ClimberConstants.kClimberHeight);
-				} else if (mControlBoard.operator.getController().getPOV() == 180) {
-					mClimber.setLeftClimberOpenLoop(-8.0);
-					//mClimber.setClimberPosition(Constants.ClimberConstants.kRetractedHeight);
-				} else {
-					mClimber.setLeftClimberOpenLoop(0.0);
-					// mClimber.setLeftClimberPositionDelta(0.0);
 				}
 
-				// set right climber motor
-				if (mControlBoard.operator.getController().getYButton()) {
-					mClimber.setRightClimberOpenLoop(8.0);
-					//mClimber.setClimberPosition(Constants.ClimberConstants.kClimberHeight);
-				} else if (mControlBoard.operator.getController().getAButton()) {
-					mClimber.setRightClimberOpenLoop(-8.0);
-					//mClimber.setClimberPosition(Constants.ClimberConstants.kRetractedHeight);
-				} else {
-					mClimber.setRightClimberOpenLoop(0.0);
-					// mClimber.setRightClimberPositionDelta(0.0);
+				if (mControlBoard.operator.getController().getLeftStickButtonPressed()) {
+					mOpenLoopClimbControlMode = !mOpenLoopClimbControlMode;
 				}
-				
+
+				if (mControlBoard.operator.getController().getRightStickButtonPressed()) {
+					mResetClimberPosition = true;
+				}
+
+				SmartDashboard.putBoolean("open loop climb", mOpenLoopClimbControlMode);
+
+				if (mResetClimberPosition) {
+					mClimber.resetClimberPosition();
+					mResetClimberPosition = false;
+				}
+
+				if (!mOpenLoopClimbControlMode) {
+					if (mControlBoard.operator.getController().getYButtonPressed()) {
+						mClimber.setRightClimberPosition(Constants.ClimberConstants.kRightTravelDistance);
+					} else if (mControlBoard.operator.getController().getBButtonPressed()) {
+						mClimber.setRightClimberPosition(Constants.ClimberConstants.kRightPartialTravelDistance);
+					} else if (mControlBoard.operator.getController().getAButtonPressed()){
+						mClimber.setRightClimberPosition(10.0);
+					}
+
+					int pov = mControlBoard.operator.getController().getPOV();
+					if (pov == 0) {
+						mClimber.setLeftClimberPosition(Constants.ClimberConstants.kLeftTravelDistance);
+					} else if (pov == 270) {
+						mClimber.setLeftClimberPosition(Constants.ClimberConstants.kLeftPartialTravelDistance);
+					} else if (pov == 180) {
+						mClimber.setLeftClimberPosition(10.0);
+					}
+				} else {
+					// set left climber motor
+					if (mControlBoard.operator.getController().getPOV() == 0) {
+						mClimber.setLeftClimberOpenLoop(8.0);
+						//mClimber.setClimberPosition(Constants.ClimberConstants.kClimberHeight);
+					} else if (mControlBoard.operator.getController().getPOV() == 180) {
+						mClimber.setLeftClimberOpenLoop(-8.0);
+						//mClimber.setClimberPosition(Constants.ClimberConstants.kRetractedHeight);
+					} else {
+						mClimber.setLeftClimberOpenLoop(0.0);
+						// mClimber.setLeftClimberPositionDelta(0.0);
+					}
+
+					// set right climber motor
+					if (mControlBoard.operator.getController().getYButton()) {
+						mClimber.setRightClimberOpenLoop(8.0);
+						//mClimber.setClimberPosition(Constants.ClimberConstants.kClimberHeight);
+					} else if (mControlBoard.operator.getController().getAButton()) {
+						mClimber.setRightClimberOpenLoop(-8.0);
+						//mClimber.setClimberPosition(Constants.ClimberConstants.kRetractedHeight);
+					} else {
+						mClimber.setRightClimberOpenLoop(0.0);
+						// mClimber.setRightClimberPositionDelta(0.0);
+					}
+				}
+						
 				
 				/* Automation */ 
 				/*

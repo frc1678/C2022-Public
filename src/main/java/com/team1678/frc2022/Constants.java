@@ -347,6 +347,15 @@ public class Constants {
         public static final double kClimberHeight = 25; //TODO: check values
         public static final double kRetractedHeight = 5; //TODO: check values
 
+        public static final int kLeftMinHeight = -8635; // ticks
+        public static final int kLeftMaxHeight = 276768; // ticks
+        public static final int kLeftTravelDistance = kLeftMaxHeight - kLeftMinHeight - 10; // ticks
+        public static final int kLeftPartialTravelDistance = 228314;
+        
+        public static final int kRightMinHeight = -89419; // ticks
+        public static final int kRightMaxHeight = 207979; // ticks
+        public static final int kRightTravelDistance = kRightMaxHeight - kRightMinHeight - 10; // ticks
+        public static final int kRightPartialTravelDistance = 237910; // kRightTravelDistance * 0.80
 
         public static final double kInitialSwerveAngle = 0.0; //TODO: check values //degrees
         public static final double kMidBarSwerveAngle = 15.0; //TODO: check values //degrees

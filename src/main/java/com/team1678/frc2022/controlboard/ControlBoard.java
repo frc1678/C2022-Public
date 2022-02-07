@@ -205,6 +205,14 @@ public class ControlBoard {
         return operator.getButton(Button.BACK) && operator.getButton(Button.START);
     }
 
+    public boolean getSwitchClimbControlMode() {
+        return operator.getController().getLeftStickButtonPressed();
+    }
+
+    public boolean getResetClimberPosition() {
+        return operator.getController().getRightStickButtonPressed();
+    }
+
     public int getClimberJogRight() {
         int povread = operator.getController().getPOV();
         switch (povread) {

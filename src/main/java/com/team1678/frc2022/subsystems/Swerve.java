@@ -85,7 +85,7 @@ public class Swerve extends Subsystem {
 
             @Override
             public void onLoop(double timestamp) {
-                outputTelemetry();
+                // outputTelemetry();
             }
 
             @Override
@@ -101,6 +101,7 @@ public class Swerve extends Subsystem {
         SmartDashboard.putNumber("Odometry Pose Rot", swerveOdometry.getPoseMeters().getRotation().getDegrees());
         SmartDashboard.putBoolean("Is Snapping", isSnapping);
         SmartDashboard.putNumber("Pigeon Heading", getYaw().getDegrees());
+        SmartDashboard.putNumber("Robot Pitch", getPitch().getDegrees());
         SmartDashboard.putNumber("Snap Target", Math.toDegrees(snapPIDController.getGoal().position));
         for(SwerveModule mod : mSwerveMods){
             //SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Cancoder", MathUtil.inputModulus(mod.getCanCoder().getDegrees() - mod.angleOffset, 0, 360));

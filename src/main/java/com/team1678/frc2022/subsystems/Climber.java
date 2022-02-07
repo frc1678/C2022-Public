@@ -22,6 +22,11 @@ public class Climber extends Subsystem {
     public RightControlState mRightControlState = RightControlState.OPEN_LOOP;
     public LeftControlState mLeftControlState = LeftControlState.OPEN_LOOP;
 
+    private boolean mExtendRightArm = false;
+    private boolean mPartialExtendRightArm = false;
+    private boolean mExtendLeftArm = false;
+    private boolean mPartialExtendLeftArm = false;
+
     public PeriodicIO mPeriodicIO = new PeriodicIO();
 
     private Climber() {
@@ -31,15 +36,16 @@ public class Climber extends Subsystem {
         // for right motor
         mClimberRight.set(ControlMode.PercentOutput, 0);
         mClimberRight.setInverted(true);
+        mClimberRight.setSelectedSensorPosition(0.0);
 
         mClimberRight.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
 
         mClimberRight.configMotionAcceleration(40000, Constants.kLongCANTimeoutMs);
         mClimberRight.configMotionCruiseVelocity(20000, Constants.kLongCANTimeoutMs);
-        mClimberRight.config_kP(0, 0.5);
+        mClimberRight.config_kP(0, 0.8);
         mClimberRight.config_kI(0, 0);
         mClimberRight.config_kD(0, 0);
-        mClimberRight.config_kF(0, 0.05);
+        mClimberRight.config_kF(0, 0.077);
 
         mClimberRight.setNeutralMode(NeutralMode.Brake);
 
@@ -49,15 +55,16 @@ public class Climber extends Subsystem {
         // for left motor
         mClimberLeft.set(ControlMode.PercentOutput, 0);
         mClimberLeft.setInverted(false);
+        mClimberLeft.setSelectedSensorPosition(0.0);
 
         mClimberLeft.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
 
         mClimberLeft.configMotionAcceleration(40000, Constants.kLongCANTimeoutMs);
         mClimberLeft.configMotionCruiseVelocity(20000, Constants.kLongCANTimeoutMs);
-        mClimberLeft.config_kP(0, 0.5);
+        mClimberLeft.config_kP(0, 0.8);
         mClimberLeft.config_kI(0, 0);
         mClimberLeft.config_kD(0, 0);
-        mClimberLeft.config_kF(0, 0.05);
+        mClimberLeft.config_kF(0, 0.077);
 
         mClimberLeft.setNeutralMode(NeutralMode.Brake);
 
@@ -123,6 +130,11 @@ public class Climber extends Subsystem {
     public synchronized void setBrakeMode(boolean brake) {
         mClimberRight.setNeutralMode(brake ? NeutralMode.Brake : NeutralMode.Coast);
         mClimberLeft.setNeutralMode(brake ? NeutralMode.Brake : NeutralMode.Coast);
+    }
+
+    public synchronized void resetClimberPosition() {
+        mClimberRight.setSelectedSensorPosition(0.0);
+        mClimberLeft.setSelectedSensorPosition(0.0);
     }
 
     public void setRightClimberOpenLoop(double wantedDemand) {
@@ -250,16 +262,52 @@ public class Climber extends Subsystem {
         mPeriodicIO.climber_demand_left = demand;
     }
 
+    public void toggleExtendRightArm() {
+        mExtendRightArm = !mExtendRightArm;
+    }
+
+    public void togglePartialExtendRightArm() {
+        mPartialExtendRightArm = !mPartialExtendRightArm;
+    }
+
+    public void toggleExtendLeftArm() {
+        mExtendLeftArm = !mExtendLeftArm;
+    }
+
+    public void togglePartialExtendLeftArm() {
+        mPartialExtendLeftArm = !mPartialExtendLeftArm;
+    }
+
+    public boolean getExtendRightArm() {
+        return mExtendRightArm;
+    }
+
+    public boolean getExtendLeftArm() {
+        return mExtendLeftArm;
+    }
+
+    public boolean getPartialExtendRightArm() {
+        return mPartialExtendRightArm;
+    }
+
+    public boolean getPartialExtendLeftArm() {
+        return mPartialExtendLeftArm;
+    }
+
     public boolean hasEmergency = false;
 
     public void outputTelemetry() {
         SmartDashboard.putNumber("Climber Demand Right", mPeriodicIO.climber_demand_right);
         SmartDashboard.putNumber("Climber Voltage Right", mPeriodicIO.climber_voltage_right);
         SmartDashboard.putNumber("Climber Current Right", mPeriodicIO.climber_stator_current_right);
+        SmartDashboard.putBoolean("Extend Right Climber", getExtendRightArm());
+        SmartDashboard.putBoolean("Partial Extend Right Climber", getPartialExtendRightArm());
 
         SmartDashboard.putNumber("Climber Demand Left", mPeriodicIO.climber_demand_left);
         SmartDashboard.putNumber("Climber Voltage Left", mPeriodicIO.climber_voltage_left);
         SmartDashboard.putNumber("Climber Current Left", mPeriodicIO.climber_stator_current_left);
+        SmartDashboard.putBoolean("Extend Left Climber", getExtendLeftArm());
+        SmartDashboard.putBoolean("Partial Extend Left Climber", getPartialExtendLeftArm());
     }
 
     public static class PeriodicIO {
