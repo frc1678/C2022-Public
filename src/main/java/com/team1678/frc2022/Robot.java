@@ -150,8 +150,7 @@ public class Robot extends TimedRobot {
 			/* SWERVE DRIVE */
 			if (mControlBoard.getBrake()) {
 				mSwerve.setLocked(true);
-			}
-			else{
+			} else {
 				mSwerve.setLocked(false);
 			}
 
