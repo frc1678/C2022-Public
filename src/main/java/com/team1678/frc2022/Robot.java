@@ -274,7 +274,7 @@ public class Robot extends TimedRobot {
 				}
 						
 				
-				/* Automation */ 
+				/* Automated Climb */ 
 				/*
 				if (mControlBoard.getTraversalClimb()) {
 					mTraversalClimb = true; 

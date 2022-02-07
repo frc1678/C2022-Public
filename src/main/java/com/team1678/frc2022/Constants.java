@@ -342,15 +342,15 @@ public class Constants {
         public static final double kClimbingVoltageRight = 8.0;
         public static final double kClimbingVoltageLeft =  8.0;
         
-        public static final int kLeftMinHeight = -8635; // ticks
-        public static final int kLeftMaxHeight = 276768; // ticks
-        public static final int kLeftTravelDistance = kLeftMaxHeight - kLeftMinHeight - 10; // ticks
-        public static final int kLeftPartialTravelDistance = 228314;
+        public static final int kLeftMinHeight = 0; // ticks
+        public static final int kLeftMaxHeight = 225108; // ticks
+        public static final int kLeftTravelDistance = kLeftMaxHeight - kLeftMinHeight; // ticks
+        public static final int kLeftPartialTravelDistance = 180086;
         
-        public static final int kRightMinHeight = -89419; // ticks
-        public static final int kRightMaxHeight = 207979; // ticks
-        public static final int kRightTravelDistance = kRightMaxHeight - kRightMinHeight - 10; // ticks
-        public static final int kRightPartialTravelDistance = 237910; // kRightTravelDistance * 0.80
+        public static final int kRightMinHeight = 0; // ticks
+        public static final int kRightMaxHeight = 207799; // ticks
+        public static final int kRightTravelDistance = kRightMaxHeight - kRightMinHeight; // ticks
+        public static final int kRightPartialTravelDistance = 166239; // kRightTravelDistance * 0.80
 
         public static final double kTravelDistanceEpsilon = 100;
 
