@@ -94,6 +94,9 @@ public class Shooter extends Subsystem {
         mAccelerator.changeMotionControlFramePeriod(255);
         mAccelerator.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
         mAccelerator.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
+        mSlave.changeMotionControlFramePeriod(255);
+        mSlave.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
+        mSlave.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
     }
 
     @Override
