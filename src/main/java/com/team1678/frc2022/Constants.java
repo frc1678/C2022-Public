@@ -103,7 +103,7 @@ public class Constants {
 
         /* Front Left Module - Module 0 */
         public static final class Mod0 {
-            public static final double betaAngleOffset = 58.09;
+            public static final double betaAngleOffset = 58.71;
             public static final double compAngleOffset = 123; // TODO: Check value
 
             public static SwerveModuleConstants SwerveModuleConstants() {
@@ -114,7 +114,7 @@ public class Constants {
 
         /* Front Right Module - Module 1 */
         public static final class Mod1 {
-            public static final double betaAngleOffset = 340.63;
+            public static final double betaAngleOffset = 340.57;
             public static final double compAngleOffset = 138; // TODO: Check value
             
             public static SwerveModuleConstants SwerveModuleConstants() {
@@ -125,7 +125,7 @@ public class Constants {
 
         /* Back Left Module - Module 2 */
         public static final class Mod2 {
-            public static final double betaAngleOffset = 343.91;
+            public static final double betaAngleOffset = 343.03;
             public static final double compAngleOffset = 100;   // TODO: Check value
 
             public static SwerveModuleConstants SwerveModuleConstants() {
@@ -136,7 +136,7 @@ public class Constants {
 
         /* Back Right Module - Module 3 */
         public static final class Mod3 {
-            public static final double betaAngleOffset = 256.2;
+            public static final double betaAngleOffset = 254.61;
             public static final double compAngleOffset = 134;   // TODO: Check value
 
             public static SwerveModuleConstants SwerveModuleConstants() {
@@ -333,7 +333,7 @@ public class Constants {
         public static final double kTunnelIndexingVoltage = 5.0;
         public static final double kTunnelReversingVoltage = -5.0;
         public static final double kIdleVoltage = 0.0;
-        public static final double kTriggerIndexingVoltage = 5.0;
+        public static final double kTriggerIndexingVoltage = 4.0;
         public static final double kTriggerReversingVoltage = -5.0;
         public static final double kFeedingVoltage = 9.0;
 
