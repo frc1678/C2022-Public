@@ -40,6 +40,7 @@ public class Shooter extends Subsystem {
 
         /* MAIN FLYWHEEl */
         mMaster = TalonFXFactory.createDefaultTalon(Ports.FLYWHEEL_MASTER_ID);
+
         mMaster.setInverted(true);
         mMaster.setNeutralMode(NeutralMode.Coast);
 
@@ -62,7 +63,7 @@ public class Shooter extends Subsystem {
         mMaster.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
 
         /* FLYWHEEL SLAVE */
-        mSlave = TalonFXFactory.createPermanentSlaveTalon(Ports.FLYWHEEL_SLAVE_ID, Ports.FLYWHEEL_MASTER_ID);
+        mSlave = TalonFXFactory.createDefaultTalon(Ports.FLYWHEEL_SLAVE_ID);
         mSlave.setInverted(true);
 
 
@@ -88,9 +89,9 @@ public class Shooter extends Subsystem {
         setOpenLoop(0.0, 0.0);
 
         // reduce can util
-        mMaster.changeMotionControlFramePeriod(255);
-        mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
-        mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
+        // mMaster.changeMotionControlFramePeriod(255);
+        // mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
+        // mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
         mAccelerator.changeMotionControlFramePeriod(255);
         mAccelerator.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
         mAccelerator.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
@@ -150,8 +151,8 @@ public class Shooter extends Subsystem {
             mAccelerator.set(ControlMode.Velocity,
                     mPeriodicIO.accelerator_demand / Constants.ShooterConstants.kAccleratorVelocityConversion);
         }
+        mSlave.set(ControlMode.Follower, Ports.FLYWHEEL_MASTER_ID);
         SmartDashboard.putNumber("Slave Current", mPeriodicIO.slave_current);
-        SmartDashboard.putNumber("Slave Velocity", mPeriodicIO.slave_velocity);
         SmartDashboard.putNumber("Slave Voltage", mPeriodicIO.slave_voltage);
     }
 
