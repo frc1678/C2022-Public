@@ -32,6 +32,20 @@ private TalonFX mOuttake;
 private TalonFX mIndexer;
 private TalonFX mTrigger;
 
+private int mBallCount = 0;
+
+public void mBallsInIndexer() {
+    if (mPeriodicIO.bottomLightBeamBreakSensor) {
+        mBallCount = 1;
+    } else if (mPeriodicIO.topLightBeamBreakSensor) {
+        mBallCount =  1;
+    } else if (mPeriodicIO.bottomLightBeamBreakSensor && mPeriodicIO.topLightBeamBreakSensor) {
+        mBallCount = 2;
+    }else {
+        mBallCount = 0;
+    }
+}
+
 private final DigitalInput mBottomBeamBreak;
 private final DigitalInput mTopBeamBreak;
 

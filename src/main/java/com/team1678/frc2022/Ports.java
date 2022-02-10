@@ -44,6 +44,8 @@ public class Ports {
     public static final int FLYWHEEL_SLAVE_ID = 16;
     public static final int HOOD_ID = 13;
     public static final int ACCELERATOR_ID = 18;
+
+    public static final int SINGULATOR_ID = 20;
     
     // public static final int CLIMBER_ID = 14;
     // public static final int CLIMBER_PIVOT_SOLENOID = 15;

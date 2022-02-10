@@ -336,7 +336,8 @@ public class Constants {
         public static final double kTriggerReversingVoltage = -5.0;
         public static final double kOuttakingIndexingVoltage = 5.0;
         public static final double kOuttakingReversingVoltage = -5.0;
-        public static final double k
+
+        public static final double kSingulatorVoltage = 5.0;
     }
 
     public static final class EjectorConstants {

@@ -38,7 +38,6 @@ public class ShuffleBoardInteractions {
     private final SwerveModule[] mSwerveModules;
     private final Intake mIntake;
     private final Shooter mShooter;
-    private final Ejector mEjector;
 
     /* Status Variable */
     private double lastCancoderUpdate = 0.0;
@@ -49,8 +48,6 @@ public class ShuffleBoardInteractions {
     private ShuffleboardTab PID_TAB;
     private ShuffleboardTab INTAKE_TAB;
     private ShuffleboardTab SHOOTER_TAB;
-    private ShuffleboardTab INDEXER_TAB;
-    private ShuffleboardTab EJECTOR_TAB;
 
     /* ENTRIES */
 
@@ -64,9 +61,6 @@ public class ShuffleBoardInteractions {
     /* Shooter */
     private final NetworkTableEntry mFlywheelRPM;
     private final NetworkTableEntry mAcceleratorRPM;
-    private final NetworkTableEntry mShooterOpenLoop;
-    private final NetworkTableEntry mFlywheelDemand;
-    private final NetworkTableEntry mAcceleratorDemand;
 
     // private final NetworkTableEntry mFlywheelManualPIDToggle;
     // private final NetworkTableEntry mFlywheelP;
@@ -117,8 +111,6 @@ public class ShuffleBoardInteractions {
         PID_TAB = Shuffleboard.getTab("Module PID");
         INTAKE_TAB = Shuffleboard.getTab("Intake");
         SHOOTER_TAB = Shuffleboard.getTab("Shooter");
-        INDEXER_TAB = Shuffleboard.getTab("Indexer");
-        EJECTOR_TAB = Shuffleboard.getTab("Ejector");
         
         /* Create Entries */
         mLimelightOk = VISION_TAB
@@ -286,9 +278,6 @@ public class ShuffleBoardInteractions {
 
         mFlywheelRPM.setDouble(truncate(mShooter.getFlywheelRPM()));
         mAcceleratorRPM.setDouble(truncate(mShooter.getAcceleratorRPM()));
-        mShooterOpenLoop.setBoolean(mShooter.getIsOpenLoop());
-        mFlywheelDemand.setDouble(truncate(mShooter.getFlywheelDemand()));
-        mAcceleratorDemand.setDouble(truncate(mShooter.getAcceleratorDemand()));
         
         /* Vision */
         mSeesTarget.setBoolean(mLimelight.hasTarget());
