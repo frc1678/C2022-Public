@@ -314,20 +314,17 @@ public class Constants {
 
     public static final class IndexerConstants {
 
-        //TODO: find actual values
-        public static final double kIndexerKp = 0.2;
-        public static final double kIndexerKi = 0.;
-        public static final double kIndexerKd = 0.;
-        public static final double kIndexerKf = .05;
-        public static final double kIndexerVelocityKp = 0.05;
-        public static final double kIndexerVelocityKi = 0.;
-        public static final double kIndexerVelocityKd = 0.;
-        public static final double kIndexerVelocityKf = .05;
-        public static final int kIndexerMaxVelocity = 20000;
-        public static final int kIndexerMaxAcceleration = 40000;
+        public static final double kTriggerVelocityConversion = (600.0 / 2048.0) * (1.0 / 2.0);
+        public static final double kTriggerP = 0.09; 
+        public static final double kTriggerI = 0.0;
+        public static final double kTriggerD = 0.0;
+        public static final double kTriggerF = 0.046;
 
-        public static final int kBottomBeamBreak = 1;
-        public static final int kTopBeamBreak = 0;
+        public static final double kTunnelVelocityConversion = (600.0 / 2048.0) * (1.0 / 3.0);
+        public static final double kTunnelP = 0.0; 
+        public static final double kTunnelI = 0.0;
+        public static final double kTunnelD = 0.0;
+        public static final double kTunnelF = 0.0545;
 
         public static final double kSingulatorVoltage = 10.0;
         public static final double kTunnelIndexingVoltage = 5.0;

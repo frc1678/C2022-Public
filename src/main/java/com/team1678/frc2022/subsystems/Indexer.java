@@ -2,6 +2,7 @@ package com.team1678.frc2022.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
+import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
@@ -30,10 +31,6 @@ public class Indexer extends Subsystem {
     private boolean mBottomHadSeenBall = false;
     private boolean mTopHadSeenBall = false;
 
-    private final double kReverseAtTopTime = 1.0;
-    private Timer mReverseTriggerTimer = new Timer();
-    private boolean mWantTriggerReverse = false;
-
     public enum WantedAction {
         NONE,
         INDEX,
@@ -49,17 +46,43 @@ public class Indexer extends Subsystem {
     }
 
     private Indexer() {
-        mTunnel = TalonFXFactory.createDefaultTalon(Ports.TUNNEL_ID);
+
+        /* Trigger Motor */
         mTrigger = TalonFXFactory.createDefaultTalon(Ports.TRIGGER_ID);
         mTrigger.setInverted(true);
 
-        // reduce can util
-        mTunnel.changeMotionControlFramePeriod(255);
-        mTunnel.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
-        mTunnel.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
+        // Closed Loop Tuning
+        mTrigger.config_kI(0, Constants.IndexerConstants.kTriggerI, Constants.kLongCANTimeoutMs);
+        mTrigger.config_kD(0, Constants.IndexerConstants.kTriggerD, Constants.kLongCANTimeoutMs);
+        mTrigger.config_kP(0, Constants.IndexerConstants.kTriggerP, Constants.kLongCANTimeoutMs);
+        mTrigger.config_kF(0, Constants.IndexerConstants.kTriggerF, Constants.kLongCANTimeoutMs);
+        mTrigger.selectProfileSlot(0, 0);
+
+        // Use Integrated Encoder
+        mTrigger.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
+        
+        // Reduce CAN Util
         mTrigger.changeMotionControlFramePeriod(255);
         mTrigger.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
         mTrigger.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
+
+        /* Tunnel Motor */
+        mTunnel = TalonFXFactory.createDefaultTalon(Ports.TUNNEL_ID);
+
+        // Closed Loop Tuning
+        mTunnel.config_kI(0, Constants.IndexerConstants.kTunnelI, Constants.kLongCANTimeoutMs);
+        mTunnel.config_kD(0, Constants.IndexerConstants.kTunnelD, Constants.kLongCANTimeoutMs);
+        mTunnel.config_kP(0, Constants.IndexerConstants.kTunnelP, Constants.kLongCANTimeoutMs);
+        mTunnel.config_kF(0, Constants.IndexerConstants.kTunnelF, Constants.kLongCANTimeoutMs);
+        mTunnel.selectProfileSlot(0, 0);
+
+        // Use Integrated Encoder
+        mTunnel.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
+
+        // Reduce CAN Util
+        mTunnel.changeMotionControlFramePeriod(255);
+        mTunnel.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
+        mTunnel.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
       
         mBottomBeamBreak = new DigitalInput(Ports.BOTTOM_BEAM_BREAK);
         mTopBeamBreak = new DigitalInput(Ports.TOP_BEAM_BREAK);
@@ -85,21 +108,23 @@ public class Indexer extends Subsystem {
 
         mPeriodicIO.trigger_current = mTrigger.getStatorCurrent();
         mPeriodicIO.trigger_voltage = mTrigger.getMotorOutputVoltage();
-
+        mPeriodicIO.trigger_velocity = mTrigger.getSelectedSensorVelocity() * Constants.IndexerConstants.kTriggerVelocityConversion;
+        
         mPeriodicIO.tunnel_current = mTunnel.getStatorCurrent();
         mPeriodicIO.tunnel_voltage = mTunnel.getMotorOutputVoltage();
+        mPeriodicIO.tunnel_velocity = mTunnel.getSelectedSensorVelocity() * Constants.IndexerConstants.kTunnelVelocityConversion;
 
         if (mPeriodicIO.bottom_break) {
             if (!mBottomHadSeenBall) {
-                mBottomHadSeenBall = true;
-            }
-        } else {
-            if (mBottomHadSeenBall) {
                 if (mState == State.REVERSING) {
                     mPeriodicIO.ball_count--;
                 } else {
                     mPeriodicIO.ball_count++;
                 }
+                mBottomHadSeenBall = false;
+            }
+        } else {
+            if (mBottomHadSeenBall) {
                 mBottomHadSeenBall = false;
             }
         }
@@ -176,6 +201,10 @@ public class Indexer extends Subsystem {
         return mPeriodicIO.tunnel_voltage;
     }
 
+    public double getTunnelVelocity() {
+        return mPeriodicIO.tunnel_velocity;
+    }
+
     public double getTriggerDemand() {
         return mPeriodicIO.trigger_demand;
     }
@@ -186,6 +215,10 @@ public class Indexer extends Subsystem {
     
     public double getTriggerVoltage() {
         return mPeriodicIO.trigger_voltage;
+    }
+
+    public double getTriggerVelocity() {
+        return mPeriodicIO.trigger_velocity;
     }
 
     public void setState(WantedAction wanted_state) {
@@ -238,7 +271,7 @@ public class Indexer extends Subsystem {
                 if (runTrigger()) {
                     mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerIndexingVoltage;
                 } else { 
-                    mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIdleVoltage;
+                    mPeriodicIO.trigger_demand = 0.0;
                 }
 
                 if (stopTunnel()) {
@@ -276,8 +309,11 @@ public class Indexer extends Subsystem {
 
         public double tunnel_voltage;
         public double tunnel_current;
+        public double tunnel_velocity;
+
         public double trigger_voltage;
         public double trigger_current;
+        public double trigger_velocity;
 
         public boolean top_break;
         public boolean bottom_break;

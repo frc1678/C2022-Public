@@ -79,10 +79,12 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mTunnelDemand;
     private final NetworkTableEntry mTunnelVoltage;
     private final NetworkTableEntry mTunnelCurrent;
+    private final NetworkTableEntry mTunnelVelocity;
 
     private final NetworkTableEntry mTriggerDemand;
     private final NetworkTableEntry mTriggerVoltage;
     private final NetworkTableEntry mTriggerCurrent;
+    private final NetworkTableEntry mTriggerVelocity;
     
 
     /* Vision */
@@ -338,6 +340,9 @@ public class ShuffleBoardInteractions {
         mTunnelCurrent = INDEXER_TAB
             .add("Tunnel Current", 0.0)
             .getEntry();
+        mTunnelVelocity = INDEXER_TAB
+            .add("Tunnel Velocity", 0.0)
+            .getEntry();
 
         mTriggerDemand = INDEXER_TAB
             .add("Trigger Demand", 0.0)
@@ -347,6 +352,9 @@ public class ShuffleBoardInteractions {
             .getEntry();
         mTriggerCurrent = INDEXER_TAB
             .add("Trigger Current", 0.0)
+            .getEntry();
+        mTriggerVelocity = INDEXER_TAB
+            .add("Trigger Velocity", 0.0)
             .getEntry();
     }
     
@@ -375,10 +383,12 @@ public class ShuffleBoardInteractions {
         mTunnelDemand.setDouble(truncate(mIndexer.getTunnelDemand()));
         mTunnelCurrent.setDouble(truncate(mIndexer.getTunnelCurrent()));
         mTunnelVoltage.setDouble(truncate(mIndexer.getTunnelVoltage()));
+        mTunnelVelocity.setDouble(mIndexer.getTunnelVelocity());
 
         mTriggerDemand.setDouble(truncate(mIndexer.getTriggerDemand()));
         mTriggerCurrent.setDouble(truncate(mIndexer.getTriggerCurrent()));
         mTriggerVoltage.setDouble(truncate(mIndexer.getTriggerVoltage()));
+        mTriggerVelocity.setDouble(mIndexer.getTriggerVelocity());
 
         /* Vision */
         mSeesTarget.setBoolean(mLimelight.hasTarget());
