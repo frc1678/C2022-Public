@@ -32,20 +32,6 @@ private TalonFX mOuttake;
 private TalonFX mIndexer;
 private TalonFX mTrigger;
 
-private int mBallCount = 0;
-
-public void mBallsInIndexer() {
-    if (mPeriodicIO.bottomLightBeamBreakSensor) {
-        mBallCount = 1;
-    } else if (mPeriodicIO.topLightBeamBreakSensor) {
-        mBallCount =  1;
-    } else if (mPeriodicIO.bottomLightBeamBreakSensor && mPeriodicIO.topLightBeamBreakSensor) {
-        mBallCount = 2;
-    }else {
-        mBallCount = 0;
-    }
-}
-
 private final DigitalInput mBottomBeamBreak;
 private final DigitalInput mTopBeamBreak;
 
@@ -60,6 +46,8 @@ ColorMatchResult mMatch;
 private final Color mAllianceColor;
 private final Color mOpponentColor;
 
+private static boolean mCorrectColor;
+
 private boolean mRunTrigger() {
     return !mBallAtTrigger();
 }
@@ -71,7 +59,7 @@ private boolean mBallAtTrigger() {
 mColorMatcher.addColorMatch(Constants.EjectorConstants.kBlueBallColor);
 mColorMatcher.addColorMatch(Constants.EjectorConstants.kRedBallColor);
 
-if (Constants.EjectorConstants.isRedAlliance) {
+if (Constants.EjectorConstants.isRedAlliance ) {
     mAllianceColor = Constants.EjectorConstants.kRedBallColor;
     mOpponentColor = Constants.EjectorConstants.kBlueBallColor;
 } else {
@@ -121,32 +109,38 @@ private Indexer() {
     public void runStateMachine() {
         switch (mState) {
             case IDLE:
-                mPeriodicIO.Outtake_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
-                mPeriodicIO.Indexer_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
-                mPeriodicIO.Trigger_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
+                mPeriodicIO.outtake_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
+                mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
+                mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
                 break;
             case INDEXING:
                 if (mRunTrigger()) {
-                    mPeriodicIO.Trigger_demand = Constants.IndexerConstants.kTriggerIndexingVoltage;
+                    mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerIndexingVoltage;
                 } else {
-                    mPeriodicIO.Trigger_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
+                    mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
                 }
-                mPeriodicIO.Indexer_demand = Constants.IndexerConstants.kIndexerIndexingVoltage;
+                mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIndexingVoltage;
                 if (mPeriodicIO.bottomLightBeamBreakSensor) {
                     if (!mPeriodicIO.topLightBeamBreakSensor){
-                        mPeriodicIO.Indexer_demand = Constants.IndexerConstants.kIndexerIndexingVoltage;
+                        mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIndexingVoltage;
                     } else {
-                        mPeriodicIO.Indexer_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
+                        mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
                     }
                 }
                 break;
             case OUTTAKING:
-                mPeriodicIO.Outtake_demand = Constants.IndexerConstants.kIndexerOuttakingIndexingVoltage;
+                mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakingIndexingVoltage;
+                if (mCorrectColor) {
+                    mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakingReversingVoltage;
+                    mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIndexingVoltage;
+                } else {
+                    mPeriodicIO.indexer_demand = Constants.IndexerConstants.k
+                }
                 break;
             case REVERSING:
-                mPeriodicIO.Outtake_demand = Constants.IndexerConstants.kOuttakeReversingVoltage;
-                mPeriodicIO.Indexer_demand = Constants.IndexerConstants.kIndexerReversingVoltage;
-                mPeriodicIO.Trigger_demand = Constants.IndexerConstants.kTriggerReversingVoltage;
+                mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakingReversingVoltage;
+                mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerReversingVoltage;
+                mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerReversingVoltage;
                 break;
         }
     }
@@ -173,9 +167,9 @@ private Indexer() {
 
     @Override
     public synchronized void writePeriodicOutputs() {
-        mOuttake.set(ControlMode.PercentOutput, mPeriodicIO.Outtake_demand/12.0);
-        mIndexer.set(ControlMode.PercentOutput, mPeriodicIO.Indexer_demand/12.0);  
-        mTrigger.set(ControlMode.PercentOutput, mPeriodicIO.Trigger_demand/12.0); 
+        mOuttake.set(ControlMode.PercentOutput, mPeriodicIO.outtake_demand/12.0);
+        mIndexer.set(ControlMode.PercentOutput, mPeriodicIO.indexer_demand/12.0);  
+        mTrigger.set(ControlMode.PercentOutput, mPeriodicIO.trigger_demand/12.0); 
     }
 
     @Override
@@ -227,15 +221,15 @@ private Indexer() {
     }
 
     public void setTriggerDemand(double demand) {
-        mPeriodicIO.Trigger_demand = demand;
+        mPeriodicIO.trigger_demand = demand;
     }
     
     public void setOuttakeDemand(double demand) {
-        mPeriodicIO.Outtake_demand = demand;
+        mPeriodicIO.outtake_demand = demand;
     }
 
     public void setIndexerDemand(double demand) {
-        mPeriodicIO.Indexer_demand = demand;
+        mPeriodicIO.indexer_demand = demand;
     }
 
     public static class PeriodicIO {
@@ -244,21 +238,21 @@ private Indexer() {
         public boolean bottomLightBeamBreakSensor;
         public double ball_count;
         
-        public double Outtake_current;
-        public double Indexer_current;
-        public double Trigger_current;
+        public double outtake_current;
+        public double indexer_current;
+        public double trigger_current;
         
-        public double Outtake_voltage;
-        public double Indexer_voltage;
-        public double Trigger_voltage;
+        public double outtake_voltage;
+        public double indexer_voltage;
+        public double trigger_voltage;
 
         public boolean correct_Color;
         public Color detected_color;
 
         // OUTPUTS
-        public double Outtake_demand;
-        public double Indexer_demand;
-        public double Trigger_demand;
+        public double outtake_demand;
+        public double indexer_demand;
+        public double trigger_demand;
 
         public boolean eject;
     }
