@@ -154,17 +154,20 @@ private Indexer() {
     }
     
     @Override
-    public void registerEnabledLoops(ILooper enabledLooper) {
+    public void registerEnabledLoops (ILooper enabledLooper) {
         enabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
                 mState = State.IDLE;
             }
+
             @Override
             public void onLoop(double timestamp) {
-                synchronized (Indexer.this) {
+                synchronized (Indexer.this){
                     runStateMachine();
+                }
             }
+
             @Override
             public void onStop(double timestamp) {
                 mState = State.IDLE;
