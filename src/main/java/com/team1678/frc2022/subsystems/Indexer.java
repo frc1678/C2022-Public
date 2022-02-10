@@ -68,8 +68,8 @@ private boolean mBallAtTrigger() {
     return mPeriodicIO.topLightBeamBreakSensor;
 }
 
-mColorMatcher.addColorMatch(Constants.EjectorConstants.kBlueBallColor);
-mColorMatcher.addColorMatch(Constants.EjectorConstants.kRedBallColor);
+mColorMatcher.addColorMatch(Constants.IndexerConstants.kBlueBallColor);
+mColorMatcher.addColorMatch(Constants.IndexerConstants.kRedBallColor);
 
 if (Constants.EjectorConstants.isRedAlliance) {
     mAllianceColor = Constants.EjectorConstants.kRedBallColor;
