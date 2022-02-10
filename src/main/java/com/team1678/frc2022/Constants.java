@@ -329,13 +329,17 @@ public class Constants {
         public static final double kIndexerIdleVoltage = 0.0;
         public static final double kIndexerIndexingVoltage = 2.0;
         public static final double kIndexerReversingVoltage = -5.0;
+        
         public static final int kBottomBeamBreak = 1;
         public static final int kTopBeamBreak = 0;
 
+        public static final double kTriggerIdleVoltage = 0.0;
         public static final double kTriggerIndexingVoltage = 5.0;
         public static final double kTriggerReversingVoltage = -5.0;
-        public static final double kOuttakingIndexingVoltage = 5.0;
-        public static final double kOuttakingReversingVoltage = -5.0;
+        
+        public static final double kOuttakeIdleVoltage = 0.0;
+        public static final double kOuttakeIndexingVoltage = 5.0;
+        public static final double kOuttakeReversingVoltage = -5.0;
 
         public static final double kSingulatorVoltage = 5.0;
 

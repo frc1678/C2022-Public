@@ -92,9 +92,15 @@ private Indexer() {
     public void runStateMachine() {
         switch (mState) {
             case IDLE:
+<<<<<<< HEAD
             mPeriodicIO.outtake_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
             mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
             mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
+=======
+                mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakeIdleVoltage;
+                mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
+                mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerIdleVoltage;
+>>>>>>> dbad8e92aa54a5993b875dc8ea4009145052a1cf
                 break;
             case INDEXING:
                 if (mRunTrigger()) {
@@ -112,6 +118,7 @@ private Indexer() {
                 }
                 break;
             case OUTTAKING:
+<<<<<<< HEAD
                 mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakingIndexingVoltage;
                 if (mCorrectColor) {
                     mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakingReversingVoltage;
@@ -122,6 +129,20 @@ private Indexer() {
                 break;
             case REVERSING:
                 mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakingReversingVoltage;
+=======
+                if (mPeriodicIO.correct_Color) {
+                    mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIndexingVoltage;
+                    mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakeReversingVoltage;
+                } else if (!mPeriodicIO.correct_Color) {
+                    mPeriodicIO.indexer_demand = Constants.IndexerConstants.kOuttakeReversingVoltage;
+                } else {
+                    mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
+                    mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakeIdleVoltage;
+                }
+                break;
+            case REVERSING:
+                mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakeIndexingVoltage;
+>>>>>>> dbad8e92aa54a5993b875dc8ea4009145052a1cf
                 mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerReversingVoltage;
                 mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerReversingVoltage;
                 break;
