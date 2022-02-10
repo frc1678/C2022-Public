@@ -338,6 +338,10 @@ public class Constants {
         public static final double kOuttakingReversingVoltage = -5.0;
 
         public static final double kSingulatorVoltage = 5.0;
+
+        public static final boolean isRedAlliance = true;
+        public static final Color kBlueBallColor = new Color(0.134, 0.432, 0.434);
+        public static final Color kRedBallColor = new Color(0.485, 0.364, 0.150);
     }
 
     public static final class EjectorConstants {

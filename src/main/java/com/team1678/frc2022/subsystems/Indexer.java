@@ -43,9 +43,6 @@ public REVColorSensorV3Wrapper mColorSensor;
 private final ColorMatch mColorMatcher = new ColorMatch();
 ColorMatchResult mMatch;
 
-private final Color mAllianceColor;
-private final Color mOpponentColor;
-
 private static boolean mCorrectColor;
 
 private boolean mRunTrigger() {
@@ -54,20 +51,6 @@ private boolean mRunTrigger() {
 
 private boolean mBallAtTrigger() {
     return mPeriodicIO.topLightBeamBreakSensor;
-}
-
-mColorMatcher.addColorMatch(Constants.EjectorConstants.kBlueBallColor);
-mColorMatcher.addColorMatch(Constants.EjectorConstants.kRedBallColor);
-
-if (Constants.EjectorConstants.isRedAlliance ) {
-    mAllianceColor = Constants.EjectorConstants.kRedBallColor;
-    mOpponentColor = Constants.EjectorConstants.kBlueBallColor;
-} else {
-    mAllianceColor = Constants.EjectorConstants.kBlueBallColor;
-    mOpponentColor = Constants.EjectorConstants.kRedBallColor;
-}
-
-mColorSensor.start();
 }
 
 private State mState = State.IDLE;
@@ -109,9 +92,9 @@ private Indexer() {
     public void runStateMachine() {
         switch (mState) {
             case IDLE:
-                mPeriodicIO.outtake_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
-                mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
-                mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
+            mPeriodicIO.outtake_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
+            mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
+            mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
                 break;
             case INDEXING:
                 if (mRunTrigger()) {
@@ -134,7 +117,7 @@ private Indexer() {
                     mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakingReversingVoltage;
                     mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIndexingVoltage;
                 } else {
-                    mPeriodicIO.indexer_demand = Constants.IndexerConstants.k
+                    
                 }
                 break;
             case REVERSING:
@@ -146,17 +129,20 @@ private Indexer() {
     }
     
     @Override
-    public void registerEnabledLoops(ILooper enabledLooper) {
+    public void registerEnabledLoops (ILooper enabledLooper) {
         enabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
                 mState = State.IDLE;
             }
+
             @Override
             public void onLoop(double timestamp) {
-                synchronized (Indexer.this) {
+                synchronized (Indexer.this){
                     runStateMachine();
+                }
             }
+
             @Override
             public void onStop(double timestamp) {
                 mState = State.IDLE;
@@ -164,6 +150,7 @@ private Indexer() {
             }
         });
     }
+   
 
     @Override
     public synchronized void writePeriodicOutputs() {
