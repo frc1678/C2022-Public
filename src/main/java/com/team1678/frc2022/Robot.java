@@ -13,6 +13,7 @@ import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.ControlBoard.SwerveCardinal;
 import com.team1678.frc2022.loops.CrashTracker;
 import com.team1678.frc2022.loops.Looper;
+import com.team1678.frc2022.subsystems.Ejector;
 import com.team1678.frc2022.subsystems.Hood;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Infrastructure;
@@ -59,6 +60,7 @@ public class Robot extends TimedRobot {
 	// private final Limelight mLimelight = Limelight.getInstance();
 	private final Infrastructure mInfrastructure = Infrastructure.getInstance();
 	private final Indexer mIndexer = Indexer.getInstance();
+	private final Ejector mEjector = Ejector.getInstance();
 
 	// instantiate enabled and disabled loopers
 	private final Looper mEnabledLooper = new Looper();
@@ -86,9 +88,10 @@ public class Robot extends TimedRobot {
 					mIntake,
 					mIndexer,
 					mShooter,
-					mHood,
-					mSuperstructure // ,
+					//mHood,
+					mSuperstructure, // ,
 					// mLimelight
+					mEjector
 			);
 
 			mSubsystemManager.registerEnabledLoops(mEnabledLooper);

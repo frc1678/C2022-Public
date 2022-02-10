@@ -8,9 +8,11 @@ import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.util.Color;
 
 public class Constants {
 
@@ -19,6 +21,9 @@ public class Constants {
 	
 	// robot loop time
 	public static final double kLooperDt = 0.02;
+
+    //alliance color
+    public static final boolean isRedAlliance = true;
 
 	/* Control Board */
 	public static final double kJoystickThreshold = 0.2;
@@ -321,17 +326,24 @@ public class Constants {
         public static final int kIndexerMaxVelocity = 20000;
         public static final int kIndexerMaxAcceleration = 40000;
 
+        public static final double kIndexerIdleVoltage = 0.0;
+        public static final double kIndexerIndexingVoltage = 2.0;
+        public static final double kIndexerReversingVoltage = -5.0;
         public static final int kBottomBeamBreak = 1;
         public static final int kTopBeamBreak = 0;
 
-        public static final double kSingulatorVoltage = 10.0;
-        public static final double kTunnelIndexingVoltage = 5.0;
-        public static final double kTunnelReversingVoltage = -5.0;
-        public static final double kIdleVoltage = 0.0;
         public static final double kTriggerIndexingVoltage = 5.0;
         public static final double kTriggerReversingVoltage = -5.0;
-        public static final double kFeedingVoltage = 6.0;
+        public static final double kOuttakingIndexingVoltage = 5.0;
+        public static final double kOuttakingReversingVoltage = -5.0;
+        public static final double k
+    }
 
+    public static final class EjectorConstants {
+
+        public static final Color kBlueBallColor = new Color(0.140, 0.369, 0.493);
+        public static final Color kRedBallColor = new Color(0.543, 0.322, 0.136);
+        public static final double kColorSensorThreshold = 125;
     }
         
     public static final class ClimberConstants {

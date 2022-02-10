@@ -1,6 +1,8 @@
 package com.team1678.frc2022;
 
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
+import com.team1678.frc2022.Constants.EjectorConstants;
+import com.team1678.frc2022.subsystems.Ejector;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Intake;
 import com.team1678.frc2022.subsystems.Limelight;
@@ -15,6 +17,8 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.util.Color;
+import pabeles.concurrency.ConcurrencyOps.NewInstance;
 
 public class ShuffleBoardInteractions {
 
@@ -34,7 +38,7 @@ public class ShuffleBoardInteractions {
     private final SwerveModule[] mSwerveModules;
     private final Intake mIntake;
     private final Shooter mShooter;
-    private final Indexer mIndexer;
+    private final Ejector mEjector;
 
     /* Status Variable */
     private double lastCancoderUpdate = 0.0;
@@ -46,6 +50,7 @@ public class ShuffleBoardInteractions {
     private ShuffleboardTab INTAKE_TAB;
     private ShuffleboardTab SHOOTER_TAB;
     private ShuffleboardTab INDEXER_TAB;
+    private ShuffleboardTab EJECTOR_TAB;
 
     /* ENTRIES */
 
@@ -68,19 +73,6 @@ public class ShuffleBoardInteractions {
     // private final NetworkTableEntry mFlywheelI;
     // private final NetworkTableEntry mFlywheelD;
     // private final NetworkTableEntry mFlywheelF;
-    /* Indexer */
-    private final NetworkTableEntry mIndexerState;
-    private final NetworkTableEntry mTopBeamBreak;
-    private final NetworkTableEntry mBottomBeamBreak;
-
-    private final NetworkTableEntry mTunnelDemand;
-    private final NetworkTableEntry mTunnelVoltage;
-    private final NetworkTableEntry mTunnelCurrent;
-
-    private final NetworkTableEntry mTriggerDemand;
-    private final NetworkTableEntry mTriggerVoltage;
-    private final NetworkTableEntry mTriggerCurrent;
-    
 
     /* Vision */
     private final NetworkTableEntry mSeesTarget;
@@ -118,7 +110,6 @@ public class ShuffleBoardInteractions {
         mSwerveModules = Swerve.getInstance().mSwerveMods;
         mIntake = Intake.getInstance();
         mShooter = Shooter.getInstance();
-        mIndexer = Indexer.getInstance();
 
         /* Get Tabs */
         VISION_TAB = Shuffleboard.getTab("Vision");
@@ -127,6 +118,7 @@ public class ShuffleBoardInteractions {
         INTAKE_TAB = Shuffleboard.getTab("Intake");
         SHOOTER_TAB = Shuffleboard.getTab("Shooter");
         INDEXER_TAB = Shuffleboard.getTab("Indexer");
+        EJECTOR_TAB = Shuffleboard.getTab("Ejector");
         
         /* Create Entries */
         mLimelightOk = VISION_TAB
@@ -279,54 +271,7 @@ public class ShuffleBoardInteractions {
                 .add("Accelerator RPM", 0.0)
                 .withSize(2, 1)
                 .getEntry();
-
-        mFlywheelDemand = SHOOTER_TAB
-                .add("Shooter Demand", 0.0)
-                .withSize(2, 1)
-                .getEntry();
-
-        mAcceleratorDemand = SHOOTER_TAB
-                .add("Accelerator Demand", 0.0)
-                .withSize(2, 1)
-                .getEntry();
-
-        mShooterOpenLoop = SHOOTER_TAB
-                .add("Shooter Open Loop", false)
-                .withSize(2, 1)
-                .getEntry();
-
-        /* INDEXER */
-        mIndexerState = INDEXER_TAB
-            .add("Indexer State", "N/A")
-            .getEntry();
-        mTopBeamBreak = INDEXER_TAB
-            .add("Top Beam Break", false)
-            .getEntry();
-        mBottomBeamBreak = INDEXER_TAB
-            .add("Bottom Beam Break", false)
-            .getEntry();
-
-        mTunnelDemand = INDEXER_TAB
-            .add("Tunnel Demand", 0.0)
-            .getEntry();
-        mTunnelVoltage = INDEXER_TAB
-            .add("Tunnel Voltage", 0.0)
-            .getEntry();
-        mTunnelCurrent = INDEXER_TAB
-            .add("Tunnel Current", 0.0)
-            .getEntry();
-
-        mTriggerDemand = INDEXER_TAB
-            .add("Trigger Demand", 0.0)
-            .getEntry();
-        mTriggerVoltage = INDEXER_TAB
-            .add("Trigger Voltage", 0.0)
-            .getEntry();
-        mTriggerCurrent = INDEXER_TAB
-            .add("Trigger Current", 0.0)
-            .getEntry();
     }
-    
 
     public void update() {
         
@@ -338,25 +283,13 @@ public class ShuffleBoardInteractions {
         mIntakeCurrent.setDouble(mIntake.getIntakeCurrent());
 
         /* Shooter */
+
         mFlywheelRPM.setDouble(truncate(mShooter.getFlywheelRPM()));
         mAcceleratorRPM.setDouble(truncate(mShooter.getAcceleratorRPM()));
         mShooterOpenLoop.setBoolean(mShooter.getIsOpenLoop());
         mFlywheelDemand.setDouble(truncate(mShooter.getFlywheelDemand()));
         mAcceleratorDemand.setDouble(truncate(mShooter.getAcceleratorDemand()));
         
-        /* Indexer */
-        mIndexerState.setString(mIndexer.getState().toString());
-        mTopBeamBreak.setBoolean(mIndexer.getTopBeamBreak());
-        mBottomBeamBreak.setBoolean(mIndexer.getBottomBeamBreak());
-
-        mTunnelDemand.setDouble(truncate(mIndexer.getTunnelDemand()));
-        mTunnelCurrent.setDouble(truncate(mIndexer.getTunnelCurrent()));
-        mTunnelVoltage.setDouble(truncate(mIndexer.getTunnelVoltage()));
-
-        mTriggerDemand.setDouble(truncate(mIndexer.getTriggerDemand()));
-        mTriggerCurrent.setDouble(truncate(mIndexer.getTriggerCurrent()));
-        mTriggerVoltage.setDouble(truncate(mIndexer.getTriggerVoltage()));
-
         /* Vision */
         mSeesTarget.setBoolean(mLimelight.hasTarget());
         mLimelightOk.setBoolean(mLimelight.limelightOK());
