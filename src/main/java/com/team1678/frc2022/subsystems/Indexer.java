@@ -52,14 +52,6 @@ private final DigitalInput mTopBeamBreak;
 public boolean mBottomHadSeenBall = false;
 public boolean mTopHadSeenBall = false;
 
-public REVColorSensorV3Wrapper mColorSensor;
-
-private final ColorMatch mColorMatcher = new ColorMatch();
-ColorMatchResult mMatch;
-
-private final Color mAllianceColor;
-private final Color mOpponentColor;
-
 private boolean mRunTrigger() {
     return !mBallAtTrigger();
 }
@@ -68,19 +60,13 @@ private boolean mBallAtTrigger() {
     return mPeriodicIO.topLightBeamBreakSensor;
 }
 
-mColorMatcher.addColorMatch(Constants.IndexerConstants.kBlueBallColor);
-mColorMatcher.addColorMatch(Constants.IndexerConstants.kRedBallColor);
+public REVColorSensorV3Wrapper mColorSensor;
 
-if (Constants.EjectorConstants.isRedAlliance) {
-    mAllianceColor = Constants.EjectorConstants.kRedBallColor;
-    mOpponentColor = Constants.EjectorConstants.kBlueBallColor;
-} else {
-    mAllianceColor = Constants.EjectorConstants.kBlueBallColor;
-    mOpponentColor = Constants.EjectorConstants.kRedBallColor;
-}
+private final ColorMatch mColorMatcher = new ColorMatch();
+public ColorMatchResult mMatch;
 
-mColorSensor.start();
-}
+private final Color mAllianceColor;
+private final Color mOpponentColor; 
 
 private State mState = State.IDLE;
 
@@ -98,7 +84,23 @@ private Indexer() {
     mTrigger = TalonFXFactory.createDefaultTalon(Ports.TRIGGER_ID);
     mBottomBeamBreak = new DigitalInput(Ports.BOTTOM_BEAM_BREAK);
     mTopBeamBreak = new DigitalInput(Ports.TOP_BEAM_BREAK);
+
+    mColorSensor = new REVColorSensorV3Wrapper(I2C.Port.kOnboard);
+
+    mColorMatcher.addColorMatch(Constants.IndexerConstants.kBlueBallColor);
+    mColorMatcher.addColorMatch(Constants.IndexerConstants.kRedBallColor);
+
+    if (Constants.IndexerConstants.isRedAlliance) {
+        mAllianceColor = Constants.IndexerConstants.kRedBallColor;
+        mOpponentColor = Constants.IndexerConstants.kBlueBallColor;
+    } else {
+        mAllianceColor = Constants.IndexerConstants.kBlueBallColor;
+        mOpponentColor = Constants.IndexerConstants.kRedBallColor;
+    }
+
+    mColorSensor.start();
 }
+
         
     public void setState(WantedAction wanted_state) {
         switch (wanted_state) {
@@ -182,6 +184,13 @@ private Indexer() {
     public synchronized void readPeriodicInputs() {
         mPeriodicIO.topLightBeamBreakSensor = mBottomBeamBreak.get();
         mPeriodicIO.bottomLightBeamBreakSensor = mTopBeamBreak.get();
+
+        ColorSensorData reading = mColorSensor.getLatestReading();
+
+        if (reading.color != null) {
+            mPeriodicIO.detected_color = reading.color;
+            mMatch = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
+        }
 
         if (mPeriodicIO.bottomLightBeamBreakSensor) {
             if (!mBottomHadSeenBall) {
