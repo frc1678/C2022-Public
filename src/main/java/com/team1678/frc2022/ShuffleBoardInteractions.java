@@ -1,7 +1,10 @@
 package com.team1678.frc2022;
 
+import java.net.IDN;
+
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.team1678.frc2022.Constants.EjectorConstants;
+import com.team1678.frc2022.Constants.IndexerConstants;
 import com.team1678.frc2022.subsystems.Ejector;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Intake;
@@ -38,6 +41,7 @@ public class ShuffleBoardInteractions {
     private final SwerveModule[] mSwerveModules;
     private final Intake mIntake;
     private final Shooter mShooter;
+    private final Indexer mIndexer;
 
     /* Status Variable */
     private double lastCancoderUpdate = 0.0;
@@ -48,6 +52,7 @@ public class ShuffleBoardInteractions {
     private ShuffleboardTab PID_TAB;
     private ShuffleboardTab INTAKE_TAB;
     private ShuffleboardTab SHOOTER_TAB;
+    private ShuffleboardTab INDEXER_TAB;
 
     /* ENTRIES */
 
@@ -96,6 +101,9 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mCurrentAngleI;
     private final NetworkTableEntry mCurrentAngleD;
 
+    /* INDEXER */
+    private final NetworkTableEntry mOuttakeCurrent;
+
 
     public ShuffleBoardInteractions() {
         /* Get Subsystems */
@@ -104,6 +112,7 @@ public class ShuffleBoardInteractions {
         mSwerveModules = Swerve.getInstance().mSwerveMods;
         mIntake = Intake.getInstance();
         mShooter = Shooter.getInstance();
+        mIndexer = Indexer.getInstance();
 
         /* Get Tabs */
         VISION_TAB = Shuffleboard.getTab("Vision");
@@ -111,6 +120,7 @@ public class ShuffleBoardInteractions {
         PID_TAB = Shuffleboard.getTab("Module PID");
         INTAKE_TAB = Shuffleboard.getTab("Intake");
         SHOOTER_TAB = Shuffleboard.getTab("Shooter");
+        INDEXER_TAB = Shuffleboard.getTab("Indexer");
         
         /* Create Entries */
         mLimelightOk = VISION_TAB
@@ -263,6 +273,11 @@ public class ShuffleBoardInteractions {
                 .add("Accelerator RPM", 0.0)
                 .withSize(2, 1)
                 .getEntry();
+
+        /* INDEXER */
+        mOuttakeCurrent = INDEXER_TAB
+            .add("Outtake Current", 0.0)
+            .getEntry();
     }
 
     public void update() {
@@ -286,6 +301,9 @@ public class ShuffleBoardInteractions {
         mLimelightDt.setDouble(mLimelight.getDt());
         mLimelightTx.setDouble(mLimelight.getOffset()[0]);
         mLimelightTy.setDouble(mLimelight.getOffset()[1]);
+
+        /* Indexer */
+        mOuttakeCurrent.setDouble(mIndexer.getOuttakeDemand());
         
         /* SWERVE */
 

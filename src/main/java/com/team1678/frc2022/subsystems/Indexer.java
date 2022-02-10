@@ -260,6 +260,10 @@ private Indexer() {
         mPeriodicIO.outtake_demand = demand;
     }
 
+    public double getOuttakeDemand() {
+       return mPeriodicIO.outtake_demand;
+    }
+
     public void setIndexerDemand(double demand) {
         mPeriodicIO.indexer_demand = demand;
     }
