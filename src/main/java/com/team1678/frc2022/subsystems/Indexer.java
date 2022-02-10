@@ -128,19 +128,25 @@ private Indexer() {
                 mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerIdleVoltage;
                 break;
             case INDEXING:
-                if (mRunTrigger()) {
-                    mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerIndexingVoltage;
-                } else {
-                    mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
-                }
-                mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIndexingVoltage;
-                if (mPeriodicIO.bottomLightBeamBreakSensor) {
-                    if (!mPeriodicIO.topLightBeamBreakSensor){
-                        mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIndexingVoltage;
+                if (mPeriodicIO.correct_Color) {
+                    if (mRunTrigger()) {
+                        mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerIndexingVoltage;
                     } else {
-                        mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
+                        mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
                     }
+                        mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIndexingVoltage;
+                    
+                    if (mPeriodicIO.bottomLightBeamBreakSensor) {
+                        if (!mPeriodicIO.topLightBeamBreakSensor){
+                            mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIndexingVoltage;
+                        } else {
+                            mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
+                        }
+                    }
+                } else {
+                    this.setState(WantedAction.OUTTAKE);
                 }
+                
                 break;
             case OUTTAKING:
                 if (mPeriodicIO.correct_Color) {
