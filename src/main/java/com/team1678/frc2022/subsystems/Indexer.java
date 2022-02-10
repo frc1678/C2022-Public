@@ -127,7 +127,7 @@ private Indexer() {
                 }
                 break;
             case OUTTAKING:
-                mPeriodicIO.Outtake_demand = Constants.IndexerConstants.kIndexerOuttakingVoltage;
+                mPeriodicIO.Outtake_demand = Constants.IndexerConstants.kIndexerOuttakingIndexingVoltage;
                 break;
             case REVERSING:
                 mPeriodicIO.Outtake_demand = Constants.IndexerConstants.kOuttakeReversingVoltage;
