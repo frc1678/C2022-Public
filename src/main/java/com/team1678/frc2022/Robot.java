@@ -148,6 +148,7 @@ public class Robot extends TimedRobot {
 	public void teleopPeriodic() {
 		try {
 			/* SWERVE DRIVE */
+			// hold left bumper
 			if (mControlBoard.getBrake()) {
 				mSwerve.setLocked(true);
 			} else {

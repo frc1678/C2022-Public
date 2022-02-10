@@ -37,16 +37,16 @@ public class Swerve extends Subsystem {
 
     public ProfiledPIDController visionPIDController;
 
-    //Private boolean to lock Swerve wheels
-        private boolean mLocked = false;
-        //Getter
-        public boolean getLocked() {
-            return mLocked;
-        }
-        //Setter
-        public void setLocked(boolean lock) {
-            mLocked = lock;
-        }
+    // Private boolean to lock Swerve wheels
+    private boolean mLocked = false;
+    // Getter
+    public boolean getLocked() {
+        return mLocked;
+    }
+    // Setter
+    public void setLocked(boolean lock) {
+        mLocked = lock;
+    }
 
     public static Swerve getInstance() {
         if (mInstance == null) {
@@ -150,10 +150,10 @@ public class Swerve extends Subsystem {
         SwerveModuleState[] swerveModuleStates = null;
         if (mLocked) {
             swerveModuleStates = new SwerveModuleState[]{
-                new SwerveModuleState(0.1, Rotation2d.fromDegrees(45)),
-                new SwerveModuleState(0.1, Rotation2d.fromDegrees(315)),
-                new SwerveModuleState(0.1, Rotation2d.fromDegrees(135)),
-                new SwerveModuleState(0.1, Rotation2d.fromDegrees(225))
+                new SwerveModuleState(0.01, Rotation2d.fromDegrees(45)),
+                new SwerveModuleState(0.01, Rotation2d.fromDegrees(315)),
+                new SwerveModuleState(0.01, Rotation2d.fromDegrees(135)),
+                new SwerveModuleState(0.01, Rotation2d.fromDegrees(225))
             };
         } else {
             swerveModuleStates =
