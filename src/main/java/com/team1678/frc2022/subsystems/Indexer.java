@@ -123,9 +123,9 @@ private Indexer() {
     public void runStateMachine() {
         switch (mState) {
             case IDLE:
-                mPeriodicIO.outtake_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
+                mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakeIdleVoltage;
                 mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
-                mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
+                mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerIdleVoltage;
                 break;
             case INDEXING:
                 if (mRunTrigger()) {
@@ -143,10 +143,18 @@ private Indexer() {
                 }
                 break;
             case OUTTAKING:
-                mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakingReversingVoltage;
+                if (mPeriodicIO.correct_Color) {
+                    mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIndexingVoltage;
+                    mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakeReversingVoltage;
+                } else if (!mPeriodicIO.correct_Color) {
+                    mPeriodicIO.indexer_demand = Constants.IndexerConstants.kOuttakeReversingVoltage;
+                } else {
+                    mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
+                    mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakeIdleVoltage;
+                }
                 break;
             case REVERSING:
-                mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakingIndexingVoltage;
+                mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakeIndexingVoltage;
                 mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerReversingVoltage;
                 mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerReversingVoltage;
                 break;
