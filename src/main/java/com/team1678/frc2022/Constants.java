@@ -4,7 +4,6 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.lib.util.SwerveModuleConstants;
 import com.team1678.frc2022.subsystems.Limelight.LimelightConstants;
 import com.team1678.frc2022.subsystems.ServoMotorSubsystem.ServoMotorSubsystemConstants;
-import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
 
 import edu.wpi.first.math.util.Units;
@@ -253,7 +252,7 @@ public class Constants {
         public static final double kFlywheelVelocityConversion = 600.0 / 2048.0; 
         public static final double kAccleratorVelocityConversion = 600.0 / 2048.0 * (1.3 / 1.0);
 
-        public static final double kAcceleratorMultiplier = 1.2;
+        public static final double kAcceleratorMultiplier = 0.72;
         
         public static final double kFlywheelTolerance = 500;
         public static final double kShooterP = 0.1; 
@@ -332,7 +331,7 @@ public class Constants {
         public static final double kIdleVoltage = 0.0;
         public static final double kTriggerIndexingVoltage = 4.0;
         public static final double kTriggerReversingVoltage = -5.0;
-        public static final double kFeedingVoltage = 9.0;
+        public static final double kFeedingVoltage = 3.0;
 
     }
         

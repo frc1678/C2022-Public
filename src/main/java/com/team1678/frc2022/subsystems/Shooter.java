@@ -196,10 +196,10 @@ public class Shooter extends Subsystem {
         if (mPeriodicIO.flywheel_demand > 0) {
             boolean flywheelSpunUp = Util.epsilonEquals(mPeriodicIO.flywheel_demand,
                                       mPeriodicIO.flywheel_velocity * Constants.ShooterConstants.kFlywheelVelocityConversion,
-                    Constants.ShooterConstants.kFlywheelTolerance);
+                                      Constants.ShooterConstants.kFlywheelTolerance);
             boolean acceleratorSpunUp = Util.epsilonEquals(mPeriodicIO.accelerator_demand,
-                    mPeriodicIO.flywheel_velocity * Constants.ShooterConstants.kAccleratorVelocityConversion,
-                    Constants.ShooterConstants.kFlywheelTolerance);
+                                      mPeriodicIO.accelerator_velocity * Constants.ShooterConstants.kAccleratorVelocityConversion,
+                                      Constants.ShooterConstants.kFlywheelTolerance);
             return flywheelSpunUp && acceleratorSpunUp;
         }
         return false;

@@ -26,13 +26,13 @@ public class ShooterRegression {
         /* TEMPLATE REGRESSION */
         // @x --> distance from target (in meters)
         // @y --> hood angle (in degrees)
-        { 2.0, 15.0 },
-        { 2.5, 17.0 },
-        { 3.0, 18.0 },
-        { 3.5, 18.5 },
-        { 4.0, 19.0 },
-        { 4.5, 20.0 },
-        { 5.0, 22.0 }
+        { 2.0, 18.0 },
+        { 2.5, 20.0 },
+        { 3.0, 21.0 },
+        { 3.5, 22.5 },
+        { 4.0, 23.0 },
+        { 4.5, 24.0 },
+        { 5.0, 26.0 }
     };
 
     static {
