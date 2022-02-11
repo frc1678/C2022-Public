@@ -1,6 +1,7 @@
 package com.team1678.frc2022.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
@@ -50,6 +51,7 @@ public class Indexer extends Subsystem {
         /* Trigger Motor */
         mTrigger = TalonFXFactory.createDefaultTalon(Ports.TRIGGER_ID);
         mTrigger.setInverted(true);
+        mTrigger.setNeutralMode(NeutralMode.Brake);
 
         // Closed Loop Tuning
         mTrigger.config_kI(0, Constants.IndexerConstants.kTriggerI, Constants.kLongCANTimeoutMs);
