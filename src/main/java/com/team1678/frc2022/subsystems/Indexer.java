@@ -25,12 +25,14 @@ public class Indexer extends Subsystem {
 
     private final DigitalInput mBottomBeamBreak;
     private final DigitalInput mTopBeamBreak;
+    private final Timer mEmptyIndexerTimer = new Timer();
     //TODO: private final DigitalInput mColorSensor = new DigitalInput(Ports.COLOR_SENOR);
 
     private State mState = State.IDLE;
 
     private boolean mBottomHadSeenBall = false;
     private boolean mTopHadSeenBall = false;
+    private boolean mWasReversing = false;
 
     public enum WantedAction {
         NONE,
@@ -237,22 +239,34 @@ public class Indexer extends Subsystem {
     }
 
     private void updateBallCounter() {
-        // ball counting logic
-        if (mPeriodicIO.bottom_break) {
-            if (!mBottomHadSeenBall) {
-                if (mState == State.REVERSING) {
-                    mPeriodicIO.ball_count--;
-                } else {
-                    mPeriodicIO.ball_count++;
-                }
-                mBottomHadSeenBall = false;
+
+        // reset count when we are outtaking for longer than 1 second
+        if (mState == State.REVERSING) {
+            if (!mWasReversing) {
+                mEmptyIndexerTimer.start();
+                mWasReversing = true;
+            } else if (mEmptyIndexerTimer.hasElapsed(1.0)) {
+                mPeriodicIO.ball_count = 0;
+                mWasReversing = false;
+                mEmptyIndexerTimer.reset();
             }
         } else {
-            if (mBottomHadSeenBall) {
-                mBottomHadSeenBall = false;
+            mWasReversing = false;
+            mEmptyIndexerTimer.reset();
+
+            // bottom beam break counts up when we index 
+            if (mPeriodicIO.bottom_break) {
+                if (!mBottomHadSeenBall) {
+                    mPeriodicIO.ball_count++;
+                    mBottomHadSeenBall = true;
+                }
+            } else {
+                if (mBottomHadSeenBall) {
+                    mBottomHadSeenBall = false;
+                }
             }
         }
-
+        // top beam break counts down when we shoot
         if (mPeriodicIO.top_break) {
             if (!mTopHadSeenBall) {
                 mTopHadSeenBall = true;
