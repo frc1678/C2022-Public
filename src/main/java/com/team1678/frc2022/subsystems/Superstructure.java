@@ -92,7 +92,6 @@ public class Superstructure extends Subsystem {
             public void onLoop(double timestamp) {
                 final double start = Timer.getFPGATimestamp();
 
-                updateOperatorCommands();
                 updateShootingParams();
                 setGoals();
                 // outputTelemetry();

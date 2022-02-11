@@ -16,19 +16,19 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class TwoBallLeftMode extends AutoModeBase {
+public class TwoBallRightMode extends AutoModeBase {
     
     // Swerve instance 
     private final Swerve mSwerve = Swerve.getInstance();
     private final Superstructure mSuperstructure = Superstructure.getInstance();
 
     // required PathWeaver file paths
-    String file_path = "paths/TwoBallPaths/2 Ball Left.path";
+    String file_path = "paths/TwoBallPaths/2 Ball Right.path";
     
 	// trajectory actions
 	SwerveTrajectoryAction driveToIntakeCargo;
 
-    public TwoBallLeftMode() {
+    public TwoBallRightMode() {
 
         SmartDashboard.putBoolean("Auto Finished", false);
 
@@ -44,7 +44,7 @@ public class TwoBallLeftMode extends AutoModeBase {
                                                             new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                             new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                             thetaController,
-                                                            () -> Rotation2d.fromDegrees(135.0),
+                                                            () -> Rotation2d.fromDegrees(215.0),
                                                             mSwerve::getWantAutoVisionAim,
                                                             mSwerve::setModuleStates);
     }
@@ -57,7 +57,7 @@ public class TwoBallLeftMode extends AutoModeBase {
         // reset odometry at the start of the trajectory
         runAction(new LambdaAction(() -> mSwerve.resetOdometry(new Pose2d(driveToIntakeCargo.getInitialPose().getX(),
                                                                           driveToIntakeCargo.getInitialPose().getY(),
-                                                                          Rotation2d.fromDegrees(135)))));
+                                                                          Rotation2d.fromDegrees(215)))));
 
         // start vision aiming to align drivetrain to target
         runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));

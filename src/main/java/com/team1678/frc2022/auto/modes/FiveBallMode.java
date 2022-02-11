@@ -73,7 +73,7 @@ public class FiveBallMode extends AutoModeBase {
                                                             new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                             new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                             thetaController,
-                                                            () -> Rotation2d.fromDegrees(20.0),
+                                                            () -> Rotation2d.fromDegrees(200.0),
                                                             mSwerve::getWantAutoVisionAim,
                                                             mSwerve::setModuleStates);
                                                         
@@ -93,7 +93,7 @@ public class FiveBallMode extends AutoModeBase {
                                                             new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                             new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                             thetaController,
-                                                            () -> Rotation2d.fromDegrees(20.0),
+                                                            () -> Rotation2d.fromDegrees(200.0),
                                                             mSwerve::getWantAutoVisionAim,
                                                             mSwerve::setModuleStates);
         
@@ -109,13 +109,11 @@ public class FiveBallMode extends AutoModeBase {
         // wait 1 second for curr calibration on hood to complete
         runAction(new WaitAction(1.0));
 
-        runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
+        // start spinning up for shot
         runAction(new LambdaAction(() -> mSuperstructure.setWantPrep(true)));
 
-        runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true))); // TODO: Tune accelerator revs
-        
         // reset odometry at the start of the trajectory
-        runAction(new LambdaAction(() -> mSwerve.resetOdometry(new Pose2d(driveToIntakeFirstCargo.getInitialPose().getX(), driveToIntakeFirstCargo.getInitialPose().getY(), Rotation2d.fromDegrees(90)))));
+        runAction(new LambdaAction(() -> mSwerve.resetOdometry(new Pose2d(driveToIntakeFirstCargo.getInitialPose().getX(), driveToIntakeFirstCargo.getInitialPose().getY(), Rotation2d.fromDegrees(270)))));
         
         // shoot first cargo
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
@@ -137,7 +135,7 @@ public class FiveBallMode extends AutoModeBase {
 
         // shoot second and third cargo
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
-        runAction(new WaitAction(1.0));
+        runAction(new WaitAction(1.5));
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
 
         // stop vision aiming to control robot heading
