@@ -136,15 +136,15 @@ public class Robot extends TimedRobot {
 	public void teleopInit() {
 		try {
 
-			mDisabledLooper.stop();
-			mEnabledLooper.start();
-
-			mInfrastructure.setIsDuringAuto(false);
-			
 			if (mAutoModeExecutor != null) {
                 mAutoModeExecutor.stop();
             }
 
+			mDisabledLooper.stop();
+			mEnabledLooper.start();
+
+			mInfrastructure.setIsDuringAuto(false);
+		
 			mLimelight.setLed(Limelight.LedMode.ON);
             mLimelight.setPipeline(Constants.VisionConstants.kDefaultPipeline);
 
