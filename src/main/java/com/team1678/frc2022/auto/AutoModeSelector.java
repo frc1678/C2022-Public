@@ -11,6 +11,7 @@ public class AutoModeSelector {
     enum DesiredMode {
         DO_NOTHING, 
         TEST_PATH_AUTO,
+        TWO_BALL_LEFT_AUTO,
         FIVE_BALL_AUTO,
     }
 
@@ -24,6 +25,7 @@ public class AutoModeSelector {
         mModeChooser = new SendableChooser<>();
         mModeChooser.setDefaultOption("Do Nothing", DesiredMode.DO_NOTHING);
         mModeChooser.addOption("Test Path Mode", DesiredMode.TEST_PATH_AUTO);
+        mModeChooser.addOption("Two Ball Left Mode", DesiredMode.TWO_BALL_LEFT_AUTO);
         mModeChooser.addOption("Five Ball Mode", DesiredMode.FIVE_BALL_AUTO);
         SmartDashboard.putData("Auto Mode", mModeChooser);
     }
@@ -47,6 +49,9 @@ public class AutoModeSelector {
         
         case TEST_PATH_AUTO:
             return Optional.of(new TestPathMode());
+
+        case TWO_BALL_LEFT_AUTO:
+            return Optional.of(new TwoBallLeftMode());
 
         case FIVE_BALL_AUTO:
             return Optional.of(new FiveBallMode());

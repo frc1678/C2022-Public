@@ -160,6 +160,7 @@ public class Robot extends TimedRobot {
 
 			mLimelight.outputTelemetry();
 
+			// call operator commands container from superstructure
 			mSuperstructure.updateOperatorCommands();
 			
 			/* SWERVE DRIVE */

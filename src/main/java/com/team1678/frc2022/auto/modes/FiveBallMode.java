@@ -6,7 +6,6 @@ import com.team1678.frc2022.auto.AutoTrajectoryReader;
 import com.team1678.frc2022.auto.actions.LambdaAction;
 import com.team1678.frc2022.auto.actions.SwerveTrajectoryAction;
 import com.team1678.frc2022.auto.actions.WaitAction;
-import com.team1678.frc2022.subsystems.Intake;
 import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
 
@@ -21,7 +20,6 @@ public class FiveBallMode extends AutoModeBase {
     
     // Swerve instance 
     private final Swerve mSwerve = Swerve.getInstance();
-    private final Intake mIntake = Intake.getInstance();
     private final Superstructure mSuperstructure = Superstructure.getInstance();
 
     // required PathWeaver file paths
@@ -108,6 +106,9 @@ public class FiveBallMode extends AutoModeBase {
         System.out.println("Running five ball mode auto!");
         SmartDashboard.putBoolean("Auto Finished", false);
 
+        // wait 1 second for curr calibration on hood to complete
+        runAction(new WaitAction(1.0));
+
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
         runAction(new LambdaAction(() -> mSuperstructure.setWantPrep(true)));
 
@@ -118,11 +119,11 @@ public class FiveBallMode extends AutoModeBase {
         
         // shoot first cargo
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
-        runAction(new WaitAction(1.70));
+        runAction(new WaitAction(1.25));
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
 
         // start intaking
-        runAction(new LambdaAction(() -> mIntake.setState(Intake.State.INTAKING)));
+        runAction(new LambdaAction(() -> mSuperstructure.setWantIntake(true)));
 
         // run trajectories for first and second cargo intakes
         runAction(driveToIntakeFirstCargo);
