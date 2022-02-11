@@ -89,6 +89,7 @@ public class Shooter extends Subsystem {
         setOpenLoop(0.0, 0.0);
 
         // reduce can util
+
         // mMaster.changeMotionControlFramePeriod(255);
         // mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
         // mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
@@ -151,9 +152,8 @@ public class Shooter extends Subsystem {
             mAccelerator.set(ControlMode.Velocity,
                     mPeriodicIO.accelerator_demand / Constants.ShooterConstants.kAccleratorVelocityConversion);
         }
+        
         mSlave.set(ControlMode.Follower, Ports.FLYWHEEL_MASTER_ID);
-        SmartDashboard.putNumber("Slave Current", mPeriodicIO.slave_current);
-        SmartDashboard.putNumber("Slave Voltage", mPeriodicIO.slave_voltage);
     }
 
     public void setOpenLoop(double flywheelDemand, double acceleratorDemand) {
