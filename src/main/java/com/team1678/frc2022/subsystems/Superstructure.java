@@ -77,8 +77,8 @@ public class Superstructure extends Subsystem {
     private boolean mResetHoodAngleAdjustment = false;
 
     // constants
-    private final double kFenderVelocity = 2000;
-    private final double kFenderAngle = 12.0;
+    private final double kFenderVelocity = 2300;
+    private final double kFenderAngle = 10.0;
 
     @Override
     public void registerEnabledLoops(ILooper enabledLooper) {
