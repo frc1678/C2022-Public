@@ -3,6 +3,8 @@ package com.team1678.frc2022.subsystems;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sound.sampled.DataLine;
+
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.CANdleConfiguration;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
@@ -19,12 +21,10 @@ public class LEDs extends Subsystem {
     public CANdle mCandle = new CANdle(Ports.CANDLE);
     
     public State mState = State.DISABLED;
+    public State mStripState = State.IDLE;
     public static LEDs mInstance;
     public double mLastTimestamp = Timer.getFPGATimestamp();
-
-    public boolean mRising = false;
-    public double mPhase = 0;
-    public int mColorPhase = 0;
+    
 
     public final Superstructure mSuperstructure = Superstructure.getInstance();
     public final Indexer mIndexer = Indexer.getInstance();
@@ -54,6 +54,9 @@ public class LEDs extends Subsystem {
         double onTime, offTime;
         boolean breathing = false;
         boolean isCycleColors = false;
+        public int colorPhase = 0;
+        public double phase = 0;
+        public boolean rising = false;
 
         /**
          * Creates a new state
@@ -93,7 +96,7 @@ public class LEDs extends Subsystem {
     public LEDs() {
         CANdleConfiguration config = new CANdleConfiguration();
         config.disableWhenLOS = true;
-        config.stripType = LEDStripType.RGBW; // set the strip type to RGB
+        config.stripType = LEDStripType.RGB; // set the strip type to RGB
         config.brightnessScalar = 1; // dim the LEDs to half brightness
         mCandle.configAllSettings(config);
 
@@ -122,16 +125,6 @@ public class LEDs extends Subsystem {
 
     public void updateLights() {
 
-        
-        
-        if (mState.onTime == Double.POSITIVE_INFINITY) {
-            // Positive indicates no animaiton
-            Color color = mState.colors.get(0);
-            mCandle.setLEDs((int)(color.red * 255), (int)(color.green * 255), (int)(color.blue * 255));
-            mCandle.configBrightnessScalar(1);
-            return;
-        }
-
         double timestamp = Timer.getFPGATimestamp();
         double lastTimestamp = mLastTimestamp;
 
@@ -139,36 +132,56 @@ public class LEDs extends Subsystem {
         double deltaTime = timestamp - lastTimestamp;
         mLastTimestamp = timestamp;
 
+        updateLEDsFromState(mState, 0, 32, deltaTime, timestamp);
+        updateLEDsFromState(mStripState, 33, 512, deltaTime, timestamp);
+        SmartDashboard.putNumber("State Phase", mState.phase);
+        SmartDashboard.putNumber("Strip Phase", mStripState.phase);
+        SmartDashboard.putNumber("Strip Color ", mStripState.colorPhase);
+        SmartDashboard.putNumber("State Color ", mState.colorPhase);
+        SmartDashboard.putString("Strip Actual State ", mStripState.toString());
+        SmartDashboard.putString("State Actual State ", mState.toString());
+
+    }
+
+    public void updateLEDsFromState(State state, int start, int end, double deltaTime, double timestamp) {
+        
+        if (state.onTime == Double.POSITIVE_INFINITY) {
+            // Positive indicates no animaiton
+            Color color = state.colors.get(0);
+            mCandle.setLEDs((int)(color.red * 255), (int)(color.green * 255), (int)(color.blue * 255), 0, start, end);
+            return;
+        }
+
         // Basic oscillation between 0 and onTime then 0 offTime
-        if (mRising) {
-            mPhase = mPhase + deltaTime;
-            if (mPhase > mState.onTime) {
-                mRising = false;
-                mPhase = 0;
+        if (state.rising) {
+            state.phase = state.phase + deltaTime;
+            if (state.phase > state.onTime) {
+                state.rising = false;
+                state.phase = 0;
             }
         } else {
-            mPhase = mPhase + deltaTime;
-            if (mPhase > mState.offTime) {
-                mRising = true;
-                mPhase = 0;
-                if (mColorPhase == (mState.colors.size() - 1)) {
-                    mColorPhase = 0;
+            state.phase = state.phase + deltaTime;
+            if (state.phase > state.offTime) {
+                state.rising = true;
+                state.phase = 0;
+                if (state.colorPhase == (state.colors.size() - 1)) {
+                    state.colorPhase = 0;
                 } else {
-                    mColorPhase++;
+                    state.colorPhase++;
                 }
             }
         }
 
         // Calculate the proper brightness values
         double percentBrightness = 0;
-        if (mState.breathing) {
-            if (mRising) {
-                percentBrightness = (mPhase / mState.onTime);
+        if (state.breathing) {
+            if (state.rising) {
+                percentBrightness = (state.phase / state.onTime);
             } else {
-                percentBrightness = 1 - (mPhase / mState.offTime);
+                percentBrightness = 1 - (state.phase / state.offTime);
             }
         } else {
-            percentBrightness = mRising ? 1 : 0;
+            percentBrightness = state.rising ? 1 : 0;
         }
 
 
@@ -177,20 +190,19 @@ public class LEDs extends Subsystem {
         int green = 0;
 
         // Calculate R A I N B O W
-        if (mState.isCycleColors) {
+        if (state.isCycleColors) {
             red   = (int)(Math.sin(2*timestamp + 2) * 127 + 128);
             green = (int)(Math.sin(2*timestamp + 0) * 127 + 128);
             blue  = (int)(Math.sin(2*timestamp + 4) * 127 + 128);
         } else {
-            Color color = mState.colors.get(mColorPhase);
-            red = (int)(color.red * 255);
-            green = (int)(color.green * 255);
-            blue = (int)(color.blue * 255);
+            Color color = state.colors.get(state.colorPhase);
+            red = (int)(color.red * percentBrightness * 255);
+            green = (int)(color.green * percentBrightness * 255);
+            blue = (int)(color.blue * percentBrightness * 255);
 
         }
 
-        mCandle.setLEDs(red, green, blue);
-        mCandle.configBrightnessScalar(percentBrightness);
+        mCandle.setLEDs(red, green, blue, 0, start, end);
 
     }
 
@@ -198,9 +210,18 @@ public class LEDs extends Subsystem {
         return mState;
     }
 
+    public State getStripState() {
+        return mStripState;
+    }
+
     public void setState(State state) {
-        mColorPhase = 0;
+        state.colorPhase = 0;
         mState = state;
+    }
+
+    public void setStripState(State state) {
+        state.colorPhase = 0;
+        mStripState = state;
     }
 
     @Override
@@ -226,7 +247,7 @@ public class LEDs extends Subsystem {
 
             @Override
             public void onLoop(double timestamp) {
-                writePeriodicOutputs();
+                //updateLights();
                 updateState();
             }
 

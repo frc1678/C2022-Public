@@ -86,14 +86,14 @@ public class Robot extends TimedRobot {
 			CrashTracker.logRobotInit();
 
 			mSubsystemManager.setSubsystems(
-					mSwerve,
-					mInfrastructure,
-					mIntake,
-					mIndexer,
-					mShooter,
-					mHood,
-					mSuperstructure,
-					mLimelight,
+					//mSwerve,
+					//mInfrastructure,
+					//mIntake,
+					//mIndexer,
+					//mShooter,
+					//mHood,
+					//mSuperstructure,
+					//mLimelight,
 					mLEDs
 			);
 

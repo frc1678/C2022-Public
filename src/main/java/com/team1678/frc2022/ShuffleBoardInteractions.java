@@ -97,6 +97,7 @@ public class ShuffleBoardInteractions {
 
     /* CANdle */
     private final NetworkTableEntry mLedState;
+    private final NetworkTableEntry mLedStripState;
     private final NetworkTableEntry mLedApply;
 
     /* Swerve Modules */
@@ -265,6 +266,7 @@ public class ShuffleBoardInteractions {
 
         /* CANdle */
         mLedState = CANDLE_TAB.add("State", "Nothing yet :/").getEntry();
+        mLedStripState = CANDLE_TAB.add("Strip State", "Nothing yet :\\").getEntry();
         mLedApply = CANDLE_TAB
             .add("Apply State", false)
             .withWidget(BuiltInWidgets.kToggleSwitch)
@@ -395,6 +397,7 @@ public class ShuffleBoardInteractions {
         } else {
             //mLedState.setString(mLEDs.getState().toString());
         }
+        mLedStripState.setString(mLEDs.getStripState().toString());
         
         
         /* SWERVE */
