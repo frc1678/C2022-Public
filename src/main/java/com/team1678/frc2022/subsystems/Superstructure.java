@@ -18,6 +18,7 @@ import com.team1678.frc2022.subsystems.Intake.State;
 import com.team1678.frc2022.subsystems.Intake.WantedAction;
 import com.team1678.frc2022.subsystems.ServoMotorSubsystem.ControlState;
 import com.team1678.frc2022.controlboard.ControlBoard;
+import com.team1678.frc2022.controlboard.CustomXboxController.Button;
 import com.team1678.frc2022.controlboard.CustomXboxController.Side;
 
 public class Superstructure extends Subsystem {
@@ -129,6 +130,11 @@ public class Superstructure extends Subsystem {
             mPeriodicIO.PREP = !mPeriodicIO.PREP;
         }
 
+        // control fender shot
+        if (mControlBoard.operator.getController().getXButtonPressed()) {
+            mPeriodicIO.FENDER = !mPeriodicIO.FENDER;
+        }
+
         // control for adding manual hood adjustment
         switch(mControlBoard.getHoodManualAdjustment()) {
             case 1:
@@ -142,7 +148,7 @@ public class Superstructure extends Subsystem {
                 break;
         }
         // reset manual hood adjustment if necessary
-        if (mControlBoard.operator.getController().getXButtonPressed()) {
+        if (mControlBoard.operator.getButton(Button.START)) {
             mResetHoodAngleAdjustment = true;
         }
 
