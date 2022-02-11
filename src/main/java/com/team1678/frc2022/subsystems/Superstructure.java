@@ -5,6 +5,7 @@ import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.util.Util;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Encoder.IndexingType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.Optional;
@@ -13,6 +14,7 @@ import com.team1678.frc2022.loops.Loop;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.regressions.ShooterRegression;
+import com.team1678.frc2022.subsystems.Intake.State;
 import com.team1678.frc2022.subsystems.Intake.WantedAction;
 import com.team1678.frc2022.subsystems.ServoMotorSubsystem.ControlState;
 import com.team1678.frc2022.controlboard.ControlBoard;
@@ -60,10 +62,10 @@ public class Superstructure extends Subsystem {
 
         // OUTPUTS
         // (superstructure goals/setpoints)
-        private Intake.WantedAction real_intake;
-        private Indexer.WantedAction real_indexer;
-        private double real_shooter;
-        private double real_hood;
+        private Intake.WantedAction real_intake = Intake.WantedAction.NONE;
+        private Indexer.WantedAction real_indexer = Indexer.WantedAction.NONE;
+        private double real_shooter = 0.0;
+        private double real_hood = 0.0;
         
     }
 
@@ -72,6 +74,10 @@ public class Superstructure extends Subsystem {
     public double mHoodSetpoint = 10.0; // TODO: arbitrary value, change4
     private double mHoodAngleAdjustment = 0.0;
     private boolean mResetHoodAngleAdjustment = false;
+
+    // constants
+    private final double kFenderVelocity = 2000;
+    private final double kFenderAngle = 12.0;
 
     @Override
     public void registerEnabledLoops(ILooper enabledLooper) {
@@ -86,7 +92,7 @@ public class Superstructure extends Subsystem {
                 final double start = Timer.getFPGATimestamp();
 
                 updateOperatorCommands();
-                maybeUpdateGoalFromVision();
+                updateShootingParams();
                 setGoals();
                 // outputTelemetry();
 
@@ -161,8 +167,11 @@ public class Superstructure extends Subsystem {
     }
 
     /*** UPDATE SHOOTER AND HOOD SETPOINTS WHEN VISION AIMING ***/
-    public synchronized void maybeUpdateGoalFromVision() {
-        if (hasTarget()) {
+    public synchronized void updateShootingParams() {
+        if (mPeriodicIO.FENDER) {
+            mShooterSetpoint = kFenderVelocity;
+            mHoodSetpoint = kFenderAngle;
+        } else if (hasTarget()) {
             Optional<Double> distance_to_target = mLimelight.getDistanceToTarget();
             if (distance_to_target.isPresent()) {
                 mShooterSetpoint = getShooterSetpointFromRegression(distance_to_target.get());
