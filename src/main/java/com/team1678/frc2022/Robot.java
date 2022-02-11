@@ -86,7 +86,7 @@ public class Robot extends TimedRobot {
 					mIntake,
 					mIndexer,
 					mShooter,
-					// mHood,
+					mHood,
 					mSuperstructure,
 					mLimelight
 			);
