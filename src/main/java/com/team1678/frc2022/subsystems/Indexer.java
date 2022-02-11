@@ -115,34 +115,6 @@ public class Indexer extends Subsystem {
         mPeriodicIO.tunnel_current = mTunnel.getStatorCurrent();
         mPeriodicIO.tunnel_voltage = mTunnel.getMotorOutputVoltage();
         mPeriodicIO.tunnel_velocity = mTunnel.getSelectedSensorVelocity() * Constants.IndexerConstants.kTunnelVelocityConversion;
-
-        if (mPeriodicIO.bottom_break) {
-            if (!mBottomHadSeenBall) {
-                if (mState == State.REVERSING) {
-                    mPeriodicIO.ball_count--;
-                } else {
-                    mPeriodicIO.ball_count++;
-                }
-                mBottomHadSeenBall = false;
-            }
-        } else {
-            if (mBottomHadSeenBall) {
-                mBottomHadSeenBall = false;
-            }
-        }
-
-        if (mPeriodicIO.top_break) {
-            if (!mTopHadSeenBall) {
-                mTopHadSeenBall = true;
-            }
-        } else {
-            if (mTopHadSeenBall) {
-                if (mState == State.FEEDING) {
-                    mPeriodicIO.ball_count--;
-                }
-                mTopHadSeenBall = false;
-            }
-        }
     }
 
     @Override
@@ -162,6 +134,7 @@ public class Indexer extends Subsystem {
             @Override
             public void onLoop(double timestamp) {
                 synchronized (Indexer.this) {
+                    updateBallCounter();
                     runStateMachine();
                 }
                 outputTelemetry();
@@ -261,6 +234,37 @@ public class Indexer extends Subsystem {
 
     public void setForceTunnel(boolean enable) {
         mPeriodicIO.forceTunnelOn = enable;
+    }
+
+    private void updateBallCounter() {
+        // ball counting logic
+        if (mPeriodicIO.bottom_break) {
+            if (!mBottomHadSeenBall) {
+                if (mState == State.REVERSING) {
+                    mPeriodicIO.ball_count--;
+                } else {
+                    mPeriodicIO.ball_count++;
+                }
+                mBottomHadSeenBall = false;
+            }
+        } else {
+            if (mBottomHadSeenBall) {
+                mBottomHadSeenBall = false;
+            }
+        }
+
+        if (mPeriodicIO.top_break) {
+            if (!mTopHadSeenBall) {
+                mTopHadSeenBall = true;
+            }
+        } else {
+            if (mTopHadSeenBall) {
+                if (mState == State.FEEDING) {
+                    mPeriodicIO.ball_count--;
+                }
+                mTopHadSeenBall = false;
+            }
+        }
     }
 
     private void runStateMachine() {
