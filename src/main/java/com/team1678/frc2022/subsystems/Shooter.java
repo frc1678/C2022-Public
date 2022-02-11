@@ -200,7 +200,7 @@ public class Shooter extends Subsystem {
             boolean acceleratorSpunUp = Util.epsilonEquals(mPeriodicIO.accelerator_demand,
                                       mPeriodicIO.accelerator_velocity * Constants.ShooterConstants.kAccleratorVelocityConversion,
                                       Constants.ShooterConstants.kFlywheelTolerance);
-            return flywheelSpunUp && acceleratorSpunUp;
+            return flywheelSpunUp/* && acceleratorSpunUp*/;
         }
         return false;
     }
