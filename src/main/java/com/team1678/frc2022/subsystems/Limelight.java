@@ -262,6 +262,10 @@ public class Limelight extends Subsystem {
         return mSeesTarget;
     }
 
+    public synchronized boolean isOK() {
+        return mPeriodicIO.has_comms;
+    }
+
     public synchronized boolean isAimed() {
         if (hasTarget()) {
             return Util.epsilonEquals(mPeriodicIO.xOffset, 0.0, Constants.VisionAlignConstants.kEpsilon);
