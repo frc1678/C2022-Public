@@ -86,7 +86,7 @@ public class Robot extends TimedRobot {
 					mIntake,
 					mIndexer,
 					mShooter,
-					mHood,
+					// mHood,
 					mSuperstructure,
 					mLimelight
 			);
@@ -95,6 +95,7 @@ public class Robot extends TimedRobot {
 			mSubsystemManager.registerDisabledLoops(mDisabledLooper);
 
 			mSwerve.resetOdometry(new Pose2d());
+			mSwerve.resetAnglesToAbsolute();
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
 			throw t;
@@ -139,6 +140,10 @@ public class Robot extends TimedRobot {
 			mEnabledLooper.start();
 
 			mInfrastructure.setIsDuringAuto(false);
+			
+			if (mAutoModeExecutor != null) {
+                mAutoModeExecutor.stop();
+            }
 
 			mLimelight.setLed(Limelight.LedMode.ON);
             mLimelight.setPipeline(Constants.VisionConstants.kDefaultPipeline);
@@ -154,6 +159,8 @@ public class Robot extends TimedRobot {
 		try {
 
 			mLimelight.outputTelemetry();
+
+			mSuperstructure.updateOperatorCommands();
 			
 			/* SWERVE DRIVE */
 			if (mControlBoard.zeroGyro()) {
