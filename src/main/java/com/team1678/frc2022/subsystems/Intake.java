@@ -171,16 +171,16 @@ public class Intake extends Subsystem {
 
     public static class PeriodicIO {
         // INPUTS
-        public boolean intake_out;
-        public double intake_current;
-        public double singulator_current;
-        public double intake_voltage;
-        public double singulator_voltage;
+        private boolean intake_out;
+        private double intake_current;
+        private double singulator_current;
+        private double intake_voltage;
+        private double singulator_voltage;
 
         // OUTPUTS
-        public double intake_demand;
-        public double singulator_demand;
-        public boolean deploy;
+        private double intake_demand;
+        private double singulator_demand;
+        private boolean deploy;
     }
 
     

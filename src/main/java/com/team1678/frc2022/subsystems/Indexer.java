@@ -317,27 +317,27 @@ public class Indexer extends Subsystem {
     // consolidated inputs and outputs for subsystem
     public static class PeriodicIO {
         // INPUTS
-        public double timestamp;
+        private double timestamp;
 
-        public double tunnel_voltage;
-        public double tunnel_current;
-        public double tunnel_velocity;
+        private double tunnel_voltage;
+        private double tunnel_current;
+        private double tunnel_velocity;
 
-        public double trigger_voltage;
-        public double trigger_current;
-        public double trigger_velocity;
+        private double trigger_voltage;
+        private double trigger_current;
+        private double trigger_velocity;
 
-        public boolean top_break;
-        public boolean bottom_break;
-        public boolean correct_color;
-        public double ball_count;
+        private boolean top_break;
+        private boolean bottom_break;
+        private boolean correct_color;
+        private double ball_count;
 
-        public boolean forceTunnelOn;
+        private boolean forceTunnelOn;
 
         // OUTPUTS
-        public double tunnel_demand;
-        public double trigger_demand;
-        public boolean eject;
+        private double tunnel_demand;
+        private double trigger_demand;
+        private boolean eject;
     }
 
 

@@ -250,19 +250,19 @@ public class ShuffleBoardInteractions {
 
         /* INTAKE */
         mIntakeCurrent = INTAKE_TAB
-            .add("Intake Current", mIntake.mPeriodicIO.intake_current)
+            .add("Intake Current", mIntake.getIntakeCurrent())
             .getEntry();
         mIntakeState = INTAKE_TAB
             .add("Intake State", mIntake.getState().toString())
             .getEntry();
         mIntakeVoltage = INTAKE_TAB
-            .add("Intake Voltage", mIntake.mPeriodicIO.intake_voltage)
+            .add("Intake Voltage", mIntake.getIntakeVoltage())
             .getEntry();
         mIntakeDemand = INTAKE_TAB
-                .add("Intake Demand", mIntake.mPeriodicIO.intake_demand)
+                .add("Intake Demand", mIntake.getIntakeDemand())
                 .getEntry();
         mIntakeDeployed = INTAKE_TAB
-                .add("Intake Deployed", mIntake.mPeriodicIO.deploy)
+                .add("Intake Deployed", mIntake.getIsDeployed())
                 .getEntry();
 
         /* INDEXER */

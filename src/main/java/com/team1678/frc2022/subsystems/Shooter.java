@@ -207,23 +207,23 @@ public class Shooter extends Subsystem {
 
     public static class PeriodicIO {
         /* Inputs */
-        public double timestamp;
+        private double timestamp;
 
-        public double flywheel_velocity;
-        public double flywheel_voltage;
-        public double flywheel_current;
+        private double flywheel_velocity;
+        private double flywheel_voltage;
+        private double flywheel_current;
         
-        public double slave_velocity;
-        public double slave_voltage;
-        public double slave_current;
+        private double slave_velocity;
+        private double slave_voltage;
+        private double slave_current;
 
-        public double accelerator_velocity;
-        public double accelerator_voltage;
-        public double accelerator_current;
+        private double accelerator_velocity;
+        private double accelerator_voltage;
+        private double accelerator_current;
 
         /* Outputs */
-        public double flywheel_demand;
-        public double accelerator_demand;
+        private double flywheel_demand;
+        private double accelerator_demand;
     }
 
     @Override
