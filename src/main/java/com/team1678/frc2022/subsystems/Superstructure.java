@@ -108,7 +108,42 @@ public class Superstructure extends Subsystem {
         });
     }
 
-    /*** CONTAINER FOR OPERATOR COMMANDS CALLING SUPERSTRUCTURE ACTIONS ***/
+    /*** SETTERS FOR SUPERSTRUCTURE ACTIONS OUTSIDE OPERATOR INPUT ***/
+    public void setWantIntake(boolean intake) {
+        mPeriodicIO.INTAKE = intake;
+    }
+    public void setWantOuttake(boolean outtake) {
+        mPeriodicIO.OUTTAKE = outtake;
+    }
+    public void setWantPrep(boolean wants_prep) {
+        mPeriodicIO.PREP = wants_prep;
+    }
+    public void setWantShoot(boolean wants_shoot) {
+        mPeriodicIO.SHOOT = wants_shoot;
+    }
+    public void setShootingParameters(double flywheel, double hood) {
+        mShooterSetpoint = flywheel;
+        mHoodSetpoint = hood;
+    }
+
+    /*** CONTAINER FOR OPERATOR COMMANDS CALLING SUPERSTRUCTURE ACTIONS
+     * 
+     * Intaking
+     * - hold right trigger to intake
+     * - hold left trigger to outtake
+     * 
+     * Shooting
+     * - press A to prep for shot (spin up)
+     * - press Y to shoot once ready
+     * - press X to toggle fender shot with set params
+     * 
+     * Manual Adjustment
+     * - Use dpad to manually adjust hood with offset
+     *   --> 0 to move hood up
+     *   --> 180 to move hood down
+     * - press START button to reset adjustment 
+     * 
+     * */
     public void updateOperatorCommands() {
         // control intake vs. outtake actions
         if (mControlBoard.operator.getTrigger(Side.RIGHT)) {
@@ -154,24 +189,6 @@ public class Superstructure extends Subsystem {
 
     }
 
-    /*** SETTERS FOR SUPERSTRUCTURE ACTIONS OUTSIDE OPERATOR INPUT ***/
-    public void setWantIntake(boolean intake) {
-        mPeriodicIO.INTAKE = intake;
-    }
-    public void setWantOuttake(boolean outtake) {
-        mPeriodicIO.OUTTAKE = outtake;
-    }
-    public void setWantPrep(boolean wants_prep) {
-        mPeriodicIO.PREP = wants_prep;
-    }
-    public void setWantShoot(boolean wants_shoot) {
-        mPeriodicIO.SHOOT = wants_shoot;
-    }
-    public void setShootingParameters(double flywheel, double hood) {
-        mShooterSetpoint = flywheel;
-        mHoodSetpoint = hood;
-    }
-
     /*** UPDATE SHOOTER AND HOOD SETPOINTS WHEN VISION AIMING ***/
     public synchronized void updateShootingParams() {
         if (mPeriodicIO.FENDER) {
@@ -192,7 +209,7 @@ public class Superstructure extends Subsystem {
      * 2. updates shooter and hood setpoint goals from tracked vars
      * 3. set subsystem states and shooting setpoints within subsystems
      * 
-    */
+     * */
     public void setGoals() {
         /* Update subsystem wanted actions and setpoints*/
 
