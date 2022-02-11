@@ -139,7 +139,7 @@ public class Indexer extends Subsystem {
                     updateBallCounter();
                     runStateMachine();
                 }
-                outputTelemetry();
+                // outputTelemetry();
             }
 
             @Override
@@ -196,6 +196,10 @@ public class Indexer extends Subsystem {
 
     public double getTriggerVelocity() {
         return mPeriodicIO.trigger_velocity;
+    }
+
+    public double getBallCount() {
+        return mPeriodicIO.ball_count;
     }
 
     public void setState(WantedAction wanted_state) {

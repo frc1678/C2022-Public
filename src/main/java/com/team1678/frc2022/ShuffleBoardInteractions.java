@@ -71,6 +71,7 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mIndexerState;
     private final NetworkTableEntry mTopBeamBreak;
     private final NetworkTableEntry mBottomBeamBreak;
+    private final NetworkTableEntry mBallCount;
 
     private final NetworkTableEntry mTunnelDemand;
     private final NetworkTableEntry mTunnelVoltage;
@@ -347,6 +348,9 @@ public class ShuffleBoardInteractions {
         mBottomBeamBreak = INDEXER_TAB
             .add("Bottom Beam Break", false)
             .getEntry();
+        mBallCount = INDEXER_TAB
+            .add("Ball Count", 0.0)
+            .getEntry();
 
         mTunnelDemand = INDEXER_TAB
             .add("Tunnel Demand", 0.0)
@@ -452,6 +456,7 @@ public class ShuffleBoardInteractions {
         mIndexerState.setString(mIndexer.getState().toString());
         mTopBeamBreak.setBoolean(mIndexer.getTopBeamBreak());
         mBottomBeamBreak.setBoolean(mIndexer.getBottomBeamBreak());
+        mBallCount.setDouble(mIndexer.getBallCount());
 
         mTunnelDemand.setDouble(truncate(mIndexer.getTunnelDemand()));
         mTunnelCurrent.setDouble(truncate(mIndexer.getTunnelCurrent()));
