@@ -47,12 +47,12 @@ public class Superstructure extends Subsystem {
     public static class PeriodicIO {
         // INPUTS
         // (superstructure actions)
-        public boolean NONE = false; // do nothing
-        public boolean INTAKE = false; // run the intake to pick up cargo
-        public boolean OUTTAKE = false; // reverse the intake to spit out cargo
-        public boolean PREP = false; // spin up and aim with shooting setpoints
-        public boolean SHOOT = false; // shoot cargo
-        public boolean FENDOR = false; // shoot cargo from up against the hub
+        private boolean NONE = false; // do nothing
+        private boolean INTAKE = false; // run the intake to pick up cargo
+        private boolean OUTTAKE = false; // reverse the intake to spit out cargo
+        private boolean PREP = false; // spin up and aim with shooting setpoints
+        private boolean SHOOT = false; // shoot cargo
+        private boolean FENDER = false; // shoot cargo from up against the hub
 
         // time measurements
         public double timestamp;
@@ -60,10 +60,10 @@ public class Superstructure extends Subsystem {
 
         // OUTPUTS
         // (superstructure goals/setpoints)
-        Intake.WantedAction real_intake;
-        Indexer.WantedAction real_indexer;
-        double real_shooter;
-        double real_hood;
+        private Intake.WantedAction real_intake;
+        private Indexer.WantedAction real_indexer;
+        private double real_shooter;
+        private double real_hood;
         
     }
 
@@ -88,7 +88,7 @@ public class Superstructure extends Subsystem {
                 updateOperatorCommands();
                 maybeUpdateGoalFromVision();
                 setGoals();
-                outputTelemetry();
+                // outputTelemetry();
 
                 final double end = Timer.getFPGATimestamp();
                 mPeriodicIO.dt = end - start;
@@ -162,7 +162,7 @@ public class Superstructure extends Subsystem {
 
     /*** UPDATE SHOOTER AND HOOD SETPOINTS WHEN VISION AIMING ***/
     public synchronized void maybeUpdateGoalFromVision() {
-        if (mLimelight.hasTarget()) {
+        if (hasTarget()) {
             Optional<Double> distance_to_target = mLimelight.getDistanceToTarget();
             if (distance_to_target.isPresent()) {
                 mShooterSetpoint = getShooterSetpointFromRegression(distance_to_target.get());
@@ -269,6 +269,9 @@ public class Superstructure extends Subsystem {
     public boolean isSpunUp() {
         return mShooter.spunUp();
     }
+    public boolean hasTarget() {
+        return mLimelight.hasTarget();
+    }
     public boolean isAimed() {
         return mLimelight.isAimed();
     }
@@ -284,6 +287,38 @@ public class Superstructure extends Subsystem {
         // TODO Auto-generated method stub
     }
 
+    /* Superstructure getters for action and goal statuses */
+    // get actions
+    public boolean getIntaking() {
+        return mPeriodicIO.INTAKE;
+    }
+    public boolean getOuttaking() {
+        return mPeriodicIO.OUTTAKE;
+    }
+    public boolean getPrepping() {
+        return mPeriodicIO.PREP;
+    }
+    public boolean getShooting() {
+        return mPeriodicIO.SHOOT;
+    }
+    public boolean getWantsFender() {
+        return mPeriodicIO.FENDER;
+    }
+
+    // get goals
+    public String getIntakeGoal() {
+        return mPeriodicIO.real_intake.toString();
+    }
+    public String getIndexerGoal() {
+        return mPeriodicIO.real_indexer.toString();
+    }
+    public double getShooterGoal() {
+        return mPeriodicIO.real_shooter;
+    }
+    public double getHoodGoal() {
+        return mPeriodicIO.real_hood;
+    }
+
     /* Output superstructure actions and other related statuses */
     public void outputTelemetry() {
         // superstructure actions requested
@@ -291,7 +326,7 @@ public class Superstructure extends Subsystem {
         SmartDashboard.putBoolean("Outtaking", mPeriodicIO.OUTTAKE);
         SmartDashboard.putBoolean("Prepping", mPeriodicIO.PREP);
         SmartDashboard.putBoolean("Shooting", mPeriodicIO.SHOOT);
-        SmartDashboard.putBoolean("Fendor Shooting", mPeriodicIO.FENDOR);
+        SmartDashboard.putBoolean("Fender Shooting", mPeriodicIO.FENDER);
 
         // superstructure goals being set
         SmartDashboard.putString("Intake Goal", mPeriodicIO.real_intake.toString());
