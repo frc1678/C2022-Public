@@ -52,13 +52,13 @@ public class Robot extends TimedRobot {
 
 	private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
 	private final Superstructure mSuperstructure = Superstructure.getInstance();
+	private final Swerve mSwerve = Swerve.getInstance();
+	private final Infrastructure mInfrastructure = Infrastructure.getInstance();
+	private final Intake mIntake = Intake.getInstance();
+	private final Indexer mIndexer = Indexer.getInstance();
 	private final Shooter mShooter = Shooter.getInstance();
 	private final Hood mHood = Hood.getInstance();
-	private final Swerve mSwerve = Swerve.getInstance();
-	private final Intake mIntake = Intake.getInstance();
-	// private final Limelight mLimelight = Limelight.getInstance();
-	private final Infrastructure mInfrastructure = Infrastructure.getInstance();
-	private final Indexer mIndexer = Indexer.getInstance();
+	private final Limelight mLimelight = Limelight.getInstance();
 
 	// instantiate enabled and disabled loopers
 	private final Looper mEnabledLooper = new Looper();
@@ -87,14 +87,15 @@ public class Robot extends TimedRobot {
 					mIndexer,
 					mShooter,
 					mHood,
-					mSuperstructure // ,
-					// mLimelight
+					mSuperstructure,
+					mLimelight
 			);
 
 			mSubsystemManager.registerEnabledLoops(mEnabledLooper);
 			mSubsystemManager.registerDisabledLoops(mDisabledLooper);
 
 			mSwerve.resetOdometry(new Pose2d());
+			mSwerve.resetAnglesToAbsolute();
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
 			throw t;
@@ -116,6 +117,7 @@ public class Robot extends TimedRobot {
 			mAutoModeExecutor.start();
 
 			mInfrastructure.setIsDuringAuto(true);
+			mLimelight.setPipeline(Constants.VisionConstants.kDefaultPipeline);
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
@@ -127,6 +129,7 @@ public class Robot extends TimedRobot {
 	@Override
 	public void autonomousPeriodic() {
 		mSwerve.updateSwerveOdometry();
+		mLimelight.setLed(Limelight.LedMode.ON);
 	}
 
 	@Override
@@ -137,6 +140,13 @@ public class Robot extends TimedRobot {
 			mEnabledLooper.start();
 
 			mInfrastructure.setIsDuringAuto(false);
+			
+			if (mAutoModeExecutor != null) {
+                mAutoModeExecutor.stop();
+            }
+
+			mLimelight.setLed(Limelight.LedMode.ON);
+            mLimelight.setPipeline(Constants.VisionConstants.kDefaultPipeline);
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
@@ -147,6 +157,11 @@ public class Robot extends TimedRobot {
 	@Override
 	public void teleopPeriodic() {
 		try {
+
+			mLimelight.outputTelemetry();
+
+			mSuperstructure.updateOperatorCommands();
+			
 			/* SWERVE DRIVE */
 			if (mControlBoard.zeroGyro()) {
 				mSwerve.zeroGyro();
@@ -167,25 +182,6 @@ public class Robot extends TimedRobot {
 				mSwerve.drive(swerveTranslation, swerveRotation, true, true);
 			}
 
-			// Intake
-			if (mControlBoard.getIntake()) {
-				mSuperstructure.setWantIntake(true);
-			} else if (mControlBoard.getOuttake()) {
-				mSuperstructure.setWantOuttake(true);
-			} else {
-				mSuperstructure.setWantIntake(false);
-				mSuperstructure.setWantOuttake(false);
-			}
-
-			if (mControlBoard.operator.getController().getYButtonPressed()) {
-				mSuperstructure.setWantShoot();
-			}
-
-			if (mControlBoard.operator.getController().getAButtonPressed()) {
-				mSuperstructure.setShooterVelocity(3000, 4000);
-				mSuperstructure.setWantSpinUp();
-			}
-
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
 			throw t;
@@ -199,6 +195,9 @@ public class Robot extends TimedRobot {
 			CrashTracker.logDisabledInit();
 			mEnabledLooper.stop();
 			mDisabledLooper.start();
+
+			mLimelight.setLed(Limelight.LedMode.ON);
+            mLimelight.triggerOutputs();
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
@@ -221,10 +220,11 @@ public class Robot extends TimedRobot {
 		try {
 
 			mAutoModeSelector.updateModeCreator();
-			// [mSwerve.resetAnglesToAbsolute();
+			// mSwerve.resetAnglesToAbsolute();
 
-			// mLimelight.setLed(Limelight.LedMode.ON);
-			// mLimelight.writePeriodicOutputs();
+			mLimelight.setLed(Limelight.LedMode.ON);
+			mLimelight.writePeriodicOutputs();
+			mLimelight.outputTelemetry();
 
 			Optional<AutoModeBase> autoMode = mAutoModeSelector.getAutoMode();
 			if (autoMode.isPresent() && autoMode.get() != mAutoModeExecutor.getAutoMode()) {

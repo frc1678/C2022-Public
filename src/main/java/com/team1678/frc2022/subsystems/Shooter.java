@@ -2,6 +2,7 @@ package com.team1678.frc2022.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
@@ -39,6 +40,7 @@ public class Shooter extends Subsystem {
 
         /* MAIN FLYWHEEl */
         mMaster = TalonFXFactory.createDefaultTalon(Ports.FLYWHEEL_MASTER_ID);
+
         mMaster.setInverted(true);
         mMaster.setNeutralMode(NeutralMode.Coast);
 
@@ -61,7 +63,7 @@ public class Shooter extends Subsystem {
         mMaster.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
 
         /* FLYWHEEL SLAVE */
-        mSlave = TalonFXFactory.createPermanentSlaveTalon(Ports.FLYWHEEL_SLAVE_ID, Ports.FLYWHEEL_MASTER_ID);
+        mSlave = TalonFXFactory.createDefaultTalon(Ports.FLYWHEEL_SLAVE_ID);
         mSlave.setInverted(true);
 
 
@@ -85,6 +87,17 @@ public class Shooter extends Subsystem {
         mAccelerator.enableVoltageCompensation(true);
 
         setOpenLoop(0.0, 0.0);
+
+        // reduce can util
+        // mMaster.changeMotionControlFramePeriod(255);
+        // mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
+        // mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
+        mAccelerator.changeMotionControlFramePeriod(255);
+        mAccelerator.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
+        mAccelerator.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
+        mSlave.changeMotionControlFramePeriod(255);
+        mSlave.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
+        mSlave.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
     }
 
     @Override
@@ -117,6 +130,10 @@ public class Shooter extends Subsystem {
         mPeriodicIO.accelerator_current = mAccelerator.getSupplyCurrent();
         mPeriodicIO.accelerator_voltage = mAccelerator.getMotorOutputVoltage();
         mPeriodicIO.accelerator_velocity = mAccelerator.getSelectedSensorVelocity();
+
+        mPeriodicIO.slave_current = mSlave.getSupplyCurrent();
+        mPeriodicIO.slave_velocity = mSlave.getSelectedSensorVelocity();
+        mPeriodicIO.slave_voltage = mSlave.getMotorOutputVoltage();
     }
 
     @Override
@@ -134,14 +151,17 @@ public class Shooter extends Subsystem {
             mAccelerator.set(ControlMode.Velocity,
                     mPeriodicIO.accelerator_demand / Constants.ShooterConstants.kAccleratorVelocityConversion);
         }
+        mSlave.set(ControlMode.Follower, Ports.FLYWHEEL_MASTER_ID);
+        SmartDashboard.putNumber("Slave Current", mPeriodicIO.slave_current);
+        SmartDashboard.putNumber("Slave Voltage", mPeriodicIO.slave_voltage);
     }
 
-    public void setOpenLoop(double flywheelDemand, double accleratorDemand) {
+    public void setOpenLoop(double flywheelDemand, double acceleratorDemand) {
         if (mIsOpenLoop != true) {
             mIsOpenLoop = true;
         }
         mPeriodicIO.flywheel_demand = flywheelDemand <= 12.0 ? flywheelDemand : 12.0;
-        mPeriodicIO.accelerator_demand = accleratorDemand <= 12.0 ? accleratorDemand : 12.0;
+        mPeriodicIO.accelerator_demand = acceleratorDemand <= 12.0 ? acceleratorDemand : 12.0;
     }
 
     public void setVelocity(double demand, double accleratorDemand) {
@@ -176,11 +196,11 @@ public class Shooter extends Subsystem {
         if (mPeriodicIO.flywheel_demand > 0) {
             boolean flywheelSpunUp = Util.epsilonEquals(mPeriodicIO.flywheel_demand,
                                       mPeriodicIO.flywheel_velocity * Constants.ShooterConstants.kFlywheelVelocityConversion,
-                    Constants.ShooterConstants.kFlywheelTolerance);
+                                      Constants.ShooterConstants.kFlywheelTolerance);
             boolean acceleratorSpunUp = Util.epsilonEquals(mPeriodicIO.accelerator_demand,
-                    mPeriodicIO.flywheel_velocity * Constants.ShooterConstants.kAccleratorVelocityConversion,
-                    Constants.ShooterConstants.kFlywheelTolerance);
-            return flywheelSpunUp && acceleratorSpunUp;
+                                      mPeriodicIO.accelerator_velocity * Constants.ShooterConstants.kAccleratorVelocityConversion,
+                                      Constants.ShooterConstants.kFlywheelTolerance);
+            return flywheelSpunUp/* && acceleratorSpunUp*/;
         }
         return false;
     }
@@ -188,9 +208,14 @@ public class Shooter extends Subsystem {
     public static class PeriodicIO {
         /* Inputs */
         public double timestamp;
+
         public double flywheel_velocity;
         public double flywheel_voltage;
         public double flywheel_current;
+        
+        public double slave_velocity;
+        public double slave_voltage;
+        public double slave_current;
 
         public double accelerator_velocity;
         public double accelerator_voltage;

@@ -108,10 +108,10 @@ public class FiveBallMode extends AutoModeBase {
         System.out.println("Running five ball mode auto!");
         SmartDashboard.putBoolean("Auto Finished", false);
 
-        runAction(new LambdaAction(() -> mSuperstructure.setShooterVelocity(1600, 300))); // TODO: Tune accelerator revs
-        runAction(new LambdaAction(() -> mSuperstructure.setWantSpinUp(true)));
+        runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
+        runAction(new LambdaAction(() -> mSuperstructure.setWantPrep(true)));
 
-        runAction(new LambdaAction(() -> mSuperstructure.setShooterVelocity(1800, 300))); // TODO: Tune accelerator revs
+        runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true))); // TODO: Tune accelerator revs
         
         // reset odometry at the start of the trajectory
         runAction(new LambdaAction(() -> mSwerve.resetOdometry(new Pose2d(driveToIntakeFirstCargo.getInitialPose().getX(), driveToIntakeFirstCargo.getInitialPose().getY(), Rotation2d.fromDegrees(90)))));

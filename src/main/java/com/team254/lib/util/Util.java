@@ -74,10 +74,10 @@ public class Util {
     }
 
     public static double clamp(double value, double min, double max) {
-        if (min > max) {
-            throw new IllegalArgumentException("min must not be greater than max");
-        }
+		if (min > max) {
+			throw new IllegalArgumentException("min must not be greater than max");
+		}
 
-        return Math.max(min, Math.min(value, max));
-    }
+		return Math.max(min, Math.min(value, max));
+	}
 }
