@@ -102,7 +102,7 @@ private Indexer() {
                         mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerIdleVoltage;
                     }
                         mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIndexingVoltage;
-                    //stops indexer if bottom beam break isn't triggered, otherwise keeps indexing
+                    //stops indexer if bottom beam break is triggered, otherwise keeps indexing
                     if (stopIndexer()) {
                         mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
                     } else {
