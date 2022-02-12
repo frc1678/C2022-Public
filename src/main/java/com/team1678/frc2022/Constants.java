@@ -13,7 +13,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 public class Constants {
     //CHANGE THIS BASED ON WHAT ROBOT YOU'RE USING. 
     //VALID ENTRIES ARE "ALPHA", "BETA", "COMP", and "EPSILON".
-    public static final WantedRobot version = WantedRobot.COMP;
+    public static final WantedRobot version = WantedRobot.ALPHA;
 
     //Enum toggle for robots
     public enum WantedRobot {
@@ -132,13 +132,13 @@ public class Constants {
                 double wantedOffset = 0;
                 switch (mRobot) {
                     case isAlpha:
-                        wantedOffset = 334;
+                        wantedOffset = 276.59;
                     case isBeta:
                         wantedOffset = 58.71;
                     case isComp:
                         wantedOffset = 123;
                     case isEpsilon:
-                        wantedOffset = 420; //Get real value
+                        wantedOffset = 0; //Get real value
                 }
 
                 return new SwerveModuleConstants(Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER,
@@ -151,16 +151,16 @@ public class Constants {
                 double wantedOffset = 0;
                 switch (mRobot) {
                     case isAlpha:
-                        wantedOffset = 216;
+                        wantedOffset = 236.53;
                     case isBeta:
                         wantedOffset = 340.57;
                     case isComp:
                         wantedOffset = 138;
                     case isEpsilon:
-                        wantedOffset = 420; //Get real value
+                        wantedOffset = 0; //Get real value
                 }
 
-                return new SwerveModuleConstants(Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER,
+                return new SwerveModuleConstants(Ports.FR_DRIVE, Ports.FR_ROTATION, Ports.FR_CANCODER,
                         wantedOffset);
             }
         }
@@ -170,16 +170,16 @@ public class Constants {
                 double wantedOffset = 0;
                 switch (mRobot) {
                     case isAlpha:
-                        wantedOffset = 183;
+                        wantedOffset = 163.31;
                     case isBeta:
                         wantedOffset = 343.03;
                     case isComp:
                         wantedOffset = 100;
                     case isEpsilon:
-                        wantedOffset = 420; //Get real value
+                        wantedOffset = 0; //Get real value
                 }
 
-                return new SwerveModuleConstants(Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER,
+                return new SwerveModuleConstants(Ports.BL_DRIVE, Ports.BL_ROTATION, Ports.BL_CANCODER,
                         wantedOffset);
             }
         }
@@ -189,16 +189,16 @@ public class Constants {
                 double wantedOffset = 0;
                 switch (mRobot) {
                     case isAlpha:
-                        wantedOffset = 53;
+                        wantedOffset = 161.29;
                     case isBeta:
                         wantedOffset = 254.61;
                     case isComp:
                         wantedOffset = 134;
                     case isEpsilon:
-                        wantedOffset = 420; //Get real value
+                        wantedOffset = 0; //Get real value
                 }
 
-                return new SwerveModuleConstants(Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER,
+                return new SwerveModuleConstants(Ports.BR_DRIVE, Ports.BR_ROTATION, Ports.BR_CANCODER,
                         wantedOffset);
             }
         }
