@@ -5,6 +5,7 @@ import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Intake;
 import com.team1678.frc2022.subsystems.Limelight;
 import com.team1678.frc2022.subsystems.Shooter;
+import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -35,6 +36,7 @@ public class ShuffleBoardInteractions {
     private final Intake mIntake;
     private final Shooter mShooter;
     private final Indexer mIndexer;
+    private final Superstructure mSuperstructure;
 
     /* Status Variable */
     private double lastCancoderUpdate = 0.0;
@@ -46,6 +48,8 @@ public class ShuffleBoardInteractions {
     private ShuffleboardTab INTAKE_TAB;
     private ShuffleboardTab SHOOTER_TAB;
     private ShuffleboardTab INDEXER_TAB;
+    private ShuffleboardTab SUPERSTRUCTURE_TAB;
+    private ShuffleboardTab MANUAL_PARAMS;
 
     /* ENTRIES */
 
@@ -63,24 +67,21 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mFlywheelDemand;
     private final NetworkTableEntry mAcceleratorDemand;
 
-    // private final NetworkTableEntry mFlywheelManualPIDToggle;
-    // private final NetworkTableEntry mFlywheelP;
-    // private final NetworkTableEntry mFlywheelI;
-    // private final NetworkTableEntry mFlywheelD;
-    // private final NetworkTableEntry mFlywheelF;
     /* Indexer */
     private final NetworkTableEntry mIndexerState;
     private final NetworkTableEntry mTopBeamBreak;
     private final NetworkTableEntry mBottomBeamBreak;
+    private final NetworkTableEntry mBallCount;
 
     private final NetworkTableEntry mTunnelDemand;
     private final NetworkTableEntry mTunnelVoltage;
     private final NetworkTableEntry mTunnelCurrent;
+    private final NetworkTableEntry mTunnelVelocity;
 
     private final NetworkTableEntry mTriggerDemand;
     private final NetworkTableEntry mTriggerVoltage;
     private final NetworkTableEntry mTriggerCurrent;
-    
+    private final NetworkTableEntry mTriggerVelocity;
 
     /* Vision */
     private final NetworkTableEntry mSeesTarget;
@@ -111,6 +112,30 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mCurrentAngleI;
     private final NetworkTableEntry mCurrentAngleD;
 
+    /* Superstructure */
+
+    // actions
+    private final NetworkTableEntry mIntaking;
+    private final NetworkTableEntry mOuttaking;
+    private final NetworkTableEntry mPrepping;
+    private final NetworkTableEntry mShooting;
+    private final NetworkTableEntry mFender;
+
+    // goals
+    private final NetworkTableEntry mIntakeGoal;
+    private final NetworkTableEntry mIndexerGoal;
+    private final NetworkTableEntry mShooterGoal;
+    private final NetworkTableEntry mHoodGoal;
+
+    // additional status vars
+    private final NetworkTableEntry mSpunUp;
+    private final NetworkTableEntry mHasTarget;
+    private final NetworkTableEntry mIsAimed;
+
+    /* Manual Params */
+    private final NetworkTableEntry mManualShooterRPM;
+    private final NetworkTableEntry mManualHoodAngle;
+    private final NetworkTableEntry mShootingSetpointsEnableToggle;
 
     public ShuffleBoardInteractions() {
         /* Get Subsystems */
@@ -120,6 +145,7 @@ public class ShuffleBoardInteractions {
         mIntake = Intake.getInstance();
         mShooter = Shooter.getInstance();
         mIndexer = Indexer.getInstance();
+        mSuperstructure = Superstructure.getInstance();
 
         /* Get Tabs */
         VISION_TAB = Shuffleboard.getTab("Vision");
@@ -128,8 +154,11 @@ public class ShuffleBoardInteractions {
         INTAKE_TAB = Shuffleboard.getTab("Intake");
         SHOOTER_TAB = Shuffleboard.getTab("Shooter");
         INDEXER_TAB = Shuffleboard.getTab("Indexer");
+        SUPERSTRUCTURE_TAB = Shuffleboard.getTab("Superstructure");
+        MANUAL_PARAMS = Shuffleboard.getTab("Manual Params");
         
         /* Create Entries */
+
         mLimelightOk = VISION_TAB
             .add("Limelight OK", false)
             .withPosition(0, 0)
@@ -222,6 +251,20 @@ public class ShuffleBoardInteractions {
             .withSize(2, 1)
             .getEntry();
 
+        mManualShooterRPM = MANUAL_PARAMS
+            .add("Manual Shooter Goal", 0.0)
+            .withSize(2, 1)
+            .getEntry();
+        mManualHoodAngle = MANUAL_PARAMS
+            .add("Manual Hood Goal", 0.0)
+            .withSize(2, 1)
+            .getEntry();
+        mShootingSetpointsEnableToggle = MANUAL_PARAMS
+            .add("Apply Manual Shooting Params", false)
+            .withWidget(BuiltInWidgets.kToggleButton)
+            .withSize(2, 1)
+            .getEntry();
+
         TalonFXConfiguration currentAngleValues = CTREConfigs.swerveAngleFXConfig();
 
         mDesiredAngleP = PID_TAB
@@ -308,6 +351,9 @@ public class ShuffleBoardInteractions {
         mBottomBeamBreak = INDEXER_TAB
             .add("Bottom Beam Break", false)
             .getEntry();
+        mBallCount = INDEXER_TAB
+            .add("Ball Count", 0.0)
+            .getEntry();
 
         mTunnelDemand = INDEXER_TAB
             .add("Tunnel Demand", 0.0)
@@ -317,6 +363,9 @@ public class ShuffleBoardInteractions {
             .getEntry();
         mTunnelCurrent = INDEXER_TAB
             .add("Tunnel Current", 0.0)
+            .getEntry();
+        mTunnelVelocity = INDEXER_TAB
+            .add("Tunnel Velocity", 0.0)
             .getEntry();
 
         mTriggerDemand = INDEXER_TAB
@@ -328,6 +377,65 @@ public class ShuffleBoardInteractions {
         mTriggerCurrent = INDEXER_TAB
             .add("Trigger Current", 0.0)
             .getEntry();
+        mTriggerVelocity = INDEXER_TAB
+            .add("Trigger Velocity", 0.0)
+            .getEntry();
+
+        /* Superstructure */
+        // actions
+        mIntaking = SUPERSTRUCTURE_TAB
+            .add("Intaking", false)
+            .withSize(2, 1)
+            .getEntry();
+        mOuttaking = SUPERSTRUCTURE_TAB
+            .add("Outtaking", false)
+            .withSize(2, 1)
+            .getEntry();
+        mPrepping = SUPERSTRUCTURE_TAB
+            .add("Prepping", false)
+            .withSize(2, 1)
+            .getEntry();
+        mShooting = SUPERSTRUCTURE_TAB
+            .add("Shooting", false)
+            .withSize(2, 1)
+            .getEntry();
+        mFender = SUPERSTRUCTURE_TAB
+            .add("Fender Shot", false)
+            .withSize(2, 1)
+            .getEntry();
+
+        // goals
+        mIntakeGoal = SUPERSTRUCTURE_TAB
+            .add("Intake Goal", "N/A")
+            .withSize(2, 1)
+            .getEntry();
+        mIndexerGoal = SUPERSTRUCTURE_TAB
+            .add("Indexer Goal", "N/A")
+            .withSize(2, 1)
+            .getEntry();
+        mShooterGoal = SUPERSTRUCTURE_TAB
+            .add("Shooter Goal", 0.0)
+            .withSize(2, 1)
+            .getEntry();
+        mHoodGoal = SUPERSTRUCTURE_TAB
+            .add("Hood Goal", 0.0)
+            .withSize(2, 1)
+            .getEntry();
+
+        // additional status vars
+        mSpunUp = SUPERSTRUCTURE_TAB
+            .add("Is Spun Up", false)
+            .withSize(2, 1)
+            .getEntry();
+        mHasTarget = SUPERSTRUCTURE_TAB
+            .add("Has Vision Target", false)
+            .withSize(2, 1)
+            .getEntry();
+        mIsAimed = SUPERSTRUCTURE_TAB
+            .add("Is Vision Aimed", false)
+            .withSize(2, 1)
+            .getEntry();
+        
     }
     
 
@@ -351,14 +459,17 @@ public class ShuffleBoardInteractions {
         mIndexerState.setString(mIndexer.getState().toString());
         mTopBeamBreak.setBoolean(mIndexer.getTopBeamBreak());
         mBottomBeamBreak.setBoolean(mIndexer.getBottomBeamBreak());
+        mBallCount.setDouble(mIndexer.getBallCount());
 
         mTunnelDemand.setDouble(truncate(mIndexer.getTunnelDemand()));
         mTunnelCurrent.setDouble(truncate(mIndexer.getTunnelCurrent()));
         mTunnelVoltage.setDouble(truncate(mIndexer.getTunnelVoltage()));
+        mTunnelVelocity.setDouble(mIndexer.getTunnelVelocity());
 
         mTriggerDemand.setDouble(truncate(mIndexer.getTriggerDemand()));
         mTriggerCurrent.setDouble(truncate(mIndexer.getTriggerCurrent()));
         mTriggerVoltage.setDouble(truncate(mIndexer.getTriggerVoltage()));
+        mTriggerVelocity.setDouble(mIndexer.getTriggerVelocity());
 
         /* Vision */
         mSeesTarget.setBoolean(mLimelight.hasTarget());
@@ -367,10 +478,31 @@ public class ShuffleBoardInteractions {
         mLimelightDt.setDouble(mLimelight.getDt());
         mLimelightTx.setDouble(mLimelight.getOffset()[0]);
         mLimelightTy.setDouble(mLimelight.getOffset()[1]);
+
+        /* Superstructure */
+        // update actions statuses
+        mIntaking.setBoolean(mSuperstructure.getIntaking());
+        mOuttaking.setBoolean(mSuperstructure.getOuttaking());
+        mPrepping.setBoolean(mSuperstructure.getPrepping());
+        mShooting.setBoolean(mSuperstructure.getShooting());
+        mFender.setBoolean(mSuperstructure.getWantsFender());
+
+        // update superstructure goal statuses
+        mIntakeGoal.setString(mSuperstructure.getIntakeGoal());
+        mIndexerGoal.setString(mSuperstructure.getIndexerGoal());
+        mShooterGoal.setDouble(mSuperstructure.getShooterGoal());
+        mHoodGoal.setDouble(mSuperstructure.getHoodGoal());
+
+        // update other status vars
+        mSpunUp.setBoolean(mSuperstructure.isSpunUp());
+        mHasTarget.setBoolean(mSuperstructure.hasTarget());
+        mIsAimed.setBoolean(mSuperstructure.isAimed());
+
         
         /* SWERVE */
         mSwerveBrakeMode.setBoolean(mSwerve.getLocked());
 
+        //  Only uncomment when redoing cancoder offsets for modules
         // Update cancoders at a slower period to avoid stale can frames
         double dt = Timer.getFPGATimestamp();
         if (dt > lastCancoderUpdate + 0.1) {
@@ -379,6 +511,7 @@ public class ShuffleBoardInteractions {
             }
             lastCancoderUpdate = dt;
         }
+        
         
         for (int i = 0; i < mSwerveCancoders.length; i++) {
             mSwerveIntegrated[i].setDouble(truncate(MathUtil.inputModulus(mSwerveModules[i].getState().angle.getDegrees(), 0, 360)));
@@ -399,6 +532,11 @@ public class ShuffleBoardInteractions {
         mCurrentAngleP.setDouble(currentPIDVals[0]);
         mCurrentAngleI.setDouble(currentPIDVals[1]);
         mCurrentAngleD.setDouble(currentPIDVals[2]);
+
+        // hood
+        if(mShootingSetpointsEnableToggle.getValue().getBoolean()) {
+            mSuperstructure.setShootingParameters(mManualShooterRPM.getDouble(0.0), mManualHoodAngle.getDouble(0.0));
+        }
     }
 
     /* Truncates number to 2 decimal places for cleaner numbers */

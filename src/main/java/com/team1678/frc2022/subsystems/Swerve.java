@@ -130,7 +130,7 @@ public class Swerve extends Subsystem {
     public void visionAlignDrive(Translation2d translation2d, boolean fieldRelative, boolean isOpenLoop) {
         double rotation = 0.0;
 
-        if (mLimelight.hasTarget()) {
+        if (mLimelight.hasTarget() && mLimelight.isOK()) {
             double currentAngle = getPose().getRotation().getRadians();
             double targetOffset = Math.toRadians(mLimelight.getOffset()[0]);
             rotation = visionPIDController.calculate(currentAngle, currentAngle - targetOffset);

@@ -3,6 +3,7 @@ package com.team1678.frc2022.subsystems;
 import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.loops.ILooper;
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.loops.Loop;
@@ -38,6 +39,15 @@ public class Intake extends Subsystem {
     private Intake() {
         mMaster = TalonFXFactory.createDefaultTalon(Ports.INTAKE_ID);
         mSingulator = TalonFXFactory.createDefaultTalon(Ports.SINGULATOR_ID);
+
+        // reduce can util
+        mMaster.changeMotionControlFramePeriod(255);
+        mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
+        mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
+        mSingulator.changeMotionControlFramePeriod(255);
+        mSingulator.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
+        mSingulator.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
+
         mSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.INTAKE_SOLENOID_ID);
     }
 
@@ -76,6 +86,7 @@ public class Intake extends Subsystem {
                 mPeriodicIO.intake_demand = -Constants.IntakeConstants.kIntakingVoltage;
                 mPeriodicIO.singulator_demand = -Constants.IndexerConstants.kSingulatorVoltage;
                 mPeriodicIO.deploy = true;
+                break;
             case STAYING_OUT:
                 mPeriodicIO.intake_demand = 0;
                 mPeriodicIO.deploy = true;
