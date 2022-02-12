@@ -46,7 +46,7 @@ ColorMatchResult mMatch;
 private static boolean mCorrectColor;
 
 private boolean mRunTrigger() {
-    return !mBallAtTrigger();
+    return !mBallAtTrigger() && mPeriodicIO.ball_count > 0;
 }
 
 private boolean mBallAtTrigger() {
@@ -122,7 +122,8 @@ private Indexer() {
                     mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIndexingVoltage;
                     mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakeReversingVoltage;
                 } else if (!mPeriodicIO.correct_Color) {
-                    mPeriodicIO.indexer_demand = Constants.IndexerConstants.kOuttakeReversingVoltage;
+                    mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerReversingVoltage;
+                    mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakeIndexingVoltage;
                 } else {
                     mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
                     mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakeIdleVoltage;
