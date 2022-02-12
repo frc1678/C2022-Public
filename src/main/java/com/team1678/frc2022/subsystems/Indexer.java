@@ -101,7 +101,7 @@ private Indexer() {
                     if (mRunTrigger()) {
                         mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerIndexingVoltage;
                     } else {
-                        mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
+                        mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerIdleVoltage;
                     }
                         mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIndexingVoltage;
                     
@@ -275,10 +275,6 @@ private Indexer() {
 
     public boolean getBottomBeamBreak() {
         return mPeriodicIO.bottomLightBeamBreakSensor;
-    }
-
-    public Color getColorDetected() {
-        return mPeriodicIO.detected_color;
     }
 
     public static class PeriodicIO {
