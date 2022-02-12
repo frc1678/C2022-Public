@@ -23,10 +23,12 @@ public class TwoBallRightMode extends AutoModeBase {
     private final Superstructure mSuperstructure = Superstructure.getInstance();
 
     // required PathWeaver file paths
-    String file_path = "paths/TwoBallPaths/2 Ball Right.path";
+    String file_path_a = "paths/TwoBallPaths/2 Ball Right A.path";
+    String file_path_b = "paths/TwoBallPaths/2 Ball Right B.path";
     
 	// trajectory actions
 	SwerveTrajectoryAction driveToIntakeCargo;
+    SwerveTrajectoryAction driveToShotPose;
 
     public TwoBallRightMode() {
 
@@ -38,20 +40,31 @@ public class TwoBallRightMode extends AutoModeBase {
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
     
         // read trajectories from PathWeaver and generate trajectory actions
-        Trajectory traj_path = AutoTrajectoryReader.generateTrajectoryFromFile(file_path, Constants.AutoConstants.zeroToDefaultSpeedConfig);
-        driveToIntakeCargo = new SwerveTrajectoryAction(traj_path,
+        Trajectory traj_path_a = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_a, Constants.AutoConstants.zeroToDefaultSpeedConfig);
+        driveToIntakeCargo = new SwerveTrajectoryAction(traj_path_a,
                                                             mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
                                                             new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                             new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                             thetaController,
-                                                            () -> Rotation2d.fromDegrees(215.0),
+                                                            () -> Rotation2d.fromDegrees(210.0),
+                                                            mSwerve::getWantAutoVisionAim,
+                                                            mSwerve::setModuleStates);
+
+        // read trajectories from PathWeaver and generate trajectory actions
+        Trajectory traj_path_b = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_a, Constants.AutoConstants.zeroToDefaultSpeedConfig);
+        driveToShotPose = new SwerveTrajectoryAction(traj_path_b,
+                                                            mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
+                                                            new PIDController(Constants.AutoConstants.kPXController, 0, 0),
+                                                            new PIDController(Constants.AutoConstants.kPYController, 0, 0),
+                                                            thetaController,
+                                                            () -> Rotation2d.fromDegrees(225.0),
                                                             mSwerve::getWantAutoVisionAim,
                                                             mSwerve::setModuleStates);
     }
 
     @Override
     protected void routine() throws AutoModeEndedException {
-        System.out.println("Running two ball left mode auto!");
+        System.out.println("Running two ball right mode auto!");
         SmartDashboard.putBoolean("Auto Finished", false);
 
         // reset odometry at the start of the trajectory
@@ -59,21 +72,20 @@ public class TwoBallRightMode extends AutoModeBase {
                                                                           driveToIntakeCargo.getInitialPose().getY(),
                                                                           Rotation2d.fromDegrees(215)))));
 
-        // start vision aiming to align drivetrain to target
-        runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));
-        
         // start spinning up for shot
         runAction(new LambdaAction(() -> mSuperstructure.setWantPrep(true)));
-        
         // start intaking
         runAction(new LambdaAction(() -> mSuperstructure.setWantIntake(true)));
-
         // run trajectory to intake second cargo
         runAction(driveToIntakeCargo);
+        // wait for 0.5 seconds to finish intaking cargo
+        runAction(new WaitAction(0.5));
+        // start vision aiming to align drivetrain to target
+        runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));
+        // run trajectory to shot pose
+        runAction(driveToShotPose);
 
-        runAction(new WaitAction(3.0));
-
-        // shoot first cargo
+        // shoot 
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
         runAction(new WaitAction(3.0));
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
