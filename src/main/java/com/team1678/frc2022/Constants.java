@@ -11,9 +11,37 @@ import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
 public class Constants {
+    //CHANGE THIS BASED ON WHAT ROBOT YOU'RE USING. 
+    //VALID ENTRIES ARE "ALPHA", "BETA", "COMP", and "EPSILON".
+    public static final WantedRobot version = WantedRobot.COMP;
 
-    // toggle constants for comp robot
-    public static final boolean isComp = false;
+    //Enum toggle for robots
+    public enum WantedRobot {
+        ALPHA, BETA, COMP, EPSILON
+    }
+
+    public enum Current {
+        isAlpha, isBeta, isComp, isEpsilon
+    }
+
+    public static Current mRobot = Current.isComp;
+
+    public void setCurrent(WantedRobot current) {
+        switch (current) {
+            case ALPHA:
+                mRobot = Current.isAlpha;
+                break;
+            case BETA:
+                mRobot = Current.isBeta;
+                break;
+            case COMP:
+                mRobot = Current.isComp;
+                break;
+            case EPSILON:
+                mRobot = Current.isEpsilon;
+                break;
+        }
+    }
 	
 	// robot loop time
 	public static final double kLooperDt = 0.02;
@@ -59,13 +87,13 @@ public class Constants {
         public static final boolean driveEnableCurrentLimit = true;
 
         /* Angle Motor PID Values */
-        public static final double angleKP = 0.3; // TODO: Check value
+        public static final double angleKP = 0.3;
         public static final double angleKI = 0.0;
         public static final double angleKD = 0.0;
         public static final double angleKF = 0.0;
 
         /* Drive Motor PID Values */
-        public static final double driveKP = 0.05; // TODO: Check value
+        public static final double driveKP = 0.05;
         public static final double driveKI = 0.0;
         public static final double driveKD = 0.0;
         public static final double driveKF = 0.0;
@@ -96,46 +124,82 @@ public class Constants {
         public static final boolean invertXAxis = false; 
 
 
-        /*** MODULE SPECIFIC CONSTANTS ***/
+        //MODULE SPECIFIC CONSTANTS
 
-        /* Front Left Module - Module 0 */
+        //Front Left Module - Module 0
         public static final class Mod0 {
-            public static final double betaAngleOffset = 58.71;
-            public static final double compAngleOffset = 123; // TODO: Check value
-
             public static SwerveModuleConstants SwerveModuleConstants() {
+                double wantedOffset = 0;
+                switch (mRobot) {
+                    case isAlpha:
+                        wantedOffset = 334;
+                    case isBeta:
+                        wantedOffset = 58.71;
+                    case isComp:
+                        wantedOffset = 123;
+                    case isEpsilon:
+                        wantedOffset = 420; //Get real value
+                }
+
                 return new SwerveModuleConstants(Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER,
-                        isComp ? compAngleOffset : betaAngleOffset);
+                        wantedOffset);
             }
         }
-        /* Front Right Module - Module 1 */
+        //Front Right Module - Module 1
         public static final class Mod1 {
-            public static final double betaAngleOffset = 340.57;
-            public static final double compAngleOffset = 138; // TODO: Check value
-            
             public static SwerveModuleConstants SwerveModuleConstants() {
-                return new SwerveModuleConstants(Ports.FR_DRIVE, Ports.FR_ROTATION, Ports.FR_CANCODER,
-                        isComp ? compAngleOffset : betaAngleOffset);
+                double wantedOffset = 0;
+                switch (mRobot) {
+                    case isAlpha:
+                        wantedOffset = 216;
+                    case isBeta:
+                        wantedOffset = 340.57;
+                    case isComp:
+                        wantedOffset = 138;
+                    case isEpsilon:
+                        wantedOffset = 420; //Get real value
+                }
+
+                return new SwerveModuleConstants(Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER,
+                        wantedOffset);
             }
         }
-        /* Back Left Module - Module 2 */
+        //Back Left Module - Module 2
         public static final class Mod2 {
-            public static final double betaAngleOffset = 343.03;
-            public static final double compAngleOffset = 100;   // TODO: Check value
-
             public static SwerveModuleConstants SwerveModuleConstants() {
-                return new SwerveModuleConstants(Ports.BL_DRIVE, Ports.BL_ROTATION, Ports.BL_CANCODER,
-                        isComp ? compAngleOffset : betaAngleOffset);
+                double wantedOffset = 0;
+                switch (mRobot) {
+                    case isAlpha:
+                        wantedOffset = 183;
+                    case isBeta:
+                        wantedOffset = 343.03;
+                    case isComp:
+                        wantedOffset = 100;
+                    case isEpsilon:
+                        wantedOffset = 420; //Get real value
+                }
+
+                return new SwerveModuleConstants(Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER,
+                        wantedOffset);
             }
         }
-        /* Back Right Module - Module 3 */
+        ///Back Right Module - Module 3
         public static final class Mod3 {
-            public static final double betaAngleOffset = 254.61;
-            public static final double compAngleOffset = 134;   // TODO: Check value
-
             public static SwerveModuleConstants SwerveModuleConstants() {
-                return new SwerveModuleConstants(Ports.BR_DRIVE, Ports.BR_ROTATION, Ports.BR_CANCODER,
-                        isComp ? compAngleOffset : betaAngleOffset);
+                double wantedOffset = 0;
+                switch (mRobot) {
+                    case isAlpha:
+                        wantedOffset = 53;
+                    case isBeta:
+                        wantedOffset = 254.61;
+                    case isComp:
+                        wantedOffset = 134;
+                    case isEpsilon:
+                        wantedOffset = 420; //Get real value
+                }
+
+                return new SwerveModuleConstants(Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER,
+                        wantedOffset);
             }
         }
     }
