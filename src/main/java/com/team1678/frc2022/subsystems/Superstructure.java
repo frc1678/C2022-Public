@@ -102,6 +102,7 @@ public class Superstructure extends Subsystem {
 
             @Override
             public void onStop(double timestamp) {
+                stop();
                 stopLogging();
             }
         });
@@ -298,7 +299,10 @@ public class Superstructure extends Subsystem {
 
     @Override
     public void stop() {
-        // TODO Auto-generated method stub
+        setWantIntake(false);
+        setWantOuttake(false);
+        setWantPrep(false);
+        setWantShoot(false);
     }
 
     /* Superstructure getters for action and goal statuses */
