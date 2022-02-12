@@ -3,8 +3,6 @@ package com.team1678.frc2022.subsystems;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.sound.sampled.DataLine;
-
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.CANdleConfiguration;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
@@ -21,7 +19,7 @@ public class LEDs extends Subsystem {
     public CANdle mCandle = new CANdle(Ports.CANDLE);
     
     public State mState = State.DISABLED;
-    public State mStripState = State.IDLE;
+    public State mStripState = State.DISABLED;
     public static LEDs mInstance;
     public double mLastTimestamp = Timer.getFPGATimestamp();
     
@@ -104,6 +102,7 @@ public class LEDs extends Subsystem {
 
     public void updateState() {
         setState(State.IDLE);
+        setStripState(State.IDLE);
 
         if (mSuperstructure.hasEmergency) {
             setState(State.EMERGENCY);
@@ -111,11 +110,15 @@ public class LEDs extends Subsystem {
         }
 
         if (mIndexer.getBallCount() == 1) {
-            setState(State.ONE_BALL);
+            setStripState(State.ONE_BALL);
         }
         
         if (mIndexer.getBallCount() == 2) {
-            setState(State.TWO_BALL);
+            setStripState(State.TWO_BALL);
+        }
+
+        if (Limelight.getInstance().hasTarget()) {
+            setState(State.TARGET_VISIBLE);
         }
 
         if (mSuperstructure.isSpunUp()) {
@@ -241,8 +244,6 @@ public class LEDs extends Subsystem {
         mEnabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
-
-                setState(State.RAINBOW);
             }
 
             @Override
@@ -254,6 +255,7 @@ public class LEDs extends Subsystem {
             @Override
             public void onStop(double timestamp) {
                 setState(State.DISABLED);
+                setStripState(State.RAINBOW);
             }
         });
     }
