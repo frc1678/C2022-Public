@@ -32,25 +32,18 @@ private TalonFX mOuttake;
 private TalonFX mIndexer;
 private TalonFX mTrigger;
 
-private int mBallCount = 0;
-
-public void mBallsInIndexer() {
-    if (mPeriodicIO.bottomLightBeamBreakSensor) {
-        mBallCount = 1;
-    } else if (mPeriodicIO.topLightBeamBreakSensor) {
-        mBallCount =  1;
-    } else if (mPeriodicIO.bottomLightBeamBreakSensor && mPeriodicIO.topLightBeamBreakSensor) {
-        mBallCount = 2;
-    }else {
-        mBallCount = 0;
-    }
-}
-
 private final DigitalInput mBottomBeamBreak;
 private final DigitalInput mTopBeamBreak;
 
 public boolean mBottomHadSeenBall = false;
 public boolean mTopHadSeenBall = false;
+
+public REVColorSensorV3Wrapper mColorSensor;
+
+private final ColorMatch mColorMatcher = new ColorMatch();
+ColorMatchResult mMatch;
+
+private static boolean mCorrectColor;
 
 private boolean mRunTrigger() {
     return !mBallAtTrigger();
@@ -59,14 +52,6 @@ private boolean mRunTrigger() {
 private boolean mBallAtTrigger() {
     return mPeriodicIO.topLightBeamBreakSensor;
 }
-
-public REVColorSensorV3Wrapper mColorSensor;
-
-private final ColorMatch mColorMatcher = new ColorMatch();
-public ColorMatchResult mMatch;
-
-private final Color mAllianceColor;
-private final Color mOpponentColor; 
 
 private State mState = State.IDLE;
 
@@ -84,23 +69,7 @@ private Indexer() {
     mTrigger = TalonFXFactory.createDefaultTalon(Ports.TRIGGER_ID);
     mBottomBeamBreak = new DigitalInput(Ports.BOTTOM_BEAM_BREAK);
     mTopBeamBreak = new DigitalInput(Ports.TOP_BEAM_BREAK);
-
-    mColorSensor = new REVColorSensorV3Wrapper(I2C.Port.kOnboard);
-
-    mColorMatcher.addColorMatch(Constants.IndexerConstants.kBlueBallColor);
-    mColorMatcher.addColorMatch(Constants.IndexerConstants.kRedBallColor);
-
-    if (Constants.IndexerConstants.isRedAlliance) {
-        mAllianceColor = Constants.IndexerConstants.kRedBallColor;
-        mOpponentColor = Constants.IndexerConstants.kBlueBallColor;
-    } else {
-        mAllianceColor = Constants.IndexerConstants.kBlueBallColor;
-        mOpponentColor = Constants.IndexerConstants.kRedBallColor;
-    }
-
-    mColorSensor.start();
 }
-
         
     public void setState(WantedAction wanted_state) {
         switch (wanted_state) {
@@ -123,9 +92,15 @@ private Indexer() {
     public void runStateMachine() {
         switch (mState) {
             case IDLE:
+<<<<<<< HEAD
+            mPeriodicIO.outtake_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
+            mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
+            mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
+=======
                 mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakeIdleVoltage;
                 mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
                 mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerIdleVoltage;
+>>>>>>> dbad8e92aa54a5993b875dc8ea4009145052a1cf
                 break;
             case INDEXING:
                 if (mPeriodicIO.correct_Color) {
@@ -149,6 +124,18 @@ private Indexer() {
                 
                 break;
             case OUTTAKING:
+<<<<<<< HEAD
+                mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakingIndexingVoltage;
+                if (mCorrectColor) {
+                    mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakingReversingVoltage;
+                    mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIndexingVoltage;
+                } else {
+                    
+                }
+                break;
+            case REVERSING:
+                mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakingReversingVoltage;
+=======
                 if (mPeriodicIO.correct_Color) {
                     mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIndexingVoltage;
                     mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakeReversingVoltage;
@@ -161,6 +148,7 @@ private Indexer() {
                 break;
             case REVERSING:
                 mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakeIndexingVoltage;
+>>>>>>> dbad8e92aa54a5993b875dc8ea4009145052a1cf
                 mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerReversingVoltage;
                 mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerReversingVoltage;
                 break;
@@ -189,6 +177,7 @@ private Indexer() {
             }
         });
     }
+   
 
     @Override
     public synchronized void writePeriodicOutputs() {
@@ -201,13 +190,6 @@ private Indexer() {
     public synchronized void readPeriodicInputs() {
         mPeriodicIO.topLightBeamBreakSensor = mBottomBeamBreak.get();
         mPeriodicIO.bottomLightBeamBreakSensor = mTopBeamBreak.get();
-
-        ColorSensorData reading = mColorSensor.getLatestReading();
-
-        if (reading.color != null) {
-            mPeriodicIO.detected_color = reading.color;
-            mMatch = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
-        }
 
         if (mPeriodicIO.bottomLightBeamBreakSensor) {
             if (!mBottomHadSeenBall) {
