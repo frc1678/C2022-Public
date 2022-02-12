@@ -23,8 +23,6 @@ public class ColorSensor extends Subsystem {
     public PeriodicIO mPeriodicIO = new PeriodicIO();
     private REVColorSensorV3Wrapper mColorSensor;
 
-    public ColorSensor mColorSensorThread = new ColorSensor(mColorSensor, commandQueue, outputQueue);
-
     private final ColorMatch mColorMatch = new ColorMatch();
 
     public ColorChoices mAllianceColor;
@@ -54,7 +52,6 @@ public class ColorSensor extends Subsystem {
         enabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
-                mColorSensorThread.start();
             }
  
             @Override
@@ -63,7 +60,6 @@ public class ColorSensor extends Subsystem {
  
             @Override
             public void onStop(double timestamp) {
-                mColorSensorThread.stop();
             }
         });
     }
@@ -85,10 +81,7 @@ public class ColorSensor extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        mColorSensorThread.getLatestReading();
-        mColorSensorThread.getDetectedRValue();
-        mColorSensorThread.getDetectedGValue();
-        mColorSensorThread.getDetectedBValue();
+        mColorSensor.getLatestReading();
     }
 
     @Override 
@@ -133,7 +126,7 @@ public class ColorSensor extends Subsystem {
     }
 
     public ColorSensorData getLatestReading() {
-        synchronized (mColorSensorThread) {
+        synchronized (mPeriodicIO.rawColorSensorData) {
             return mPeriodicIO.rawColorSensorData;
         }
     }
