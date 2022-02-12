@@ -47,7 +47,7 @@ private boolean mBallAtTrigger() {
 }
 
 private boolean stopIndexer() {
-    if (!mBallInIndexer()) {
+    if (!mBallInIndexer() && mPeriodicIO.ball_count <= 1) {
         return false;
     }
     else {
@@ -103,14 +103,16 @@ private Indexer() {
                 mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerIdleVoltage;
                 break;
             case INDEXING:
+                //checks for correct color
                 if (mPeriodicIO.correct_Color) {
+                    //runs trigger if top beam break isn't triggered
                     if (mRunTrigger()) {
                         mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerIndexingVoltage;
                     } else {
                         mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerIdleVoltage;
                     }
                         mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIndexingVoltage;
-                    
+                    //stops indexer if bottom beam break isn't triggered, otherwise keeps indexing
                     if (stopIndexer()) {
                         mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
                     } else {
@@ -119,19 +121,23 @@ private Indexer() {
 
                     mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakeIdleVoltage;
                 } else {
+                    //if not correct color, goes to outtaking state
                     this.setState(WantedAction.OUTTAKE);
                 }
                 
                 break;
             case OUTTAKING:
-                if (mPeriodicIO.correct_Color) {
+                if (!mPeriodicIO.correct_Color) {
+                    //if not the correct color, outtakes the ball
                     mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerReversingVoltage;
                     mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakeReversingVoltage;
-                } else if (!mPeriodicIO.correct_Color) {
+                } else if (mPeriodicIO.correct_Color) {
+                    //if it is the corect color, it goes to the indexing state
                     this.setState(WantedAction.INDEX);
                 } 
                 break;
             case REVERSING:
+                // reverses everything
                 mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakeIndexingVoltage;
                 mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerReversingVoltage;
                 mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerReversingVoltage;

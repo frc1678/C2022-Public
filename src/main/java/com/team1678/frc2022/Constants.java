@@ -358,6 +358,12 @@ public class Constants {
 
     }
 
+    public static final class ColorSensorConstants {
+        public static final Color kBlueColor = new Color(0.140, 0.369, 0.493);
+        public static final Color kRedColor = new Color(0.543, 0.322, 0.136);
+        public static final double kColorSensorThreshold = 125;
+    }
+
     // Timeout constants
     public static final int kLongCANTimeoutMs = 100;
     public static final int kCANTimeoutMs = 10;
