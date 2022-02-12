@@ -127,7 +127,7 @@ public class ColorSensor extends Subsystem {
 
     public ColorSensorData getLatestReading() {
         synchronized (mPeriodicIO.rawColorSensorData) {
-            return mPeriodicIO.rawColorSensorData;
+            return mPeriodicIO.detected_color;
         }
     }
 
@@ -138,6 +138,7 @@ public class ColorSensor extends Subsystem {
         public Color raw_color;
         public double distance;
         public Color matched_color;
+        public ColorSensorData detected_color;
 
         //OUTPUTS
 
