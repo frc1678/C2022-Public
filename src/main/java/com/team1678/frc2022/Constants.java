@@ -20,6 +20,9 @@ public class Constants {
 	// robot loop time
 	public static final double kLooperDt = 0.02;
 
+    // robot toggle
+    public static final boolean isAlpha = false;
+
 	/* Control Board */
 	public static final double kJoystickThreshold = 0.2;
 	public static final int kButtonGamepadPort = 1;
@@ -103,46 +106,46 @@ public class Constants {
 
         /* Front Left Module - Module 0 */
         public static final class Mod0 {
-            public static final double betaAngleOffset = 58.09;
-            public static final double compAngleOffset = 123; // TODO: Check value
-
-            public static SwerveModuleConstants SwerveModuleConstants() {
-                return new SwerveModuleConstants(Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER,
-                        isComp ? compAngleOffset : betaAngleOffset);
-            }
+            public static final double angleOffset = 58; 
+            /*** ALPHA: 334
+             *   BETA: 58
+             *   COMP:
+             */
+            public static final SwerveModuleConstants constants =
+                    new SwerveModuleConstants(Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER, angleOffset);
         }
 
         /* Front Right Module - Module 1 */
         public static final class Mod1 {
-            public static final double betaAngleOffset = 340.63;
-            public static final double compAngleOffset = 138; // TODO: Check value
-            
-            public static SwerveModuleConstants SwerveModuleConstants() {
-                return new SwerveModuleConstants(Ports.FR_DRIVE, Ports.FR_ROTATION, Ports.FR_CANCODER,
-                        isComp ? compAngleOffset : betaAngleOffset);
-            }
+            public static final double angleOffset = 341;
+            /*** ALPHA: 216
+             *   BETA: 341
+             *   COMP:
+             */
+            public static final SwerveModuleConstants constants =
+                    new SwerveModuleConstants(Ports.FR_DRIVE, Ports.FR_ROTATION, Ports.FR_CANCODER, angleOffset);
         }
 
         /* Back Left Module - Module 2 */
         public static final class Mod2 {
-            public static final double betaAngleOffset = 343.91;
-            public static final double compAngleOffset = 100;   // TODO: Check value
-
-            public static SwerveModuleConstants SwerveModuleConstants() {
-                return new SwerveModuleConstants(Ports.BL_DRIVE, Ports.BL_ROTATION, Ports.BL_CANCODER,
-                        isComp ? compAngleOffset : betaAngleOffset);
-            }
+            public static final double angleOffset = 345; 
+            /*** ALPHA: 183
+             *   BETA: 345
+             *   COMP:
+             */
+            public static final SwerveModuleConstants constants =
+                    new SwerveModuleConstants(Ports.BL_DRIVE, Ports.BL_ROTATION, Ports.BL_CANCODER, angleOffset);
         }
 
         /* Back Right Module - Module 3 */
         public static final class Mod3 {
-            public static final double betaAngleOffset = 256.2;
-            public static final double compAngleOffset = 134;   // TODO: Check value
-
-            public static SwerveModuleConstants SwerveModuleConstants() {
-                return new SwerveModuleConstants(Ports.BR_DRIVE, Ports.BR_ROTATION, Ports.BR_CANCODER,
-                        isComp ? compAngleOffset : betaAngleOffset);
-            }
+            public static final double angleOffset = 255;
+            /*** ALPHA: 53
+             *   BETA: 255
+             *   COMP:
+             */
+            public static final SwerveModuleConstants constants =
+                    new SwerveModuleConstants(Ports.BR_DRIVE, Ports.BR_ROTATION, Ports.BR_CANCODER, angleOffset);
         }
     }
 	

@@ -68,10 +68,10 @@ public class Swerve extends Subsystem {
 
 
         mSwerveMods = new SwerveModule[] {
-            new SwerveModule(0, Constants.SwerveConstants.Mod0.SwerveModuleConstants()),
-            new SwerveModule(1, Constants.SwerveConstants.Mod1.SwerveModuleConstants()),
-            new SwerveModule(2, Constants.SwerveConstants.Mod2.SwerveModuleConstants()),
-            new SwerveModule(3, Constants.SwerveConstants.Mod3.SwerveModuleConstants())
+            new SwerveModule(0, Constants.SwerveConstants.Mod0.constants),
+            new SwerveModule(1, Constants.SwerveConstants.Mod1.constants),
+            new SwerveModule(2, Constants.SwerveConstants.Mod2.constants),
+            new SwerveModule(3, Constants.SwerveConstants.Mod3.constants)
         };
     }
 
