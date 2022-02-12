@@ -36,6 +36,7 @@ public class Superstructure extends Subsystem {
     private final Shooter mShooter = Shooter.getInstance();
     private final Hood mHood = Hood.getInstance();
     private final Limelight mLimelight = Limelight.getInstance();
+    private final Infrastructure mInfrastructure = Infrastructure.getInstance();
 
     // PeriodicIO instance and paired csv writer
     public PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -61,6 +62,7 @@ public class Superstructure extends Subsystem {
         private Indexer.WantedAction real_indexer = Indexer.WantedAction.NONE;
         private double real_shooter = 0.0;
         private double real_hood = 0.0;
+        private boolean flashlight = false;
         
     }
 
@@ -234,12 +236,15 @@ public class Superstructure extends Subsystem {
             }
         } else {
             if (mPeriodicIO.INTAKE) {
+                mPeriodicIO.flashlight = true;
                 mPeriodicIO.real_intake = Intake.WantedAction.INTAKE;
                 mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX;
             } else if (mPeriodicIO.OUTTAKE) {
+                mPeriodicIO.flashlight = true;
                 mPeriodicIO.real_intake = Intake.WantedAction.REVERSE;
                 mPeriodicIO.real_indexer = Indexer.WantedAction.REVERSE;
             } else {
+                mPeriodicIO.flashlight = false;
                 mPeriodicIO.real_intake = Intake.WantedAction.NONE;
                 mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX; // always in indexing state
             }
@@ -249,6 +254,7 @@ public class Superstructure extends Subsystem {
 
         // set intake and indexer states
         mIntake.setState(mPeriodicIO.real_intake);
+        mInfrastructure.setSwitchablePort(mPeriodicIO.flashlight); // control flashlight 
         mIndexer.setForceTunnel(mPeriodicIO.real_intake == Intake.WantedAction.INTAKE);
         mIndexer.setState(mPeriodicIO.real_indexer);
 
