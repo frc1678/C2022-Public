@@ -48,6 +48,10 @@ public class ColorSensor extends Subsystem {
         mColorSensor.start();
     }
 
+    public ColorSensor(REVColorSensorV3Wrapper mColorSensor2, BlockingQueue<Integer> commandQueue2,
+            BlockingQueue<ColorSensorData> outputQueue2) {
+    }
+
     @Override
     public void registerEnabledLoops(ILooper enabledLooper) {
         enabledLooper.register(new Loop() {
@@ -122,6 +126,10 @@ public class ColorSensor extends Subsystem {
             return 0;
         }
         return mPeriodicIO.raw_color.blue;
+    }
+
+    public String getMatchedColor() {
+        return mMatchedColor.toString();
     }
 
     public static class PeriodicIO {
