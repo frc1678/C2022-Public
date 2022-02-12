@@ -15,7 +15,7 @@ public class Infrastructure extends Subsystem {
 
     private Infrastructure() {
         mCompressor = new Compressor(Ports.PCM, PneumaticsModuleType.CTREPCM);
-        mCompressor.enableDigital();;
+        mCompressor.enableDigital();
 
     }
 

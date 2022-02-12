@@ -67,6 +67,8 @@ public class Hood extends ServoMotorSubsystem {
             if (mPeriodicIO.master_stator_current > Constants.HoodConstants.kCalibrationCurrentThreshold) {
                 zeroHood();
             }
+        } else {
+            mControlState = ControlState.MOTION_MAGIC;
         }
     }
 

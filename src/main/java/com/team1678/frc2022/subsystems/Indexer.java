@@ -1,6 +1,9 @@
 package com.team1678.frc2022.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
+import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
@@ -14,7 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Indexer extends Subsystem {
     
-    private final TalonFX mIndexer;
+    private final TalonFX mTunnel;
     private final TalonFX mTrigger;
 
     private static Indexer mInstance;
@@ -22,16 +25,14 @@ public class Indexer extends Subsystem {
 
     private final DigitalInput mBottomBeamBreak;
     private final DigitalInput mTopBeamBreak;
+    private final Timer mEmptyIndexerTimer = new Timer();
     //TODO: private final DigitalInput mColorSensor = new DigitalInput(Ports.COLOR_SENOR);
 
     private State mState = State.IDLE;
 
     private boolean mBottomHadSeenBall = false;
     private boolean mTopHadSeenBall = false;
-
-    private final double kReverseAtTopTime = 1.0;
-    private Timer mReverseTriggerTimer = new Timer();
-    private boolean mWantTriggerReverse = false;
+    private boolean mWasReversing = false;
 
     public enum WantedAction {
         NONE,
@@ -48,11 +49,44 @@ public class Indexer extends Subsystem {
     }
 
     private Indexer() {
-        //mSuperstructure = Superstructure.getInstance();
 
-        mIndexer = TalonFXFactory.createDefaultTalon(Ports.HOPPER_ID);
+        /* Trigger Motor */
         mTrigger = TalonFXFactory.createDefaultTalon(Ports.TRIGGER_ID);
         mTrigger.setInverted(true);
+        mTrigger.setNeutralMode(NeutralMode.Brake);
+
+        // closed loop tuning
+        mTrigger.config_kI(0, Constants.IndexerConstants.kTriggerI, Constants.kLongCANTimeoutMs);
+        mTrigger.config_kD(0, Constants.IndexerConstants.kTriggerD, Constants.kLongCANTimeoutMs);
+        mTrigger.config_kP(0, Constants.IndexerConstants.kTriggerP, Constants.kLongCANTimeoutMs);
+        mTrigger.config_kF(0, Constants.IndexerConstants.kTriggerF, Constants.kLongCANTimeoutMs);
+        mTrigger.selectProfileSlot(0, 0);
+
+        // use integrated encoder
+        mTrigger.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
+        
+        // reduce can util
+        mTrigger.changeMotionControlFramePeriod(255);
+        mTrigger.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
+        mTrigger.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
+
+        /* Tunnel Motor */
+        mTunnel = TalonFXFactory.createDefaultTalon(Ports.TUNNEL_ID);
+
+        // closed loop tuning
+        mTunnel.config_kI(0, Constants.IndexerConstants.kTunnelI, Constants.kLongCANTimeoutMs);
+        mTunnel.config_kD(0, Constants.IndexerConstants.kTunnelD, Constants.kLongCANTimeoutMs);
+        mTunnel.config_kP(0, Constants.IndexerConstants.kTunnelP, Constants.kLongCANTimeoutMs);
+        mTunnel.config_kF(0, Constants.IndexerConstants.kTunnelF, Constants.kLongCANTimeoutMs);
+        mTunnel.selectProfileSlot(0, 0);
+
+        // use integrated encoder
+        mTunnel.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
+
+        // reduce can util
+        mTunnel.changeMotionControlFramePeriod(255);
+        mTunnel.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
+        mTunnel.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
       
         mBottomBeamBreak = new DigitalInput(Ports.BOTTOM_BEAM_BREAK);
         mTopBeamBreak = new DigitalInput(Ports.TOP_BEAM_BREAK);
@@ -69,48 +103,7 @@ public class Indexer extends Subsystem {
         return mState;
     }
 
-    @Override
-    public synchronized void readPeriodicInputs() {
-        mPeriodicIO.timestamp = Timer.getFPGATimestamp();
-
-        mPeriodicIO.top_break = !mBottomBeamBreak.get();
-        mPeriodicIO.bottom_break = !mTopBeamBreak.get();
-
-        mPeriodicIO.trigger_current = mTrigger.getStatorCurrent();
-        mPeriodicIO.trigger_voltage = mTrigger.getMotorOutputVoltage();
-
-        mPeriodicIO.tunnel_current = mIndexer.getStatorCurrent();
-        mPeriodicIO.tunnel_voltage = mIndexer.getMotorOutputVoltage();
-
-        if (mPeriodicIO.bottom_break) {
-            if (!mBottomHadSeenBall) {
-                mBottomHadSeenBall = true;
-            }
-        } else {
-            if (mBottomHadSeenBall) {
-                mPeriodicIO.ball_count++;
-                mBottomHadSeenBall = false;
-            }
-        }
-
-        if (mPeriodicIO.top_break) {
-            if (!mTopHadSeenBall) {
-                mTopHadSeenBall = true;
-            }
-        } else {
-            if (mTopHadSeenBall) {
-                mPeriodicIO.ball_count--;
-                mTopHadSeenBall = false;
-            }
-        }
-    }
-
-    @Override
-    public void writePeriodicOutputs() {
-        mIndexer.set(ControlMode.PercentOutput, mPeriodicIO.tunnel_demand / 12.0);
-        mTrigger.set(ControlMode.PercentOutput, mPeriodicIO.trigger_demand / 12.0);
-    }
-
+    
     @Override
     public void registerEnabledLoops (ILooper enabledLooper) {
         enabledLooper.register(new Loop() {
@@ -122,9 +115,10 @@ public class Indexer extends Subsystem {
             @Override
             public void onLoop(double timestamp) {
                 synchronized (Indexer.this) {
+                    updateBallCounter();
                     runStateMachine();
                 }
-                outputTelemetry();
+                // outputTelemetry();
             }
 
             @Override
@@ -135,54 +129,42 @@ public class Indexer extends Subsystem {
         });
     }
 
-    /**
-     * Gets the current status of the top beam break
-     * @return the state of the beam break
-     */
-    public boolean getTopBeamBreak() {
-        return mPeriodicIO.top_break;
+    @Override
+    public synchronized void readPeriodicInputs() {
+        mPeriodicIO.timestamp = Timer.getFPGATimestamp();
+
+        mPeriodicIO.top_break = !mBottomBeamBreak.get();
+        mPeriodicIO.bottom_break = !mTopBeamBreak.get();
+
+        mPeriodicIO.trigger_current = mTrigger.getStatorCurrent();
+        mPeriodicIO.trigger_voltage = mTrigger.getMotorOutputVoltage();
+        mPeriodicIO.trigger_velocity = mTrigger.getSelectedSensorVelocity() * Constants.IndexerConstants.kTriggerVelocityConversion;
+        
+        mPeriodicIO.tunnel_current = mTunnel.getStatorCurrent();
+        mPeriodicIO.tunnel_voltage = mTunnel.getMotorOutputVoltage();
+        mPeriodicIO.tunnel_velocity = mTunnel.getSelectedSensorVelocity() * Constants.IndexerConstants.kTunnelVelocityConversion;
     }
 
-    /**
-     * Gets the current status of the top beam break
-     * @return the state of the beam break
-     */
-    public boolean getBottomBeamBreak() {
-        return mPeriodicIO.bottom_break;
-    }
-    
-    /**
-     * Calculates the number of balls in the system
-     */
-    public double getBallCount() {
-        int count = 0;
-        if (getTopBeamBreak()) count++;
-        if (getBottomBeamBreak()) count++;
-        return count;
+    @Override
+    public void writePeriodicOutputs() {
+        mTunnel.set(ControlMode.PercentOutput, mPeriodicIO.tunnel_demand / 12.0);
+        mTrigger.set(ControlMode.PercentOutput, mPeriodicIO.trigger_demand / 12.0);
     }
 
-    public double getTunnelDemand() {
-        return mPeriodicIO.tunnel_demand;
+    private boolean stopTunnel() {
+        if ((ballAtTunnel()) || (mPeriodicIO.forceTunnelOn && !ballAtTunnel())) {
+            return false;
+        } else
+            return true;
     }
 
-    public double getTunnelCurrent() {
-        return mPeriodicIO.tunnel_current;
-    }
-    
-    public double getTunnelVoltage() {
-        return mPeriodicIO.tunnel_voltage;
+    private boolean runTrigger() {
+        return !ballAtTrigger() && mPeriodicIO.ball_count > 0;
     }
 
-    public double getTriggerDemand() {
-        return mPeriodicIO.trigger_demand;
-    }
-
-    public double getTriggerCurrent() {
-        return mPeriodicIO.trigger_current;
-    }
-    
-    public double getTriggerVoltage() {
-        return mPeriodicIO.trigger_voltage;
+    // calls to run indexing anytime we intake
+    public void setForceTunnel(boolean enable) {
+        mPeriodicIO.forceTunnelOn = enable;
     }
 
     public void setState(WantedAction wanted_state) {
@@ -202,25 +184,6 @@ public class Indexer extends Subsystem {
         }
     }
 
-    private boolean ballAtTrigger() {
-        return mPeriodicIO.top_break;
-    }
-
-    private boolean ballAtTunnel() {
-        return mPeriodicIO.bottom_break;
-    }
-
-    private boolean stopTunnel() {
-        if (mPeriodicIO.ball_count <= 1) {
-            return false;
-        } else
-            return true;
-    }
-
-    private boolean runTrigger() {
-        return !ballAtTrigger();
-    }
-
     private void runStateMachine() {
         switch (mState) {
             case IDLE:
@@ -231,28 +194,7 @@ public class Indexer extends Subsystem {
                 if (runTrigger()) {
                     mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerIndexingVoltage;
                 } else { 
-                    mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIdleVoltage;
-                }
-
-                
-                if (ballAtTrigger()) {
-                    mReverseTriggerTimer.start();
-                    mWantTriggerReverse = true;
-                }
-
-                if (!mReverseTriggerTimer.hasElapsed(kReverseAtTopTime) && mWantTriggerReverse) {
-                    mPeriodicIO.trigger_demand = -Constants.IndexerConstants.kTriggerIndexingVoltage;    
-                } else if (mReverseTriggerTimer.hasElapsed(kReverseAtTopTime) && mWantTriggerReverse){
-                    mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIdleVoltage;
-                    mWantTriggerReverse = false;
-                    mReverseTriggerTimer.reset();
-                    mPeriodicIO.ball_count++;
-                } else {
-                    if (mPeriodicIO.ball_count > 0) {
-                        mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIdleVoltage;
-                    } else {
-                        mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerIndexingVoltage;
-                    }
+                    mPeriodicIO.trigger_demand = 0.0;
                 }
 
                 if (stopTunnel()) {
@@ -271,12 +213,138 @@ public class Indexer extends Subsystem {
                 break;
         }
     }
+
+    private void updateBallCounter() {
+
+        // reset count when we are outtaking for longer than 1 second
+        if (mState == State.REVERSING) {
+            if (!mWasReversing) {
+                mEmptyIndexerTimer.start();
+                mWasReversing = true;
+            } else if (mEmptyIndexerTimer.hasElapsed(1.0)) {
+                mPeriodicIO.ball_count = 0;
+                mWasReversing = false;
+                mEmptyIndexerTimer.reset();
+            }
+        } else {
+            mWasReversing = false;
+            mEmptyIndexerTimer.reset();
+
+            // bottom beam break counts up when we index 
+            if (mPeriodicIO.bottom_break) {
+                if (!mBottomHadSeenBall) {
+                    mPeriodicIO.ball_count++;
+                    mBottomHadSeenBall = true;
+                }
+            } else {
+                if (mBottomHadSeenBall) {
+                    mBottomHadSeenBall = false;
+                }
+            }
+        }
+        // top beam break counts down when we shoot
+        if (mPeriodicIO.top_break) {
+            if (!mTopHadSeenBall) {
+                mTopHadSeenBall = true;
+            }
+        } else {
+            if (mTopHadSeenBall) {
+                if (mState == State.FEEDING) {
+                    mPeriodicIO.ball_count--;
+                }
+                mTopHadSeenBall = false;
+            }
+        }
+    }
     
+    /*** Subsystem Getters ***/
+    
+    /**
+     * Gets the current status of the top beam break
+     * @return the state of the beam break
+     */
+    public boolean getTopBeamBreak() {
+        return mPeriodicIO.top_break;
+    }
+
+    /**
+     * Gets the current status of the top beam break
+     * @return the state of the beam break
+     */
+    public boolean getBottomBeamBreak() {
+        return mPeriodicIO.bottom_break;
+    }
+
+    // transitive method for readability
+    private boolean ballAtTrigger() {
+        return mPeriodicIO.top_break;
+    }
+    // transitive method for readability
+    private boolean ballAtTunnel() {
+        return mPeriodicIO.bottom_break;
+    }
+
+    public double getTunnelDemand() {
+        return mPeriodicIO.tunnel_demand;
+    }
+    public double getTunnelCurrent() {
+        return mPeriodicIO.tunnel_current;
+    }
+    public double getTunnelVoltage() {
+        return mPeriodicIO.tunnel_voltage;
+    }
+    public double getTunnelVelocity() {
+        return mPeriodicIO.tunnel_velocity;
+    }
+    public double getTriggerDemand() {
+        return mPeriodicIO.trigger_demand;
+    }
+    public double getTriggerCurrent() {
+        return mPeriodicIO.trigger_current;
+    }
+    public double getTriggerVoltage() {
+        return mPeriodicIO.trigger_voltage;
+    }
+    public double getTriggerVelocity() {
+        return mPeriodicIO.trigger_velocity;
+    }
+
+    // get ball count for indexing status
+    public double getBallCount() {
+        return mPeriodicIO.ball_count;
+    }
+
+    // consolidated inputs and outputs for subsystem
+    public static class PeriodicIO {
+        // INPUTS
+        private double timestamp;
+
+        private double tunnel_voltage;
+        private double tunnel_current;
+        private double tunnel_velocity;
+
+        private double trigger_voltage;
+        private double trigger_current;
+        private double trigger_velocity;
+
+        private boolean top_break;
+        private boolean bottom_break;
+        private boolean correct_color;
+        private double ball_count;
+
+        private boolean forceTunnelOn;
+
+        // OUTPUTS
+        private double tunnel_demand;
+        private double trigger_demand;
+        private boolean eject;
+    }
+
+
     @Override
     public void stop() {
         //mTrigger.set(ControlMode.PercentOutput, 0);
-        mIndexer.set(ControlMode.PercentOutput, 0);
-
+        mTunnel.set(ControlMode.PercentOutput, 0);
     }
 
     @Override
@@ -284,30 +352,10 @@ public class Indexer extends Subsystem {
         return false;
     }
 
-    public static class PeriodicIO {
-        //INPUTS
-        public double timestamp;
-
-        public double tunnel_voltage;
-        public double tunnel_current;
-        public double trigger_voltage;
-        public double trigger_current;
-
-        public boolean top_break;
-        public boolean bottom_break;
-        public boolean correctColor;
-        public double ball_count;
-
-        //OUTPUTS
-        public double tunnel_demand;
-        public double trigger_demand;
-        public boolean eject;
-    }
-
+    // only call for quick status testing
     public void outputTelemetry() {
-        SmartDashboard.putBoolean("Top had seen ball", mTopHadSeenBall);
-        SmartDashboard.putBoolean("Bottom had seen ball", mBottomHadSeenBall);
-
-        SmartDashboard.putNumber("Ball count", mPeriodicIO.ball_count);
+        SmartDashboard.putBoolean("Top Had Seen Ball", mTopHadSeenBall);
+        SmartDashboard.putBoolean("Bottom Had Seen Ball", mBottomHadSeenBall);
     }
+    
 }
