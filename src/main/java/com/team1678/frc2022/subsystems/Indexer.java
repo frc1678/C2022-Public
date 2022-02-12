@@ -94,7 +94,7 @@ private Indexer() {
                 break;
             case INDEXING:
                 //checks for correct color
-                if (mPeriodicIO.correct_Color) {
+                if (mPeriodicIO.correct_color) {
                     //runs trigger if top beam break isn't triggered
                     if (mRunTrigger()) {
                         mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerIndexingVoltage;
@@ -117,11 +117,11 @@ private Indexer() {
                 
                 break;
             case OUTTAKING:
-                if (!mPeriodicIO.correct_Color) {
+                if (!mPeriodicIO.correct_color) {
                     //if not the correct color, outtakes the ball
                     mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerReversingVoltage;
                     mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakeReversingVoltage;
-                } else if (mPeriodicIO.correct_Color) {
+                } else if (mPeriodicIO.correct_color) {
                     //if it is the corect color, it goes to the indexing state
                     this.setState(WantedAction.INDEX);
                 } 
@@ -290,7 +290,7 @@ private Indexer() {
         public double indexer_voltage;
         public double trigger_voltage;
 
-        public boolean correct_Color;
+        public boolean correct_color;
         public Color detected_color;
 
         // OUTPUTS
