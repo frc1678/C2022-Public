@@ -339,44 +339,6 @@ public class ShuffleBoardInteractions {
         mOuttakeCurrent = INDEXER_TAB
             .add("Outtake Current", 0.0)
             .getEntry();
-        mIndexerState = INDEXER_TAB
-            .add("Indexer State", "N/A")
-            .getEntry();
-        mTopBeamBreak = INDEXER_TAB
-            .add("Top Beam Break", false)
-            .getEntry();
-        mBottomBeamBreak = INDEXER_TAB
-            .add("Bottom Beam Break", false)
-            .getEntry();
-        mBallCount = INDEXER_TAB
-            .add("Ball Count", 0.0)
-            .getEntry();
-
-        mTunnelDemand = INDEXER_TAB
-            .add("Tunnel Demand", 0.0)
-            .getEntry();
-        mTunnelVoltage = INDEXER_TAB
-            .add("Tunnel Voltage", 0.0)
-            .getEntry();
-        mTunnelCurrent = INDEXER_TAB
-            .add("Tunnel Current", 0.0)
-            .getEntry();
-        mTunnelVelocity = INDEXER_TAB
-            .add("Tunnel Velocity", 0.0)
-            .getEntry();
-
-        mTriggerDemand = INDEXER_TAB
-            .add("Trigger Demand", 0.0)
-            .getEntry();
-        mTriggerVoltage = INDEXER_TAB
-            .add("Trigger Voltage", 0.0)
-            .getEntry();
-        mTriggerCurrent = INDEXER_TAB
-            .add("Trigger Current", 0.0)
-            .getEntry();
-        mTriggerVelocity = INDEXER_TAB
-            .add("Trigger Velocity", 0.0)
-            .getEntry();
 
         /* Superstructure */
         // actions
@@ -450,20 +412,7 @@ public class ShuffleBoardInteractions {
         mAcceleratorRPM.setDouble(truncate(mShooter.getAcceleratorRPM()));
         
         /* Indexer */
-        mIndexerState.setString(mIndexer.getState().toString());
-        mTopBeamBreak.setBoolean(mIndexer.getTopBeamBreak());
-        mBottomBeamBreak.setBoolean(mIndexer.getBottomBeamBreak());
-        mBallCount.setDouble(mIndexer.getBallCount());
-
-        mTunnelDemand.setDouble(truncate(mIndexer.getTunnelDemand()));
-        mTunnelCurrent.setDouble(truncate(mIndexer.getTunnelCurrent()));
-        mTunnelVoltage.setDouble(truncate(mIndexer.getTunnelVoltage()));
-        mTunnelVelocity.setDouble(mIndexer.getTunnelVelocity());
-
-        mTriggerDemand.setDouble(truncate(mIndexer.getTriggerDemand()));
-        mTriggerCurrent.setDouble(truncate(mIndexer.getTriggerCurrent()));
-        mTriggerVoltage.setDouble(truncate(mIndexer.getTriggerVoltage()));
-        mTriggerVelocity.setDouble(mIndexer.getTriggerVelocity());
+        
 
         /* Vision */
         mSeesTarget.setBoolean(mLimelight.hasTarget());
