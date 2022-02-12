@@ -2,6 +2,7 @@ package com.team1678.frc2022;
 
 import java.net.IDN;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.team1678.frc2022.Constants.EjectorConstants;
 import com.team1678.frc2022.Constants.IndexerConstants;
@@ -15,6 +16,7 @@ import com.team1678.frc2022.subsystems.Swerve;
 
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -112,6 +114,24 @@ public class ShuffleBoardInteractions {
 
     /* INDEXER */
     private final NetworkTableEntry mOuttakeCurrent;
+    private final NetworkTableEntry mOuttakeDemand;
+    private final NetworkTableEntry mOuttakeVoltage;
+
+    private final NetworkTableEntry mIndexerCurrent;
+    private final NetworkTableEntry mIndexerDemand;
+    private final NetworkTableEntry mIndexerVoltage;
+
+    private final NetworkTableEntry mTriggerCurrent;
+    private final NetworkTableEntry mTriggerDemand;
+    private final NetworkTableEntry mTriggerVoltage;
+
+    private final NetworkTableEntry mIndexerState;
+
+    private final NetworkTableEntry mBallCount;
+
+    private final NetworkTableEntry mTopBeamBreak;
+    private final NetworkTableEntry mBottomBeamBreak;
+
 
     /* Superstructure */
 
@@ -274,7 +294,43 @@ public class ShuffleBoardInteractions {
         mOuttakeCurrent = INDEXER_TAB
             .add("Outtake Current", 0.0)
             .getEntry();
-        
+        mOuttakeDemand = INDEXER_TAB
+            .add("Outtake Demand", 0.0)
+            .getEntry();
+        mOuttakeVoltage = INDEXER_TAB
+            .add("Outtake Voltage", 0.0)
+            .getEntry(); 
+        mIndexerCurrent = INDEXER_TAB
+            .add("Indexer Current", 0.0)
+            .getEntry();
+        mIndexerDemand = INDEXER_TAB
+            .add("Indexer Demand", 0.0)
+            .getEntry();
+        mIndexerVoltage = INDEXER_TAB
+            .add("Indexer Voltage", 0.0)
+            .getEntry();
+        mTriggerCurrent = INDEXER_TAB
+            .add("Trigger Current", 0.0)
+            .getEntry();
+        mTriggerDemand = INDEXER_TAB
+            .add("Trigger Demand", 0.0)
+            .getEntry();
+        mTriggerVoltage = INDEXER_TAB
+            .add("Trigger Voltage", 0.0)
+            .getEntry();
+        mIndexerState = INDEXER_TAB
+            .add("Indexer State", mIndexer.getState().toString())
+            .getEntry();
+        mBallCount = INDEXER_TAB
+            .add("Ball Count", 0.0)
+            .getEntry();
+        mTopBeamBreak = INDEXER_TAB
+            .add("Top Beam Break Triggered", false)
+            .getEntry();
+        mBottomBeamBreak = INDEXER_TAB
+            .add("Bottom Beam Break Triggered", false)
+            .getEntry();
+
         /* SHOOTER */
         mFlywheelRPM = SHOOTER_TAB
                 .add("Shooter RPM", 0.0)
@@ -468,8 +524,24 @@ public class ShuffleBoardInteractions {
         mLimelightTx.setDouble(mLimelight.getOffset()[0]);
         mLimelightTy.setDouble(mLimelight.getOffset()[1]);
 
-        /* Indexer */
-        mOuttakeCurrent.setDouble(mIndexer.getOuttakeDemand());
+        /* INDEXER */
+        mOuttakeCurrent.setDouble(mIndexer.getOuttakeCurrent());
+        mOuttakeDemand.setDouble(mIndexer.getOuttakeDemand());
+        mOuttakeVoltage.setDouble(mIndexer.getOuttakeVoltage());
+
+        mIndexerCurrent.setDouble(mIndexer.getIndexerCurrent());
+        mIndexerDemand.setDouble(mIndexer.getIndexerDemand());
+        mIndexerVoltage.setDouble(mIndexer.getIndexerVoltage());
+
+        mTriggerCurrent.setDouble(mIndexer.getTriggerCurrent());
+        mTriggerDemand.setDouble(mIndexer.getTriggerDemand());
+        mTriggerVoltage.setDouble(mIndexer.getTriggerVoltage());
+
+        mIndexerState.setString(mIndexer.getState().toString());
+        mBallCount.setDouble(mIndexer.getBallCount());
+
+        mTopBeamBreak.setBoolean(mIndexer.getTopBeamBreak());
+        mBottomBeamBreak.setBoolean(mIndexer.getBottomBeamBreak());
        
         /* SUPERSTRUCTURE */
         // update actions statuses

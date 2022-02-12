@@ -211,10 +211,7 @@ private Indexer() {
         return false;
     } 
 
-    public static Indexer getInstance() {
-        return null;
-    }
-
+    //subsystem setters
     public void setTriggerDemand(double demand) {
         mPeriodicIO.trigger_demand = demand;
     }
@@ -223,12 +220,65 @@ private Indexer() {
         mPeriodicIO.outtake_demand = demand;
     }
 
+    public void setIndexerDemand(double demand) {
+        mPeriodicIO.indexer_demand = demand;
+    }
+
+    //subsystem getters
+    public static Indexer getInstance() {
+        return null;
+    }
+
     public double getOuttakeDemand() {
        return mPeriodicIO.outtake_demand;
     }
 
-    public void setIndexerDemand(double demand) {
-        mPeriodicIO.indexer_demand = demand;
+    public double getOuttakeCurrent() {
+        return mPeriodicIO.outtake_current;
+    }
+
+    public double getOuttakeVoltage() {
+        return mPeriodicIO.outtake_voltage;
+    }
+
+    public double getIndexerCurrent() {
+        return mPeriodicIO.indexer_current;
+    }
+
+    public double getIndexerDemand() {
+        return mPeriodicIO.indexer_demand;
+    }
+
+    public double getIndexerVoltage() {
+        return mPeriodicIO.indexer_voltage;
+    }
+
+    public double getTriggerCurrent() {
+        return mPeriodicIO.trigger_current;
+    }
+
+    public double getTriggerDemand() {
+        return mPeriodicIO.trigger_demand;
+    }
+
+    public double getTriggerVoltage() {
+        return mPeriodicIO.trigger_voltage;
+    }
+
+    public double getBallCount() {
+        return mPeriodicIO.ball_count;
+    }
+
+    public boolean getTopBeamBreak() {
+        return mPeriodicIO.topLightBeamBreakSensor;
+    }
+
+    public boolean getBottomBeamBreak() {
+        return mPeriodicIO.bottomLightBeamBreakSensor;
+    }
+
+    public Color getColorDetected() {
+        return mPeriodicIO.detected_color;
     }
 
     public static class PeriodicIO {
