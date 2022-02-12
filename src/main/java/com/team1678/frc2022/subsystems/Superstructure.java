@@ -1,25 +1,20 @@
 package com.team1678.frc2022.subsystems;
 
-import com.team254.lib.util.InterpolatingDouble;
-import com.team254.lib.util.ReflectingCSVWriter;
-import com.team254.lib.util.Util;
-
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.Encoder.IndexingType;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import java.util.Optional;
-
 import com.team1678.frc2022.loops.Loop;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.Constants;
-import com.team1678.frc2022.regressions.ShooterRegression;
-import com.team1678.frc2022.subsystems.Intake.State;
-import com.team1678.frc2022.subsystems.Intake.WantedAction;
-import com.team1678.frc2022.subsystems.ServoMotorSubsystem.ControlState;
 import com.team1678.frc2022.controlboard.ControlBoard;
-import com.team1678.frc2022.controlboard.CustomXboxController.Button;
-import com.team1678.frc2022.controlboard.CustomXboxController.Side;
+import com.team1678.frc2022.controlboard.CustomXboxController;
+import com.team1678.frc2022.regressions.ShooterRegression;
+
+import com.team254.lib.util.Util;
+import com.team254.lib.util.InterpolatingDouble;
+import com.team254.lib.util.ReflectingCSVWriter;
+
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import java.util.Optional;
 
 public class Superstructure extends Subsystem {
 
@@ -50,7 +45,6 @@ public class Superstructure extends Subsystem {
     public static class PeriodicIO {
         // INPUTS
         // (superstructure actions)
-        private boolean NONE = false; // do nothing
         private boolean INTAKE = false; // run the intake to pick up cargo
         private boolean OUTTAKE = false; // reverse the intake to spit out cargo
         private boolean PREP = false; // spin up and aim with shooting setpoints
@@ -108,12 +102,47 @@ public class Superstructure extends Subsystem {
         });
     }
 
-    /*** CONTAINER FOR OPERATOR COMMANDS CALLING SUPERSTRUCTURE ACTIONS ***/
+    /*** SETTERS FOR SUPERSTRUCTURE ACTIONS OUTSIDE OPERATOR INPUT ***/
+    public void setWantIntake(boolean intake) {
+        mPeriodicIO.INTAKE = intake;
+    }
+    public void setWantOuttake(boolean outtake) {
+        mPeriodicIO.OUTTAKE = outtake;
+    }
+    public void setWantPrep(boolean wants_prep) {
+        mPeriodicIO.PREP = wants_prep;
+    }
+    public void setWantShoot(boolean wants_shoot) {
+        mPeriodicIO.SHOOT = wants_shoot;
+    }
+    public void setShootingParameters(double flywheel, double hood) {
+        mShooterSetpoint = flywheel;
+        mHoodSetpoint = hood;
+    }
+
+    /*** CONTAINER FOR OPERATOR COMMANDS CALLING SUPERSTRUCTURE ACTIONS
+     * 
+     * Intaking
+     * - hold right trigger to intake
+     * - hold left trigger to outtake
+     * 
+     * Shooting
+     * - press A to prep for shot (spin up)
+     * - press Y to shoot once ready
+     * - press X to toggle fender shot with set params
+     * 
+     * Manual Adjustment
+     * - Use dpad to manually adjust hood with offset
+     *   --> 0 to move hood up
+     *   --> 180 to move hood down
+     * - press START button to reset adjustment 
+     * 
+     * */
     public void updateOperatorCommands() {
         // control intake vs. outtake actions
-        if (mControlBoard.operator.getTrigger(Side.RIGHT)) {
+        if (mControlBoard.operator.getTrigger(CustomXboxController.Side.RIGHT)) {
             mPeriodicIO.INTAKE = true;
-        } else if (mControlBoard.operator.getTrigger(Side.LEFT)) {
+        } else if (mControlBoard.operator.getTrigger(CustomXboxController.Side.LEFT)) {
             mPeriodicIO.OUTTAKE = true;
         } else {
             mPeriodicIO.INTAKE = false;
@@ -148,28 +177,10 @@ public class Superstructure extends Subsystem {
                 break;
         }
         // reset manual hood adjustment if necessary
-        if (mControlBoard.operator.getButton(Button.START)) {
+        if (mControlBoard.operator.getButton(CustomXboxController.Button.START)) {
             mResetHoodAngleAdjustment = true;
         }
 
-    }
-
-    /*** SETTERS FOR SUPERSTRUCTURE ACTIONS OUTSIDE OPERATOR INPUT ***/
-    public void setWantIntake(boolean intake) {
-        mPeriodicIO.INTAKE = intake;
-    }
-    public void setWantOuttake(boolean outtake) {
-        mPeriodicIO.OUTTAKE = outtake;
-    }
-    public void setWantPrep(boolean wants_prep) {
-        mPeriodicIO.PREP = wants_prep;
-    }
-    public void setWantShoot(boolean wants_shoot) {
-        mPeriodicIO.SHOOT = wants_shoot;
-    }
-    public void setShootingParameters(double flywheel, double hood) {
-        mShooterSetpoint = flywheel;
-        mHoodSetpoint = hood;
     }
 
     /*** UPDATE SHOOTER AND HOOD SETPOINTS WHEN VISION AIMING ***/
@@ -192,7 +203,7 @@ public class Superstructure extends Subsystem {
      * 2. updates shooter and hood setpoint goals from tracked vars
      * 3. set subsystem states and shooting setpoints within subsystems
      * 
-    */
+     * */
     public void setGoals() {
         /* Update subsystem wanted actions and setpoints*/
 
@@ -252,7 +263,7 @@ public class Superstructure extends Subsystem {
         mPeriodicIO.real_hood = Util.clamp(mPeriodicIO.real_hood,
                 Constants.HoodConstants.kHoodServoConstants.kMinUnitsLimit,
                 Constants.HoodConstants.kHoodServoConstants.kMaxUnitsLimit); 
-        if (mHood.mControlState != ControlState.OPEN_LOOP) {
+        if (mHood.mControlState != ServoMotorSubsystem.ControlState.OPEN_LOOP) {
             mHood.setSetpointMotionMagic(mPeriodicIO.real_hood);
         }
     }

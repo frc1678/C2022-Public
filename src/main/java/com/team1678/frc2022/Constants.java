@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj.util.Color;
 
 public class Constants {
 
-    // which robot
+    // toggle constants for comp robot
     public static final boolean isComp = false;
 	
 	// robot loop time
@@ -104,7 +104,6 @@ public class Constants {
 
         /*** MODULE SPECIFIC CONSTANTS ***/
 
-
         /* Front Left Module - Module 0 */
         public static final class Mod0 {
             public static final double betaAngleOffset = 58.71;
@@ -115,7 +114,6 @@ public class Constants {
                         isComp ? compAngleOffset : betaAngleOffset);
             }
         }
-
         /* Front Right Module - Module 1 */
         public static final class Mod1 {
             public static final double betaAngleOffset = 340.57;
@@ -126,7 +124,6 @@ public class Constants {
                         isComp ? compAngleOffset : betaAngleOffset);
             }
         }
-
         /* Back Left Module - Module 2 */
         public static final class Mod2 {
             public static final double betaAngleOffset = 343.03;
@@ -137,7 +134,6 @@ public class Constants {
                         isComp ? compAngleOffset : betaAngleOffset);
             }
         }
-
         /* Back Right Module - Module 3 */
         public static final class Mod3 {
             public static final double betaAngleOffset = 254.61;

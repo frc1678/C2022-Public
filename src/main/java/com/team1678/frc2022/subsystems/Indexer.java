@@ -255,6 +255,13 @@ private Indexer() {
 
         public boolean eject;
     }
+
+    // only call for quick status testing
+    public void outputTelemetry() {
+        SmartDashboard.putBoolean("Top Had Seen Ball", mTopHadSeenBall);
+        SmartDashboard.putBoolean("Bottom Had Seen Ball", mBottomHadSeenBall);
+    }
+    
 }
    
 
