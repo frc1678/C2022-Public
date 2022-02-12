@@ -85,7 +85,10 @@ public class ColorSensor extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-
+        mColorSensorThread.getLatestReading();
+        mColorSensorThread.getDetectedRValue();
+        mColorSensorThread.getDetectedGValue();
+        mColorSensorThread.getDetectedBValue();
     }
 
     @Override 
@@ -127,6 +130,12 @@ public class ColorSensor extends Subsystem {
 
     public String getMatchedColor() {
         return mMatchedColor.toString();
+    }
+
+    public ColorSensorData getLatestReading() {
+        synchronized (mColorSensorThread) {
+            return mPeriodicIO.rawColorSensorData;
+        }
     }
 
     public static class PeriodicIO {
