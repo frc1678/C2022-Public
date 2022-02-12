@@ -1,6 +1,5 @@
 package com.team1678.frc2022;
 
-import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Intake;
 import com.team1678.frc2022.subsystems.Limelight;
@@ -8,8 +7,9 @@ import com.team1678.frc2022.subsystems.Shooter;
 import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
 
+import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
+
 import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -38,7 +38,7 @@ public class ShuffleBoardInteractions {
     private final Indexer mIndexer;
     private final Superstructure mSuperstructure;
 
-    /* Status Variable */
+    /* Status Variables */
     private double lastCancoderUpdate = 0.0;
 
     /* Tabs */
@@ -51,47 +51,9 @@ public class ShuffleBoardInteractions {
     private ShuffleboardTab SUPERSTRUCTURE_TAB;
     private ShuffleboardTab MANUAL_PARAMS;
 
-    /* ENTRIES */
-
-    /* Intake */
-    private final NetworkTableEntry mIntakeCurrent;
-    private final NetworkTableEntry mIntakeState;
-    private final NetworkTableEntry mIntakeVoltage;
-    private final NetworkTableEntry mIntakeDemand;
-    private final NetworkTableEntry mIntakeDeployed;
-
-    /* Shooter */
-    private final NetworkTableEntry mFlywheelRPM;
-    private final NetworkTableEntry mAcceleratorRPM;
-    private final NetworkTableEntry mShooterOpenLoop;
-    private final NetworkTableEntry mFlywheelDemand;
-    private final NetworkTableEntry mAcceleratorDemand;
-
-    /* Indexer */
-    private final NetworkTableEntry mIndexerState;
-    private final NetworkTableEntry mTopBeamBreak;
-    private final NetworkTableEntry mBottomBeamBreak;
-    private final NetworkTableEntry mBallCount;
-
-    private final NetworkTableEntry mTunnelDemand;
-    private final NetworkTableEntry mTunnelVoltage;
-    private final NetworkTableEntry mTunnelCurrent;
-    private final NetworkTableEntry mTunnelVelocity;
-
-    private final NetworkTableEntry mTriggerDemand;
-    private final NetworkTableEntry mTriggerVoltage;
-    private final NetworkTableEntry mTriggerCurrent;
-    private final NetworkTableEntry mTriggerVelocity;
-
-    /* Vision */
-    private final NetworkTableEntry mSeesTarget;
-    private final NetworkTableEntry mLimelightOk;
-    private final NetworkTableEntry mLimelightLatency;
-    private final NetworkTableEntry mLimelightDt;
-    private final NetworkTableEntry mLimelightTx;
-    private final NetworkTableEntry mLimelightTy;
-
-    /* Swerve Modules */
+    /*** ENTRIES ***/
+    
+    /* SWERVE MODULES */
     private final String[] kSwervePlacements = {"Front Left", "Front Right", "Back Left", "Back Right"};
     private final NetworkTableEntry mSwerveBrakeMode;
     private final ShuffleboardLayout[] mSwerveAngles = new ShuffleboardLayout[4];
@@ -112,8 +74,45 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mCurrentAngleI;
     private final NetworkTableEntry mCurrentAngleD;
 
-    /* Superstructure */
+    /* INTAKE */
+    private final NetworkTableEntry mIntakeCurrent;
+    private final NetworkTableEntry mIntakeState;
+    private final NetworkTableEntry mIntakeVoltage;
+    private final NetworkTableEntry mIntakeDemand;
+    private final NetworkTableEntry mIntakeDeployed;
 
+    /* INDEXER */
+    private final NetworkTableEntry mIndexerState;
+    private final NetworkTableEntry mTopBeamBreak;
+    private final NetworkTableEntry mBottomBeamBreak;
+    private final NetworkTableEntry mBallCount;
+
+    private final NetworkTableEntry mTunnelDemand;
+    private final NetworkTableEntry mTunnelVoltage;
+    private final NetworkTableEntry mTunnelCurrent;
+    private final NetworkTableEntry mTunnelVelocity;
+
+    private final NetworkTableEntry mTriggerDemand;
+    private final NetworkTableEntry mTriggerVoltage;
+    private final NetworkTableEntry mTriggerCurrent;
+    private final NetworkTableEntry mTriggerVelocity;
+
+    /* SHOOTER */
+    private final NetworkTableEntry mFlywheelRPM;
+    private final NetworkTableEntry mAcceleratorRPM;
+    private final NetworkTableEntry mShooterOpenLoop;
+    private final NetworkTableEntry mFlywheelDemand;
+    private final NetworkTableEntry mAcceleratorDemand;
+
+    /* VISION */
+    private final NetworkTableEntry mSeesTarget;
+    private final NetworkTableEntry mLimelightOk;
+    private final NetworkTableEntry mLimelightLatency;
+    private final NetworkTableEntry mLimelightDt;
+    private final NetworkTableEntry mLimelightTx;
+    private final NetworkTableEntry mLimelightTy;
+
+    /* SUPERSTRUCTURE */
     // actions
     private final NetworkTableEntry mIntaking;
     private final NetworkTableEntry mOuttaking;
@@ -132,65 +131,33 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mHasTarget;
     private final NetworkTableEntry mIsAimed;
 
-    /* Manual Params */
+    /* MANUAL PARAMS */
     private final NetworkTableEntry mManualShooterRPM;
     private final NetworkTableEntry mManualHoodAngle;
     private final NetworkTableEntry mShootingSetpointsEnableToggle;
 
+    // instantiate subsystems, tabs, and widgets
     public ShuffleBoardInteractions() {
         /* Get Subsystems */
-        mLimelight = Limelight.getInstance();
         mSwerve = Swerve.getInstance();
         mSwerveModules = Swerve.getInstance().mSwerveMods;
         mIntake = Intake.getInstance();
-        mShooter = Shooter.getInstance();
         mIndexer = Indexer.getInstance();
+        mShooter = Shooter.getInstance();
+        mLimelight = Limelight.getInstance();
         mSuperstructure = Superstructure.getInstance();
 
         /* Get Tabs */
-        VISION_TAB = Shuffleboard.getTab("Vision");
         SWERVE_TAB = Shuffleboard.getTab("Swerve");
         PID_TAB = Shuffleboard.getTab("Module PID");
         INTAKE_TAB = Shuffleboard.getTab("Intake");
-        SHOOTER_TAB = Shuffleboard.getTab("Shooter");
         INDEXER_TAB = Shuffleboard.getTab("Indexer");
+        SHOOTER_TAB = Shuffleboard.getTab("Shooter");
+        VISION_TAB = Shuffleboard.getTab("Vision");
         SUPERSTRUCTURE_TAB = Shuffleboard.getTab("Superstructure");
         MANUAL_PARAMS = Shuffleboard.getTab("Manual Params");
         
-        /* Create Entries */
-
-        mLimelightOk = VISION_TAB
-            .add("Limelight OK", false)
-            .withPosition(0, 0)
-            .withSize(1, 1)
-            .getEntry();        
-        mSeesTarget = VISION_TAB
-            .add("Limelight Sees Target", false)
-            .withPosition(1, 0)
-            .withSize(1, 1)
-            .getEntry();
-        mLimelightLatency = VISION_TAB
-            .add("Limelight Latency", -1.0)
-            .withPosition(2, 0)
-            .withSize(2, 2)
-            .withWidget(BuiltInWidgets.kTextView)
-            .getEntry();
-        mLimelightDt = VISION_TAB
-            .add("Limelight Loop Time", -1.0)
-            .withPosition(4, 0)
-            .withSize(2, 2)
-            .withWidget(BuiltInWidgets.kTextView)
-            .getEntry();
-        mLimelightTx = VISION_TAB
-            .add("Limelight TX", 0.0)
-            .withPosition(0, 1)
-            .withSize(1, 1)
-            .getEntry();
-        mLimelightTy = VISION_TAB
-            .add("Limelight TY", 0.0)
-            .withPosition(1, 1)
-            .withSize(1, 1)
-            .getEntry();
+        /*** Create Entries ***/
 
         mSwerveBrakeMode = SWERVE_TAB.add("Swerve Break Mode", false).getEntry();
 
@@ -250,23 +217,8 @@ public class ShuffleBoardInteractions {
             .withPosition(3, 0)
             .withSize(2, 1)
             .getEntry();
-
-        mManualShooterRPM = MANUAL_PARAMS
-            .add("Manual Shooter Goal", 0.0)
-            .withSize(2, 1)
-            .getEntry();
-        mManualHoodAngle = MANUAL_PARAMS
-            .add("Manual Hood Goal", 0.0)
-            .withSize(2, 1)
-            .getEntry();
-        mShootingSetpointsEnableToggle = MANUAL_PARAMS
-            .add("Apply Manual Shooting Params", false)
-            .withWidget(BuiltInWidgets.kToggleButton)
-            .withSize(2, 1)
-            .getEntry();
-
+        
         TalonFXConfiguration currentAngleValues = CTREConfigs.swerveAngleFXConfig();
-
         mDesiredAngleP = PID_TAB
             .add("Wanted P", currentAngleValues.slot0.kP)
             .withPosition(0,0)
@@ -297,48 +249,22 @@ public class ShuffleBoardInteractions {
             .withPosition(2,1)
             .withSize(1, 1)
             .getEntry();
-        
+
         /* INTAKE */
         mIntakeCurrent = INTAKE_TAB
-            .add("Intake Current", mIntake.mPeriodicIO.intake_current)
+            .add("Intake Current", mIntake.getIntakeCurrent())
             .getEntry();
         mIntakeState = INTAKE_TAB
             .add("Intake State", mIntake.getState().toString())
             .getEntry();
         mIntakeVoltage = INTAKE_TAB
-            .add("Intake Voltage", mIntake.mPeriodicIO.intake_voltage)
+            .add("Intake Voltage", mIntake.getIntakeVoltage())
             .getEntry();
         mIntakeDemand = INTAKE_TAB
-                .add("Intake Demand", mIntake.mPeriodicIO.intake_demand)
+                .add("Intake Demand", mIntake.getIntakeDemand())
                 .getEntry();
         mIntakeDeployed = INTAKE_TAB
-                .add("Intake Deployed", mIntake.mPeriodicIO.deploy)
-                .getEntry();
-                
-        /* Shooter */
-        mFlywheelRPM = SHOOTER_TAB
-                .add("Shooter RPM", 0.0)
-                .withSize(2, 1)
-                .getEntry();
-
-        mAcceleratorRPM = SHOOTER_TAB
-                .add("Accelerator RPM", 0.0)
-                .withSize(2, 1)
-                .getEntry();
-
-        mFlywheelDemand = SHOOTER_TAB
-                .add("Shooter Demand", 0.0)
-                .withSize(2, 1)
-                .getEntry();
-
-        mAcceleratorDemand = SHOOTER_TAB
-                .add("Accelerator Demand", 0.0)
-                .withSize(2, 1)
-                .getEntry();
-
-        mShooterOpenLoop = SHOOTER_TAB
-                .add("Shooter Open Loop", false)
-                .withSize(2, 1)
+                .add("Intake Deployed", mIntake.getIsDeployed())
                 .getEntry();
 
         /* INDEXER */
@@ -380,8 +306,64 @@ public class ShuffleBoardInteractions {
         mTriggerVelocity = INDEXER_TAB
             .add("Trigger Velocity", 0.0)
             .getEntry();
+        
+        /* SHOOTER */
+        mFlywheelRPM = SHOOTER_TAB
+                .add("Shooter RPM", 0.0)
+                .withSize(2, 1)
+                .getEntry();
+        mAcceleratorRPM = SHOOTER_TAB
+                .add("Accelerator RPM", 0.0)
+                .withSize(2, 1)
+                .getEntry();
+        mFlywheelDemand = SHOOTER_TAB
+                .add("Shooter Demand", 0.0)
+                .withSize(2, 1)
+                .getEntry();
+        mAcceleratorDemand = SHOOTER_TAB
+                .add("Accelerator Demand", 0.0)
+                .withSize(2, 1)
+                .getEntry();
+        mShooterOpenLoop = SHOOTER_TAB
+                .add("Shooter Open Loop", false)
+                .withSize(2, 1)
+                .getEntry();
 
-        /* Superstructure */
+        /* VISION */
+        mLimelightOk = VISION_TAB
+            .add("Limelight OK", false)
+            .withPosition(0, 0)
+            .withSize(1, 1)
+            .getEntry();        
+        mSeesTarget = VISION_TAB
+            .add("Limelight Sees Target", false)
+            .withPosition(1, 0)
+            .withSize(1, 1)
+            .getEntry();
+        mLimelightLatency = VISION_TAB
+            .add("Limelight Latency", -1.0)
+            .withPosition(2, 0)
+            .withSize(2, 2)
+            .withWidget(BuiltInWidgets.kTextView)
+            .getEntry();
+        mLimelightDt = VISION_TAB
+            .add("Limelight Loop Time", -1.0)
+            .withPosition(4, 0)
+            .withSize(2, 2)
+            .withWidget(BuiltInWidgets.kTextView)
+            .getEntry();
+        mLimelightTx = VISION_TAB
+            .add("Limelight TX", 0.0)
+            .withPosition(0, 1)
+            .withSize(1, 1)
+            .getEntry();
+        mLimelightTy = VISION_TAB
+            .add("Limelight TY", 0.0)
+            .withPosition(1, 1)
+            .withSize(1, 1)
+            .getEntry();
+
+        /* SUPERSTRUCTURE */
         // actions
         mIntaking = SUPERSTRUCTURE_TAB
             .add("Intaking", false)
@@ -436,26 +418,70 @@ public class ShuffleBoardInteractions {
             .withSize(2, 1)
             .getEntry();
         
+        /* MANUAL PARAMS */
+        mManualShooterRPM = MANUAL_PARAMS
+            .add("Manual Shooter Goal", 0.0)
+            .withSize(2, 1)
+            .getEntry();
+        mManualHoodAngle = MANUAL_PARAMS
+            .add("Manual Hood Goal", 0.0)
+            .withSize(2, 1)
+            .getEntry();
+        mShootingSetpointsEnableToggle = MANUAL_PARAMS
+            .add("Apply Manual Shooting Params", false)
+            .withWidget(BuiltInWidgets.kToggleButton)
+            .withSize(2, 1)
+            .getEntry();
     }
     
 
     public void update() {
         
-        /* Intake */
+        
+        /* SWERVE */
+
+        /*
+        //  Only uncomment cancoder update when redoing cancoder offsets for modules
+        // Update cancoders at a slower period to avoid stale can frames
+        double dt = Timer.getFPGATimestamp();
+        if (dt > lastCancoderUpdate + 0.1) {
+            for (int i = 0; i < mSwerveCancoders.length; i++) {
+                mSwerveCancoders[i].setDouble(truncate(mSwerveModules[i].getCanCoder().getDegrees()));
+            }
+            lastCancoderUpdate = dt;
+        }
+        */
+        
+        for (int i = 0; i < mSwerveCancoders.length; i++) {
+            mSwerveIntegrated[i].setDouble(truncate(MathUtil.inputModulus(mSwerveModules[i].getState().angle.getDegrees(), 0, 360)));
+            mSwerveDrivePercent[i].setDouble(truncate(mSwerveModules[i].getState().speedMetersPerSecond));
+
+            mModuleAngleCurrent[i].setDouble(truncate(MathUtil.inputModulus(mSwerveModules[i].getState().angle.getDegrees(), 0, 360)));
+            mModuleAngleGoals[i].setDouble(truncate(MathUtil.inputModulus(mSwerveModules[i].getTargetAngle(), 0, 360)));
+
+        }
+
+        mSwerveOdometryX.setDouble(truncate(mSwerve.getPose().getX()));
+        mSwerveOdometryY.setDouble(truncate(mSwerve.getPose().getY()));
+        mSwerveOdometryRot.setDouble(truncate(MathUtil.inputModulus(mSwerve.getPose().getRotation().getDegrees(), 0, 360)));
+
+        if(mPIDEnableToggle.getValue().getBoolean()) {
+            mSwerve.setAnglePIDValues(mDesiredAngleP.getValue().getDouble(), mDesiredAngleI.getValue().getDouble(), mDesiredAngleD.getValue().getDouble());
+        }
+        double[] currentPIDVals = mSwerve.getAnglePIDValues(0);
+        mCurrentAngleP.setDouble(currentPIDVals[0]);
+        mCurrentAngleI.setDouble(currentPIDVals[1]);
+        mCurrentAngleD.setDouble(currentPIDVals[2]);
+
+        
+        /* INTAKE */
         mIntakeState.setString(mIntake.getState().toString());
         mIntakeVoltage.setDouble(mIntake.getIntakeVoltage());
         mIntakeDemand.setDouble(mIntake.getIntakeDemand());
         mIntakeDeployed.setBoolean(mIntake.getWantDeploy());
         mIntakeCurrent.setDouble(mIntake.getIntakeCurrent());
 
-        /* Shooter */
-        mFlywheelRPM.setDouble(truncate(mShooter.getFlywheelRPM()));
-        mAcceleratorRPM.setDouble(truncate(mShooter.getAcceleratorRPM()));
-        mShooterOpenLoop.setBoolean(mShooter.getIsOpenLoop());
-        mFlywheelDemand.setDouble(truncate(mShooter.getFlywheelDemand()));
-        mAcceleratorDemand.setDouble(truncate(mShooter.getAcceleratorDemand()));
-        
-        /* Indexer */
+        /* INDEXER */
         mIndexerState.setString(mIndexer.getState().toString());
         mTopBeamBreak.setBoolean(mIndexer.getTopBeamBreak());
         mBottomBeamBreak.setBoolean(mIndexer.getBottomBeamBreak());
@@ -471,7 +497,14 @@ public class ShuffleBoardInteractions {
         mTriggerVoltage.setDouble(truncate(mIndexer.getTriggerVoltage()));
         mTriggerVelocity.setDouble(mIndexer.getTriggerVelocity());
 
-        /* Vision */
+        /* SHOOTER */
+        mFlywheelRPM.setDouble(truncate(mShooter.getFlywheelRPM()));
+        mAcceleratorRPM.setDouble(truncate(mShooter.getAcceleratorRPM()));
+        mShooterOpenLoop.setBoolean(mShooter.getIsOpenLoop());
+        mFlywheelDemand.setDouble(truncate(mShooter.getFlywheelDemand()));
+        mAcceleratorDemand.setDouble(truncate(mShooter.getAcceleratorDemand()));
+        
+        /* VISION */
         mSeesTarget.setBoolean(mLimelight.hasTarget());
         mLimelightOk.setBoolean(mLimelight.limelightOK());
         mLimelightLatency.setDouble(mLimelight.getLatency());
@@ -479,7 +512,7 @@ public class ShuffleBoardInteractions {
         mLimelightTx.setDouble(mLimelight.getOffset()[0]);
         mLimelightTy.setDouble(mLimelight.getOffset()[1]);
 
-        /* Superstructure */
+        /* SUPERSTRUCTURE */
         // update actions statuses
         mIntaking.setBoolean(mSuperstructure.getIntaking());
         mOuttaking.setBoolean(mSuperstructure.getOuttaking());
@@ -498,42 +531,7 @@ public class ShuffleBoardInteractions {
         mHasTarget.setBoolean(mSuperstructure.hasTarget());
         mIsAimed.setBoolean(mSuperstructure.isAimed());
 
-        
-        /* SWERVE */
-        mSwerveBrakeMode.setBoolean(mSwerve.getLocked());
-
-        //  Only uncomment when redoing cancoder offsets for modules
-        // Update cancoders at a slower period to avoid stale can frames
-        double dt = Timer.getFPGATimestamp();
-        if (dt > lastCancoderUpdate + 0.1) {
-            for (int i = 0; i < mSwerveCancoders.length; i++) {
-                mSwerveCancoders[i].setDouble(truncate(mSwerveModules[i].getCanCoder().getDegrees()));
-            }
-            lastCancoderUpdate = dt;
-        }
-        
-        
-        for (int i = 0; i < mSwerveCancoders.length; i++) {
-            mSwerveIntegrated[i].setDouble(truncate(MathUtil.inputModulus(mSwerveModules[i].getState().angle.getDegrees(), 0, 360)));
-            mSwerveDrivePercent[i].setDouble(truncate(mSwerveModules[i].getState().speedMetersPerSecond));
-
-            mModuleAngleCurrent[i].setDouble(truncate(MathUtil.inputModulus(mSwerveModules[i].getState().angle.getDegrees(), 0, 360)));
-            mModuleAngleGoals[i].setDouble(truncate(MathUtil.inputModulus(mSwerveModules[i].getTargetAngle(), 0, 360)));
-
-        }
-        mSwerveOdometryX.setDouble(truncate(mSwerve.getPose().getX()));
-        mSwerveOdometryY.setDouble(truncate(mSwerve.getPose().getY()));
-        mSwerveOdometryRot.setDouble(truncate(MathUtil.inputModulus(mSwerve.getPose().getRotation().getDegrees(), 0, 360)));
-
-        if(mPIDEnableToggle.getValue().getBoolean()) {
-            mSwerve.setAnglePIDValues(mDesiredAngleP.getValue().getDouble(), mDesiredAngleI.getValue().getDouble(), mDesiredAngleD.getValue().getDouble());
-        }
-        double[] currentPIDVals = mSwerve.getAnglePIDValues(0);
-        mCurrentAngleP.setDouble(currentPIDVals[0]);
-        mCurrentAngleI.setDouble(currentPIDVals[1]);
-        mCurrentAngleD.setDouble(currentPIDVals[2]);
-
-        // hood
+        /* MANUAL PARAMS (for shooting) */
         if(mShootingSetpointsEnableToggle.getValue().getBoolean()) {
             mSuperstructure.setShootingParameters(mManualShooterRPM.getDouble(0.0), mManualHoodAngle.getDouble(0.0));
         }
