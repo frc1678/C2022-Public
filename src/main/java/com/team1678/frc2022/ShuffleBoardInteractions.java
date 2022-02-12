@@ -4,9 +4,7 @@ import java.net.IDN;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
-import com.team1678.frc2022.Constants.EjectorConstants;
 import com.team1678.frc2022.Constants.IndexerConstants;
-import com.team1678.frc2022.subsystems.Ejector;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Intake;
 import com.team1678.frc2022.subsystems.Limelight;
@@ -14,9 +12,6 @@ import com.team1678.frc2022.subsystems.Shooter;
 import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
 
-import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
-
-import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -24,8 +19,6 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.util.Color;
-import pabeles.concurrency.ConcurrencyOps.NewInstance;
 
 public class ShuffleBoardInteractions {
 

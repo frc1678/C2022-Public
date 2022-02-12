@@ -13,7 +13,6 @@ import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.ControlBoard.SwerveCardinal;
 import com.team1678.frc2022.loops.CrashTracker;
 import com.team1678.frc2022.loops.Looper;
-import com.team1678.frc2022.subsystems.Ejector;
 import com.team1678.frc2022.subsystems.Hood;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Infrastructure;

@@ -38,13 +38,6 @@ private final DigitalInput mTopBeamBreak;
 public boolean mBottomHadSeenBall = false;
 public boolean mTopHadSeenBall = false;
 
-public REVColorSensorV3Wrapper mColorSensor;
-
-private final ColorMatch mColorMatcher = new ColorMatch();
-ColorMatchResult mMatch;
-
-private static boolean mCorrectColor;
-
 private boolean mRunTrigger() {
     return !mBallAtTrigger() && mPeriodicIO.ball_count > 0;
 }
@@ -123,6 +116,8 @@ private Indexer() {
                     } else {
                         mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIndexingVoltage;
                     }
+
+                    mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakeIdleVoltage;
                 } else {
                     this.setState(WantedAction.OUTTAKE);
                 }
@@ -134,10 +129,7 @@ private Indexer() {
                     mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakeReversingVoltage;
                 } else if (!mPeriodicIO.correct_Color) {
                     this.setState(WantedAction.INDEX);
-                } else {
-                    mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
-                    mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakeIdleVoltage;
-                }
+                } 
                 break;
             case REVERSING:
                 mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakeIndexingVoltage;
