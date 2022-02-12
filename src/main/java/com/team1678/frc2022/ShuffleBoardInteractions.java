@@ -498,6 +498,14 @@ public class ShuffleBoardInteractions {
         mCurrentAngleI.setDouble(currentPIDVals[1]);
         mCurrentAngleD.setDouble(currentPIDVals[2]);
 
+        if (mLedApply.getValue().getBoolean()) {
+            if (LEDs.State.valueOf(mLedState.getValue().getString()) != null) {
+                LEDs.getInstance().setState(LEDs.State.valueOf(mLedState.getValue().getString()));
+            }
+        } else {
+            //mLedState.setString(mLEDs.getState().toString());
+        }
+        mLedStripState.setString(mLEDs.getStripState().toString());
         
         /* INTAKE */
         mIntakeState.setString(mIntake.getState().toString());

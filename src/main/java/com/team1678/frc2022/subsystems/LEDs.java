@@ -35,17 +35,17 @@ public class LEDs extends Subsystem {
     }
 
     public enum State {
-        OFF(0, 0, 0, Double.POSITIVE_INFINITY, 0.0, false),
-        DISABLED(255, 20, 30, 4.0, 4.0, true),
-        IDLE(0, 0, 255, Double.POSITIVE_INFINITY, 0.0, false),
-        EMERGENCY(255, 0, 0, 0.3, 0.3, false),
-        ONE_BALL(0.2, 0.2, false, new Color(0.5, 0.1, 0.1), new Color(0.1, 0.1, 0.5)),
-        TWO_BALL(0.05, 0.05, false, new Color(0.5, 0.1, 0.1), new Color(0.1, 0.1, 0.5)),
-        TARGET_VISIBLE(255, 255, 0, Double.POSITIVE_INFINITY, 0.0, false),
-        SHOT_READY(255, 255, 0, 0.05, 0.05, false),
-        WHITE(255, 255, 255, 10, 5, false),
-        MERICA(0.3, 0, false, new Color(1, 1, 1), new Color(1, 0, 0), new Color(0, 0, 1)),
-        CITRUS(0.5, 0.5, true, new Color(0.23, 0.83, 0.18), new Color(0, 1, 0)),
+        OFF(0, 0, 0, Double.POSITIVE_INFINITY, 0.0, false), // LEDs OFF
+        DISABLED(255, 20, 30, 4.0, 4.0, true), // Pink Breathing
+        IDLE(0, 0, 255, Double.POSITIVE_INFINITY, 0.0, false), // Blue
+        EMERGENCY(255, 0, 0, 0.3, 0.3, false), // Red Blinking
+        ONE_BALL(0.2, 0.2, false, new Color(0.5, 0.1, 0.1), new Color(0.1, 0.1, 0.5)), // Alternating Yellow Blue
+        TWO_BALL(0.05, 0.05, false, new Color(0.5, 0.1, 0.1), new Color(0.1, 0.0, 0.0)), // Fast Alternating Yellow Red
+        TARGET_VISIBLE(255, 255, 0, Double.POSITIVE_INFINITY, 0.0, false), // Slow Yellow
+        SHOT_READY(255, 255, 0, 0.05, 0.05, false), // FAST Yellow
+        WHITE(255, 255, 255, 10, 5, false), // Unused
+        MERICA(0.3, 0, false, new Color(1, 1, 1), new Color(1, 0, 0), new Color(0, 0, 1)), // Unused
+        CITRUS(0.5, 0.5, true, new Color(0.23, 0.83, 0.18), new Color(0, 1, 0)), // Unused
         RAINBOW(); // :)
 
         List<Color> colors = new ArrayList<Color>();
@@ -101,28 +101,27 @@ public class LEDs extends Subsystem {
     }
 
     public void updateState() {
-        setState(State.IDLE);
-        setStripState(State.IDLE);
 
         if (mSuperstructure.hasEmergency) {
             setState(State.EMERGENCY);
+            setStripState(State.EMERGENCY);
             return;
         }
 
         if (mIndexer.getBallCount() == 1) {
             setStripState(State.ONE_BALL);
-        }
-        
-        if (mIndexer.getBallCount() == 2) {
+        } else if (mIndexer.getBallCount() == 2) {
             setStripState(State.TWO_BALL);
+        } else {
+            setStripState(State.IDLE);
         }
 
         if (Limelight.getInstance().hasTarget()) {
             setState(State.TARGET_VISIBLE);
-        }
-
-        if (mSuperstructure.isSpunUp()) {
+        } else if (mSuperstructure.isSpunUp()) {
             setState(State.SHOT_READY);
+        } else {
+            setState(State.IDLE);
         }
     }
 
@@ -135,8 +134,9 @@ public class LEDs extends Subsystem {
         double deltaTime = timestamp - lastTimestamp;
         mLastTimestamp = timestamp;
 
-        updateLEDsFromState(mState, 0, 32, deltaTime, timestamp);
-        updateLEDsFromState(mStripState, 33, 512, deltaTime, timestamp);
+        updateLEDsFromState(mState, 0, 16, deltaTime, timestamp);
+        updateLEDsFromState(mStripState, 16, 48, deltaTime, timestamp);
+        updateLEDsFromState(mState, 48, 512, deltaTime, timestamp);
         SmartDashboard.putNumber("State Phase", mState.phase);
         SmartDashboard.putNumber("Strip Phase", mStripState.phase);
         SmartDashboard.putNumber("Strip Color ", mStripState.colorPhase);
@@ -249,13 +249,11 @@ public class LEDs extends Subsystem {
             @Override
             public void onLoop(double timestamp) {
                 //updateLights();
-                updateState();
+                //updateState();
             }
 
             @Override
             public void onStop(double timestamp) {
-                setState(State.DISABLED);
-                setStripState(State.RAINBOW);
             }
         });
     }
