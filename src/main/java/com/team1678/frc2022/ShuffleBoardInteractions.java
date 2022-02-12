@@ -55,6 +55,7 @@ public class ShuffleBoardInteractions {
     
     /* SWERVE MODULES */
     private final String[] kSwervePlacements = {"Front Left", "Front Right", "Back Left", "Back Right"};
+    private final NetworkTableEntry mSwerveBrakeMode;
     private final ShuffleboardLayout[] mSwerveAngles = new ShuffleboardLayout[4];
     private final NetworkTableEntry[] mSwerveCancoders = new NetworkTableEntry[4];
     private final NetworkTableEntry[] mSwerveIntegrated = new NetworkTableEntry[4];
@@ -158,7 +159,8 @@ public class ShuffleBoardInteractions {
         
         /*** Create Entries ***/
 
-        /* SWERVE AND MODULE PID */
+        mSwerveBrakeMode = SWERVE_TAB.add("Swerve Break Mode", false).getEntry();
+
         for (int i = 0; i < mSwerveCancoders.length; i++) {
             mSwerveAngles[i] = SWERVE_TAB
                 .getLayout("Module " + i + " Angle", BuiltInLayouts.kGrid)
