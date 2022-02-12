@@ -58,16 +58,62 @@ public class Intake extends Subsystem {
         return mInstance;
     }
 
+    @Override
+    public void registerEnabledLoops(ILooper enabledLooper) {
+        enabledLooper.register(new Loop() {
+            @Override
+            public void onStart(double timestamp) {
+                mState = State.IDLE;
+            }
+
+            @Override
+            public void onLoop(double timestamp) {
+                runStateMachine();
+            }
+
+            @Override
+            public void onStop(double timestamp) {
+
+            }
+        });
+    }
+
+    @Override
+    public synchronized void readPeriodicInputs() {
+        mPeriodicIO.intake_out = mIntakeSolenoidTimer.update(mPeriodicIO.deploy, 0.2);
+        mPeriodicIO.intake_current = mMaster.getStatorCurrent();
+        mPeriodicIO.intake_voltage = mMaster.getMotorOutputVoltage();
+        if (mCSVWriter != null) {
+            mCSVWriter.add(mPeriodicIO);
+        }
+    }
+
+    @Override
+    public void writePeriodicOutputs() {
+        mMaster.set(ControlMode.PercentOutput, mPeriodicIO.intake_demand / 12.0);
+        mSingulator.set(ControlMode.PercentOutput, mPeriodicIO.singulator_demand / 12.0);
+        mSolenoid.set(mPeriodicIO.deploy);
+    }
+    
     public void setState(State state) {
         this.mState = state;
     }
 
-    @Override
-    public void stop() {
-        mMaster.set(ControlMode.PercentOutput, 0);
-    }
-
-    public void zeroSensors() {
+    public void setState(WantedAction wanted_state) {
+        switch (wanted_state) {
+            case NONE:
+                mState = State.IDLE;
+                break;
+            case INTAKE:
+                mState = State.INTAKING;
+                break;
+            case REVERSE:
+                mState = State.REVERSING;
+                break;
+            case STAY_OUT:
+                mState = State.STAYING_OUT;
+                break;
+        }
     }
 
     public void runStateMachine() {
@@ -94,63 +140,53 @@ public class Intake extends Subsystem {
         }
     }
 
+    /* Subsystem Getters */
     public synchronized State getState() {
         return mState;
     }
-
-    // sets states
-    public void setState(WantedAction wanted_state) {
-        switch (wanted_state) {
-            case NONE:
-                mState = State.IDLE;
-                break;
-            case INTAKE:
-                mState = State.INTAKING;
-                break;
-            case REVERSE:
-                mState = State.REVERSING;
-                break;
-            case STAY_OUT:
-                mState = State.STAYING_OUT;
-                break;
-        }
+    public boolean getIsDeployed() {
+        return mPeriodicIO.intake_out;
+    }
+    public boolean getWantDeploy() {
+        return mPeriodicIO.deploy;
+    }
+    public double getIntakeVoltage() {
+        return mPeriodicIO.intake_voltage;
+    }
+    public double getSingulatorVoltage() {
+        return mPeriodicIO.singulator_voltage;
+    }
+    public double getIntakeCurrent() {
+        return mPeriodicIO.intake_current;
+    }
+    public double getSingulatorCurrent() {
+        return mPeriodicIO.intake_current;
+    }
+    public double getIntakeDemand() {
+        return mPeriodicIO.intake_demand;
+    }
+    public double getSingulatorDemand() {
+        return mPeriodicIO.singulator_demand;
     }
 
-    @Override
-    public synchronized void readPeriodicInputs() {
-        mPeriodicIO.intake_out = mIntakeSolenoidTimer.update(mPeriodicIO.deploy, 0.2);
-        mPeriodicIO.intake_current = mMaster.getStatorCurrent();
-        mPeriodicIO.intake_voltage = mMaster.getMotorOutputVoltage();
-        if (mCSVWriter != null) {
-            mCSVWriter.add(mPeriodicIO);
-        }
+    public static class PeriodicIO {
+        // INPUTS
+        private boolean intake_out;
+        private double intake_current;
+        private double singulator_current;
+        private double intake_voltage;
+        private double singulator_voltage;
+
+        // OUTPUTS
+        private double intake_demand;
+        private double singulator_demand;
+        private boolean deploy;
     }
 
+    
     @Override
-    public void writePeriodicOutputs() {
-        mMaster.set(ControlMode.PercentOutput, mPeriodicIO.intake_demand / 12.0);
-        mSingulator.set(ControlMode.PercentOutput, mPeriodicIO.singulator_demand / 12.0);
-        mSolenoid.set(mPeriodicIO.deploy);
-    }
-
-    @Override
-    public void registerEnabledLoops(ILooper enabledLooper) {
-        enabledLooper.register(new Loop() {
-            @Override
-            public void onStart(double timestamp) {
-                mState = State.IDLE;
-            }
-
-            @Override
-            public void onLoop(double timestamp) {
-                runStateMachine();
-            }
-
-            @Override
-            public void onStop(double timestamp) {
-
-            }
-        });
+    public void stop() {
+        mMaster.set(ControlMode.PercentOutput, 0);
     }
 
     @Override
@@ -158,49 +194,8 @@ public class Intake extends Subsystem {
         return false;
     }
 
-    public static class PeriodicIO {
-        // INPUTS
-        public boolean intake_out;
-        public double intake_current;
-        public double singulator_current;
-        public double intake_voltage;
-        public double singulator_voltage;
-
-        // OUTPUTS
-        public double intake_demand;
-        public double singulator_demand;
-        public boolean deploy;
+    public void zeroSensors() {
+        // empty
     }
-
-    public boolean getIsDeployed() {
-        return mPeriodicIO.intake_out;
-    }
-
-    public boolean getWantDeploy() {
-        return mPeriodicIO.deploy;
-    }
-
-    public double getIntakeVoltage() {
-        return mPeriodicIO.intake_voltage;
-    }
-
-    public double getSingulatorVoltage() {
-        return mPeriodicIO.singulator_voltage;
-    }
-
-    public double getIntakeCurrent() {
-        return mPeriodicIO.intake_current;
-    }
-
-    public double getSingulatorCurrent() {
-        return mPeriodicIO.intake_current;
-    }
-
-    public double getIntakeDemand() {
-        return mPeriodicIO.intake_demand;
-    }
-
-    public double getSingulatorDemand() {
-        return mPeriodicIO.singulator_demand;
-    }
+    
 }
