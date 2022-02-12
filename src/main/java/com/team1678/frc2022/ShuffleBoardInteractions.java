@@ -5,6 +5,7 @@ import java.net.IDN;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.team1678.frc2022.Constants.IndexerConstants;
+import com.team1678.frc2022.subsystems.ColorSensor;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Intake;
 import com.team1678.frc2022.subsystems.Limelight;
@@ -18,6 +19,7 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.math.MathUtil;
 
 public class ShuffleBoardInteractions {
@@ -40,6 +42,7 @@ public class ShuffleBoardInteractions {
     private final Shooter mShooter;
     private final Indexer mIndexer;
     private final Superstructure mSuperstructure;
+    private final ColorSensor mColorSensor;
 
     /* Status Variables */
     private double lastCancoderUpdate = 0.0;
@@ -53,6 +56,7 @@ public class ShuffleBoardInteractions {
     private ShuffleboardTab INDEXER_TAB;
     private ShuffleboardTab SUPERSTRUCTURE_TAB;
     private ShuffleboardTab MANUAL_PARAMS;
+    private ShuffleboardTab COLOR_SENSOR;   
 
     /*** ENTRIES ***/
     
@@ -152,6 +156,12 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mManualHoodAngle;
     private final NetworkTableEntry mShootingSetpointsEnableToggle;
 
+    /* COLOR SENSOR */
+    private final NetworkTableEntry mRValue;
+    private final NetworkTableEntry mGValue;
+    private final NetworkTableEntry mBValue;
+    private final NetworkTableEntry mMatchedColor;
+
     // instantiate subsystems, tabs, and widgets
     public ShuffleBoardInteractions() {
         /* Get Subsystems */
@@ -162,6 +172,7 @@ public class ShuffleBoardInteractions {
         mShooter = Shooter.getInstance();
         mLimelight = Limelight.getInstance();
         mSuperstructure = Superstructure.getInstance();
+        mColorSensor = ColorSensor.getInstance();
 
         /* Get Tabs */
         SWERVE_TAB = Shuffleboard.getTab("Swerve");
@@ -172,6 +183,7 @@ public class ShuffleBoardInteractions {
         VISION_TAB = Shuffleboard.getTab("Vision");
         SUPERSTRUCTURE_TAB = Shuffleboard.getTab("Superstructure");
         MANUAL_PARAMS = Shuffleboard.getTab("Manual Params");
+        COLOR_SENSOR = Shuffleboard.getTab("Color Sensor");
         
         /*** Create Entries ***/
 
@@ -345,6 +357,20 @@ public class ShuffleBoardInteractions {
                 .add("Shooter Open Loop", false)
                 .withSize(2, 1)
                 .getEntry();
+        
+        /* COLOR SENSOR */
+        mRValue = COLOR_SENSOR
+            .add("Detected R Value", 0.0)
+            .getEntry();
+        mGValue = COLOR_SENSOR
+            .add("Detected G Value", 0.0)
+            .getEntry();
+        mBValue = COLOR_SENSOR
+            .add("Detected B Value", 0.0)
+            .getEntry();
+        mMatchedColor = COLOR_SENSOR
+            .add("Matched Color", Color.kBlack)
+            .getEntry();
 
         /* VISION */
         mLimelightOk = VISION_TAB
@@ -496,11 +522,6 @@ public class ShuffleBoardInteractions {
         mIntakeDemand.setDouble(mIntake.getIntakeDemand());
         mIntakeDeployed.setBoolean(mIntake.getWantDeploy());
         mIntakeCurrent.setDouble(mIntake.getIntakeCurrent());
-
-        /* Shooter */
-
-        mFlywheelRPM.setDouble(truncate(mShooter.getFlywheelRPM()));
-        mAcceleratorRPM.setDouble(truncate(mShooter.getAcceleratorRPM()));
         
         /* SHOOTER */
         mFlywheelRPM.setDouble(truncate(mShooter.getFlywheelRPM()));
@@ -536,6 +557,12 @@ public class ShuffleBoardInteractions {
         mTopBeamBreak.setBoolean(mIndexer.getTopBeamBreak());
         mBottomBeamBreak.setBoolean(mIndexer.getBottomBeamBreak());
        
+        /* COLOR SENSOR */
+        mRValue.setDouble(mColorSensor.getDetectedRValue());
+        mGValue.setDouble(mColorSensor.getDetectedGValue());
+        mBValue.setDouble(mColorSensor.getDetectedBValue());
+        mMatchedColor.setString(mColorSensor.getMatchedColor());
+
         /* SUPERSTRUCTURE */
         // update actions statuses
         mIntaking.setBoolean(mSuperstructure.getIntaking());

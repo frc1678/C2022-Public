@@ -100,6 +100,10 @@ public class ColorSensor extends Subsystem {
         }
     }
 
+    public static ColorSensor getInstance() {
+        return null;
+    }
+    
     public double getDetectedRValue() {
         if (mPeriodicIO.raw_color == null) {
             return 5;
