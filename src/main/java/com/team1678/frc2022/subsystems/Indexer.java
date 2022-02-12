@@ -4,24 +4,14 @@ import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
-import com.team1678.lib.drivers.REVColorSensorV3Wrapper;
-import com.team1678.lib.drivers.REVColorSensorV3Wrapper.ColorSensorData;
+
 import com.team254.lib.drivers.TalonFXFactory;
-
-import javax.lang.model.util.ElementScanner6;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
-import com.revrobotics.ColorMatch;
-import com.revrobotics.ColorMatchResult;
 
-import edu.wpi.first.math.trajectory.constraint.RectangularRegionConstraint;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj.I2C;
-
 
 public class Indexer extends Subsystem {
     

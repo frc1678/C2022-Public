@@ -4,12 +4,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import com.revrobotics.ColorMatch;
-import com.revrobotics.ColorSensorV3.ColorSensorMeasurementRate;
-import com.team1678.frc2022.ColorSensorThread;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
-import com.team1678.frc2022.subsystems.Indexer.PeriodicIO;
 import com.team1678.lib.drivers.REVColorSensorV3Wrapper;
 import com.team1678.lib.drivers.REVColorSensorV3Wrapper.ColorSensorData;
 
