@@ -53,6 +53,19 @@ private boolean mBallAtTrigger() {
     return mPeriodicIO.topLightBeamBreakSensor;
 }
 
+private boolean stopIndexer() {
+    if (!mBallInIndexer()) {
+        return false;
+    }
+    else {
+        return true;
+    }
+}
+
+private boolean mBallInIndexer () {
+    return mPeriodicIO.bottomLightBeamBreakSensor;
+}
+
 private State mState = State.IDLE;
 
 public enum WantedAction {
@@ -105,12 +118,10 @@ private Indexer() {
                     }
                         mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIndexingVoltage;
                     
-                    if (mPeriodicIO.bottomLightBeamBreakSensor) {
-                        if (!mPeriodicIO.topLightBeamBreakSensor){
-                            mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIndexingVoltage;
-                        } else {
-                            mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
-                        }
+                    if (stopIndexer()) {
+                        mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
+                    } else {
+                        mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIndexingVoltage;
                     }
                 } else {
                     this.setState(WantedAction.OUTTAKE);
@@ -119,11 +130,10 @@ private Indexer() {
                 break;
             case OUTTAKING:
                 if (mPeriodicIO.correct_Color) {
-                    mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIndexingVoltage;
+                    mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerReversingVoltage;
                     mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakeReversingVoltage;
                 } else if (!mPeriodicIO.correct_Color) {
-                    mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerReversingVoltage;
-                    mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakeIndexingVoltage;
+                    this.setState(WantedAction.INDEX);
                 } else {
                     mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
                     mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakeIdleVoltage;
