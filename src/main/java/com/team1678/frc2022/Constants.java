@@ -12,25 +12,22 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
 public class Constants {
     //CHANGE THIS BASED ON WHAT ROBOT YOU'RE USING. 
-    //VALID ENTRIES ARE "ALPHA", "BETA", "COMP", and "EPSILON".
-    public static final WantedRobot version = WantedRobot.ALPHA;
+    //VALID ENTRIES ARE "BETA", "COMP", and "EPSILON".
+    public static final WantedRobot version = WantedRobot.COMP;
 
     //Enum toggle for robots
     public enum WantedRobot {
-        ALPHA, BETA, COMP, EPSILON
+        BETA, COMP, EPSILON
     }
 
     public enum Current {
-        isAlpha, isBeta, isComp, isEpsilon
+        isBeta, isComp, isEpsilon
     }
 
     public static Current mRobot = Current.isComp;
 
     public void setCurrent(WantedRobot current) {
         switch (current) {
-            case ALPHA:
-                mRobot = Current.isAlpha;
-                break;
             case BETA:
                 mRobot = Current.isBeta;
                 break;
@@ -131,8 +128,6 @@ public class Constants {
             public static SwerveModuleConstants SwerveModuleConstants() {
                 double wantedOffset = 0;
                 switch (mRobot) {
-                    case isAlpha:
-                        wantedOffset = 276.59;
                     case isBeta:
                         wantedOffset = 58.71;
                     case isComp:
@@ -150,8 +145,6 @@ public class Constants {
             public static SwerveModuleConstants SwerveModuleConstants() {
                 double wantedOffset = 0;
                 switch (mRobot) {
-                    case isAlpha:
-                        wantedOffset = 236.53;
                     case isBeta:
                         wantedOffset = 340.57;
                     case isComp:
@@ -169,8 +162,6 @@ public class Constants {
             public static SwerveModuleConstants SwerveModuleConstants() {
                 double wantedOffset = 0;
                 switch (mRobot) {
-                    case isAlpha:
-                        wantedOffset = 163.31;
                     case isBeta:
                         wantedOffset = 343.03;
                     case isComp:
@@ -188,8 +179,6 @@ public class Constants {
             public static SwerveModuleConstants SwerveModuleConstants() {
                 double wantedOffset = 0;
                 switch (mRobot) {
-                    case isAlpha:
-                        wantedOffset = 161.29;
                     case isBeta:
                         wantedOffset = 254.61;
                     case isComp:
