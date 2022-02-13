@@ -4,7 +4,6 @@ import java.net.IDN;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
-import com.team1678.frc2022.Constants.IndexerConstants;
 import com.team1678.frc2022.subsystems.ColorSensor;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Intake;

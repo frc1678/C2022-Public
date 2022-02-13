@@ -2,11 +2,8 @@ package com.team1678.frc2022.subsystems;
 
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
-import com.team1678.frc2022.Constants.ColorSensorConstants;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
-import com.team1678.frc2022.subsystems.ColorSensor;
-import com.team1678.frc2022.subsystems.ColorSensor.PeriodicIO;
 import com.team254.lib.drivers.TalonFXFactory;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
@@ -30,7 +27,7 @@ private final DigitalInput mTopBeamBreak;
 public boolean mBottomHadSeenBall = false;
 public boolean mTopHadSeenBall = false;
 
-public final ColorSensor mColorSensor;
+private final ColorSensor mColorSensor;
 
 private boolean mRunTrigger() {
     return !mBallAtTrigger() && mPeriodicIO.ball_count > 0;
