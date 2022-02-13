@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Subsystem for interacting with the Limelight 2
@@ -34,6 +35,9 @@ public class Limelight extends Subsystem {
     private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
 
     private int mLatencyCounter = 0;
+
+    // distance to target
+    public Optional<Double> mDistanceToTarget = Optional.empty();
 
     public static class LimelightConstants {
         public String kName = "";
@@ -76,6 +80,13 @@ public class Limelight extends Subsystem {
                     } else {
                         RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), null);
                     }
+
+                    if (mSeesTarget) {
+                        updateDistanceToTarget();
+                    }
+
+                    // outputTelemetry();
+                    startLogging();
                 }
 
                 final double end = Timer.getFPGATimestamp();
@@ -123,12 +134,33 @@ public class Limelight extends Subsystem {
     private List<TargetInfo> mTargets = new ArrayList<>();
     private boolean mSeesTarget = false;
 
+    public synchronized List<TargetInfo> getTarget() {
+        List<TargetInfo> targets = new ArrayList<TargetInfo>(); //getRawTargetInfos();
+        targets.add(new TargetInfo(Math.tan(Math.toRadians(-mPeriodicIO.xOffset)), Math.tan(Math.toRadians(mPeriodicIO.yOffset))));
+        if (hasTarget() && targets != null) {
+            return targets;
+        }
+
+        return null;
+    }
+
     public double getLensHeight() {
         return mConstants.kHeight;
     }
 
     public Rotation2d getHorizontalPlaneToLens() {
         return mConstants.kHorizontalPlaneToLens;
+    }
+
+    public Optional<Double> getDistanceToTarget() {
+        return mDistanceToTarget;
+    }
+
+    public void updateDistanceToTarget() {
+        double goal_theta = Constants.VisionConstants.kLimelightConstants.kHorizontalPlaneToLens.getRadians() + Math.toRadians(mPeriodicIO.yOffset);
+        double height_diff = Constants.VisionConstants.kGoalHeight - Constants.VisionConstants.kLimelightConstants.kHeight;
+
+        mDistanceToTarget = Optional.of(height_diff / Math.tan(goal_theta) + Constants.VisionConstants.kGoalRadius); // add goal radius for offset to center of target
     }
 
     @Override
@@ -196,12 +228,16 @@ public class Limelight extends Subsystem {
     }
 
     public synchronized void outputTelemetry() {
-        SmartDashboard.putBoolean(mConstants.kName + ": Has Target", mSeesTarget);
         SmartDashboard.putBoolean("Limelight Ok", mPeriodicIO.has_comms);
         SmartDashboard.putNumber(mConstants.kName + ": Pipeline Latency (ms)", mPeriodicIO.latency);
+        SmartDashboard.putNumber("Limelight dt", mPeriodicIO.dt);
+
+        SmartDashboard.putBoolean(mConstants.kName + ": Has Target", mSeesTarget);
         SmartDashboard.putNumber("Limelight Tx: ", mPeriodicIO.xOffset);
         SmartDashboard.putNumber("Limelight Ty: ", mPeriodicIO.yOffset);
-        SmartDashboard.putNumber("Limelight dt", mPeriodicIO.dt);
+
+        SmartDashboard.putNumber("Distance To Target", mDistanceToTarget.isPresent() ? mDistanceToTarget.get() : 0.0);
+
         if (mCSVWriter != null) {
             mCSVWriter.write();
         }
@@ -240,18 +276,16 @@ public class Limelight extends Subsystem {
         return mSeesTarget;
     }
 
-    /**
-     * @return two targets that make up one hatch/port or null if less than two
-     *         targets are found
-     */
-    public synchronized List<TargetInfo> getTarget() {
-        List<TargetInfo> targets = new ArrayList<TargetInfo>(); //getRawTargetInfos();
-        targets.add(new TargetInfo(Math.tan(Math.toRadians(-mPeriodicIO.xOffset)), Math.tan(Math.toRadians(mPeriodicIO.yOffset))));
-        if (hasTarget() && targets != null) {
-            return targets;
-        }
+    public synchronized boolean isOK() {
+        return mPeriodicIO.has_comms;
+    }
 
-        return null;
+    public synchronized boolean isAimed() {
+        if (hasTarget()) {
+            return Util.epsilonEquals(mPeriodicIO.xOffset, 0.0, Constants.VisionAlignConstants.kEpsilon);
+        } else {
+            return false;
+        }
     }
 
     private synchronized List<TargetInfo> getRawTargetInfos() {
@@ -370,9 +404,5 @@ public class Limelight extends Subsystem {
 
     public double[] getOffset() {
         return new double[] {mPeriodicIO.xOffset, mPeriodicIO.yOffset};
-    }
-
-    public boolean getOnTarget() {
-        return Util.epsilonEquals(mPeriodicIO.xOffset, 0., Constants.VisionAlignConstants.kVisionAlignEpsilon);
     }
 }

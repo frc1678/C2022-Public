@@ -3,7 +3,6 @@ package com.team1678.frc2022.subsystems;
 import java.util.Optional;
 
 import com.ctre.phoenix.sensors.PigeonIMU;
-
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.SwerveModule;
@@ -27,9 +26,6 @@ public class Swerve extends Subsystem {
 
     private static Swerve mInstance;
 
-    // required instances for vision align
-    private final Superstructure mSuperstructure = Superstructure.getInstance();
-
     // wants vision aim during auto
     public boolean mWantsAutoVisionAim = false;
 
@@ -41,6 +37,17 @@ public class Swerve extends Subsystem {
     public ProfiledPIDController snapPIDController;
 
     public ProfiledPIDController visionPIDController;
+
+    // Private boolean to lock Swerve wheels
+    private boolean mLocked = false;
+    // Getter
+    public boolean getLocked() {
+        return mLocked;
+    }
+    // Setter
+    public void setLocked(boolean lock) {
+        mLocked = lock;
+    }
 
     public static Swerve getInstance() {
         if (mInstance == null) {
@@ -70,10 +77,10 @@ public class Swerve extends Subsystem {
 
 
         mSwerveMods = new SwerveModule[] {
-            new SwerveModule(0, Constants.SwerveConstants.Mod0.constants),
-            new SwerveModule(1, Constants.SwerveConstants.Mod1.constants),
-            new SwerveModule(2, Constants.SwerveConstants.Mod2.constants),
-            new SwerveModule(3, Constants.SwerveConstants.Mod3.constants)
+            new SwerveModule(0, Constants.SwerveConstants.Mod0.SwerveModuleConstants()),
+            new SwerveModule(1, Constants.SwerveConstants.Mod1.SwerveModuleConstants()),
+            new SwerveModule(2, Constants.SwerveConstants.Mod2.SwerveModuleConstants()),
+            new SwerveModule(3, Constants.SwerveConstants.Mod3.SwerveModuleConstants())
         };
     }
 
@@ -125,7 +132,7 @@ public class Swerve extends Subsystem {
     public void visionAlignDrive(Translation2d translation2d, boolean fieldRelative, boolean isOpenLoop) {
         double rotation = 0.0;
 
-        Optional<AimingParameters> aiming_params_ = mSuperstructure.getLatestAimingParameters();
+        Optional<AimingParameters> aiming_params_ = Superstructure.getInstance().getLatestAimingParameters();
         if (aiming_params_.isPresent()) {
             double currentAngle = getPose().getRotation().getRadians();
             double targetOffset = aiming_params_.get().getVehicleToGoalRotation().getRadians();
@@ -144,20 +151,30 @@ public class Swerve extends Subsystem {
             } else {
                 maybeStopSnap(true);
             }
-        } 
-        SwerveModuleState[] swerveModuleStates =
-            Constants.SwerveConstants.swerveKinematics.toSwerveModuleStates(
-                fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(
-                                    translation.getX(), 
-                                    translation.getY(), 
-                                    rotation, 
-                                    getYaw()
-                                )
-                                : new ChassisSpeeds(
-                                    translation.getX(), 
-                                    translation.getY(), 
-                                    rotation)
-                                );
+        }
+        SwerveModuleState[] swerveModuleStates = null;
+        if (mLocked) {
+            swerveModuleStates = new SwerveModuleState[]{
+                new SwerveModuleState(0.1, Rotation2d.fromDegrees(45)),
+                new SwerveModuleState(0.1, Rotation2d.fromDegrees(315)),
+                new SwerveModuleState(0.1, Rotation2d.fromDegrees(135)),
+                new SwerveModuleState(0.1, Rotation2d.fromDegrees(225))
+            };
+        } else {
+            swerveModuleStates =
+                Constants.SwerveConstants.swerveKinematics.toSwerveModuleStates(
+                    fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(
+                                        translation.getX(), 
+                                        translation.getY(), 
+                                        rotation, 
+                                        getYaw()
+                                    )
+                                    : new ChassisSpeeds(
+                                        translation.getX(), 
+                                        translation.getY(), 
+                                        rotation)
+                                    );
+        }
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.SwerveConstants.maxSpeed);
 
         for (SwerveModule mod : mSwerveMods) {

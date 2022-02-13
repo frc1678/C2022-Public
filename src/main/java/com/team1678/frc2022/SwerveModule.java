@@ -7,6 +7,7 @@ import com.ctre.phoenix.sensors.CANCoder;
 import com.lib.math.Conversions;
 import com.lib.util.CTREModuleState;
 import com.lib.util.SwerveModuleConstants;
+import com.team254.lib.drivers.TalonFXFactory;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -36,11 +37,11 @@ public class SwerveModule {
         /* Angle Encoder Config */
         angleEncoder = new CANCoder(moduleConstants.cancoderID);
         configAngleEncoder();
-        // angleEncoder.setStatusFramePeriod(CANCoderStatusFrame.SensorData, 255);
-        // angleEncoder.setStatusFramePeriod(CANCoderStatusFrame.VbatAndFaults, 255);
+        angleEncoder.setStatusFramePeriod(CANCoderStatusFrame.SensorData, 255);
+        angleEncoder.setStatusFramePeriod(CANCoderStatusFrame.VbatAndFaults, 255);
 
         /* Angle Motor Config */
-        mAngleMotor = new TalonFX(moduleConstants.angleMotorID);
+        mAngleMotor = TalonFXFactory.createDefaultTalon(moduleConstants.angleMotorID);
         configAngleMotor();
         TalonFXConfiguration angleConfiguration = CTREConfigs.swerveAngleFXConfig();
         anglekP = angleConfiguration.slot0.kP;
@@ -48,7 +49,7 @@ public class SwerveModule {
         anglekD = angleConfiguration.slot0.kD;
 
         /* Drive Motor Config */
-        mDriveMotor = new TalonFX(moduleConstants.driveMotorID);
+        mDriveMotor = TalonFXFactory.createDefaultTalon(moduleConstants.driveMotorID);
         configDriveMotor();
 
         lastAngle = getState().angle.getDegrees();

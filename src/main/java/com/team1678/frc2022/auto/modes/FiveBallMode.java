@@ -1,17 +1,11 @@
 package com.team1678.frc2022.auto.modes;
 
-import java.io.IOException;
-import java.util.List;
-
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.auto.AutoModeEndedException;
 import com.team1678.frc2022.auto.AutoTrajectoryReader;
 import com.team1678.frc2022.auto.actions.LambdaAction;
-import com.team1678.frc2022.auto.actions.ParallelAction;
 import com.team1678.frc2022.auto.actions.SwerveTrajectoryAction;
-import com.team1678.frc2022.auto.actions.VisionAlignAction;
 import com.team1678.frc2022.auto.actions.WaitAction;
-import com.team1678.frc2022.subsystems.Intake;
 import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
 
@@ -19,17 +13,13 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.WPILibVersion;
 
 public class FiveBallMode extends AutoModeBase {
     
     // Swerve instance 
     private final Swerve mSwerve = Swerve.getInstance();
-    private final Intake mIntake = Intake.getInstance();
     private final Superstructure mSuperstructure = Superstructure.getInstance();
 
     // required PathWeaver file paths
@@ -83,7 +73,7 @@ public class FiveBallMode extends AutoModeBase {
                                                             new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                             new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                             thetaController,
-                                                            () -> Rotation2d.fromDegrees(20.0),
+                                                            () -> Rotation2d.fromDegrees(200.0),
                                                             mSwerve::getWantAutoVisionAim,
                                                             mSwerve::setModuleStates);
                                                         
@@ -103,7 +93,7 @@ public class FiveBallMode extends AutoModeBase {
                                                             new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                             new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                             thetaController,
-                                                            () -> Rotation2d.fromDegrees(20.0),
+                                                            () -> Rotation2d.fromDegrees(200.0),
                                                             mSwerve::getWantAutoVisionAim,
                                                             mSwerve::setModuleStates);
         
@@ -116,21 +106,22 @@ public class FiveBallMode extends AutoModeBase {
         System.out.println("Running five ball mode auto!");
         SmartDashboard.putBoolean("Auto Finished", false);
 
-        runAction(new LambdaAction(() -> mSuperstructure.setShooterVelocity(1600)));
-        runAction(new LambdaAction(() -> mSuperstructure.setWantSpinUp(true)));
+        // wait 1 second for curr calibration on hood to complete
+        runAction(new WaitAction(1.0));
 
-        runAction(new LambdaAction(() -> mSuperstructure.setShooterVelocity(1800)));
-        
+        // start spinning up for shot
+        runAction(new LambdaAction(() -> mSuperstructure.setWantPrep(true)));
+
         // reset odometry at the start of the trajectory
-        runAction(new LambdaAction(() -> mSwerve.resetOdometry(new Pose2d(driveToIntakeFirstCargo.getInitialPose().getX(), driveToIntakeFirstCargo.getInitialPose().getY(), Rotation2d.fromDegrees(90)))));
+        runAction(new LambdaAction(() -> mSwerve.resetOdometry(new Pose2d(driveToIntakeFirstCargo.getInitialPose().getX(), driveToIntakeFirstCargo.getInitialPose().getY(), Rotation2d.fromDegrees(270)))));
         
         // shoot first cargo
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
-        runAction(new WaitAction(1.70));
+        runAction(new WaitAction(1.25));
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
 
         // start intaking
-        runAction(new LambdaAction(() -> mIntake.setState(Intake.State.INTAKING)));
+        runAction(new LambdaAction(() -> mSuperstructure.setWantIntake(true)));
 
         // run trajectories for first and second cargo intakes
         runAction(driveToIntakeFirstCargo);
@@ -144,7 +135,7 @@ public class FiveBallMode extends AutoModeBase {
 
         // shoot second and third cargo
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
-        runAction(new WaitAction(1.0));
+        runAction(new WaitAction(1.5));
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
 
         // stop vision aiming to control robot heading
@@ -161,10 +152,10 @@ public class FiveBallMode extends AutoModeBase {
         runAction(driveToShootFromTerminal);
         
         // shoot fourth and fifth cargo 
-        runAction(new WaitAction(0.50));
+        runAction(new WaitAction(1.0));
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
 
-        runAction(new WaitAction(5.0));
+        runAction(new LambdaAction(() -> mSwerve.zeroGyro(mSwerve.getYaw().getDegrees() - 270)));
 
         System.out.println("Finished auto!");
         SmartDashboard.putBoolean("Auto Finished", true);

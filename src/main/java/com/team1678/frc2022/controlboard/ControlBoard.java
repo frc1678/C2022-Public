@@ -1,16 +1,14 @@
 package com.team1678.frc2022.controlboard;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.controlboard.CustomXboxController.Axis;
 import com.team1678.frc2022.controlboard.CustomXboxController.Button;
 import com.team1678.frc2022.controlboard.CustomXboxController.Side;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
-import com.team254.lib.util.Deadband;
 import com.team254.lib.util.DelayedBoolean;
 
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class ControlBoard {
@@ -24,58 +22,8 @@ public class ControlBoard {
 
     private final double kDPadDelay = 0.02;
     private DelayedBoolean mDPadValid;
-    private TurretCardinal mLastCardinal;
 
     private static ControlBoard mInstance = null;
-
-    // Turret
-    public enum TurretCardinal {
-        BACK(180),
-        FRONT(0),
-        LEFT(90),
-        RIGHT(-90),
-        NONE(0),
-        FRONT_LEFT(30, 45),
-        FRONT_RIGHT(-30, -45),
-        BACK_LEFT(150, 135),
-        BACK_RIGHT(210, 235);
-
-        public final Rotation2d rotation;
-        private final Rotation2d inputDirection;
-
-        TurretCardinal(double degrees) {
-            this(degrees, degrees);
-        }
-
-        TurretCardinal(double degrees, double inputDirectionDegrees) {
-            rotation = Rotation2d.fromDegrees(degrees);
-            inputDirection = Rotation2d.fromDegrees(inputDirectionDegrees);
-        }
-
-        public static TurretCardinal findClosest(double xAxis, double yAxis) {
-            return findClosest(new Rotation2d(yAxis, -xAxis, true));
-        }
-
-        public static TurretCardinal findClosest(Rotation2d stickDirection) {
-            var values = TurretCardinal.values();
-
-            TurretCardinal closest = null;
-            double closestDistance = Double.MAX_VALUE;
-            for (int i = 0; i < values.length; i++) {
-                var checkDirection = values[i];
-                var distance = Math.abs(stickDirection.distance(checkDirection.inputDirection));
-                if (distance < closestDistance) {
-                    closestDistance = distance;
-                    closest = checkDirection;
-                }
-            }
-            return closest;
-        }
-
-        public static boolean isDiagonal(TurretCardinal cardinal) {
-            return cardinal == FRONT_LEFT || cardinal == FRONT_RIGHT || cardinal == BACK_LEFT || cardinal == BACK_RIGHT;
-        }
-    }
 
     public enum SwerveCardinal {
         NONE(0),
@@ -164,9 +112,26 @@ public class ControlBoard {
         return SwerveCardinal.NONE;
     }
 
+    public int getHoodManualAdjustment() {
+        int pov_read = operator.getController().getPOV();
+        switch(pov_read){
+            case 0:
+                return 1;
+            case 180:
+                return -1;
+            default:
+                return 0;
+        }
+    }
+
     // Align swerve drive with target
     public boolean getVisionAlign() {
         return driver.getButton(Button.RB);
+    }
+
+    //Locks wheels in X formation
+    public boolean getBrake() {
+        return driver.getButton(Button.LB);
     }
 
     //Intake Controls

@@ -3,6 +3,7 @@ package com.team1678.frc2022.subsystems;
 import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.loops.ILooper;
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.loops.Loop;
@@ -12,18 +13,17 @@ import com.team254.lib.util.TimeDelayedBoolean;
 
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Intake extends Subsystem {
 
     private TimeDelayedBoolean mIntakeSolenoidTimer = new TimeDelayedBoolean();
 
     public enum WantedAction {
-        NONE, INTAKE, REVERSE, SPIT, STAY_OUT
+        NONE, INTAKE, REVERSE, STAY_OUT
     }
 
     public enum State {
-        IDLE, INTAKING, REVERSING, SPITTING, STAYING_OUT
+        IDLE, INTAKING, REVERSING, STAYING_OUT
     }
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -33,11 +33,22 @@ public class Intake extends Subsystem {
     public State mState = State.IDLE;
 
     private final TalonFX mMaster;
+    private final TalonFX mSingulator;
     private Solenoid mSolenoid;
 
     private Intake() {
         mMaster = TalonFXFactory.createDefaultTalon(Ports.INTAKE_ID);
-        mSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.DEPLOY_SOLENOID_ID);
+        mSingulator = TalonFXFactory.createDefaultTalon(Ports.SINGULATOR_ID);
+
+        // reduce can util
+        mMaster.changeMotionControlFramePeriod(255);
+        mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
+        mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
+        mSingulator.changeMotionControlFramePeriod(255);
+        mSingulator.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
+        mSingulator.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
+
+        mSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.INTAKE_SOLENOID_ID);
     }
 
     public static synchronized Intake getInstance() {
@@ -47,54 +58,48 @@ public class Intake extends Subsystem {
         return mInstance;
     }
 
-    public void setState (State state) {
-        this.mState = state;
+    @Override
+    public void registerEnabledLoops(ILooper enabledLooper) {
+        enabledLooper.register(new Loop() {
+            @Override
+            public void onStart(double timestamp) {
+                mState = State.IDLE;
+            }
+
+            @Override
+            public void onLoop(double timestamp) {
+                runStateMachine();
+            }
+
+            @Override
+            public void onStop(double timestamp) {
+
+            }
+        });
     }
 
     @Override
-    public void stop() {
-        mMaster.set(ControlMode.PercentOutput, 0);
-    }
-
-    public void zeroSensors() {
-    }
-
-    public void runStateMachine() {
-        switch (mState) {
-            case IDLE:
-                mPeriodicIO.demand = 0;
-                mPeriodicIO.deploy = false;
-                break;
-            case INTAKING:
-                mPeriodicIO.demand = Constants.IntakeConstants.kIntakingVoltage;
-                /*if (mPeriodicIO.intake_out) {
-                    mPeriodicIO.demand = Constants.IntakeConstants.kIntakeVoltage;
-                } else {
-                    mPeriodicIO.demand = Constants.IntakeConstants.kIdleVoltage;
-                }*/
-                mPeriodicIO.deploy = true;
-                break;
-            // The if/else statement has been left out, since we might need to reverse while the intake is up
-            case REVERSING:
-                mPeriodicIO.demand = -Constants.IntakeConstants.kIntakingVoltage;
-                mPeriodicIO.deploy = true;
-            case SPITTING:
-                mPeriodicIO.demand = Constants.IntakeConstants.kSpittingVoltage;
-                mPeriodicIO.deploy = false;
-                break;
-            case STAYING_OUT:
-                mPeriodicIO.demand = 0;
-                mPeriodicIO.deploy = true;
-                break;
+    public synchronized void readPeriodicInputs() {
+        mPeriodicIO.intake_out = mIntakeSolenoidTimer.update(mPeriodicIO.deploy, 0.2);
+        mPeriodicIO.intake_current = mMaster.getStatorCurrent();
+        mPeriodicIO.intake_voltage = mMaster.getMotorOutputVoltage();
+        if (mCSVWriter != null) {
+            mCSVWriter.add(mPeriodicIO);
         }
     }
 
-    public synchronized State getState() {
-        return mState;
+    @Override
+    public void writePeriodicOutputs() {
+        mMaster.set(ControlMode.PercentOutput, mPeriodicIO.intake_demand / 12.0);
+        mSingulator.set(ControlMode.PercentOutput, mPeriodicIO.singulator_demand / 12.0);
+        mSolenoid.set(mPeriodicIO.deploy);
+    }
+    
+    public void setState(State state) {
+        this.mState = state;
     }
 
-    //sets states
-   public void setState(WantedAction wanted_state) {
+    public void setState(WantedAction wanted_state) {
         switch (wanted_state) {
             case NONE:
                 mState = State.IDLE;
@@ -105,80 +110,91 @@ public class Intake extends Subsystem {
             case REVERSE:
                 mState = State.REVERSING;
                 break;
-            case SPIT:
-                mState = State.SPITTING;
-                break;
             case STAY_OUT:
                 mState = State.STAYING_OUT;
                 break;
         }
-   }
+    }
 
-   @Override
-   public synchronized void readPeriodicInputs() {
-        mPeriodicIO.intake_out = mIntakeSolenoidTimer.update(mPeriodicIO.deploy, 0.2);
-        mPeriodicIO.current =  mMaster.getStatorCurrent();
-        mPeriodicIO.voltage = mMaster.getMotorOutputVoltage();
-       if (mCSVWriter != null) {
-           mCSVWriter.add(mPeriodicIO);
-       }
-   }
+    public void runStateMachine() {
+        switch (mState) {
+            case IDLE:
+                mPeriodicIO.intake_demand = 0;
+                mPeriodicIO.singulator_demand = 0;
+                mPeriodicIO.deploy = false;
+                break;
+            case INTAKING:
+                mPeriodicIO.intake_demand = Constants.IntakeConstants.kIntakingVoltage;
+                mPeriodicIO.singulator_demand = Constants.IndexerConstants.kSingulatorVoltage;
+                mPeriodicIO.deploy = true;
+                break;
+            case REVERSING:
+                mPeriodicIO.intake_demand = -Constants.IntakeConstants.kIntakingVoltage;
+                mPeriodicIO.singulator_demand = -Constants.IndexerConstants.kSingulatorVoltage;
+                mPeriodicIO.deploy = true;
+                break;
+            case STAYING_OUT:
+                mPeriodicIO.intake_demand = 0;
+                mPeriodicIO.deploy = true;
+                break;
+        }
+    }
 
-   @Override
-   public void writePeriodicOutputs() {
-       mMaster.set(ControlMode.PercentOutput, mPeriodicIO.demand / 12.0);
-       mSolenoid.set(mPeriodicIO.deploy);
-   }
+    /* Subsystem Getters */
+    public synchronized State getState() {
+        return mState;
+    }
+    public boolean getIsDeployed() {
+        return mPeriodicIO.intake_out;
+    }
+    public boolean getWantDeploy() {
+        return mPeriodicIO.deploy;
+    }
+    public double getIntakeVoltage() {
+        return mPeriodicIO.intake_voltage;
+    }
+    public double getSingulatorVoltage() {
+        return mPeriodicIO.singulator_voltage;
+    }
+    public double getIntakeCurrent() {
+        return mPeriodicIO.intake_current;
+    }
+    public double getSingulatorCurrent() {
+        return mPeriodicIO.intake_current;
+    }
+    public double getIntakeDemand() {
+        return mPeriodicIO.intake_demand;
+    }
+    public double getSingulatorDemand() {
+        return mPeriodicIO.singulator_demand;
+    }
 
-   @Override
-   public void registerEnabledLoops(ILooper enabledLooper) {
-       enabledLooper.register(new Loop() {
-           @Override
-           public void onStart(double timestamp) {
-               mState = State.IDLE;
-           }
+    public static class PeriodicIO {
+        // INPUTS
+        private boolean intake_out;
+        private double intake_current;
+        private double singulator_current;
+        private double intake_voltage;
+        private double singulator_voltage;
 
-           @Override
-           public void onLoop(double timestamp) {
-               runStateMachine();
-           }
+        // OUTPUTS
+        private double intake_demand;
+        private double singulator_demand;
+        private boolean deploy;
+    }
 
-           @Override
-           public void onStop(double timestamp) {
-
-           }
-       });
-   }
+    @Override
+    public void stop() {
+        mMaster.set(ControlMode.PercentOutput, 0);
+    }
 
     @Override
     public boolean checkSystem() {
         return false;
     }
 
-    public static class PeriodicIO {
-            // INPUTS
-            public double current;
-            public boolean intake_out;
-            public double voltage;
-
-            // OUTPUTS
-            public double demand;
-            public boolean deploy;
-        }
-
-    public double getMotorVoltage() {
-        return mPeriodicIO.voltage;
+    public void zeroSensors() {
+        // empty
     }
-
-    public boolean getDeployed() {
-        return mPeriodicIO.deploy;
-    }
-
-    public double getMotorCurrent() {
-        return mPeriodicIO.current;  
-    }
-
-    public double getMotorDemand() {
-        return mPeriodicIO.demand;
-    }
+    
 }

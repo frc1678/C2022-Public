@@ -4,22 +4,19 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.lib.util.SwerveModuleConstants;
 import com.team1678.frc2022.subsystems.Limelight.LimelightConstants;
 import com.team1678.frc2022.subsystems.ServoMotorSubsystem.ServoMotorSubsystemConstants;
-import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
-import com.team254.lib.geometry.Translation2d;
-
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
 public class Constants {
+
+    // toggle constants for comp robot
+    public static final boolean isComp = false;
 	
 	// robot loop time
 	public static final double kLooperDt = 0.02;
-
-    // robot toggle
-    public static final boolean isAlpha = true;
 
 	/* Control Board */
 	public static final double kJoystickThreshold = 0.2;
@@ -32,8 +29,8 @@ public class Constants {
         public static final boolean invertGyro = false; // Always ensure Gyro is CCW+ CW-
 
         /* Drivetrain Constants */
-        public static final double trackWidth = Units.inchesToMeters(20.75); // TODO: Check value
-        public static final double wheelBase = Units.inchesToMeters(20.75); // TODO: Check value
+        public static final double trackWidth = Units.inchesToMeters(20.75);
+        public static final double wheelBase = Units.inchesToMeters(20.75);
 
         public static final double wheelDiameter = Units.inchesToMeters(4.0);
         public static final double wheelCircumference = wheelDiameter * Math.PI;
@@ -41,8 +38,8 @@ public class Constants {
         public static final double openLoopRamp = 0.25;
         public static final double closedLoopRamp = 0.0;
 
-        public static final double driveGearRatio = (isAlpha ? (6.92307) : (6.74603)); // TODO: Check value
-        public static final double angleGearRatio = (isAlpha ? (11.57142) : (21.42857)); // TODO: Check value
+        public static final double driveGearRatio = 6.75;
+        public static final double angleGearRatio = 21.43;
 
         public static final SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(
                 new edu.wpi.first.math.geometry.Translation2d(wheelBase / 2.0, trackWidth / 2.0),
@@ -87,46 +84,59 @@ public class Constants {
         public static final NeutralMode driveNeutralMode = NeutralMode.Brake;
 
         /* Motor Inverts */
-        public static final boolean driveMotorInvert = false; // TODO: Check value
+        public static final boolean driveMotorInvert = false;
         public static final boolean angleMotorInvert = true;
 
         /* Angle Encoder Invert */
         public static final boolean canCoderInvert = false;
 
         /* Controller Invert */
-        public static final boolean invertXAxis = false; // TODO: Check value 
-        public static final boolean invertYAxis = false; // TODO: Check value
-        public static final boolean invertRAxis = false; // TODO: Check value
+        public static final boolean invertYAxis = false;
+        public static final boolean invertRAxis = false;
+        public static final boolean invertXAxis = false; 
 
 
         /*** MODULE SPECIFIC CONSTANTS ***/
 
         /* Front Left Module - Module 0 */
         public static final class Mod0 {
-            public static final double angleOffset = 334; // 126; // 234
-            public static final SwerveModuleConstants constants =
-                    new SwerveModuleConstants(Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER, angleOffset);
-        }
+            public static final double betaAngleOffset = 58.71;
+            public static final double compAngleOffset = 123; // TODO: Check value
 
+            public static SwerveModuleConstants SwerveModuleConstants() {
+                return new SwerveModuleConstants(Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER,
+                        isComp ? compAngleOffset : betaAngleOffset);
+            }
+        }
         /* Front Right Module - Module 1 */
         public static final class Mod1 {
-            public static final double angleOffset = 216; // 357; // 3
-            public static final SwerveModuleConstants constants =
-                    new SwerveModuleConstants(Ports.FR_DRIVE, Ports.FR_ROTATION, Ports.FR_CANCODER, angleOffset);
+            public static final double betaAngleOffset = 340.57;
+            public static final double compAngleOffset = 138; // TODO: Check value
+            
+            public static SwerveModuleConstants SwerveModuleConstants() {
+                return new SwerveModuleConstants(Ports.FR_DRIVE, Ports.FR_ROTATION, Ports.FR_CANCODER,
+                        isComp ? compAngleOffset : betaAngleOffset);
+            }
         }
-
         /* Back Left Module - Module 2 */
         public static final class Mod2 {
-            public static final double angleOffset = 183; // 323; // 37
-            public static final SwerveModuleConstants constants =
-                    new SwerveModuleConstants(Ports.BL_DRIVE, Ports.BL_ROTATION, Ports.BL_CANCODER, angleOffset);
-        }
+            public static final double betaAngleOffset = 343.03;
+            public static final double compAngleOffset = 100;   // TODO: Check value
 
+            public static SwerveModuleConstants SwerveModuleConstants() {
+                return new SwerveModuleConstants(Ports.BL_DRIVE, Ports.BL_ROTATION, Ports.BL_CANCODER,
+                        isComp ? compAngleOffset : betaAngleOffset);
+            }
+        }
         /* Back Right Module - Module 3 */
         public static final class Mod3 {
-            public static final double angleOffset = 53; // 204; // 155
-            public static final SwerveModuleConstants constants =
-                    new SwerveModuleConstants(Ports.BR_DRIVE, Ports.BR_ROTATION, Ports.BR_CANCODER, angleOffset);
+            public static final double betaAngleOffset = 254.61;
+            public static final double compAngleOffset = 134;   // TODO: Check value
+
+            public static SwerveModuleConstants SwerveModuleConstants() {
+                return new SwerveModuleConstants(Ports.BR_DRIVE, Ports.BR_ROTATION, Ports.BR_CANCODER,
+                        isComp ? compAngleOffset : betaAngleOffset);
+            }
         }
     }
 	
@@ -147,10 +157,10 @@ public class Constants {
 
     public static final class VisionAlignConstants {
         public static final double kP = 9.0;
-        public static final double kI = 0.0;
-        public static final double kD = 1.0;
-        public static final double kVisionAlignTimeout = 0.25;
-        public static final double kVisionAlignEpsilon = 1.0;
+        public static final double kI = 0.001;
+        public static final double kD = 0.0;
+        public static final double kTimeout = 0.25;
+        public static final double kEpsilon = 3.0;
 
         // Constraints for the profiled angle controller
         public static final double kMaxAngularSpeedRadiansPerSecond = 2.0 * Math.PI;
@@ -162,8 +172,7 @@ public class Constants {
 
     public static final class AutoConstants {
         public static final double kMaxSpeedMetersPerSecond = 2.2; // TODO: Revise this
-        public static final double kMaxAccelerationMetersPerSecondSquared = 2.3 // TODO: Revise this
-        ; // TODO: Revise this
+        public static final double kMaxAccelerationMetersPerSecondSquared = 2.3; // TODO: Revise this
         public static final double kMaxAngularSpeedRadiansPerSecond = 2.0*Math.PI; // TODO: Revise this
         public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.pow(kMaxAngularSpeedRadiansPerSecond, 2); // TODO: Revise this
 
@@ -211,7 +220,7 @@ public class Constants {
                 kLimelightConstants.kName = "Limelight";
                 kLimelightConstants.kTableName = "limelight";
                 kLimelightConstants.kHeight = 0.79; // meters
-                kLimelightConstants.kHorizontalPlaneToLens = Rotation2d.fromDegrees(30.0);
+                kLimelightConstants.kHorizontalPlaneToLens = Rotation2d.fromDegrees(34.0);
             }
 
 		public static final double kHorizontalFOV = 59.6; // degrees
@@ -233,31 +242,37 @@ public class Constants {
         public static final int kDefaultPipeline = 0;
         public static final double kGoalHeight = 2.63; // meters
         public static final double kGoalRadius = 0.678; // meters
-        
 	}
 
     /*** SUBSYSTEM CONSTANTS ***/
 
     public static final class IntakeConstants {
-        public static final double kIntakingVoltage = 7;
+        public static final double kIntakingVoltage = 10;
         public static final double kSpittingVoltage = -8;
     }
 
     public static final class ShooterConstants {
 
-        public static final double kFlywheelVelocityConversion = 600.0 / 2048.0 * (3.0/4.0); 
-        public static final double kKickerVelocityConversion = 600.0 / 2048.0; // 1:1 ratio on the kicker
+        public static final double kFlywheelVelocityConversion = 600.0 / 2048.0; 
+        public static final double kAccleratorVelocityConversion = 600.0 / 2048.0 * (1.3 / 1.0);
+
+        public static final double kAcceleratorMultiplier = 0.72;
         
         public static final double kFlywheelTolerance = 500;
-        public static final double kShooterP = 0.1; // TODO Retune these
+        public static final double kShooterP = 0.1; 
         public static final double kShooterI = 0.0;
         public static final double kShooterD = 0.0;
-        public static final double kShooterF = 0.05;
+        public static final double kShooterF = 0.0545;
         public static final double kClosedLoopRamp = 0.1;
+
+        public static final double kAcceleratorP = 0.05;
+        public static final double kAcceleratorI = 0.0;
+        public static final double kAcceleratorD = 0.0;
+        public static final double kAcceleratorF = 0.045;
     }
 
     public static final class HoodConstants {
-        public static final double kCalibratingVoltage = -2.0;
+        public static final double kCalibratingVoltage = -1.0;
         public static final double kCalibrationCurrentThreshold = 15.0;
 
         public static final double kHoodRadius = 11.904; // radius of hood // TODO: check this value
@@ -272,8 +287,8 @@ public class Constants {
 
             // Unit == Degrees
             kHoodServoConstants.kHomePosition = 0.0; // Degrees
-            kHoodServoConstants.kTicksPerUnitDistance = (2048.0) / 360.0; // TODO Add real gear ratio
-            kHoodServoConstants.kKp = 0.55;
+            kHoodServoConstants.kTicksPerUnitDistance = (2048.0 / 360.0) * (118.4 / 1.0);
+            kHoodServoConstants.kKp = 0.70;
             kHoodServoConstants.kKi = 0;
             kHoodServoConstants.kKd = 0;
             kHoodServoConstants.kKf = 0.05;
@@ -290,7 +305,7 @@ public class Constants {
             kHoodServoConstants.kPositionDeadband = 0; // Ticks
 
             kHoodServoConstants.kMinUnitsLimit = 0; // TODO Add actual min/max limits (in degrees)
-            kHoodServoConstants.kMaxUnitsLimit = 1;
+            kHoodServoConstants.kMaxUnitsLimit = 30;
 
             kHoodServoConstants.kCruiseVelocity = 20000; // Ticks / 100ms
             kHoodServoConstants.kAcceleration = 20000; // Ticks / 100ms / s
@@ -304,27 +319,25 @@ public class Constants {
 
     public static final class IndexerConstants {
 
-        //TODO: find actual values
-        public static final double kIndexerKp = 0.2;
-        public static final double kIndexerKi = 0.;
-        public static final double kIndexerKd = 0.;
-        public static final double kIndexerKf = .05;
-        public static final double kIndexerVelocityKp = 0.05;
-        public static final double kIndexerVelocityKi = 0.;
-        public static final double kIndexerVelocityKd = 0.;
-        public static final double kIndexerVelocityKf = .05;
-        public static final int kIndexerMaxVelocity = 20000;
-        public static final int kIndexerMaxAcceleration = 40000;
+        public static final double kTriggerVelocityConversion = (600.0 / 2048.0) * (1.0 / 2.0);
+        public static final double kTriggerP = 0.09; 
+        public static final double kTriggerI = 0.0;
+        public static final double kTriggerD = 0.0;
+        public static final double kTriggerF = 0.046;
 
-        public static final int kBottomBeamBreak = 1;
-        public static final int kTopBeamBreak = 0;
+        public static final double kTunnelVelocityConversion = (600.0 / 2048.0) * (1.0 / 3.0);
+        public static final double kTunnelP = 0.0; 
+        public static final double kTunnelI = 0.0;
+        public static final double kTunnelD = 0.0;
+        public static final double kTunnelF = 0.0545;
 
-        public static final double kElevatorIndexingVoltage = 5.0;
-        public static final double kElevatorReversingVoltage = -5.0;
+        public static final double kSingulatorVoltage = 10.0;
+        public static final double kTunnelIndexingVoltage = 5.0;
+        public static final double kTunnelReversingVoltage = -5.0;
         public static final double kIdleVoltage = 0.0;
-        public static final double kHopperIndexingVoltage = 5;
-        public static final double kHopperReversingVoltage = -5;
-        public static final double kFeedingVoltage = 6.0;
+        public static final double kTriggerIndexingVoltage = 4.0;
+        public static final double kTriggerReversingVoltage = -5.0;
+        public static final double kFeedingVoltage = 3.0;
 
     }
         
