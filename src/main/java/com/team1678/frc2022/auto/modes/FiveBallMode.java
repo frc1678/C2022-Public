@@ -157,8 +157,6 @@ public class FiveBallMode extends AutoModeBase {
 
         runAction(new LambdaAction(() -> mSwerve.zeroGyro(mSwerve.getYaw().getDegrees() - 270)));
 
-        runAction(new WaitAction(5.0));
-
         System.out.println("Finished auto!");
         SmartDashboard.putBoolean("Auto Finished", true);
 
