@@ -14,6 +14,7 @@ public class AutoModeSelector {
         TWO_BALL_LEFT_AUTO,
         TWO_BALL_RIGHT_AUTO,
         FIVE_BALL_AUTO,
+        SIX_BALL_AUTO
     }
 
     private DesiredMode mCachedDesiredMode = DesiredMode.DO_NOTHING;
@@ -29,6 +30,7 @@ public class AutoModeSelector {
         mModeChooser.addOption("Two Ball Left Mode", DesiredMode.TWO_BALL_LEFT_AUTO);
         mModeChooser.addOption("Two Ball Right Mode", DesiredMode.TWO_BALL_RIGHT_AUTO);
         mModeChooser.addOption("Five Ball Mode", DesiredMode.FIVE_BALL_AUTO);
+        mModeChooser.addOption("Six Ball Mode", DesiredMode.SIX_BALL_AUTO);
         SmartDashboard.putData("Auto Mode", mModeChooser);
     }
 
@@ -60,6 +62,9 @@ public class AutoModeSelector {
 
         case FIVE_BALL_AUTO:
             return Optional.of(new FiveBallMode());
+
+        case SIX_BALL_AUTO:
+            return Optional.of(new SixBallMode());
             
         default:
             System.out.println("ERROR: unexpected auto mode: " + mode);

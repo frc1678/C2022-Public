@@ -51,7 +51,7 @@ public class TwoBallRightMode extends AutoModeBase {
                                                             mSwerve::setModuleStates);
 
         // read trajectories from PathWeaver and generate trajectory actions
-        Trajectory traj_path_b = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_a, Constants.AutoConstants.zeroToDefaultSpeedConfig);
+        Trajectory traj_path_b = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_b, Constants.AutoConstants.zeroToDefaultSpeedConfig);
         driveToShotPose = new SwerveTrajectoryAction(traj_path_b,
                                                             mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
                                                             new PIDController(Constants.AutoConstants.kPXController, 0, 0),
@@ -76,19 +76,28 @@ public class TwoBallRightMode extends AutoModeBase {
         runAction(new LambdaAction(() -> mSuperstructure.setWantPrep(true)));
         // start intaking
         runAction(new LambdaAction(() -> mSuperstructure.setWantIntake(true)));
-        // run trajectory to intake second cargo
-        runAction(driveToIntakeCargo);
-        // wait for 0.5 seconds to finish intaking cargo
-        runAction(new WaitAction(0.5));
+
         // start vision aiming to align drivetrain to target
         runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));
+        
+        // run trajectory to intake second cargo
+        runAction(driveToIntakeCargo);
+        
+        // wait for 0.5 seconds to finish intaking cargo
+        runAction(new WaitAction(0.5));
+        
         // run trajectory to shot pose
         runAction(driveToShotPose);
+
+        // wait 0.5 seconds
+        runAction(new WaitAction(0.5));
 
         // shoot 
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
         runAction(new WaitAction(3.0));
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
+
+        // runAction(new LambdaAction(() -> mSwerve.zeroGyro(driveToShotPose.)));
 
         System.out.println("Finished auto!");
         SmartDashboard.putBoolean("Auto Finished", true);
