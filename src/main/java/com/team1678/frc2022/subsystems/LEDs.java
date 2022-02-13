@@ -18,10 +18,12 @@ public class LEDs extends Subsystem {
 
     public CANdle mCandle = new CANdle(Ports.CANDLE);
     
-    public State mState = State.DISABLED;
-    public State mStripState = State.DISABLED;
+    public State mState = State.TWO_BALL;
+    public State mStripState = State.SHOT_READY;
     public static LEDs mInstance;
     public double mLastTimestamp = Timer.getFPGATimestamp();
+
+    public static boolean alt = false;
     
 
     public final Superstructure mSuperstructure = Superstructure.getInstance();
@@ -38,6 +40,8 @@ public class LEDs extends Subsystem {
         OFF(0, 0, 0, Double.POSITIVE_INFINITY, 0.0, false), // LEDs OFF
         DISABLED(255, 20, 30, 4.0, 4.0, true), // Pink Breathing
         IDLE(0, 0, 255, Double.POSITIVE_INFINITY, 0.0, false), // Blue
+        RED(255, 0, 0, Double.POSITIVE_INFINITY, 0.0, false), // RED
+        GREEN(0, 255, 0, Double.POSITIVE_INFINITY, 0.0, false), // GREEN
         EMERGENCY(255, 0, 0, 0.3, 0.3, false), // Red Blinking
         ONE_BALL(0.2, 0.2, false, new Color(0.5, 0.1, 0.1), new Color(0.1, 0.1, 0.5)), // Alternating Yellow Blue
         TWO_BALL(0.05, 0.05, false, new Color(0.5, 0.1, 0.1), new Color(0.1, 0.0, 0.0)), // Fast Alternating Yellow Red
@@ -46,6 +50,7 @@ public class LEDs extends Subsystem {
         WHITE(255, 255, 255, 10, 5, false), // Unused
         MERICA(0.3, 0, false, new Color(1, 1, 1), new Color(1, 0, 0), new Color(0, 0, 1)), // Unused
         CITRUS(0.5, 0.5, true, new Color(0.23, 0.83, 0.18), new Color(0, 1, 0)), // Unused
+        MAGENTA(255, 0, 255, Double.POSITIVE_INFINITY, 0.0, false), // Unused
         RAINBOW(); // :)
 
         List<Color> colors = new ArrayList<Color>();
@@ -134,15 +139,21 @@ public class LEDs extends Subsystem {
         double deltaTime = timestamp - lastTimestamp;
         mLastTimestamp = timestamp;
 
-        updateLEDsFromState(mState, 0, 16, deltaTime, timestamp);
-        updateLEDsFromState(mStripState, 16, 48, deltaTime, timestamp);
-        updateLEDsFromState(mState, 48, 512, deltaTime, timestamp);
+        // For some reason we need to alternate setting states
+        if (alt) {
+            updateLEDsFromState(mState, 0, 4, deltaTime * 2, timestamp);
+        } else {
+            updateLEDsFromState(mStripState, 4, 32, deltaTime * 2, timestamp);
+        }
+        alt = !alt;
+
         SmartDashboard.putNumber("State Phase", mState.phase);
         SmartDashboard.putNumber("Strip Phase", mStripState.phase);
         SmartDashboard.putNumber("Strip Color ", mStripState.colorPhase);
         SmartDashboard.putNumber("State Color ", mState.colorPhase);
         SmartDashboard.putString("Strip Actual State ", mStripState.toString());
         SmartDashboard.putString("State Actual State ", mState.toString());
+        SmartDashboard.putNumber("Delta Time", deltaTime);
 
     }
 
@@ -248,7 +259,7 @@ public class LEDs extends Subsystem {
 
             @Override
             public void onLoop(double timestamp) {
-                //updateLights();
+                updateLights();
                 //updateState();
             }
 

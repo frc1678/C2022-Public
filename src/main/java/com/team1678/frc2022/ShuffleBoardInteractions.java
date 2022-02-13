@@ -502,10 +502,12 @@ public class ShuffleBoardInteractions {
             if (LEDs.State.valueOf(mLedState.getValue().getString()) != null) {
                 LEDs.getInstance().setState(LEDs.State.valueOf(mLedState.getValue().getString()));
             }
+            if (LEDs.State.valueOf(mLedStripState.getValue().getString()) != null) {
+                LEDs.getInstance().setStripState(LEDs.State.valueOf(mLedStripState.getValue().getString()));
+            }
         } else {
             //mLedState.setString(mLEDs.getState().toString());
         }
-        mLedStripState.setString(mLEDs.getStripState().toString());
         
         /* INTAKE */
         mIntakeState.setString(mIntake.getState().toString());
