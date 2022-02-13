@@ -283,9 +283,9 @@ private Indexer() {
 
     public boolean getCorrectColor() {
         if (mColorSensor.mPeriodicIO.matched_color.equals(Constants.ColorSensorConstants.kRedColor)) {
-            return mPeriodicIO.correct_color_red;
+            return mPeriodicIO.correct_color;
         } else if (mColorSensor.mPeriodicIO.matched_color.equals(Constants.ColorSensorConstants.kBlueColor)) {
-            return mPeriodicIO.correct_color_blue;
+            return mPeriodicIO.correct_color;
         } else {
             return !mPeriodicIO.correct_color;
         }
@@ -306,8 +306,6 @@ private Indexer() {
         public double trigger_voltage;
 
         public boolean correct_color;
-        public boolean correct_color_red;
-        public boolean correct_color_blue;
         public Color detected_color;
 
         // OUTPUTS
