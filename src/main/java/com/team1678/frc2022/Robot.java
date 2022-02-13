@@ -170,6 +170,14 @@ public class Robot extends TimedRobot {
 			mSuperstructure.updateOperatorCommands();
 			
 			/* SWERVE DRIVE */
+			// hold left bumper
+			if (mControlBoard.getBrake()) {
+				mSwerve.setLocked(true);
+			} else {
+				mSwerve.setLocked(false);
+			}
+
+
 			if (mControlBoard.zeroGyro()) {
 				mSwerve.zeroGyro();
 			}
