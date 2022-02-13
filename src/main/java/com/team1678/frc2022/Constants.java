@@ -341,17 +341,6 @@ public class Constants {
         public static final double kOuttakeReversingVoltage = -5.0;
 
         public static final double kSingulatorVoltage = 5.0;
-
-        public static final boolean isRedAlliance = true;
-        public static final Color kBlueBallColor = new Color(0.134, 0.432, 0.434);
-        public static final Color kRedBallColor = new Color(0.485, 0.364, 0.150);
-    }
-
-    public static final class EjectorConstants {
-
-        public static final Color kBlueBallColor = new Color(0.140, 0.369, 0.493);
-        public static final Color kRedBallColor = new Color(0.543, 0.322, 0.136);
-        public static final double kColorSensorThreshold = 125;
     }
         
     public static final class ClimberConstants {
