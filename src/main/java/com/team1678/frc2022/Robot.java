@@ -23,7 +23,9 @@ import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 import com.team254.lib.wpilib.TimedRobot;
 
@@ -82,7 +84,7 @@ public class Robot extends TimedRobot {
 
 			mSubsystemManager.setSubsystems(
 					mSwerve,
-					mInfrastructure,
+					// mInfrastructure,
 					mIntake,
 					mIndexer,
 					mShooter,
@@ -136,15 +138,15 @@ public class Robot extends TimedRobot {
 	public void teleopInit() {
 		try {
 
-			mDisabledLooper.stop();
-			mEnabledLooper.start();
-
-			mInfrastructure.setIsDuringAuto(false);
-			
 			if (mAutoModeExecutor != null) {
                 mAutoModeExecutor.stop();
             }
 
+			mDisabledLooper.stop();
+			mEnabledLooper.start();
+
+			mInfrastructure.setIsDuringAuto(false);
+		
 			mLimelight.setLed(Limelight.LedMode.ON);
             mLimelight.setPipeline(Constants.VisionConstants.kDefaultPipeline);
 
@@ -158,8 +160,13 @@ public class Robot extends TimedRobot {
 	public void teleopPeriodic() {
 		try {
 
+			if (mAutoModeExecutor != null) {
+                mAutoModeExecutor.stop();
+            }
+
 			mLimelight.outputTelemetry();
 
+			// call operator commands container from superstructure
 			mSuperstructure.updateOperatorCommands();
 			
 			/* SWERVE DRIVE */
@@ -206,6 +213,9 @@ public class Robot extends TimedRobot {
 
 			mLimelight.setLed(Limelight.LedMode.ON);
             mLimelight.triggerOutputs();
+
+			mSwerve.setModuleStates(Constants.SwerveConstants.swerveKinematics.toSwerveModuleStates((ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, 0, Rotation2d.fromDegrees(0)))));
+
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
