@@ -181,7 +181,6 @@ public class Robot extends TimedRobot {
 				mSwerve.setLocked(false);
 			}
 
-
 			if (mControlBoard.zeroGyro()) {
 				mSwerve.zeroGyro();
 			}

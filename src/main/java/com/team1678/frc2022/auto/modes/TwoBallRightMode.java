@@ -89,12 +89,12 @@ public class TwoBallRightMode extends AutoModeBase {
         // run trajectory to shot pose
         runAction(driveToShotPose);
 
-        // wait 0.5 seconds
-        runAction(new WaitAction(0.5));
+        // wait 1.0 seconds
+        runAction(new WaitAction(1.0));
 
         // shoot 
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
-        runAction(new WaitAction(3.0));
+        runAction(new WaitAction(5.0));
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
 
         // runAction(new LambdaAction(() -> mSwerve.zeroGyro(driveToShotPose.)));
