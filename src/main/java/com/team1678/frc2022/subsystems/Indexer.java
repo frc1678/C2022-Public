@@ -119,8 +119,8 @@ private Indexer() {
                 
                 break;
             case OUTTAKING:
+                //if not the correct color, outtakes the ball
                 if (!mPeriodicIO.correct_color) {
-                    //if not the correct color, outtakes the ball
                     mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerReversingVoltage;
                     mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakeReversingVoltage;
                 } else if (mPeriodicIO.correct_color) {
