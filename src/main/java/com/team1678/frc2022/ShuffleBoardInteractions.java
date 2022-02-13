@@ -128,9 +128,6 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mTopBeamBreak;
     private final NetworkTableEntry mBottomBeamBreak;
 
-    private final NetworkTableEntry mCorrectColor;
-
-
     /* Superstructure */
 
     /* SUPERSTRUCTURE */
@@ -335,9 +332,6 @@ public class ShuffleBoardInteractions {
             .getEntry();
         mBottomBeamBreak = INDEXER_TAB
             .add("Bottom Beam Break Triggered", false)
-            .getEntry();
-        mCorrectColor = INDEXER_TAB
-            .add("Is Correct Color", false) 
             .getEntry();
 
         /* SHOOTER */
@@ -561,8 +555,6 @@ public class ShuffleBoardInteractions {
         mTopBeamBreak.setBoolean(mIndexer.getTopBeamBreak());
         mBottomBeamBreak.setBoolean(mIndexer.getBottomBeamBreak());
 
-        mCorrectColor.setBoolean(mIndexer.getCorrectColor());
-       
         /* COLOR SENSOR */
         mRValue.setDouble(mColorSensor.getDetectedRValue());
         mGValue.setDouble(mColorSensor.getDetectedGValue());

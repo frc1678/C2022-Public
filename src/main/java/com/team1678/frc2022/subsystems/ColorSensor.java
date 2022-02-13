@@ -10,6 +10,7 @@ import com.team1678.frc2022.loops.Loop;
 import com.team1678.lib.drivers.REVColorSensorV3Wrapper;
 import com.team1678.lib.drivers.REVColorSensorV3Wrapper.ColorSensorData;
 
+import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.util.Color;
 
@@ -135,6 +136,24 @@ public class ColorSensor extends Subsystem {
         }
     }
 
+    public boolean getCorrectColor() {
+        if (mPeriodicIO.red_alliance = Constants.isRedAlliance) {
+            if(mPeriodicIO.matched_color.equals(Constants.ColorSensorConstants.kRedColor)) {
+                return mPeriodicIO.correct_color;
+            } else {
+                return !mPeriodicIO.correct_color;
+            }
+        } if (mPeriodicIO.blue_alliance != Constants.isRedAlliance) {
+            if (mPeriodicIO.matched_color.equals(Constants.ColorSensorConstants.kBlueColor)) {
+                return mPeriodicIO.correct_color;
+            } else {
+                return !mPeriodicIO.correct_color;
+            }
+        } else {
+            return !mPeriodicIO.correct_color;
+        }
+    }
+
     public static class PeriodicIO {
         
         // INPUTS
@@ -143,8 +162,10 @@ public class ColorSensor extends Subsystem {
         public double distance;
         public Color matched_color;
         public ColorSensorData detected_color;
-
         public boolean correct_color;
+
+        public boolean red_alliance;
+        public boolean blue_alliance;
 
         //OUTPUTS
 

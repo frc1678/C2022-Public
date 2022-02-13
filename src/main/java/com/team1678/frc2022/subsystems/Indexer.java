@@ -278,16 +278,6 @@ private Indexer() {
         return mPeriodicIO.bottomLightBeamBreakSensor;
     }
 
-    public boolean getCorrectColor() {
-        if (mColorSensor.mPeriodicIO.matched_color.equals(Constants.ColorSensorConstants.kRedColor)) {
-            return mPeriodicIO.correct_color;
-        } else if (mColorSensor.mPeriodicIO.matched_color.equals(Constants.ColorSensorConstants.kBlueColor)) {
-            return mPeriodicIO.correct_color;
-        } else {
-            return !mPeriodicIO.correct_color;
-        }
-}
-
     public static class PeriodicIO {
         // INPUTS
         public boolean topLightBeamBreakSensor;
