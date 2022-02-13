@@ -142,6 +142,10 @@ public class Robot extends TimedRobot {
                 mAutoModeExecutor.stop();
             }
 
+			mSwerve.setModuleStates(
+				Constants.SwerveConstants.swerveKinematics.toSwerveModuleStates((
+					ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, 0, Rotation2d.fromDegrees(0)))));
+
 			mDisabledLooper.stop();
 			mEnabledLooper.start();
 
@@ -214,7 +218,9 @@ public class Robot extends TimedRobot {
 			mLimelight.setLed(Limelight.LedMode.ON);
             mLimelight.triggerOutputs();
 
-			mSwerve.setModuleStates(Constants.SwerveConstants.swerveKinematics.toSwerveModuleStates((ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, 0, Rotation2d.fromDegrees(0)))));
+			mSwerve.setModuleStates(
+				Constants.SwerveConstants.swerveKinematics.toSwerveModuleStates((
+					ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, 0, Rotation2d.fromDegrees(0)))));
 
 
 		} catch (Throwable t) {
