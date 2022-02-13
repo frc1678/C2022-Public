@@ -144,6 +144,8 @@ public class ColorSensor extends Subsystem {
         public Color matched_color;
         public ColorSensorData detected_color;
 
+        public boolean correct_color;
+
         //OUTPUTS
 
     }

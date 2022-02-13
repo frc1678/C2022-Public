@@ -2,9 +2,11 @@ package com.team1678.frc2022.subsystems;
 
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
+import com.team1678.frc2022.Constants.ColorSensorConstants;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
-
+import com.team1678.frc2022.subsystems.ColorSensor;
+import com.team1678.frc2022.subsystems.ColorSensor.PeriodicIO;
 import com.team254.lib.drivers.TalonFXFactory;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
@@ -27,6 +29,8 @@ private final DigitalInput mTopBeamBreak;
 
 public boolean mBottomHadSeenBall = false;
 public boolean mTopHadSeenBall = false;
+
+public final ColorSensor mColorSensor;
 
 private boolean mRunTrigger() {
     return !mBallAtTrigger() && mPeriodicIO.ball_count > 0;
@@ -65,6 +69,7 @@ private Indexer() {
     mTrigger = TalonFXFactory.createDefaultTalon(Ports.TRIGGER_ID);
     mBottomBeamBreak = new DigitalInput(Ports.BOTTOM_BEAM_BREAK);
     mTopBeamBreak = new DigitalInput(Ports.TOP_BEAM_BREAK);
+    mColorSensor =  ColorSensor.getInstance();
 }
         
     public void setState(WantedAction wanted_state) {
@@ -276,6 +281,16 @@ private Indexer() {
         return mPeriodicIO.bottomLightBeamBreakSensor;
     }
 
+    public boolean getCorrectColor() {
+        if (mColorSensor.mPeriodicIO.matched_color.equals(Constants.ColorSensorConstants.kRedColor)) {
+            return mPeriodicIO.correct_color_red;
+        } else if (mColorSensor.mPeriodicIO.matched_color.equals(Constants.ColorSensorConstants.kBlueColor)) {
+            return mPeriodicIO.correct_color_blue;
+        } else {
+            return !mPeriodicIO.correct_color;
+        }
+}
+
     public static class PeriodicIO {
         // INPUTS
         public boolean topLightBeamBreakSensor;
@@ -291,14 +306,14 @@ private Indexer() {
         public double trigger_voltage;
 
         public boolean correct_color;
+        public boolean correct_color_red;
+        public boolean correct_color_blue;
         public Color detected_color;
 
         // OUTPUTS
         public double outtake_demand;
         public double indexer_demand;
         public double trigger_demand;
-
-        public boolean eject;
     }
 
     // only call for quick status testing
