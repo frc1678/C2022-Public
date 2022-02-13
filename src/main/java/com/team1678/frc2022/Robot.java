@@ -150,19 +150,6 @@ public class Robot extends TimedRobot {
 			mLimelight.setLed(Limelight.LedMode.ON);
             mLimelight.setPipeline(Constants.VisionConstants.kDefaultPipeline);
 
-			Translation2d swerveTranslation = new Translation2d(mControlBoard.getSwerveTranslation().x(),
-					mControlBoard.getSwerveTranslation().y());
-			double swerveRotation = mControlBoard.getSwerveRotation();
-
-			if (mControlBoard.getVisionAlign()) {
-				mSwerve.visionAlignDrive(swerveTranslation, true, true);
-			} else {
-				mSwerve.drive(swerveTranslation, swerveRotation, true, true);
-			}
-			
-			// call operator commands container from superstructure
-			mSuperstructure.updateOperatorCommands();
-
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
 			throw t;
