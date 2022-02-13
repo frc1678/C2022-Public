@@ -183,7 +183,6 @@ public class Intake extends Subsystem {
         private boolean deploy;
     }
 
-    
     @Override
     public void stop() {
         mMaster.set(ControlMode.PercentOutput, 0);
