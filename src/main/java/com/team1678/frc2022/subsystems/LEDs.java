@@ -107,7 +107,7 @@ public class LEDs extends Subsystem {
         mEnabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
-                mIdle = false;
+                mIdle = false; // switch to state control
                 applyStates(State.OFF, State.OFF); 
             }
 
@@ -118,7 +118,7 @@ public class LEDs extends Subsystem {
 
             @Override
             public void onStop(double timestamp) {
-                mIdle = true;
+                mIdle = true; // switch to idle animation
                 mTopStatus.reset();
                 mBottomStatus.reset();
             }
@@ -127,16 +127,15 @@ public class LEDs extends Subsystem {
 
     @Override
     public void readPeriodicInputs() {
-        timestamp = Timer.getFPGATimestamp();
-        outputTelemtry();
-        if (mUseSmartdash) {
-            applyStates(mTopStateChooser.getSelected(), mBottomStateChooser.getSelected()); // pull states from smartdash
+        timestamp = Timer.getFPGATimestamp(); // update timestamp for color cycling
+        if (mUseSmartdash) { // pull states from smartdash
+            applyStates(mTopStateChooser.getSelected(), mBottomStateChooser.getSelected()); 
         }
     }
 
-    public void updateState() {
+    public void updateState() { /// write state to candle
         if (!mIdle) {
-            // alternate updating each section of leds to avoid overrunning the CANdle
+            // alternate updating each section of leds to avoid overrunning the candle
             if (mLastUpdatedTop) {
                 updateBottomLeds();
                 mLastUpdatedTop = false;
@@ -151,7 +150,7 @@ public class LEDs extends Subsystem {
     }
 
     private void updateBottomLeds() {
-        // cycle to next color
+        // check if we need to cycle to next color
         if (mBottomStatus.state.interval != Double.POSITIVE_INFINITY) {
             if (timestamp - mBottomStatus.lastSwitchTime >= mBottomStatus.state.interval) {
                 mBottomStatus.nextColor();
@@ -159,12 +158,11 @@ public class LEDs extends Subsystem {
             }
         }
         Color bottomColor = mBottomStatus.getWantedColor();
-
         mCandle.setLEDs(bottomColor.r, bottomColor.g, bottomColor.b, 0, mBottomStatus.startIDx, mBottomStatus.LEDCount);
     }
 
     private void updateTopLeds() {
-        // cycle to next color
+        // check if we need to cycle to next color
         if (mTopStatus.state.interval != Double.POSITIVE_INFINITY) {
             if (timestamp - mTopStatus.lastSwitchTime >= mTopStatus.state.interval) {
                 mTopStatus.nextColor();
@@ -172,10 +170,10 @@ public class LEDs extends Subsystem {
             }
         }
         Color topColor = mTopStatus.getWantedColor();
-
         mCandle.setLEDs(topColor.r, topColor.g, topColor.b, 0, mTopStatus.startIDx, mTopStatus.LEDCount);
     }
 
+    // setter functions
     public void applyStates(State topState, State bottomState) {
         mTopStatus.setState(topState);
         mBottomStatus.setState(bottomState);
@@ -189,6 +187,7 @@ public class LEDs extends Subsystem {
         mBottomStatus.setState(state);
     }
 
+    // apply configuration to candle
     private void configureCandle() {
         CANdleConfiguration configAll = new CANdleConfiguration();
         configAll.statusLedOffWhenActive = true;
@@ -211,7 +210,8 @@ public class LEDs extends Subsystem {
     public boolean checkSystem() {
         return false;
     }
-
+    
+    // getter functions
     public State getTopState() {
         return mTopStatus.state;
     }
@@ -236,10 +236,10 @@ public class LEDs extends Subsystem {
 
     // class for holding information about each section
     private class LEDStatus {
-        private State state = State.OFF;
-        private double lastSwitchTime = 0.0;
-        private int colorIndex = 0;
-        private int startIDx, LEDCount;
+        private State state = State.OFF; // current state
+        private double lastSwitchTime = 0.0; // timestampe of last color cycle
+        private int colorIndex = 0; // tracks current color in array
+        private int startIDx, LEDCount; // start and end of section
 
         public LEDStatus(int startIndex, int endIndex) {
             startIDx = startIndex;
@@ -258,7 +258,8 @@ public class LEDs extends Subsystem {
             return state.colors[colorIndex];
         }
 
-        public void nextColor() {
+        // cycle to next color in array
+        public void nextColor() { 
             if (colorIndex == state.colors.length - 1) {
                 colorIndex = 0;
             } else {
