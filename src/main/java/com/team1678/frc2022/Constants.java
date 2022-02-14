@@ -240,6 +240,8 @@ public class Constants {
     public static final class IntakeConstants {
         public static final double kIntakingVoltage = 10;
         public static final double kSpittingVoltage = -8;
+        public static final double kDeployIdlePosition = 0.0;
+        public static final double kDeployExtendPosition = 10.0;
     }
 
     public static final class ShooterConstants {
