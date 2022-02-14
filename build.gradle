@@ -2,7 +2,7 @@ import edu.wpi.first.gradlerio.deploy.roborio.RoboRIO
 
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2022.2.1"
+    id "edu.wpi.first.GradleRIO" version "2022.3.1"
 }
 
 sourceCompatibility = JavaVersion.VERSION_11
@@ -68,6 +68,10 @@ dependencies {
     simulationRelease wpi.sim.enableRelease()
 
     testImplementation 'junit:junit:4.12'
+
+    // https://mvnrepository.com/artifact/gov.nist.math/jama
+    implementation group: 'gov.nist.math', name: 'jama', version: '1.0.3'
+
 }
 
 // Simulation configuration (e.g. environment variables).

@@ -13,6 +13,7 @@ import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.ControlBoard.SwerveCardinal;
 import com.team1678.frc2022.loops.CrashTracker;
 import com.team1678.frc2022.loops.Looper;
+import com.team1678.frc2022.subsystems.Hood;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Infrastructure;
 import com.team1678.frc2022.subsystems.Intake;
@@ -22,7 +23,9 @@ import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 import com.team254.lib.wpilib.TimedRobot;
 
@@ -51,12 +54,13 @@ public class Robot extends TimedRobot {
 
 	private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
 	private final Superstructure mSuperstructure = Superstructure.getInstance();
-	// private final Shooter mShooter = Shooter.getInstance();
 	private final Swerve mSwerve = Swerve.getInstance();
-	private final Intake mIntake = Intake.getInstance();
-	// private final Limelight mLimelight = Limelight.getInstance();
 	private final Infrastructure mInfrastructure = Infrastructure.getInstance();
+	private final Intake mIntake = Intake.getInstance();
 	private final Indexer mIndexer = Indexer.getInstance();
+	private final Shooter mShooter = Shooter.getInstance();
+	private final Hood mHood = Hood.getInstance();
+	private final Limelight mLimelight = Limelight.getInstance();
 
 	// instantiate enabled and disabled loopers
 	private final Looper mEnabledLooper = new Looper();
@@ -80,18 +84,20 @@ public class Robot extends TimedRobot {
 
 			mSubsystemManager.setSubsystems(
 					mSwerve,
-					mInfrastructure,
+					// mInfrastructure,
 					mIntake,
 					mIndexer,
-					// mShooter,
-					mSuperstructure // ,
-					// mLimelight
+					mShooter,
+					mHood,
+					mSuperstructure,
+					mLimelight
 			);
 
 			mSubsystemManager.registerEnabledLoops(mEnabledLooper);
 			mSubsystemManager.registerDisabledLoops(mDisabledLooper);
 
 			mSwerve.resetOdometry(new Pose2d());
+			mSwerve.resetAnglesToAbsolute();
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
 			throw t;
@@ -113,6 +119,7 @@ public class Robot extends TimedRobot {
 			mAutoModeExecutor.start();
 
 			mInfrastructure.setIsDuringAuto(true);
+			mLimelight.setPipeline(Constants.VisionConstants.kDefaultPipeline);
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
@@ -124,16 +131,28 @@ public class Robot extends TimedRobot {
 	@Override
 	public void autonomousPeriodic() {
 		mSwerve.updateSwerveOdometry();
+		mLimelight.setLed(Limelight.LedMode.ON);
 	}
 
 	@Override
 	public void teleopInit() {
 		try {
 
+			if (mAutoModeExecutor != null) {
+                mAutoModeExecutor.stop();
+            }
+
+			mSwerve.setModuleStates(
+				Constants.SwerveConstants.swerveKinematics.toSwerveModuleStates((
+					ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, 0, Rotation2d.fromDegrees(0)))));
+
 			mDisabledLooper.stop();
 			mEnabledLooper.start();
 
 			mInfrastructure.setIsDuringAuto(false);
+		
+			mLimelight.setLed(Limelight.LedMode.ON);
+            mLimelight.setPipeline(Constants.VisionConstants.kDefaultPipeline);
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
@@ -144,7 +163,24 @@ public class Robot extends TimedRobot {
 	@Override
 	public void teleopPeriodic() {
 		try {
+
+			if (mAutoModeExecutor != null) {
+                mAutoModeExecutor.stop();
+            }
+
+			mLimelight.outputTelemetry();
+
+			// call operator commands container from superstructure
+			mSuperstructure.updateOperatorCommands();
+			
 			/* SWERVE DRIVE */
+			// hold left bumper
+			if (mControlBoard.getBrake()) {
+				mSwerve.setLocked(true);
+			} else {
+				mSwerve.setLocked(false);
+			}
+
 			if (mControlBoard.zeroGyro()) {
 				mSwerve.zeroGyro();
 			}
@@ -158,30 +194,11 @@ public class Robot extends TimedRobot {
 					mControlBoard.getSwerveTranslation().y());
 			double swerveRotation = mControlBoard.getSwerveRotation();
 
-			// if (mControlBoard.getVisionAlign()) {
-			// 	mSwerve.visionAlignDrive(swerveTranslation, true, true);
-			// } else {
-				mSwerve.drive(swerveTranslation, swerveRotation, true, true);
-			// }
-
-			// Intake
-			if (mControlBoard.getIntake()) {
-				mSuperstructure.setWantIntake(true);
-			} else if (mControlBoard.getOuttake()) {
-				mSuperstructure.setWantOuttake(true);
+			if (mControlBoard.getVisionAlign()) {
+				mSwerve.visionAlignDrive(swerveTranslation, true, true);
 			} else {
-				mSuperstructure.setWantIntake(false);
-				mSuperstructure.setWantOuttake(false);
+				mSwerve.drive(swerveTranslation, swerveRotation, true, true);
 			}
-
-			// if (mControlBoard.operator.getController().getYButtonPressed()) {
-			// 	mSuperstructure.setWantShoot();
-			// }
-
-			// if (mControlBoard.operator.getController().getAButtonPressed()) {
-			// 	mSuperstructure.setShooterVelocity(1800);
-			// 	mSuperstructure.setWantSpinUp();
-			// }
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
@@ -196,6 +213,14 @@ public class Robot extends TimedRobot {
 			CrashTracker.logDisabledInit();
 			mEnabledLooper.stop();
 			mDisabledLooper.start();
+
+			mLimelight.setLed(Limelight.LedMode.ON);
+            mLimelight.triggerOutputs();
+
+			mSwerve.setModuleStates(
+				Constants.SwerveConstants.swerveKinematics.toSwerveModuleStates((
+					ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, 0, Rotation2d.fromDegrees(0)))));
+
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
@@ -218,10 +243,11 @@ public class Robot extends TimedRobot {
 		try {
 
 			mAutoModeSelector.updateModeCreator();
-			// [mSwerve.resetAnglesToAbsolute();
+			// mSwerve.resetAnglesToAbsolute();
 
-			// mLimelight.setLed(Limelight.LedMode.ON);
-			// mLimelight.writePeriodicOutputs();
+			mLimelight.setLed(Limelight.LedMode.ON);
+			mLimelight.writePeriodicOutputs();
+			mLimelight.outputTelemetry();
 
 			Optional<AutoModeBase> autoMode = mAutoModeSelector.getAutoMode();
 			if (autoMode.isPresent() && autoMode.get() != mAutoModeExecutor.getAutoMode()) {
