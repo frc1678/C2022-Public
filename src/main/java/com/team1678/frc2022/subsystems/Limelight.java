@@ -1,6 +1,7 @@
 package com.team1678.frc2022.subsystems;
 
 import com.team1678.frc2022.Constants;
+import com.team1678.frc2022.NetworkTableInteractions;
 import com.team1678.frc2022.loops.Loop;
 import com.team1678.frc2022.loops.ILooper;  
 
@@ -19,8 +20,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import javax.management.MBeanNotificationInfo;
 
 /**
  * Subsystem for interacting with the Limelight 2
@@ -34,6 +40,11 @@ public class Limelight extends Subsystem {
     private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
 
     private int mLatencyCounter = 0;
+
+    BlockingQueue<Integer> inputQueue = new LinkedBlockingQueue<>(10);
+    BlockingQueue<HashMap> outputQueue = new LinkedBlockingQueue<>(10);
+
+    private  NetworkTableInteractions mNetworkTableThread;
 
     // distance to target
     public Optional<Double> mDistanceToTarget = Optional.empty();
@@ -51,6 +62,7 @@ public class Limelight extends Subsystem {
     private Limelight() {
         mConstants = Constants.VisionConstants.kLimelightConstants;
         mNetworkTable = NetworkTableInstance.getDefault().getTable(mConstants.kTableName);
+        mNetworkTableThread = new NetworkTableInteractions(mNetworkTable, inputQueue, outputQueue);
     }
 
     public static Limelight getInstance() {
@@ -115,6 +127,8 @@ public class Limelight extends Subsystem {
 
         public double dt;
 
+        public HashMap outputMap;
+
         // OUTPUTS
         public int ledMode = 1; // 0 - use pipeline mode, 1 - off, 2 - blink, 3 - on
         public int camMode = 0; // 0 - vision processing, 1 - driver camera
@@ -151,12 +165,25 @@ public class Limelight extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
+
+        try {
+            inputQueue.put(1);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        try {
+            mPeriodicIO.outputMap = outputQueue.take();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
         final double latency = mNetworkTable.getEntry("tl").getDouble(0) / 1000.0 + Constants.VisionConstants.kImageCaptureLatency;
         mPeriodicIO.givenLedMode = (int) mNetworkTable.getEntry("ledMode").getDouble(1.0);
         mPeriodicIO.givenPipeline = (int) mNetworkTable.getEntry("pipeline").getDouble(0);
-        mPeriodicIO.xOffset = mNetworkTable.getEntry("tx").getDouble(0.0);
-        mPeriodicIO.yOffset = mNetworkTable.getEntry("ty").getDouble(0.0);
-        mPeriodicIO.area = mNetworkTable.getEntry("ta").getDouble(0.0);
+        mPeriodicIO.xOffset = (double) mPeriodicIO.outputMap.get("tx");
+        mPeriodicIO.yOffset = (double) mPeriodicIO.outputMap.get("ty");
+        mPeriodicIO.area = (double) mPeriodicIO.outputMap.get("ta");
 
         if (latency == mPeriodicIO.latency) {
             mLatencyCounter++;
