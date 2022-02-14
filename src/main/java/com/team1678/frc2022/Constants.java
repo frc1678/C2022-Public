@@ -11,10 +11,15 @@ import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
 public class Constants {
+    //CHANGE THIS BASED ON WHAT ROBOT YOU'RE USING. 
+    //VALID ENTRIES ARE "BETA", "COMP", and "EPSILON".
+    public static final WantedRobot version = WantedRobot.COMP;
 
-    // toggle constants for comp robot
-    public static final boolean isComp = false;
-	
+    //Enum toggle for robots
+    public enum WantedRobot {
+        BETA, COMP, EPSILON
+    }
+
 	// robot loop time
 	public static final double kLooperDt = 0.02;
 
@@ -59,13 +64,13 @@ public class Constants {
         public static final boolean driveEnableCurrentLimit = true;
 
         /* Angle Motor PID Values */
-        public static final double angleKP = 0.3; // TODO: Check value
+        public static final double angleKP = 0.3;
         public static final double angleKI = 0.0;
         public static final double angleKD = 0.0;
         public static final double angleKF = 0.0;
 
         /* Drive Motor PID Values */
-        public static final double driveKP = 0.05; // TODO: Check value
+        public static final double driveKP = 0.05;
         public static final double driveKI = 0.0;
         public static final double driveKD = 0.0;
         public static final double driveKF = 0.0;
@@ -100,42 +105,73 @@ public class Constants {
 
         /* Front Left Module - Module 0 */
         public static final class Mod0 {
-            public static final double betaAngleOffset = 58.71;
-            public static final double compAngleOffset = 123; // TODO: Check value
-
             public static SwerveModuleConstants SwerveModuleConstants() {
+                double wantedOffset = 0;
+                switch (version) {
+                    case BETA:
+                        wantedOffset = 58.71;
+                    case COMP:
+                        wantedOffset = 123;
+                    case EPSILON:
+                        wantedOffset = 0; //Get real value
+                }
+
                 return new SwerveModuleConstants(Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER,
-                        isComp ? compAngleOffset : betaAngleOffset);
+                        wantedOffset);
             }
         }
+
         /* Front Right Module - Module 1 */
         public static final class Mod1 {
-            public static final double betaAngleOffset = 340.57;
-            public static final double compAngleOffset = 138; // TODO: Check value
-            
             public static SwerveModuleConstants SwerveModuleConstants() {
+                double wantedOffset = 0;
+                switch (version) {
+                    case BETA:
+                        wantedOffset = 340.57;
+                    case COMP:
+                        wantedOffset = 138;
+                    case EPSILON:
+                        wantedOffset = 0; //Get real value
+                }
+
                 return new SwerveModuleConstants(Ports.FR_DRIVE, Ports.FR_ROTATION, Ports.FR_CANCODER,
-                        isComp ? compAngleOffset : betaAngleOffset);
+                        wantedOffset);
             }
         }
+        
         /* Back Left Module - Module 2 */
         public static final class Mod2 {
-            public static final double betaAngleOffset = 343.03;
-            public static final double compAngleOffset = 100;   // TODO: Check value
-
             public static SwerveModuleConstants SwerveModuleConstants() {
+                double wantedOffset = 0;
+                switch (version) {
+                    case BETA:
+                        wantedOffset = 343.03;
+                    case COMP:
+                        wantedOffset = 100;
+                    case EPSILON:
+                        wantedOffset = 0; //Get real value
+                }
+
                 return new SwerveModuleConstants(Ports.BL_DRIVE, Ports.BL_ROTATION, Ports.BL_CANCODER,
-                        isComp ? compAngleOffset : betaAngleOffset);
+                        wantedOffset);
             }
         }
+
         /* Back Right Module - Module 3 */
         public static final class Mod3 {
-            public static final double betaAngleOffset = 254.61;
-            public static final double compAngleOffset = 134;   // TODO: Check value
-
             public static SwerveModuleConstants SwerveModuleConstants() {
+                double wantedOffset = 0;
+                switch (version) {
+                    case BETA:
+                        wantedOffset = 254.61;
+                    case COMP:
+                        wantedOffset = 134;
+                    case EPSILON:
+                        wantedOffset = 0; //Get real value
+                }
+
                 return new SwerveModuleConstants(Ports.BR_DRIVE, Ports.BR_ROTATION, Ports.BR_CANCODER,
-                        isComp ? compAngleOffset : betaAngleOffset);
+                        wantedOffset);
             }
         }
     }
