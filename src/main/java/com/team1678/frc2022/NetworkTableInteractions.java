@@ -10,14 +10,14 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 
 public class NetworkTableInteractions extends Thread{
 
-    private BlockingQueue<String> tableNameQueue; 
+    private BlockingQueue<Integer> inputQueue; 
     private BlockingQueue<HashMap> outputQueue;
 
     private NetworkTable mNetworkTable;
     
-    public NetworkTableInteractions(NetworkTable mNetworkTable, BlockingQueue<String> tableNameQueue, BlockingQueue<HashMap> outputQueue) {
+    public NetworkTableInteractions(NetworkTable mNetworkTable, BlockingQueue<Integer> inputQueue, BlockingQueue<HashMap> outputQueue) {
         mNetworkTable = this.mNetworkTable;
-        tableNameQueue = this.tableNameQueue;
+        inputQueue = this.inputQueue;
         outputQueue = this.outputQueue;
     }
 
@@ -25,7 +25,7 @@ public class NetworkTableInteractions extends Thread{
         try {
             while (true) {
                 System.out.println("Running NetworkTables Thread");
-                mNetworkTable = NetworkTableInstance.getDefault().getTable(tableNameQueue.take());
+                Integer input = inputQueue.take();
                 HashMap<String, Object> outputMap = new HashMap<>(); 
                 double tx = mNetworkTable.getEntry("tx").getDouble(0.0);
                 outputMap.put("tx", tx);
