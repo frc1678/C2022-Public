@@ -39,6 +39,11 @@ public class Intake extends Subsystem {
         mSingulator = TalonFXFactory.createDefaultTalon(Ports.SINGULATOR_ID);
         mDeploy = TalonFXFactory.createDefaultTalon(Ports.INTAKE_DEPLOY_ID);
 
+        mDeploy.config_kP(0, Constants.IntakeConstants.kDeployP, Constants.kLongCANTimeoutMs);
+        mDeploy.config_kI(0, Constants.IntakeConstants.kDeployI, Constants.kLongCANTimeoutMs);
+        mDeploy.config_kD(0, Constants.IntakeConstants.kDeployD, Constants.kLongCANTimeoutMs);
+        mDeploy.config_kF(0, Constants.IntakeConstants.kDeployF, Constants.kLongCANTimeoutMs);
+
         // reduce can util
         mMaster.changeMotionControlFramePeriod(255);
         mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
@@ -176,6 +181,7 @@ public class Intake extends Subsystem {
         private double intake_current;
         private double intake_voltage;
         private double singulator_voltage;
+        private double singulator_current;
         private double deploy_voltage;
 
         // OUTPUTS

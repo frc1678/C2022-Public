@@ -242,6 +242,11 @@ public class Constants {
         public static final double kSpittingVoltage = -8;
         public static final double kDeployIdlePosition = 0.0;
         public static final double kDeployExtendPosition = 10.0;
+
+        public static final double kDeployP = 0.05;
+        public static final double kDeployI = 0.0;
+        public static final double kDeployD = 0.0;
+        public static final double kDeployF = 0.045;
     }
 
     public static final class ShooterConstants {
