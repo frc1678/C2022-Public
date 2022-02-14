@@ -35,7 +35,7 @@ public class Intake extends Subsystem {
     private final TalonFX mDeploy;
 
     private Intake() {
-        mMaster = TalonFXFactory.createDefaultTalon(Ports.INTAKE_ID);
+        mMaster = TalonFXFactory.createDefaultTalon(Ports.INTAKE_ROLLER_ID);
         mSingulator = TalonFXFactory.createDefaultTalon(Ports.SINGULATOR_ID);
         mDeploy = TalonFXFactory.createDefaultTalon(Ports.INTAKE_DEPLOY_ID);
 

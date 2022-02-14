@@ -30,7 +30,7 @@ public class Ports {
     public static final int PIGEON = 20;
 
     /*** SUBSYSTEM IDS ***/
-    public static final int INTAKE_ID = 8;
+    public static final int INTAKE_ROLLER_ID = 8;
     public static final int INTAKE_DEPLOY_ID = 9;
     public static final int SINGULATOR_ID = 10;
 
