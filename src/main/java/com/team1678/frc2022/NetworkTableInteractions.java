@@ -1,5 +1,6 @@
 package com.team1678.frc2022;
 
+import java.util.HashMap;
 import java.util.concurrent.BlockingQueue;
 
 import com.team1678.frc2022.subsystems.Limelight;
@@ -10,14 +11,14 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 public class NetworkTableInteractions extends Thread{
 
     private BlockingQueue<String> tableNameQueue; 
-    private BlockingQueue<Double> txQueue;
+    private BlockingQueue<HashMap> outputQueue;
 
     private NetworkTable mNetworkTable;
     
-    public NetworkTableInteractions(NetworkTable mNetworkTable, BlockingQueue<String> tableNameQueue, BlockingQueue<Double> txQueue) {
+    public NetworkTableInteractions(NetworkTable mNetworkTable, BlockingQueue<String> tableNameQueue, BlockingQueue<HashMap> outputQueue) {
         mNetworkTable = this.mNetworkTable;
         tableNameQueue = this.tableNameQueue;
-        txQueue = this.txQueue;
+        outputQueue = this.outputQueue;
     }
 
     public void run() {
@@ -25,8 +26,14 @@ public class NetworkTableInteractions extends Thread{
             while (true) {
                 System.out.println("Running NetworkTables Thread");
                 mNetworkTable = NetworkTableInstance.getDefault().getTable(tableNameQueue.take());
+                HashMap<String, Object> outputMap = new HashMap<>(); 
                 double tx = mNetworkTable.getEntry("tx").getDouble(0.0);
-                txQueue.put(tx);
+                outputMap.put("tx", tx);
+                double ty = mNetworkTable.getEntry("ty").getDouble(0.0);
+                outputMap.put("ty", ty);
+                double ta = mNetworkTable.getEntry("ta").getDouble(0.0);
+                outputMap.put("ta", ta);
+                outputQueue.put(outputMap);
 
             }
         } catch (Exception e) {
