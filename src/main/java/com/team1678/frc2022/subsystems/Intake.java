@@ -16,8 +16,6 @@ import edu.wpi.first.wpilibj.Solenoid;
 
 public class Intake extends Subsystem {
 
-    private TimeDelayedBoolean mIntakeSolenoidTimer = new TimeDelayedBoolean();
-
     public enum WantedAction {
         NONE, INTAKE, REVERSE, STAY_OUT
     }
@@ -34,11 +32,12 @@ public class Intake extends Subsystem {
 
     private final TalonFX mMaster;
     private final TalonFX mSingulator;
-    private Solenoid mSolenoid;
+    private final TalonFX mDeploy;
 
     private Intake() {
         mMaster = TalonFXFactory.createDefaultTalon(Ports.INTAKE_ID);
         mSingulator = TalonFXFactory.createDefaultTalon(Ports.SINGULATOR_ID);
+        mDeploy = TalonFXFactory.createDefaultTalon(Ports.INTAKE_DEPLOY_ID);
 
         // reduce can util
         mMaster.changeMotionControlFramePeriod(255);
@@ -47,8 +46,10 @@ public class Intake extends Subsystem {
         mSingulator.changeMotionControlFramePeriod(255);
         mSingulator.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
         mSingulator.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
-
-        mSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.INTAKE_SOLENOID_ID);
+        mDeploy.changeMotionControlFramePeriod(255);
+        mDeploy.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
+        mDeploy.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
+        
     }
 
     public static synchronized Intake getInstance() {
@@ -80,7 +81,7 @@ public class Intake extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        mPeriodicIO.intake_out = mIntakeSolenoidTimer.update(mPeriodicIO.deploy, 0.2);
+        mPeriodicIO.deploy_voltage = mDeploy.getMotorOutputVoltage();
         mPeriodicIO.intake_current = mMaster.getStatorCurrent();
         mPeriodicIO.intake_voltage = mMaster.getMotorOutputVoltage();
         if (mCSVWriter != null) {
@@ -92,7 +93,7 @@ public class Intake extends Subsystem {
     public void writePeriodicOutputs() {
         mMaster.set(ControlMode.PercentOutput, mPeriodicIO.intake_demand / 12.0);
         mSingulator.set(ControlMode.PercentOutput, mPeriodicIO.singulator_demand / 12.0);
-        mSolenoid.set(mPeriodicIO.deploy);
+        mDeploy.set(ControlMode.MotionMagic, mPeriodicIO.deploy_demand);
     }
     
     public void setState(State state) {
@@ -121,21 +122,21 @@ public class Intake extends Subsystem {
             case IDLE:
                 mPeriodicIO.intake_demand = 0;
                 mPeriodicIO.singulator_demand = 0;
-                mPeriodicIO.deploy = false;
+                mPeriodicIO.deploy_demand = Constants.IntakeConstants.kDeployIdlePosition;
                 break;
             case INTAKING:
                 mPeriodicIO.intake_demand = Constants.IntakeConstants.kIntakingVoltage;
                 mPeriodicIO.singulator_demand = Constants.IndexerConstants.kSingulatorVoltage;
-                mPeriodicIO.deploy = true;
+                mPeriodicIO.deploy_demand = Constants.IntakeConstants.kDeployExtendPosition;
                 break;
             case REVERSING:
                 mPeriodicIO.intake_demand = -Constants.IntakeConstants.kIntakingVoltage;
                 mPeriodicIO.singulator_demand = -Constants.IndexerConstants.kSingulatorVoltage;
-                mPeriodicIO.deploy = true;
+                mPeriodicIO.deploy_demand = Constants.IntakeConstants.kDeployExtendPosition;
                 break;
             case STAYING_OUT:
                 mPeriodicIO.intake_demand = 0;
-                mPeriodicIO.deploy = true;
+                mPeriodicIO.deploy_demand = Constants.IntakeConstants.kDeployExtendPosition;
                 break;
         }
     }
@@ -148,7 +149,7 @@ public class Intake extends Subsystem {
         return mPeriodicIO.intake_out;
     }
     public boolean getWantDeploy() {
-        return mPeriodicIO.deploy;
+        return mPeriodicIO.deploy_demand == Constants.IntakeConstants.kDeployIdlePosition;
     }
     public double getIntakeVoltage() {
         return mPeriodicIO.intake_voltage;
@@ -173,14 +174,14 @@ public class Intake extends Subsystem {
         // INPUTS
         private boolean intake_out;
         private double intake_current;
-        private double singulator_current;
         private double intake_voltage;
         private double singulator_voltage;
+        private double deploy_voltage;
 
         // OUTPUTS
         private double intake_demand;
         private double singulator_demand;
-        private boolean deploy;
+        private double deploy_demand;
     }
 
     @Override
