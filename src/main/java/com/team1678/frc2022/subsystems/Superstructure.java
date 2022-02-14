@@ -6,7 +6,7 @@ import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.CustomXboxController;
 import com.team1678.frc2022.regressions.ShooterRegression;
-
+import com.team1678.frc2022.subsystems.LEDs.State;
 import com.team254.lib.util.Util;
 import com.team254.lib.util.InterpolatingDouble;
 import com.team254.lib.util.ReflectingCSVWriter;
@@ -36,6 +36,7 @@ public class Superstructure extends Subsystem {
     private final Shooter mShooter = Shooter.getInstance();
     private final Hood mHood = Hood.getInstance();
     private final Limelight mLimelight = Limelight.getInstance();
+    private final LEDs mLEDs = LEDs.getInstance();
 
     // PeriodicIO instance and paired csv writer
     public PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -88,6 +89,7 @@ public class Superstructure extends Subsystem {
 
                 updateShootingParams();
                 setGoals();
+                updateLEDs();
                 // outputTelemetry();
 
                 final double end = Timer.getFPGATimestamp();
@@ -267,6 +269,37 @@ public class Superstructure extends Subsystem {
         if (mHood.mControlState != ServoMotorSubsystem.ControlState.OPEN_LOOP) {
             mHood.setSetpointMotionMagic(mPeriodicIO.real_hood);
         }
+    }
+
+    private void updateLEDs() {
+        State topState = State.OFF;
+        State bottomState = State.OFF;
+
+        if (hasEmergency) {
+            topState = State.EMERGENCY;
+            bottomState = State.EMERGENCY;
+        } else {
+            double ballCount = mIndexer.getBallCount();
+            if (ballCount == 1) {
+                bottomState = State.FLASHING_GREEN;
+            } else if (ballCount == 2) {
+                bottomState = State.SOLID_GREEN;
+            } else {
+                bottomState = State.SOLID_YELLOW;
+            }
+
+            if (mPeriodicIO.SHOOT) {
+                topState = State.FLASHING_ORANGE;
+            } else if (isAimed()) {
+                topState = State.FLASHING_PURPLE;
+            } else if (hasTarget()) {
+                topState = State.SOLID_PURPLE;
+            } else {
+                topState = State.SOLID_YELLOW;
+            }
+        }
+
+        mLEDs.applyStates(topState, bottomState);
     }
 
     /*** GET SHOOTER AND HOOD SETPOINTS FROM SUPERSTRUCTURE CONSTANTS REGRESSION ***/

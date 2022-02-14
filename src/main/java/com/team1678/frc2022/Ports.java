@@ -51,5 +51,6 @@ public class Ports {
     // Infrastucture
     public static final int PCM = 21;
 
+    public static final int CANDLE = 22;
 
 }
