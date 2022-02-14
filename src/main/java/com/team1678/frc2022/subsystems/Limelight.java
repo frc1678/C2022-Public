@@ -178,9 +178,9 @@ public class Limelight extends Subsystem {
             Thread.currentThread().interrupt();
         }
 
-        final double latency = mNetworkTable.getEntry("tl").getDouble(0) / 1000.0 + Constants.VisionConstants.kImageCaptureLatency;
-        mPeriodicIO.givenLedMode = (int) mNetworkTable.getEntry("ledMode").getDouble(1.0);
-        mPeriodicIO.givenPipeline = (int) mNetworkTable.getEntry("pipeline").getDouble(0);
+        final double latency = (double) mPeriodicIO.outputMap.get("tl") / 1000.0 + Constants.VisionConstants.kImageCaptureLatency;
+        mPeriodicIO.givenLedMode = (int) mPeriodicIO.outputMap.get("ledMode");
+        mPeriodicIO.givenPipeline = (int) mPeriodicIO.outputMap.get("pipeline");
         mPeriodicIO.xOffset = (double) mPeriodicIO.outputMap.get("tx");
         mPeriodicIO.yOffset = (double) mPeriodicIO.outputMap.get("ty");
         mPeriodicIO.area = (double) mPeriodicIO.outputMap.get("ta");
@@ -194,7 +194,7 @@ public class Limelight extends Subsystem {
         mPeriodicIO.latency = latency;
         mPeriodicIO.has_comms = mLatencyCounter < 10;
 
-        mSeesTarget = mNetworkTable.getEntry("tv").getDouble(0) == 1.0;
+        mSeesTarget = (double) mPeriodicIO.outputMap.get("tv") == 1.0;
         if (mCSVWriter != null) {
             mCSVWriter.add(mPeriodicIO);
         }
