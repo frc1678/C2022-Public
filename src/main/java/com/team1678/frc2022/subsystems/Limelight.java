@@ -1,6 +1,8 @@
 package com.team1678.frc2022.subsystems;
 
 import com.team1678.frc2022.Constants;
+import com.team1678.frc2022.logger.LogStorage;
+import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.loops.Loop;
 import com.team1678.frc2022.loops.ILooper;  
 
@@ -32,6 +34,9 @@ public class Limelight extends Subsystem {
     private static Limelight mInstance = null;
 
     private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
+    
+    // logger
+    LogStorage<PeriodicIO> mStorage = null;
 
     private int mLatencyCounter = 0;
 
@@ -171,6 +176,9 @@ public class Limelight extends Subsystem {
         if (mCSVWriter != null) {
             mCSVWriter.add(mPeriodicIO);
         }
+
+        // send data
+        LogSend();
     }
 
     @Override
@@ -390,5 +398,36 @@ public class Limelight extends Subsystem {
 
     public double[] getOffset() {
         return new double[] {mPeriodicIO.xOffset, mPeriodicIO.yOffset};
+    }
+
+    // logger
+    
+    @Override
+    public void registerLogger(LoggingSystem LS) {
+        LogSetup();
+        LS.register(mStorage, "LIMELIGHT_LOGS.csv");
+    }
+    
+    public void LogSetup() {
+        mStorage = new LogStorage<PeriodicIO>();
+        mStorage.setHeadersFromClass(PeriodicIO.class);
+    }
+
+    public void LogSend() {
+        ArrayList<Number> items = new ArrayList<Number>();
+        items.add(Timer.getFPGATimestamp());
+
+        items.add(mPeriodicIO.latency);
+        items.add(mPeriodicIO.givenLedMode);
+        items.add(mPeriodicIO.givenPipeline);
+        items.add(mPeriodicIO.xOffset);
+        items.add(mPeriodicIO.yOffset);
+        items.add(mPeriodicIO.area);
+        items.add(mPeriodicIO.has_comms ? 1.0 : 0.0);
+
+        items.add(mPeriodicIO.dt);
+
+        // send data to logging storage
+        mStorage.addData(items);
     }
 }

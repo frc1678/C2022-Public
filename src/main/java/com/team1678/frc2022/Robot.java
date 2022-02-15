@@ -92,11 +92,11 @@ public class Robot extends TimedRobot {
 			mSubsystemManager.setSubsystems(
 					mSwerve,
 					// mInfrastructure,
-					mIntake,
-					mIndexer,
-					mShooter,
-					mHood,
-					mSuperstructure,
+					// mIntake,
+					// mIndexer,
+					// mShooter,
+					// mHood,
+					// mSuperstructure,
 					mLimelight
 			);
 

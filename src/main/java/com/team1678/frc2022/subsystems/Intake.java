@@ -1,7 +1,12 @@
 package com.team1678.frc2022.subsystems;
 
 import com.team1678.frc2022.Ports;
+import com.team1678.frc2022.logger.LogStorage;
+import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.loops.ILooper;
+
+import java.util.ArrayList;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
@@ -13,6 +18,7 @@ import com.team254.lib.util.TimeDelayedBoolean;
 
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.Timer;
 
 public class Intake extends Subsystem {
 
@@ -28,6 +34,9 @@ public class Intake extends Subsystem {
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
     private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
+
+    // logger
+    LogStorage<PeriodicIO> mStorage = null;
 
     private static Intake mInstance;
     public State mState = State.IDLE;
@@ -210,5 +219,38 @@ public class Intake extends Subsystem {
             mCSVWriter = null;
         }
     }
+
+    // logger
     
+    @Override
+    public void registerLogger(LoggingSystem LS) {
+        LogSetup();
+        LS.register(mStorage, "INTAKE_LOGS.csv");
+    }
+    
+    public void LogSetup() {
+        mStorage = new LogStorage<PeriodicIO>();
+        mStorage.setHeadersFromClass(PeriodicIO.class);
+    }
+
+    public void LogSend() {
+        ArrayList<Number> items = new ArrayList<Number>();
+        items.add(Timer.getFPGATimestamp());
+
+        // add inputs
+        items.add(mPeriodicIO.intake_out ? 1.0 : 0.0);
+        items.add(mPeriodicIO.intake_current);
+        items.add(mPeriodicIO.singulator_current);
+        items.add(mPeriodicIO.intake_voltage);
+        items.add(mPeriodicIO.singulator_voltage);
+        
+        // add outputs
+        items.add(mPeriodicIO.intake_demand);
+        items.add(mPeriodicIO.singulator_demand);
+        items.add(mPeriodicIO.deploy ? 1.0 : 0.0);
+
+        // send data to logging storage
+        mStorage.addData(items);
+    }
+
 }

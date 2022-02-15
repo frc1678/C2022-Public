@@ -65,11 +65,9 @@ public class LogStorage<T> implements ILoggable {
 
     public void setHeaders(ArrayList<String> columns) {
         mColumns = columns;
-        
     }
 
     public synchronized void addData(ArrayList<Number> items) {
         mItems.add(items);
-
     }
 }
