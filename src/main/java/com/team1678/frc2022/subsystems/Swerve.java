@@ -1,5 +1,6 @@
 package com.team1678.frc2022.subsystems;
 
+import com.ctre.phoenix.sensors.Pigeon2;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
@@ -30,7 +31,7 @@ public class Swerve extends Subsystem {
 
     public SwerveDriveOdometry swerveOdometry;
     public SwerveModule[] mSwerveMods;
-    public PigeonIMU gyro;
+    public Pigeon2 gyro;
 
     public boolean isSnapping;
     public ProfiledPIDController snapPIDController;
@@ -56,7 +57,7 @@ public class Swerve extends Subsystem {
     }
 
     public Swerve() {
-        gyro = new PigeonIMU(Ports.PIGEON);
+        gyro = new Pigeon2(Ports.PIGEON, "canivore1");
         gyro.configFactoryDefault();
         zeroGyro();
         
