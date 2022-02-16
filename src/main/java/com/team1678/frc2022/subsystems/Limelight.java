@@ -177,8 +177,8 @@ public class Limelight extends Subsystem {
             mCSVWriter.add(mPeriodicIO);
         }
 
-        // send data
-        LogSend();
+        // send log data
+        SendLog();
     }
 
     @Override
@@ -404,11 +404,11 @@ public class Limelight extends Subsystem {
     
     @Override
     public void registerLogger(LoggingSystem LS) {
-        LogSetup();
+        SetupLog();
         LS.register(mStorage, "LIMELIGHT_LOGS.csv");
     }
     
-    public void LogSetup() {
+    public void SetupLog() {
         mStorage = new LogStorage<PeriodicIO>();
         
         // mStorage.setHeadersFromClass(PeriodicIO.class);
@@ -425,7 +425,7 @@ public class Limelight extends Subsystem {
         
     }
 
-    public void LogSend() {
+    public void SendLog() {
         ArrayList<Number> items = new ArrayList<Number>();
         
         items.add(mPeriodicIO.dt);

@@ -44,29 +44,33 @@ public class LogStorage<T> implements ILoggable {
         mVars = typeClass.getFields();
         //  create array list to the names of the member variables collected
         mColumns.clear();
-        //  For the member variables, get the variable  and add it to the array list
+        //  for the member variables, get the variable and add it to the array list
         for (Field variableName : mVars) {
             if (variableName.getType() == boolean[].class || variableName.getType() == double[].class || variableName.getType() == int[].class) {
                 try {
-                    T x = supplier.get(); //  there is no good name for this variable :(
+                    T x = supplier.get();
                     Object obj = variableName.get(x);
                     int length = Array.getLength(obj);
                     for (int i = 0; i < length; i++) {
                         mColumns.add(variableName.getName() + Integer.toString(i));
                     }
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                    System.err.print("Could not add column names to log file!");
+                }
             } else {
                 mColumns.add(variableName.getName());
             }
         }
-        //  Log item names from array list
+        //  log item names from array list
         return mColumns;
     }
 
+    // set headers manually
     public void setHeaders(ArrayList<String> columns) {
         mColumns = columns;
     }
 
+    // add items to be recorded with related headers in file
     public synchronized void addData(ArrayList<Number> items) {
         mItems.add(items);
     }

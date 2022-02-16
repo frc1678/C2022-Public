@@ -96,6 +96,8 @@ public class Intake extends Subsystem {
         if (mCSVWriter != null) {
             mCSVWriter.add(mPeriodicIO);
         }
+
+        SendLog();
     }
 
     @Override
@@ -224,16 +226,16 @@ public class Intake extends Subsystem {
     
     @Override
     public void registerLogger(LoggingSystem LS) {
-        LogSetup();
+        SetupLog();
         LS.register(mStorage, "INTAKE_LOGS.csv");
     }
     
-    public void LogSetup() {
+    public void SetupLog() {
         mStorage = new LogStorage<PeriodicIO>();
         mStorage.setHeadersFromClass(PeriodicIO.class);
     }
 
-    public void LogSend() {
+    public void SendLog() {
         ArrayList<Number> items = new ArrayList<Number>();
         items.add(Timer.getFPGATimestamp());
 
