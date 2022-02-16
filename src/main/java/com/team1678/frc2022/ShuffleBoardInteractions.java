@@ -159,7 +159,7 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mGValue;
     private final NetworkTableEntry mBValue;
     private final NetworkTableEntry mMatchedColor;
-    private final NetworkTableEntry mCorrectColor;
+    private final NetworkTableEntry mOuttake;
 
     // instantiate subsystems, tabs, and widgets
     public ShuffleBoardInteractions() {
@@ -370,8 +370,8 @@ public class ShuffleBoardInteractions {
         mMatchedColor = COLOR_SENSOR
             .add("Matched Color", Color.kBlack)
             .getEntry();
-        mCorrectColor = COLOR_SENSOR
-            .add("Is Correct Color", false)
+        mOuttake = COLOR_SENSOR
+            .add("Outtake", false)
             .getEntry();
 
         /* VISION */
@@ -564,7 +564,7 @@ public class ShuffleBoardInteractions {
         mGValue.setDouble(mColorSensor.getDetectedGValue());
         mBValue.setDouble(mColorSensor.getDetectedBValue());
         mMatchedColor.setString(mColorSensor.getMatchedColor());
-        mCorrectColor.setBoolean(mColorSensor.getCorrectColor());
+        mOuttake.setBoolean(mColorSensor.getOuttake());
 
         /* SUPERSTRUCTURE */
         // update actions statuses

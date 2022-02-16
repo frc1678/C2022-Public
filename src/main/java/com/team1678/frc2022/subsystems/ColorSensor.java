@@ -75,23 +75,32 @@ public class ColorSensor extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        mColorSensor.getLatestReading();
-    }
+        mPeriodicIO.rawColorSensorData = mColorSensor.getLatestReading();
 
-    @Override 
-    public synchronized void writePeriodicOutputs() {
         if (mPeriodicIO.rawColorSensorData != null) {
             mPeriodicIO.raw_color = mPeriodicIO.rawColorSensorData.color;
+            mPeriodicIO.distance = mPeriodicIO.rawColorSensorData.distance;
             mPeriodicIO.matched_color = mColorMatch.matchClosestColor(mPeriodicIO.raw_color).color;
+        } 
+
+        if (mPeriodicIO.distance < Constants.ColorSensorConstants.kColorSensorThreshold) { 
+            mMatchedColor = ColorChoices.OTHER;
+            mPeriodicIO.outtake = false;
         } else {
+
             if (mPeriodicIO.matched_color.equals(Constants.ColorSensorConstants.kRedColor)) {
                 mMatchedColor = ColorChoices.RED;
             } else if (mPeriodicIO.matched_color.equals(Constants.ColorSensorConstants.kBlueColor)) {
                 mMatchedColor = ColorChoices.BLUE;
-            } else {
-                System.out.println("Invalid Color Detected");
             }
+                mPeriodicIO.outtake = mMatchedColor == mAllianceColor;
         }
+
+    }
+
+    @Override 
+    public synchronized void writePeriodicOutputs() {
+        
     }
 
     public static ColorSensor getInstance() {
@@ -100,7 +109,7 @@ public class ColorSensor extends Subsystem {
     
     public double getDetectedRValue() {
         if (mPeriodicIO.raw_color == null) {
-            return 5;
+            return 0;
         }
         return mPeriodicIO.raw_color.red;
     }
@@ -123,29 +132,9 @@ public class ColorSensor extends Subsystem {
         return mMatchedColor.toString();
     }
 
-    public ColorSensorData getLatestReading() {
-        synchronized (mPeriodicIO.rawColorSensorData) {
-            return mPeriodicIO.detected_color;
-        }
-    }
-
-    public boolean getCorrectColor() {
-        if (mPeriodicIO.red_alliance = Constants.isRedAlliance) {
-            if(mPeriodicIO.matched_color.equals(Constants.ColorSensorConstants.kRedColor)) {
-                return mPeriodicIO.correct_color;
-            } else {
-                return !mPeriodicIO.correct_color;
-            }
-        } if (mPeriodicIO.blue_alliance != Constants.isRedAlliance) {
-            if (mPeriodicIO.matched_color.equals(Constants.ColorSensorConstants.kBlueColor)) {
-                return mPeriodicIO.correct_color;
-            } else {
-                return !mPeriodicIO.correct_color;
-            }
-        } else {
-            return !mPeriodicIO.correct_color;
-        }
-    }
+    public boolean getOuttake() {
+        return mPeriodicIO.outtake;
+    }   
 
     public static class PeriodicIO {
         
@@ -154,14 +143,9 @@ public class ColorSensor extends Subsystem {
         public Color raw_color;
         public double distance;
         public Color matched_color;
-        public ColorSensorData detected_color;
-        public boolean correct_color;
-
-        public boolean red_alliance;
-        public boolean blue_alliance;
 
         //OUTPUTS
-
+        public boolean outtake;
     }
     
 }
