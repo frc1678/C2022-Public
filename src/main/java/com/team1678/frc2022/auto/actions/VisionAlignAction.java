@@ -43,7 +43,7 @@ public class VisionAlignAction implements Action {
 
     @Override
     public boolean isFinished() {
-        return mLimelight.getOnTarget();
+        return mLimelight.isAimed();
     }
 
     @Override
