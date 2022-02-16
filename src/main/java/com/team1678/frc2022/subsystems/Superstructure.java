@@ -228,7 +228,7 @@ public class Superstructure extends Subsystem {
 
             // only feed cargo to shoot when spun up and aimed
             if (isSpunUp() /*&& isAimed()*/) {
-                mPeriodicIO.real_indexer = Indexer.WantedAction.FEED;
+                mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX;
             } else {
                 mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX;
             }
@@ -249,7 +249,6 @@ public class Superstructure extends Subsystem {
 
         // set intake and indexer states
         mIntake.setState(mPeriodicIO.real_intake);
-        mIndexer.setForceTunnel(mPeriodicIO.real_intake == Intake.WantedAction.INTAKE);
         mIndexer.setState(mPeriodicIO.real_indexer);
 
         // set shooter subsystem setpoint

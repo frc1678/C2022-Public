@@ -1,5 +1,10 @@
 package com.team1678.frc2022;
 
+import java.net.IDN;
+
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
+import com.team1678.frc2022.subsystems.ColorSensor;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Intake;
 import com.team1678.frc2022.subsystems.Limelight;
@@ -7,14 +12,13 @@ import com.team1678.frc2022.subsystems.Shooter;
 import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
 
-import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
-
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.math.MathUtil;
 
 public class ShuffleBoardInteractions {
@@ -37,6 +41,7 @@ public class ShuffleBoardInteractions {
     private final Shooter mShooter;
     private final Indexer mIndexer;
     private final Superstructure mSuperstructure;
+    private final ColorSensor mColorSensor;
 
     /* Status Variables */
     private double lastCancoderUpdate = 0.0;
@@ -50,6 +55,7 @@ public class ShuffleBoardInteractions {
     private ShuffleboardTab INDEXER_TAB;
     private ShuffleboardTab SUPERSTRUCTURE_TAB;
     private ShuffleboardTab MANUAL_PARAMS;
+    private ShuffleboardTab COLOR_SENSOR;   
 
     /*** ENTRIES ***/
     
@@ -81,21 +87,11 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mIntakeDemand;
     private final NetworkTableEntry mIntakeDeployed;
 
-    /* INDEXER */
-    private final NetworkTableEntry mIndexerState;
-    private final NetworkTableEntry mTopBeamBreak;
-    private final NetworkTableEntry mBottomBeamBreak;
-    private final NetworkTableEntry mBallCount;
-
-    private final NetworkTableEntry mTunnelDemand;
-    private final NetworkTableEntry mTunnelVoltage;
-    private final NetworkTableEntry mTunnelCurrent;
-    private final NetworkTableEntry mTunnelVelocity;
-
-    private final NetworkTableEntry mTriggerDemand;
-    private final NetworkTableEntry mTriggerVoltage;
-    private final NetworkTableEntry mTriggerCurrent;
-    private final NetworkTableEntry mTriggerVelocity;
+    // private final NetworkTableEntry mFlywheelManualPIDToggle;
+    // private final NetworkTableEntry mFlywheelP;
+    // private final NetworkTableEntry mFlywheelI;
+    // private final NetworkTableEntry mFlywheelD;
+    // private final NetworkTableEntry mFlywheelF;
 
     /* SHOOTER */
     private final NetworkTableEntry mFlywheelRPM;
@@ -111,6 +107,28 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mLimelightDt;
     private final NetworkTableEntry mLimelightTx;
     private final NetworkTableEntry mLimelightTy;
+
+    /* INDEXER */
+    private final NetworkTableEntry mOuttakeCurrent;
+    private final NetworkTableEntry mOuttakeDemand;
+    private final NetworkTableEntry mOuttakeVoltage;
+
+    private final NetworkTableEntry mIndexerCurrent;
+    private final NetworkTableEntry mIndexerDemand;
+    private final NetworkTableEntry mIndexerVoltage;
+
+    private final NetworkTableEntry mTriggerCurrent;
+    private final NetworkTableEntry mTriggerDemand;
+    private final NetworkTableEntry mTriggerVoltage;
+
+    private final NetworkTableEntry mIndexerState;
+
+    private final NetworkTableEntry mBallCount;
+
+    private final NetworkTableEntry mTopBeamBreak;
+    private final NetworkTableEntry mBottomBeamBreak;
+
+    /* Superstructure */
 
     /* SUPERSTRUCTURE */
     // actions
@@ -136,6 +154,13 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mManualHoodAngle;
     private final NetworkTableEntry mShootingSetpointsEnableToggle;
 
+    /* COLOR SENSOR */
+    private final NetworkTableEntry mRValue;
+    private final NetworkTableEntry mGValue;
+    private final NetworkTableEntry mBValue;
+    private final NetworkTableEntry mMatchedColor;
+    private final NetworkTableEntry mCorrectColor;
+
     // instantiate subsystems, tabs, and widgets
     public ShuffleBoardInteractions() {
         /* Get Subsystems */
@@ -146,6 +171,7 @@ public class ShuffleBoardInteractions {
         mShooter = Shooter.getInstance();
         mLimelight = Limelight.getInstance();
         mSuperstructure = Superstructure.getInstance();
+        mColorSensor = ColorSensor.getInstance();
 
         /* Get Tabs */
         SWERVE_TAB = Shuffleboard.getTab("Swerve");
@@ -156,6 +182,7 @@ public class ShuffleBoardInteractions {
         VISION_TAB = Shuffleboard.getTab("Vision");
         SUPERSTRUCTURE_TAB = Shuffleboard.getTab("Superstructure");
         MANUAL_PARAMS = Shuffleboard.getTab("Manual Params");
+        COLOR_SENSOR = Shuffleboard.getTab("Color Sensor");
         
         /*** Create Entries ***/
 
@@ -268,45 +295,46 @@ public class ShuffleBoardInteractions {
                 .getEntry();
 
         /* INDEXER */
-        mIndexerState = INDEXER_TAB
-            .add("Indexer State", "N/A")
+        mOuttakeCurrent = INDEXER_TAB
+            .add("Outtake Current", 0.0)
             .getEntry();
-        mTopBeamBreak = INDEXER_TAB
-            .add("Top Beam Break", false)
+        mOuttakeDemand = INDEXER_TAB
+            .add("Outtake Demand", 0.0)
             .getEntry();
-        mBottomBeamBreak = INDEXER_TAB
-            .add("Bottom Beam Break", false)
+        mOuttakeVoltage = INDEXER_TAB
+            .add("Outtake Voltage", 0.0)
+            .getEntry(); 
+        mIndexerCurrent = INDEXER_TAB
+            .add("Indexer Current", 0.0)
             .getEntry();
-        mBallCount = INDEXER_TAB
-            .add("Ball Count", 0.0)
+        mIndexerDemand = INDEXER_TAB
+            .add("Indexer Demand", 0.0)
             .getEntry();
-
-        mTunnelDemand = INDEXER_TAB
-            .add("Tunnel Demand", 0.0)
+        mIndexerVoltage = INDEXER_TAB
+            .add("Indexer Voltage", 0.0)
             .getEntry();
-        mTunnelVoltage = INDEXER_TAB
-            .add("Tunnel Voltage", 0.0)
+        mTriggerCurrent = INDEXER_TAB
+            .add("Trigger Current", 0.0)
             .getEntry();
-        mTunnelCurrent = INDEXER_TAB
-            .add("Tunnel Current", 0.0)
-            .getEntry();
-        mTunnelVelocity = INDEXER_TAB
-            .add("Tunnel Velocity", 0.0)
-            .getEntry();
-
         mTriggerDemand = INDEXER_TAB
             .add("Trigger Demand", 0.0)
             .getEntry();
         mTriggerVoltage = INDEXER_TAB
             .add("Trigger Voltage", 0.0)
             .getEntry();
-        mTriggerCurrent = INDEXER_TAB
-            .add("Trigger Current", 0.0)
+        mIndexerState = INDEXER_TAB
+            .add("Indexer State", mIndexer.getState().toString())
             .getEntry();
-        mTriggerVelocity = INDEXER_TAB
-            .add("Trigger Velocity", 0.0)
+        mBallCount = INDEXER_TAB
+            .add("Ball Count", 0.0)
             .getEntry();
-        
+        mTopBeamBreak = INDEXER_TAB
+            .add("Top Beam Break Triggered", false)
+            .getEntry();
+        mBottomBeamBreak = INDEXER_TAB
+            .add("Bottom Beam Break Triggered", false)
+            .getEntry();
+
         /* SHOOTER */
         mFlywheelRPM = SHOOTER_TAB
                 .add("Shooter RPM", 0.0)
@@ -328,6 +356,23 @@ public class ShuffleBoardInteractions {
                 .add("Shooter Open Loop", false)
                 .withSize(2, 1)
                 .getEntry();
+        
+        /* COLOR SENSOR */
+        mRValue = COLOR_SENSOR
+            .add("Detected R Value", 0.0)
+            .getEntry();
+        mGValue = COLOR_SENSOR
+            .add("Detected G Value", 0.0)
+            .getEntry();
+        mBValue = COLOR_SENSOR
+            .add("Detected B Value", 0.0)
+            .getEntry();
+        mMatchedColor = COLOR_SENSOR
+            .add("Matched Color", Color.kBlack)
+            .getEntry();
+        mCorrectColor = COLOR_SENSOR
+            .add("Is Correct Color", false)
+            .getEntry();
 
         /* VISION */
         mLimelightOk = VISION_TAB
@@ -433,7 +478,6 @@ public class ShuffleBoardInteractions {
             .withSize(2, 1)
             .getEntry();
     }
-    
 
     public void update() {
         
@@ -480,23 +524,7 @@ public class ShuffleBoardInteractions {
         mIntakeDemand.setDouble(mIntake.getIntakeDemand());
         mIntakeDeployed.setBoolean(mIntake.getWantDeploy());
         mIntakeCurrent.setDouble(mIntake.getIntakeCurrent());
-
-        /* INDEXER */
-        mIndexerState.setString(mIndexer.getState().toString());
-        mTopBeamBreak.setBoolean(mIndexer.getTopBeamBreak());
-        mBottomBeamBreak.setBoolean(mIndexer.getBottomBeamBreak());
-        mBallCount.setDouble(mIndexer.getBallCount());
-
-        mTunnelDemand.setDouble(truncate(mIndexer.getTunnelDemand()));
-        mTunnelCurrent.setDouble(truncate(mIndexer.getTunnelCurrent()));
-        mTunnelVoltage.setDouble(truncate(mIndexer.getTunnelVoltage()));
-        mTunnelVelocity.setDouble(mIndexer.getTunnelVelocity());
-
-        mTriggerDemand.setDouble(truncate(mIndexer.getTriggerDemand()));
-        mTriggerCurrent.setDouble(truncate(mIndexer.getTriggerCurrent()));
-        mTriggerVoltage.setDouble(truncate(mIndexer.getTriggerVoltage()));
-        mTriggerVelocity.setDouble(mIndexer.getTriggerVelocity());
-
+        
         /* SHOOTER */
         mFlywheelRPM.setDouble(truncate(mShooter.getFlywheelRPM()));
         mAcceleratorRPM.setDouble(truncate(mShooter.getAcceleratorRPM()));
@@ -511,6 +539,32 @@ public class ShuffleBoardInteractions {
         mLimelightDt.setDouble(mLimelight.getDt());
         mLimelightTx.setDouble(mLimelight.getOffset()[0]);
         mLimelightTy.setDouble(mLimelight.getOffset()[1]);
+
+        /* INDEXER */
+        mOuttakeCurrent.setDouble(mIndexer.getOuttakeCurrent());
+        mOuttakeDemand.setDouble(mIndexer.getOuttakeDemand());
+        mOuttakeVoltage.setDouble(mIndexer.getOuttakeVoltage());
+
+        mIndexerCurrent.setDouble(mIndexer.getIndexerCurrent());
+        mIndexerDemand.setDouble(mIndexer.getIndexerDemand());
+        mIndexerVoltage.setDouble(mIndexer.getIndexerVoltage());
+
+        mTriggerCurrent.setDouble(mIndexer.getTriggerCurrent());
+        mTriggerDemand.setDouble(mIndexer.getTriggerDemand());
+        mTriggerVoltage.setDouble(mIndexer.getTriggerVoltage());
+
+        mIndexerState.setString(mIndexer.getState().toString());
+        mBallCount.setDouble(mIndexer.getBallCount());
+
+        mTopBeamBreak.setBoolean(mIndexer.getTopBeamBreak());
+        mBottomBeamBreak.setBoolean(mIndexer.getBottomBeamBreak());
+
+        /* COLOR SENSOR */
+        mRValue.setDouble(mColorSensor.getDetectedRValue());
+        mGValue.setDouble(mColorSensor.getDetectedGValue());
+        mBValue.setDouble(mColorSensor.getDetectedBValue());
+        mMatchedColor.setString(mColorSensor.getMatchedColor());
+        mCorrectColor.setBoolean(mColorSensor.getCorrectColor());
 
         /* SUPERSTRUCTURE */
         // update actions statuses

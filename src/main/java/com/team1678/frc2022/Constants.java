@@ -6,9 +6,11 @@ import com.team1678.frc2022.subsystems.Limelight.LimelightConstants;
 import com.team1678.frc2022.subsystems.ServoMotorSubsystem.ServoMotorSubsystemConstants;
 import com.team254.lib.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.util.Color;
 
 public class Constants {
 
@@ -17,6 +19,9 @@ public class Constants {
 	
 	// robot loop time
 	public static final double kLooperDt = 0.02;
+
+    //alliance color
+    public static final boolean isRedAlliance = true;
 
 	/* Control Board */
 	public static final double kJoystickThreshold = 0.2;
@@ -317,30 +322,44 @@ public class Constants {
 
     public static final class IndexerConstants {
 
-        public static final double kTriggerVelocityConversion = (600.0 / 2048.0) * (1.0 / 2.0);
-        public static final double kTriggerP = 0.09; 
-        public static final double kTriggerI = 0.0;
-        public static final double kTriggerD = 0.0;
-        public static final double kTriggerF = 0.046;
+        //TODO: find actual values
+        public static final double kIndexerKp = 0.2;
+        public static final double kIndexerKi = 0.;
+        public static final double kIndexerKd = 0.;
+        public static final double kIndexerKf = .05;
+        public static final double kIndexerVelocityKp = 0.05;
+        public static final double kIndexerVelocityKi = 0.;
+        public static final double kIndexerVelocityKd = 0.;
+        public static final double kIndexerVelocityKf = .05;
+        public static final int kIndexerMaxVelocity = 20000;
+        public static final int kIndexerMaxAcceleration = 40000;
 
-        public static final double kTunnelVelocityConversion = (600.0 / 2048.0) * (1.0 / 3.0);
-        public static final double kTunnelP = 0.0; 
-        public static final double kTunnelI = 0.0;
-        public static final double kTunnelD = 0.0;
-        public static final double kTunnelF = 0.0545;
+        public static final double kIndexerIdleVoltage = 0.0;
+        public static final double kIndexerIndexingVoltage = 2.0;
+        public static final double kIndexerReversingVoltage = -5.0;
+        
+        public static final int kBottomBeamBreak = 1;
+        public static final int kTopBeamBreak = 0;
 
-        public static final double kSingulatorVoltage = 10.0;
-        public static final double kTunnelIndexingVoltage = 5.0;
-        public static final double kTunnelReversingVoltage = -5.0;
-        public static final double kIdleVoltage = 0.0;
-        public static final double kTriggerIndexingVoltage = 4.0;
+        public static final double kTriggerIdleVoltage = 0.0;
+        public static final double kTriggerIndexingVoltage = 5.0;
         public static final double kTriggerReversingVoltage = -5.0;
-        public static final double kFeedingVoltage = 3.0;
+        
+        public static final double kOuttakeIdleVoltage = 0.0;
+        public static final double kOuttakeIndexingVoltage = 5.0;
+        public static final double kOuttakeReversingVoltage = -5.0;
 
+        public static final double kSingulatorVoltage = 5.0;
     }
         
     public static final class ClimberConstants {
 
+    }
+
+    public static final class ColorSensorConstants {
+        public static final Color kBlueColor = new Color(0.140, 0.369, 0.493);
+        public static final Color kRedColor = new Color(0.543, 0.322, 0.136);
+        public static final double kColorSensorThreshold = 125;
     }
 
     // Timeout constants

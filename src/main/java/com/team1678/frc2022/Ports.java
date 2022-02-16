@@ -46,7 +46,7 @@ public class Ports {
     public static final int CLIMBER_LEFT_ID = 16;
     public static final int CLIMBER_RIGHT_ID = 17;
 
-    public static final int EJECTOR_ID = 18;
+    public static final int OUTTAKE_ID = 18;
 
     // Infrastucture
     public static final int PCM = 21;
