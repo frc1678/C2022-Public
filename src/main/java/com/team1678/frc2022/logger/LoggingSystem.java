@@ -4,9 +4,13 @@ import com.team1678.frc2022.loops.Loop;
 import com.team1678.frc2022.loops.ILooper;
 
 import java.util.ArrayList;
+import java.util.TimeZone;
 import java.io.File;
 
 import java.io.FileWriter;
+import java.sql.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 public class LoggingSystem {
     private static LoggingSystem mInstance; 
@@ -45,7 +49,9 @@ public class LoggingSystem {
         for (final File directoryEntry : Directory.listFiles()) {
             try {
                 if (directoryEntry.isDirectory()) {
-                    int Num = Integer.parseInt(directoryEntry.getName());
+                    String directory_name = directoryEntry.getName();
+                    int char_index = directory_name.indexOf("_");
+                    int Num = Integer.parseInt(directory_name.substring(0, char_index));
                     if (Num > maxNum) {
                         maxNum = Num;
                     }
@@ -55,7 +61,16 @@ public class LoggingSystem {
             }
         }
         maxNum++;
-        mDirectory = mRootDirectory + "/" + maxNum.toString(); 
+
+        // get system time in milliseconds and convert to datetime in PST time zone
+        long milliSec = System.currentTimeMillis();
+        Date res = new Date(milliSec);
+        DateFormat sdf = new SimpleDateFormat("dd:MM:yy:HH:mm:ss");
+        sdf.setTimeZone(TimeZone.getTimeZone("PST"));
+
+        // format time in datetime and add to file name
+        mDirectory = mRootDirectory + "/" + maxNum.toString() + "_" + sdf.format(res);
+
         File newDirectory = new File(mDirectory);
         newDirectory.mkdir();
     }
@@ -83,7 +98,7 @@ public class LoggingSystem {
             try {
                 for (int h=0; h < itemNames.size(); h++) {
                     fileWriter.write(itemNames.get(h));
-                    if (h!= itemNames.size()) {
+                    if (h != itemNames.size()) {
                         fileWriter.write(",");
                     }
                 }
