@@ -16,9 +16,6 @@ import edu.wpi.first.wpilibj.util.Color;
 
 public class ColorSensor extends Subsystem {
 
-    BlockingQueue<Integer> commandQueue = new LinkedBlockingQueue<>(10);
-    BlockingQueue<ColorSensorData> outputQueue = new LinkedBlockingQueue<>(10);
-
     private static ColorSensor mInstance;
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -42,10 +39,6 @@ public class ColorSensor extends Subsystem {
         mColorMatch.addColorMatch(Constants.ColorSensorConstants.kBlueColor);
 
         mColorSensor.start();
-    }
-
-    public ColorSensor(REVColorSensorV3Wrapper mColorSensor2, BlockingQueue<Integer> commandQueue2,
-            BlockingQueue<ColorSensorData> outputQueue2) {
     }
 
     @Override
