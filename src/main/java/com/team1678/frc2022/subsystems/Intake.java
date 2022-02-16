@@ -3,16 +3,15 @@ package com.team1678.frc2022.subsystems;
 import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.loops.ILooper;
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.loops.Loop;
 import com.team254.lib.drivers.TalonFXFactory;
 import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.util.TimeDelayedBoolean;
-
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.Solenoid;
 
 public class Intake extends Subsystem {
 
@@ -32,23 +31,36 @@ public class Intake extends Subsystem {
     private static Intake mInstance;
     public State mState = State.IDLE;
 
-    private final TalonFX mMaster;
+    private final TalonFX mRoller;
+    private final TalonFX mDeploy;
     private final TalonFX mSingulator;
-    private Solenoid mSolenoid;
 
     private Intake() {
-        mMaster = TalonFXFactory.createDefaultTalon(Ports.INTAKE_ID);
+        mRoller = TalonFXFactory.createDefaultTalon(Ports.INTAKE_ROLLER_ID);
+        mDeploy = TalonFXFactory.createDefaultTalon(Ports.INTAKE_DEPLOY_ID);
         mSingulator = TalonFXFactory.createDefaultTalon(Ports.SINGULATOR_ID);
 
+        mRoller.setInverted(true);
+        mSingulator.setInverted(true);
+
+        mDeploy.setInverted(true);
+        mDeploy.setNeutralMode(NeutralMode.Brake);
+        mDeploy.setSelectedSensorPosition(0.0);
+        mDeploy.config_kP(0, Constants.IntakeConstants.kIntakeP, Constants.kLongCANTimeoutMs);
+        mDeploy.config_kI(0, Constants.IntakeConstants.kIntakeI, Constants.kLongCANTimeoutMs);
+        mDeploy.config_kD(0, Constants.IntakeConstants.kIntakeD, Constants.kLongCANTimeoutMs);
+        mDeploy.config_kF(0, Constants.IntakeConstants.kIntakeF, Constants.kLongCANTimeoutMs);
+        
+        SupplyCurrentLimitConfiguration main_curr_lim = new SupplyCurrentLimitConfiguration(true, 40, 40, 0.02);
+        mDeploy.configSupplyCurrentLimit(main_curr_lim);
+
         // reduce can util
-        mMaster.changeMotionControlFramePeriod(255);
-        mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
-        mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
+        mRoller.changeMotionControlFramePeriod(255);
+        mRoller.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
+        mRoller.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
         mSingulator.changeMotionControlFramePeriod(255);
         mSingulator.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
         mSingulator.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
-
-        mSolenoid = new Solenoid(Ports.PCM, PneumaticsModuleType.CTREPCM, Ports.INTAKE_SOLENOID_ID);
     }
 
     public static synchronized Intake getInstance() {
@@ -81,8 +93,8 @@ public class Intake extends Subsystem {
     @Override
     public synchronized void readPeriodicInputs() {
         mPeriodicIO.intake_out = mIntakeSolenoidTimer.update(mPeriodicIO.deploy, 0.2);
-        mPeriodicIO.intake_current = mMaster.getStatorCurrent();
-        mPeriodicIO.intake_voltage = mMaster.getMotorOutputVoltage();
+        mPeriodicIO.intake_current = mRoller.getStatorCurrent();
+        mPeriodicIO.intake_voltage = mRoller.getMotorOutputVoltage();
         if (mCSVWriter != null) {
             mCSVWriter.add(mPeriodicIO);
         }
@@ -90,9 +102,16 @@ public class Intake extends Subsystem {
 
     @Override
     public void writePeriodicOutputs() {
-        mMaster.set(ControlMode.PercentOutput, mPeriodicIO.intake_demand / 12.0);
+        mRoller.set(ControlMode.PercentOutput, mPeriodicIO.intake_demand / 12.0);
         mSingulator.set(ControlMode.PercentOutput, mPeriodicIO.singulator_demand / 12.0);
-        mSolenoid.set(mPeriodicIO.deploy);
+
+        /*
+        if (mPeriodicIO.deploy) {
+            mDeploy.set(ControlMode.Position, Constants.IntakeConstants.kDeployDelta);
+        } else {
+            mDeploy.set(ControlMode.Position, 10.0);
+        }
+        */
     }
     
     public void setState(State state) {
@@ -185,7 +204,7 @@ public class Intake extends Subsystem {
 
     @Override
     public void stop() {
-        mMaster.set(ControlMode.PercentOutput, 0);
+        mRoller.set(ControlMode.PercentOutput, 0);
     }
 
     @Override
