@@ -19,6 +19,7 @@ public class Indexer extends Subsystem {
     
     private final TalonFX mTunnel;
     private final TalonFX mTrigger;
+    private final TalonFX mEjector;
 
     private static Indexer mInstance;
     public PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -52,7 +53,7 @@ public class Indexer extends Subsystem {
 
         /* Trigger Motor */
         mTrigger = TalonFXFactory.createDefaultTalon(Ports.TRIGGER_ID);
-        mTrigger.setInverted(true);
+        // mTrigger.setInverted(true);
         mTrigger.setNeutralMode(NeutralMode.Brake);
 
         // closed loop tuning
@@ -72,6 +73,7 @@ public class Indexer extends Subsystem {
 
         /* Tunnel Motor */
         mTunnel = TalonFXFactory.createDefaultTalon(Ports.TUNNEL_ID);
+        mTunnel.setInverted(true);
 
         // closed loop tuning
         mTunnel.config_kI(0, Constants.IndexerConstants.kTunnelI, Constants.kLongCANTimeoutMs);
@@ -87,6 +89,24 @@ public class Indexer extends Subsystem {
         mTunnel.changeMotionControlFramePeriod(255);
         mTunnel.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
         mTunnel.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
+
+        /* Ejectory Motor */
+        mEjector = TalonFXFactory.createDefaultTalon(Ports.EJECTOR_ID);
+
+        // closed loop tuning
+        mEjector.config_kI(0, Constants.IndexerConstants.kTunnelI, Constants.kLongCANTimeoutMs);
+        mEjector.config_kD(0, Constants.IndexerConstants.kTunnelD, Constants.kLongCANTimeoutMs);
+        mEjector.config_kP(0, Constants.IndexerConstants.kTunnelP, Constants.kLongCANTimeoutMs);
+        mEjector.config_kF(0, Constants.IndexerConstants.kTunnelF, Constants.kLongCANTimeoutMs);
+        mEjector.selectProfileSlot(0, 0);
+
+        // use integrated encoder
+        mEjector.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
+
+        // reduce can util
+        mEjector.changeMotionControlFramePeriod(255);
+        mEjector.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
+        mEjector.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
       
         mBottomBeamBreak = new DigitalInput(Ports.BOTTOM_BEAM_BREAK);
         mTopBeamBreak = new DigitalInput(Ports.TOP_BEAM_BREAK);
@@ -149,6 +169,7 @@ public class Indexer extends Subsystem {
     public void writePeriodicOutputs() {
         mTunnel.set(ControlMode.PercentOutput, mPeriodicIO.tunnel_demand / 12.0);
         mTrigger.set(ControlMode.PercentOutput, mPeriodicIO.trigger_demand / 12.0);
+        mEjector.set(ControlMode.PercentOutput, mPeriodicIO.ejector_demand / 12.0);
     }
 
     private boolean stopTunnel() {
@@ -191,6 +212,10 @@ public class Indexer extends Subsystem {
                 mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIdleVoltage;
                 break;
             case INDEXING:
+                mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTunnelIndexingVoltage;
+                mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVoltage;
+                mPeriodicIO.ejector_demand = Constants.IndexerConstants.kTunnelIndexingVoltage;
+                /*
                 if (runTrigger()) {
                     mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerIndexingVoltage;
                 } else { 
@@ -202,6 +227,7 @@ public class Indexer extends Subsystem {
                 } else {
                     mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVoltage;
                 }
+                */
                 break;
             case FEEDING:
                 mPeriodicIO.trigger_demand = Constants.IndexerConstants.kFeedingVoltage;
@@ -327,6 +353,10 @@ public class Indexer extends Subsystem {
         private double trigger_current;
         private double trigger_velocity;
 
+        private double ejector_voltage;
+        private double ejector_current;
+        private double ejector_velocity;
+
         private boolean top_break;
         private boolean bottom_break;
         private boolean correct_color;
@@ -337,6 +367,7 @@ public class Indexer extends Subsystem {
         // OUTPUTS
         private double tunnel_demand;
         private double trigger_demand;
+        private double ejector_demand;
         private boolean eject;
     }
 
