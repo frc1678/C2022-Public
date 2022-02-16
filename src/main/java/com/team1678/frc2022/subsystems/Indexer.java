@@ -95,15 +95,17 @@ private Indexer() {
                 mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerIdleVoltage;
                 break;
             case INDEXING:
-                //checks for correct color
-                if (!mColorSensor.getOuttake()) {
+                // Check for whether we want to outtake based off color sensor
+                if (mColorSensor.getOuttake()) {
+                    //if not correct color, goes to outtaking state
+                    this.setState(WantedAction.OUTTAKE);
+                } else {
                     //runs trigger if top beam break isn't triggered
                     if (mRunTrigger()) {
                         mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerIndexingVoltage;
                     } else {
                         mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerIdleVoltage;
                     }
-                        mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIndexingVoltage;
                     //stops indexer if bottom beam break is triggered, otherwise keeps indexing
                     if (stopIndexer()) {
                         mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
@@ -111,10 +113,7 @@ private Indexer() {
                         mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIndexingVoltage;
                     }
 
-                    mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakeIdleVoltage;
-                } else {
-                    //if not correct color, goes to outtaking state
-                    this.setState(WantedAction.OUTTAKE);
+                    mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakeIdleVoltage;   
                 }
                 
                 break;
