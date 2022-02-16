@@ -13,6 +13,7 @@ import com.team1678.frc2022.auto.AutoModeSelector;
 import com.team1678.frc2022.auto.modes.AutoModeBase;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.ControlBoard.SwerveCardinal;
+import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.loops.CrashTracker;
 import com.team1678.frc2022.loops.Looper;
 import com.team1678.frc2022.subsystems.Climber;
@@ -50,7 +51,14 @@ public class Robot extends TimedRobot {
 	 * initialization code.
 	 */
 
-	/* Declare necessary class objects */
+	 
+	// instantiate enabled and disabled loopers
+	private final Looper mEnabledLooper = new Looper();
+	private final Looper mDisabledLooper = new Looper();
+	// instantiate logging looper
+	private final Looper mLoggingLooper = new Looper();
+
+	// declare necessary class objects
 	private ShuffleBoardInteractions mShuffleBoardInteractions;
 	public static CTREConfigs ctreConfigs;
 
@@ -68,9 +76,8 @@ public class Robot extends TimedRobot {
 	private final Climber mClimber = Climber.getInstance();
 	private final Limelight mLimelight = Limelight.getInstance();
 
-	// instantiate enabled and disabled loopers
-	private final Looper mEnabledLooper = new Looper();
-	private final Looper mDisabledLooper = new Looper();
+	// logging system
+	private LoggingSystem mLogger = LoggingSystem.getInstance();
 
 	private boolean mClimbMode = false;
 	private boolean mOpenLoopClimbControlMode = false;
@@ -95,7 +102,7 @@ public class Robot extends TimedRobot {
 
 			mSubsystemManager.setSubsystems(
 					mSwerve,
-					// mInfrastructure,
+					mInfrastructure,
 					mIntake,
 					mIndexer,
 					mShooter,
@@ -107,6 +114,9 @@ public class Robot extends TimedRobot {
 
 			mSubsystemManager.registerEnabledLoops(mEnabledLooper);
 			mSubsystemManager.registerDisabledLoops(mDisabledLooper);
+			
+			mSubsystemManager.registerLoggingSystems(mLogger);
+            mLogger.registerLoops(mLoggingLooper);
 
 			mSwerve.resetOdometry(new Pose2d());
 			mSwerve.resetAnglesToAbsolute();
@@ -130,6 +140,8 @@ public class Robot extends TimedRobot {
 		try {
 
 			mEnabledLooper.start();
+			mLoggingLooper.start();
+
 			mAutoModeExecutor.start();
 
 			mInfrastructure.setIsDuringAuto(true);
@@ -162,10 +174,12 @@ public class Robot extends TimedRobot {
 
 			mDisabledLooper.stop();
 			mEnabledLooper.start();
+			mLoggingLooper.start();
 
 			// mInfrastructure.setIsDuringAuto(false);
 
 			mClimber.setBrakeMode(true);
+
 			mInfrastructure.setIsDuringAuto(false);
 		
 			mLimelight.setLed(Limelight.LedMode.ON);
@@ -345,6 +359,8 @@ public class Robot extends TimedRobot {
 			mEnabledLooper.stop();
 			mDisabledLooper.start();
 
+			mLoggingLooper.stop();
+
 			mLimelight.setLed(Limelight.LedMode.ON);
             mLimelight.triggerOutputs();
 
@@ -397,6 +413,9 @@ public class Robot extends TimedRobot {
 		try {
 			mDisabledLooper.stop();
 			mEnabledLooper.stop();
+
+			mLoggingLooper.stop();
+
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
 			throw t;

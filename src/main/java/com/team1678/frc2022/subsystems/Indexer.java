@@ -10,6 +10,7 @@ import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
 import com.team254.lib.drivers.TalonFXFactory;
+import com.team254.lib.util.ReflectingCSVWriter;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
@@ -21,7 +22,9 @@ public class Indexer extends Subsystem {
     private final TalonFX mTrigger;
 
     private static Indexer mInstance;
+
     public PeriodicIO mPeriodicIO = new PeriodicIO();
+    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
 
     private final DigitalInput mBottomBeamBreak;
     private final DigitalInput mTopBeamBreak;
@@ -103,13 +106,13 @@ public class Indexer extends Subsystem {
         return mState;
     }
 
-    
     @Override
     public void registerEnabledLoops (ILooper enabledLooper) {
         enabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
                 mState = State.IDLE;
+                startLogging();
             }
 
             @Override
@@ -124,6 +127,7 @@ public class Indexer extends Subsystem {
             @Override
             public void onStop(double timestamp) {
                 mState = State.IDLE;
+                stopLogging();
                 stop();
             }
         });
@@ -352,6 +356,18 @@ public class Indexer extends Subsystem {
         return false;
     }
 
+    public synchronized void startLogging() {
+        if (mCSVWriter == null) {
+            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/INDEXER-LOGS.csv", PeriodicIO.class);
+        }
+    }
+
+    public synchronized void stopLogging() {
+        if (mCSVWriter != null) {
+            mCSVWriter.flush();
+            mCSVWriter = null;
+        }
+    }
     // only call for quick status testing
     public void outputTelemetry() {
         SmartDashboard.putBoolean("Top Had Seen Ball", mTopHadSeenBall);

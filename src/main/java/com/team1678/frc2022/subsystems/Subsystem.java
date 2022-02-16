@@ -1,5 +1,6 @@
 package com.team1678.frc2022.subsystems;
 
+import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.loops.ILooper;
 
 /**
@@ -13,24 +14,21 @@ import com.team1678.frc2022.loops.ILooper;
  * instantializing all member components at the start of the match.
  */
 public abstract class Subsystem {
-    public void writeToLog() {
-    }
+    public void writeToLog() {}
 
     // Optional design pattern for caching periodic reads to avoid hammering the HAL/CAN.
-    public void readPeriodicInputs() {
-    }
+    public void readPeriodicInputs() {}
 
     // Optional design pattern for caching periodic writes to avoid hammering the HAL/CAN.
-    public void writePeriodicOutputs() {
-    }
+    public void writePeriodicOutputs() {}
 
     public abstract void stop();
 
-    public void zeroSensors() {
-    }
+    public void zeroSensors() {}
 
-    public void registerEnabledLoops(ILooper enabledLooper) {
-    }
+    public void registerEnabledLoops(ILooper enabledLooper) {}
+
+    public void registerLogger(LoggingSystem LS) {}
 
     public abstract boolean checkSystem();
 
