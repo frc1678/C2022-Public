@@ -40,40 +40,40 @@ public class LoggingSystem {
 
     public  void LogDirectory() {
         if (log == true) {
-        File Directory = new File(mDirectory);
-        Integer maxNum = 0;
-        if  (! Directory.isDirectory()) {
-            Directory.mkdir();
-        }
-        
-        for (final File directoryEntry : Directory.listFiles()) {
-            try {
-                if (directoryEntry.isDirectory()) {
-                    String directory_name = directoryEntry.getName();
-                    int char_index = directory_name.indexOf("_");
-                    int Num = Integer.parseInt(directory_name.substring(0, char_index));
-                    if (Num > maxNum) {
-                        maxNum = Num;
-                    }
-                } 
-            } catch (Exception e) {
-                //  Files that are not numbers are expected and ignored
+            File Directory = new File(mDirectory);
+            Integer maxNum = 0;
+            if  (! Directory.isDirectory()) {
+                Directory.mkdir();
             }
+            
+            for (final File directoryEntry : Directory.listFiles()) {
+                try {
+                    if (directoryEntry.isDirectory()) {
+                        String directory_name = directoryEntry.getName();
+                        int char_index = directory_name.indexOf("_");
+                        int Num = Integer.parseInt(directory_name.substring(0, char_index));
+                        if (Num > maxNum) {
+                            maxNum = Num;
+                        }
+                    } 
+                } catch (Exception e) {
+                    //  Files that are not numbers are expected and ignored
+                }
+            }
+            maxNum++;
+
+            // get system time in milliseconds and convert to datetime in PST time zone
+            long milliSec = System.currentTimeMillis();
+            Date res = new Date(milliSec);
+            DateFormat sdf = new SimpleDateFormat("dd:MM:yy:HH:mm:ss");
+            sdf.setTimeZone(TimeZone.getTimeZone("PST"));
+
+            // format time in datetime and add to file name
+            mDirectory = mRootDirectory + "/" + maxNum.toString() + "_" + sdf.format(res);
+
+            File newDirectory = new File(mDirectory);
+            newDirectory.mkdir();
         }
-        maxNum++;
-
-        // get system time in milliseconds and convert to datetime in PST time zone
-        long milliSec = System.currentTimeMillis();
-        Date res = new Date(milliSec);
-        DateFormat sdf = new SimpleDateFormat("dd:MM:yy:HH:mm:ss");
-        sdf.setTimeZone(TimeZone.getTimeZone("PST"));
-
-        // format time in datetime and add to file name
-        mDirectory = mRootDirectory + "/" + maxNum.toString() + "_" + sdf.format(res);
-
-        File newDirectory = new File(mDirectory);
-        newDirectory.mkdir();
-    }
     }
 
     public synchronized static LoggingSystem getInstance() {
