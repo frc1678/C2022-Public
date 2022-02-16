@@ -410,22 +410,31 @@ public class Limelight extends Subsystem {
     
     public void LogSetup() {
         mStorage = new LogStorage<PeriodicIO>();
-        mStorage.setHeadersFromClass(PeriodicIO.class);
+        
+        // mStorage.setHeadersFromClass(PeriodicIO.class);
+        ArrayList<String> headers = new ArrayList<String>();
+        headers.add("loop time");
+        headers.add("vision pipeline");
+        headers.add("has comms");
+        headers.add("vision latency");
+        headers.add("tx");
+        headers.add("ty");
+        headers.add("area");
+
+        mStorage.setHeaders(headers);
+        
     }
 
     public void LogSend() {
         ArrayList<Number> items = new ArrayList<Number>();
-        items.add(Timer.getFPGATimestamp());
-
-        items.add(mPeriodicIO.latency);
-        items.add(mPeriodicIO.givenLedMode);
+        
+        items.add(mPeriodicIO.dt);
         items.add(mPeriodicIO.givenPipeline);
+        items.add(mPeriodicIO.has_comms ? 1.0 : 0.0);
+        items.add(mPeriodicIO.latency);
         items.add(mPeriodicIO.xOffset);
         items.add(mPeriodicIO.yOffset);
         items.add(mPeriodicIO.area);
-        items.add(mPeriodicIO.has_comms ? 1.0 : 0.0);
-
-        items.add(mPeriodicIO.dt);
 
         // send data to logging storage
         mStorage.addData(items);
