@@ -147,7 +147,7 @@ public class ShuffleBoardInteractions {
     /* SUPERSTRUCTURE */
     // actions
     private final NetworkTableEntry mIntaking;
-    private final NetworkTableEntry mOuttaking;
+    private final NetworkTableEntry mEjecting;
     private final NetworkTableEntry mPrepping;
     private final NetworkTableEntry mShooting;
     private final NetworkTableEntry mFender;
@@ -173,7 +173,8 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mGValue;
     private final NetworkTableEntry mBValue;
     private final NetworkTableEntry mMatchedColor;
-    private final NetworkTableEntry mOuttake;
+    private final NetworkTableEntry mEject;
+    private final NetworkTableEntry mReadDistance;
 
     // instantiate subsystems, tabs, and widgets
     public ShuffleBoardInteractions() {
@@ -339,7 +340,7 @@ public class ShuffleBoardInteractions {
             .add("Trigger Voltage", 0.0)
             .getEntry();
         mIndexerState = INDEXER_TAB
-            .add("Indexer State", mIndexer.getState().toString())
+            .add("Indexer State", "N/A")
             .getEntry();
         mBallCount = INDEXER_TAB
             .add("Ball Count", 0.0)
@@ -419,10 +420,13 @@ public class ShuffleBoardInteractions {
             .add("Detected B Value", 0.0)
             .getEntry();
         mMatchedColor = COLOR_SENSOR
-            .add("Matched Color", Color.kBlack)
+            .add("Matched Color", "N/A")
             .getEntry();
-        mOuttake = COLOR_SENSOR
-            .add("Outtake", false)
+        mEject = COLOR_SENSOR
+            .add("Eject", false)
+            .getEntry();
+        mReadDistance = COLOR_SENSOR
+            .add("Read Distance", 0.0)
             .getEntry();
 
         /* VISION */
@@ -465,7 +469,7 @@ public class ShuffleBoardInteractions {
             .add("Intaking", false)
             .withSize(2, 1)
             .getEntry();
-        mOuttaking = SUPERSTRUCTURE_TAB
+        mEjecting = SUPERSTRUCTURE_TAB
             .add("Outtaking", false)
             .withSize(2, 1)
             .getEntry();
@@ -536,7 +540,6 @@ public class ShuffleBoardInteractions {
         mIntakeState.setString(mIntake.getState().toString());
         mIntakeVoltage.setDouble(mIntake.getIntakeVoltage());
         mIntakeDemand.setDouble(mIntake.getIntakeDemand());
-        mIntakeDeployed.setBoolean(mIntake.getWantDeploy());
         mIntakeCurrent.setDouble(mIntake.getIntakeCurrent());
 
         /* Shooter */
@@ -624,7 +627,6 @@ public class ShuffleBoardInteractions {
         mIntakeState.setString(mIntake.getState().toString());
         mIntakeVoltage.setDouble(mIntake.getIntakeVoltage());
         mIntakeDemand.setDouble(mIntake.getIntakeDemand());
-        mIntakeDeployed.setBoolean(mIntake.getWantDeploy());
         mIntakeCurrent.setDouble(mIntake.getIntakeCurrent());
         
         /* SHOOTER */
@@ -665,13 +667,14 @@ public class ShuffleBoardInteractions {
         mRValue.setDouble(mColorSensor.getDetectedRValue());
         mGValue.setDouble(mColorSensor.getDetectedGValue());
         mBValue.setDouble(mColorSensor.getDetectedBValue());
-        mMatchedColor.setString(mColorSensor.getMatchedColor());
-        mOuttake.setBoolean(mColorSensor.getOuttake());
+        mMatchedColor.setString(mColorSensor.getMatchedColor().toString());
+        mEject.setBoolean(mColorSensor.getEject());
+        mReadDistance.setDouble(mColorSensor.getDistance());
 
         /* SUPERSTRUCTURE */
         // update actions statuses
         mIntaking.setBoolean(mSuperstructure.getIntaking());
-        mOuttaking.setBoolean(mSuperstructure.getOuttaking());
+        mEjecting.setBoolean(mSuperstructure.getEjecting());
         mPrepping.setBoolean(mSuperstructure.getPrepping());
         mShooting.setBoolean(mSuperstructure.getShooting());
         mFender.setBoolean(mSuperstructure.getWantsFender());
