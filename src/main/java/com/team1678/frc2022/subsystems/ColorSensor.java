@@ -1,8 +1,5 @@
 package com.team1678.frc2022.subsystems;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-
 import com.revrobotics.ColorMatch;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.loops.ILooper;
@@ -10,29 +7,46 @@ import com.team1678.frc2022.loops.Loop;
 import com.team1678.lib.drivers.REVColorSensorV3Wrapper;
 import com.team1678.lib.drivers.REVColorSensorV3Wrapper.ColorSensorData;
 
-import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
 import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.util.Color;
 
 public class ColorSensor extends Subsystem {
 
     private static ColorSensor mInstance;
+    public static synchronized ColorSensor getInstance() {
+        if (mInstance == null) {
+            mInstance = new ColorSensor();
+        }
+        return mInstance;
+    }
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
     private REVColorSensorV3Wrapper mColorSensor;
 
     private final ColorMatch mColorMatch = new ColorMatch();
 
+    private Timer mEjectorTimer = new Timer();
+    private boolean mEjectorRunning = false;
+
     public ColorChoices mAllianceColor;
     public ColorChoices mMatchedColor;
 
     public enum ColorChoices {
-        RED, BLUE, OTHER  
+        RED, BLUE, OTHER, NONE  
     }
 
     private ColorSensor() {
-        mAllianceColor =  Constants.isRedAlliance ? ColorChoices.RED : ColorChoices.BLUE;
-        mMatchedColor = ColorChoices.OTHER;
+        if (edu.wpi.first.wpilibj.DriverStation.getAlliance() == Alliance.Red) {
+            mAllianceColor = ColorChoices.RED;
+        } else if (edu.wpi.first.wpilibj.DriverStation.getAlliance() == Alliance.Blue){
+            mAllianceColor = ColorChoices.BLUE;
+        } else {
+            DriverStation.reportError("No Alliance Color Detected", true);
+        }
+        mMatchedColor = ColorChoices.NONE;
         mColorSensor = new REVColorSensorV3Wrapper(I2C.Port.kOnboard);
         
         mColorMatch.addColorMatch(Constants.ColorSensorConstants.kRedColor);
@@ -73,6 +87,54 @@ public class ColorSensor extends Subsystem {
         return false;
     }
 
+    // check if we have the right color
+    public boolean hasCorrectColor() {
+        return mMatchedColor == mAllianceColor;
+    }
+
+    // check if we have the opposite color
+    public boolean hasOppositeColor() {
+        return !hasCorrectColor()
+                    && (mMatchedColor != ColorChoices.OTHER)
+                    && (mMatchedColor != ColorChoices.NONE);
+    }
+
+    // update the color of the cargo we see
+    public void updateMatchedColor() {
+        if (mPeriodicIO.distance < Constants.ColorSensorConstants.kColorSensorThreshold) { 
+            mMatchedColor = ColorChoices.NONE;
+        } else {
+            if (mPeriodicIO.matched_color.equals(Constants.ColorSensorConstants.kRedColor)) {
+                mMatchedColor = ColorChoices.RED;
+            } else if (mPeriodicIO.matched_color.equals(Constants.ColorSensorConstants.kBlueColor)) {
+                mMatchedColor = ColorChoices.BLUE;
+            } else {
+                mMatchedColor = ColorChoices.OTHER;
+            }
+        }
+    }
+
+    // update whether we want to eject or not
+    public void updateWantsEject() {
+        if (hasOppositeColor()) {
+            mPeriodicIO.eject = true;
+
+            mEjectorTimer.start();
+            mEjectorRunning = true;
+        }
+
+        if (mEjectorTimer.hasElapsed(Constants.IndexerConstants.kEjectDelay) || hasCorrectColor()) {
+            mPeriodicIO.eject = false;
+
+            mEjectorTimer.reset();
+            mEjectorRunning = false;
+        }
+    }
+
+    public boolean wantsEject() {
+        return mPeriodicIO.eject;
+    }
+
     @Override
     public synchronized void readPeriodicInputs() {
         mPeriodicIO.rawColorSensorData = mColorSensor.getLatestReading();
@@ -83,58 +145,38 @@ public class ColorSensor extends Subsystem {
             mPeriodicIO.matched_color = mColorMatch.matchClosestColor(mPeriodicIO.raw_color).color;
         } 
 
-        if (mPeriodicIO.distance < Constants.ColorSensorConstants.kColorSensorThreshold) { 
-            mMatchedColor = ColorChoices.OTHER;
-            mPeriodicIO.outtake = false;
-        } else {
-
-            if (mPeriodicIO.matched_color.equals(Constants.ColorSensorConstants.kRedColor)) {
-                mMatchedColor = ColorChoices.RED;
-            } else if (mPeriodicIO.matched_color.equals(Constants.ColorSensorConstants.kBlueColor)) {
-                mMatchedColor = ColorChoices.BLUE;
-            }
-                mPeriodicIO.outtake = mMatchedColor == mAllianceColor;
-        }
-
+        updateMatchedColor();
+        updateWantsEject();
     }
 
     @Override 
     public synchronized void writePeriodicOutputs() {
         
     }
-
-    public static ColorSensor getInstance() {
-        return null;
-    }
-    
     public double getDetectedRValue() {
         if (mPeriodicIO.raw_color == null) {
             return 0;
         }
         return mPeriodicIO.raw_color.red;
     }
-
     public double getDetectedGValue() {
         if (mPeriodicIO.raw_color == null) {
             return 0;
         }
         return mPeriodicIO.raw_color.green;
     }
-
     public double getDetectedBValue() {
         if (mPeriodicIO.raw_color == null) {
             return 0;
         }
         return mPeriodicIO.raw_color.blue;
     }
-
     public String getMatchedColor() {
         return mMatchedColor.toString();
+    }    
+    public double getDistance() {
+        return mPeriodicIO.distance;
     }
-
-    public boolean getOuttake() {
-        return mPeriodicIO.outtake;
-    }   
 
     public static class PeriodicIO {
         
@@ -145,7 +187,7 @@ public class ColorSensor extends Subsystem {
         public Color matched_color;
 
         //OUTPUTS
-        public boolean outtake;
+        public boolean eject;
     }
     
 }
