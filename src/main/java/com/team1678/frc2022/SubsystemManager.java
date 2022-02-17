@@ -1,5 +1,6 @@
 package com.team1678.frc2022;
 
+import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
 import com.team1678.frc2022.loops.Looper;
@@ -89,6 +90,10 @@ public class SubsystemManager implements ILooper {
 
     public void registerDisabledLoops(Looper disabledLooper) {
         disabledLooper.register(new DisabledLoop());
+    }
+
+    public void registerLoggingSystems(LoggingSystem LS) {
+        mAllSubsystems.forEach(s -> s.registerLogger(LS));
     }
 
     @Override

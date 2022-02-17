@@ -163,5 +163,51 @@ public class ControlBoard {
     public boolean getReversing() {
         return operator.getButton(Button.A);
     }
+
+    //Climber Controls
+    public boolean getClimbMode() {
+        return operator.getButton(Button.LB) && operator.getButton(Button.RB) && operator.getTrigger(Side.LEFT) && operator.getTrigger(Side.RIGHT);
+    }
+
+    public boolean getExitClimbMode() {
+        return operator.getButton(Button.BACK) && operator.getButton(Button.START);
+    }
+
+    public boolean getSwitchClimbControlMode() {
+        return operator.getController().getLeftStickButtonPressed();
+    }
+
+    public boolean getResetClimberPosition() {
+        return operator.getController().getRightStickButtonPressed();
+    }
+
+    public int getClimberJogRight() {
+        int povread = operator.getController().getPOV();
+        switch (povread) {
+            case 0:
+                return 1;
+            case 180:
+                return -1;
+            default:
+                return 0;
+        }
+    }
+
+    public int getClimberJogLeft() {
+        int povread = operator.getController().getPOV();
+        switch (povread) {
+            case 90:
+                return 1;
+            case 360:
+                return -1;
+            default:
+                return 0;
+        }
+    }
+
+    public boolean getTraversalClimb() {
+        return operator.getTrigger(Side.LEFT) && operator.getTrigger(Side.RIGHT);
+    }
+    
 }
 
