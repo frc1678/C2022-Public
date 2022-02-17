@@ -7,6 +7,7 @@ import com.team1678.frc2022.loops.Loop;
 import com.team254.lib.drivers.TalonFXFactory;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.team254.lib.util.ReflectingCSVWriter;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -14,61 +15,62 @@ import edu.wpi.first.wpilibj.util.Color;
 
 public class Indexer extends Subsystem {
     
-private static Indexer mInstance;
-public PeriodicIO mPeriodicIO = new PeriodicIO();
+    private static Indexer mInstance;
+    public PeriodicIO mPeriodicIO = new PeriodicIO();
+    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
 
-private TalonFX mEjector;
-private TalonFX mTunnel;
-private TalonFX mTrigger;
+    private TalonFX mEjector;
+    private TalonFX mTunnel;
+    private TalonFX mTrigger;
 
-private final DigitalInput mBottomBeamBreak;
-private final DigitalInput mTopBeamBreak;
+    private final DigitalInput mBottomBeamBreak;
+    private final DigitalInput mTopBeamBreak;
 
-public boolean mBottomHadSeenBall = false;
-public boolean mTopHadSeenBall = false;
+    public boolean mBottomHadSeenBall = false;
+    public boolean mTopHadSeenBall = false;
 
-private final ColorSensor mColorSensor;
+    private final ColorSensor mColorSensor;
 
-private boolean mRunTrigger() {
-    return !mBallAtTrigger() && mPeriodicIO.ball_count > 0;
-}
-
-private boolean mBallAtTrigger() {
-    return mPeriodicIO.topLightBeamBreakSensor;
-}
-
-private boolean stopIndexer() {
-    if (!mBallInIndexer() && mPeriodicIO.ball_count <= 1) {
-        return false;
+    private boolean mRunTrigger() {
+        return !mBallAtTrigger() && mPeriodicIO.ball_count > 0;
     }
-    else {
-        return true;
+
+    private boolean mBallAtTrigger() {
+        return mPeriodicIO.topLightBeamBreakSensor;
     }
-}
 
-private boolean mBallInIndexer () {
-    return mPeriodicIO.bottomLightBeamBreakSensor;
-}
+    private boolean stopIndexer() {
+        if (!mBallInIndexer() && mPeriodicIO.ball_count <= 1) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
 
-private State mState = State.IDLE;
+    private boolean mBallInIndexer () {
+        return mPeriodicIO.bottomLightBeamBreakSensor;
+    }
 
-public enum WantedAction {
-    NONE, INDEX, EJECT, REVERSE, 
-}
+    private State mState = State.IDLE;
 
-public enum State{
-    IDLE, INDEXING, EJECTING, REVERSING,
-}
+    public enum WantedAction {
+        NONE, INDEX, EJECT, REVERSE, 
+    }
 
-private Indexer() {
-    mEjector = TalonFXFactory.createDefaultTalon(Ports.OUTTAKE_ID);
-    mTunnel = TalonFXFactory.createDefaultTalon(Ports.TUNNEL_ID);
-    mTrigger = TalonFXFactory.createDefaultTalon(Ports.TRIGGER_ID);
-    mBottomBeamBreak = new DigitalInput(Ports.BOTTOM_BEAM_BREAK);
-    mTopBeamBreak = new DigitalInput(Ports.TOP_BEAM_BREAK);
-    mColorSensor =  ColorSensor.getInstance();
-}
-        
+    public enum State{
+        IDLE, INDEXING, EJECTING, REVERSING,
+    }
+
+    private Indexer() {
+        mEjector = TalonFXFactory.createDefaultTalon(Ports.OUTTAKE_ID);
+        mTunnel = TalonFXFactory.createDefaultTalon(Ports.TUNNEL_ID);
+        mTrigger = TalonFXFactory.createDefaultTalon(Ports.TRIGGER_ID);
+        mBottomBeamBreak = new DigitalInput(Ports.BOTTOM_BEAM_BREAK);
+        mTopBeamBreak = new DigitalInput(Ports.TOP_BEAM_BREAK);
+        mColorSensor =  ColorSensor.getInstance();
+    }
+            
     public void setState(WantedAction wanted_state) {
         switch (wanted_state) {
             case NONE:
@@ -141,6 +143,7 @@ private Indexer() {
             @Override
             public void onStart(double timestamp) {
                 mState = State.IDLE;
+                startLogging();
             }
 
             @Override
@@ -153,6 +156,7 @@ private Indexer() {
             @Override
             public void onStop(double timestamp) {
                 mState = State.IDLE;
+                stopLogging();
                 stop();
             }
         });
@@ -298,6 +302,18 @@ private Indexer() {
         public double trigger_demand;
     }
 
+    public synchronized void startLogging() {
+        if (mCSVWriter == null) {
+            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/INDEXER-LOGS.csv", PeriodicIO.class);
+        }
+    }
+
+    public synchronized void stopLogging() {
+        if (mCSVWriter != null) {
+            mCSVWriter.flush();
+            mCSVWriter = null;
+        }
+    }
     // only call for quick status testing
     public void outputTelemetry() {
         SmartDashboard.putBoolean("Top Had Seen Ball", mTopHadSeenBall);

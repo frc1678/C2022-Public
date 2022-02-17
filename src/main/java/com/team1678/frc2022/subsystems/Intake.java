@@ -1,7 +1,12 @@
 package com.team1678.frc2022.subsystems;
 
 import com.team1678.frc2022.Ports;
+import com.team1678.frc2022.logger.LogStorage;
+import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.loops.ILooper;
+
+import java.util.ArrayList;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
@@ -12,6 +17,8 @@ import com.team1678.frc2022.loops.Loop;
 import com.team254.lib.drivers.TalonFXFactory;
 import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.util.TimeDelayedBoolean;
+
+import edu.wpi.first.wpilibj.Timer;
 
 public class Intake extends Subsystem {
 
@@ -27,6 +34,9 @@ public class Intake extends Subsystem {
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
     private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
+
+    // logger
+    LogStorage<PeriodicIO> mStorage = null;
 
     private static Intake mInstance;
     public State mState = State.IDLE;
@@ -76,6 +86,7 @@ public class Intake extends Subsystem {
             @Override
             public void onStart(double timestamp) {
                 mState = State.IDLE;
+                startLogging();
             }
 
             @Override
@@ -85,10 +96,10 @@ public class Intake extends Subsystem {
 
             @Override
             public void onStop(double timestamp) {
-
+                stopLogging();
             }
-        });
-    }
+       });
+   }
 
     @Override
     public synchronized void readPeriodicInputs() {
@@ -98,6 +109,8 @@ public class Intake extends Subsystem {
         if (mCSVWriter != null) {
             mCSVWriter.add(mPeriodicIO);
         }
+
+        SendLog();
     }
 
     @Override
@@ -202,6 +215,10 @@ public class Intake extends Subsystem {
         private boolean deploy;
     }
 
+    public void zeroSensors() {
+        // empty
+    }
+
     @Override
     public void stop() {
         mRoller.set(ControlMode.PercentOutput, 0);
@@ -211,9 +228,51 @@ public class Intake extends Subsystem {
     public boolean checkSystem() {
         return false;
     }
+    
+   public synchronized void startLogging() {
+        if (mCSVWriter == null) {
+            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/INTAKE-LOGS.csv", PeriodicIO.class);
+        }
+    }
 
-    public void zeroSensors() {
-        // empty
+    public synchronized void stopLogging() {
+        if (mCSVWriter != null) {
+            mCSVWriter.flush();
+            mCSVWriter = null;
+        }
+    }
+
+    // logger
+    
+    @Override
+    public void registerLogger(LoggingSystem LS) {
+        SetupLog();
+        LS.register(mStorage, "INTAKE_LOGS.csv");
     }
     
+    public void SetupLog() {
+        mStorage = new LogStorage<PeriodicIO>();
+        mStorage.setHeadersFromClass(PeriodicIO.class);
+    }
+
+    public void SendLog() {
+        ArrayList<Number> items = new ArrayList<Number>();
+        items.add(Timer.getFPGATimestamp());
+
+        // add inputs
+        items.add(mPeriodicIO.intake_out ? 1.0 : 0.0);
+        items.add(mPeriodicIO.intake_current);
+        items.add(mPeriodicIO.singulator_current);
+        items.add(mPeriodicIO.intake_voltage);
+        items.add(mPeriodicIO.singulator_voltage);
+        
+        // add outputs
+        items.add(mPeriodicIO.intake_demand);
+        items.add(mPeriodicIO.singulator_demand);
+        items.add(mPeriodicIO.deploy ? 1.0 : 0.0);
+
+        // send data to logging storage
+        mStorage.addData(items);
+    }
+
 }

@@ -11,6 +11,7 @@ import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
 import com.team254.lib.drivers.TalonFXFactory;
+import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.util.Util;
 
 import edu.wpi.first.wpilibj.Timer;
@@ -28,6 +29,7 @@ public class Shooter extends Subsystem {
     }
 
     private PeriodicIO mPeriodicIO = new PeriodicIO();
+    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
 
     private boolean mIsOpenLoop = false;
 
@@ -81,7 +83,7 @@ public class Shooter extends Subsystem {
         enabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
-
+                startLogging();
             }
 
             @Override
@@ -91,6 +93,7 @@ public class Shooter extends Subsystem {
 
             @Override
             public void onStop(double timestamp) {
+                stopLogging();
                 stop();
             }
         });
@@ -192,6 +195,19 @@ public class Shooter extends Subsystem {
         /* Outputs */
         private double flywheel_demand;
         private double accelerator_demand;
+    }
+
+    public synchronized void startLogging() {
+        if (mCSVWriter == null) {
+            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/SHOOTER-LOGS.csv", PeriodicIO.class);
+        }
+    }
+
+    public synchronized void stopLogging() {
+        if (mCSVWriter != null) {
+            mCSVWriter.flush();
+            mCSVWriter = null;
+        }
     }
 
     @Override

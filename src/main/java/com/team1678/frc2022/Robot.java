@@ -4,15 +4,19 @@
 
 package com.team1678.frc2022;
 
+import java.security.Principal;
 import java.util.Optional;
 
+import com.ctre.phoenix.motorcontrol.can.MotControllerJNI;
 import com.team1678.frc2022.auto.AutoModeExecutor;
 import com.team1678.frc2022.auto.AutoModeSelector;
 import com.team1678.frc2022.auto.modes.AutoModeBase;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.ControlBoard.SwerveCardinal;
+import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.loops.CrashTracker;
 import com.team1678.frc2022.loops.Looper;
+import com.team1678.frc2022.subsystems.Climber;
 import com.team1678.frc2022.subsystems.Hood;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Infrastructure;
@@ -26,7 +30,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import com.team254.lib.util.Util;
 import com.team254.lib.wpilib.TimedRobot;
 
 /**
@@ -45,7 +51,14 @@ public class Robot extends TimedRobot {
 	 * initialization code.
 	 */
 
-	/* Declare necessary class objects */
+	 
+	// instantiate enabled and disabled loopers
+	private final Looper mEnabledLooper = new Looper();
+	private final Looper mDisabledLooper = new Looper();
+	// instantiate logging looper
+	private final Looper mLoggingLooper = new Looper();
+
+	// declare necessary class objects
 	private ShuffleBoardInteractions mShuffleBoardInteractions;
 	public static CTREConfigs ctreConfigs;
 
@@ -60,11 +73,16 @@ public class Robot extends TimedRobot {
 	private final Indexer mIndexer = Indexer.getInstance();
 	private final Shooter mShooter = Shooter.getInstance();
 	private final Hood mHood = Hood.getInstance();
+	private final Climber mClimber = Climber.getInstance();
 	private final Limelight mLimelight = Limelight.getInstance();
 
-	// instantiate enabled and disabled loopers
-	private final Looper mEnabledLooper = new Looper();
-	private final Looper mDisabledLooper = new Looper();
+	// logging system
+	private LoggingSystem mLogger = LoggingSystem.getInstance();
+
+	private boolean mClimbMode = false;
+	private boolean mOpenLoopClimbControlMode = false;
+	private boolean mResetClimberPosition = false;
+	private boolean mTraversalClimb = false;
 
 	// auto instances
 	private AutoModeExecutor mAutoModeExecutor;
@@ -84,16 +102,21 @@ public class Robot extends TimedRobot {
 
 			mSubsystemManager.setSubsystems(
 					mSwerve,
+					mInfrastructure,
 					mIntake,
 					mIndexer,
-					// mShooter,
-					// mHood,
-					mSuperstructure //,
-					// mLimelight
+					mShooter,
+					mHood,
+					mClimber,
+					mSuperstructure,
+					mLimelight
 			);
 
 			mSubsystemManager.registerEnabledLoops(mEnabledLooper);
 			mSubsystemManager.registerDisabledLoops(mDisabledLooper);
+			
+			mSubsystemManager.registerLoggingSystems(mLogger);
+            mLogger.registerLoops(mLoggingLooper);
 
 			mSwerve.resetOdometry(new Pose2d());
 			mSwerve.resetAnglesToAbsolute();
@@ -106,6 +129,8 @@ public class Robot extends TimedRobot {
 	@Override
 	public void robotPeriodic() {
 		mShuffleBoardInteractions.update();
+		mSwerve.outputTelemetry();
+		mClimber.outputTelemetry();
 	}
 
 	@Override
@@ -115,6 +140,8 @@ public class Robot extends TimedRobot {
 		try {
 
 			mEnabledLooper.start();
+			mLoggingLooper.start();
+
 			mAutoModeExecutor.start();
 
 			mInfrastructure.setIsDuringAuto(true);
@@ -147,6 +174,11 @@ public class Robot extends TimedRobot {
 
 			mDisabledLooper.stop();
 			mEnabledLooper.start();
+			mLoggingLooper.start();
+
+			// mInfrastructure.setIsDuringAuto(false);
+
+			mClimber.setBrakeMode(true);
 
 			mInfrastructure.setIsDuringAuto(false);
 		
@@ -198,6 +230,120 @@ public class Robot extends TimedRobot {
 			} else {
 				mSwerve.drive(swerveTranslation, swerveRotation, true, true);
 			}
+			
+			/* CLIMBER */
+			if (mControlBoard.getClimbMode()) {
+				mClimbMode = true;
+			}
+
+			/* Manual Controls */
+			if (mClimbMode) {
+				if (mControlBoard.getExitClimbMode()) {
+					mClimbMode = false;
+				}
+
+				if (mControlBoard.operator.getController().getLeftStickButtonPressed()) {
+					mOpenLoopClimbControlMode = !mOpenLoopClimbControlMode;
+				}
+
+				if (mControlBoard.operator.getController().getRightStickButtonPressed()) {
+					mResetClimberPosition = true;
+				}
+
+				SmartDashboard.putBoolean("Open Loop Climb", mOpenLoopClimbControlMode);
+
+				if (mResetClimberPosition) {
+					mClimber.resetClimberPosition();
+					mResetClimberPosition = false;
+				}
+
+				if (!mOpenLoopClimbControlMode) {
+					if (mControlBoard.operator.getController().getYButtonPressed()) {
+						mClimber.setRightClimberPosition(Constants.ClimberConstants.kRightTravelDistance);
+					} else if (mControlBoard.operator.getController().getBButtonPressed()) {
+						mClimber.setRightClimberPosition(Constants.ClimberConstants.kRightPartialTravelDistance);
+					} else if (mControlBoard.operator.getController().getAButtonPressed()){
+						mClimber.setRightClimberPosition(0.0);
+					}
+
+					int pov = mControlBoard.operator.getController().getPOV();
+					if (pov == 0) {
+						mClimber.setLeftClimberPosition(Constants.ClimberConstants.kLeftTravelDistance);
+					} else if (pov == 270) {
+						mClimber.setLeftClimberPosition(Constants.ClimberConstants.kLeftPartialTravelDistance);
+					} else if (pov == 180) {
+						mClimber.setLeftClimberPosition(0.0);
+					}
+				} else {
+					// set left climber motor
+					if (mControlBoard.operator.getController().getPOV() == 0) {
+						mClimber.setLeftClimberOpenLoop(8.0);
+						//mClimber.setClimberPosition(Constants.ClimberConstants.kClimberHeight);
+					} else if (mControlBoard.operator.getController().getPOV() == 180) {
+						mClimber.setLeftClimberOpenLoop(-8.0);
+						//mClimber.setClimberPosition(Constants.ClimberConstants.kRetractedHeight);
+					} else {
+						mClimber.setLeftClimberOpenLoop(0.0);
+						// mClimber.setLeftClimberPositionDelta(0.0);
+					}
+
+					// set right climber motor
+					if (mControlBoard.operator.getController().getYButton()) {
+						mClimber.setRightClimberOpenLoop(8.0);
+						//mClimber.setClimberPosition(Constants.ClimberConstants.kClimberHeight);
+					} else if (mControlBoard.operator.getController().getAButton()) {
+						mClimber.setRightClimberOpenLoop(-8.0);
+						//mClimber.setClimberPosition(Constants.ClimberConstants.kRetractedHeight);
+					} else {
+						mClimber.setRightClimberOpenLoop(0.0);
+						// mClimber.setRightClimberPositionDelta(0.0);
+					}
+				}
+						
+				
+				/* Automated Climb */ 
+				/*
+				if (mControlBoard.getTraversalClimb()) {
+					mTraversalClimb = true; 
+				} else {
+					mTraversalClimb = false;
+				}
+
+				if (mTraversalClimb) {
+					// pull up with the right arm to the mid bar
+					mClimber.setRightClimberPosition(0.0);
+					mClimber.setLeftClimberPosition(Constants.ClimberConstants.kLeftTravelDistance);
+
+					// pull up with left arm on upper bar while extending right arm to traversal bar
+					if (Util.epsilonEquals(mSwerve.getPitch().getDegrees(), // check if dt pitch is at bar contact angle before climbing to next bar
+										   Constants.ClimberConstants.kBarContactAngle,
+										   Constants.ClimberConstants.kBarContactAngleEpsilon)
+						&&
+						Util.epsilonEquals(mClimber.getClimberPositionLeft(), // don't climb unless left arm is fully extended
+										   Constants.ClimberConstants.kLeftTravelDistance,
+										   Constants.ClimberConstants.kTravelDistanceEpsilon)) {
+
+						mClimber.setRightClimberPosition(Constants.ClimberConstants.kRightTravelDistance);
+						mClimber.setLeftClimberPosition(0.0);
+					}
+
+					// pull up with right arm to partial height on traversal bar
+					else if (Util.epsilonEquals(mSwerve.getPitch().getDegrees(), // check if dt pitch is at bar contact angle before climbing to next bar
+												Constants.ClimberConstants.kBarContactAngle,
+												Constants.ClimberConstants.kBarContactAngleEpsilon)
+							&&
+							Util.epsilonEquals(mClimber.getClimberPositionRight(), // don't climb unless right arm is fully extended
+												Constants.ClimberConstants.kRightTravelDistance,
+												Constants.ClimberConstants.kTravelDistanceEpsilon)) {
+
+						mClimber.setRightClimberPosition(Constants.ClimberConstants.kRightPartialTravelDistance);
+					}
+				} else {
+					mClimber.setRightClimberPosition(0.0);
+					mClimber.setLeftClimberPosition(0.0);
+				}
+				*/
+			}
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
@@ -212,6 +358,8 @@ public class Robot extends TimedRobot {
 			CrashTracker.logDisabledInit();
 			mEnabledLooper.stop();
 			mDisabledLooper.start();
+
+			mLoggingLooper.stop();
 
 			mLimelight.setLed(Limelight.LedMode.ON);
             mLimelight.triggerOutputs();
@@ -265,6 +413,9 @@ public class Robot extends TimedRobot {
 		try {
 			mDisabledLooper.stop();
 			mEnabledLooper.stop();
+
+			mLoggingLooper.stop();
+
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
 			throw t;
