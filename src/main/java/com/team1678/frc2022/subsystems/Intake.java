@@ -16,20 +16,18 @@ import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.loops.Loop;
 import com.team254.lib.drivers.TalonFXFactory;
 import com.team254.lib.util.ReflectingCSVWriter;
-import com.team254.lib.util.TimeDelayedBoolean;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Intake extends Subsystem {
 
-    private TimeDelayedBoolean mIntakeSolenoidTimer = new TimeDelayedBoolean();
-
     public enum WantedAction {
-        NONE, INTAKE, REVERSE, STAY_OUT
+        NONE, INTAKE, REVERSE
     }
 
     public enum State {
-        IDLE, INTAKING, REVERSING, STAYING_OUT
+        IDLE, INTAKING, REVERSING
     }
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -51,15 +49,10 @@ public class Intake extends Subsystem {
         mSingulator = TalonFXFactory.createDefaultTalon(Ports.SINGULATOR_ID);
 
         mRoller.setInverted(true);
+        mDeploy.setInverted(true);
         mSingulator.setInverted(true);
 
-        mDeploy.setInverted(true);
-        mDeploy.setNeutralMode(NeutralMode.Brake);
-        mDeploy.setSelectedSensorPosition(0.0);
-        mDeploy.config_kP(0, Constants.IntakeConstants.kIntakeP, Constants.kLongCANTimeoutMs);
-        mDeploy.config_kI(0, Constants.IntakeConstants.kIntakeI, Constants.kLongCANTimeoutMs);
-        mDeploy.config_kD(0, Constants.IntakeConstants.kIntakeD, Constants.kLongCANTimeoutMs);
-        mDeploy.config_kF(0, Constants.IntakeConstants.kIntakeF, Constants.kLongCANTimeoutMs);
+        mDeploy.setNeutralMode(NeutralMode.Coast);
         
         SupplyCurrentLimitConfiguration main_curr_lim = new SupplyCurrentLimitConfiguration(true, 40, 40, 0.02);
         mDeploy.configSupplyCurrentLimit(main_curr_lim);
@@ -103,13 +96,24 @@ public class Intake extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        mPeriodicIO.intake_out = mIntakeSolenoidTimer.update(mPeriodicIO.deploy, 0.2);
         mPeriodicIO.intake_current = mRoller.getStatorCurrent();
         mPeriodicIO.intake_voltage = mRoller.getMotorOutputVoltage();
+
+        mPeriodicIO.deploy_current = mDeploy.getStatorCurrent();
+        mPeriodicIO.deploy_voltage = mDeploy.getMotorOutputVoltage();
+        
+        if (mPeriodicIO.deploy_current > Constants.IntakeConstants.kDeployCurrentLimit) {
+            mPeriodicIO.hold_intake = true;
+        }
+
         if (mCSVWriter != null) {
             mCSVWriter.add(mPeriodicIO);
         }
 
+        SmartDashboard.putBoolean("Hold Intake", mPeriodicIO.hold_intake);
+        SmartDashboard.putNumber("Deploy Demand", mPeriodicIO.deploy_demand);
+        SmartDashboard.putNumber("Deploy Voltage", mPeriodicIO.deploy_voltage);
+        SmartDashboard.putNumber("Deploy Current", mPeriodicIO.deploy_current);
         SendLog();
     }
 
@@ -117,33 +121,36 @@ public class Intake extends Subsystem {
     public void writePeriodicOutputs() {
         mRoller.set(ControlMode.PercentOutput, mPeriodicIO.intake_demand / 12.0);
         mSingulator.set(ControlMode.PercentOutput, mPeriodicIO.singulator_demand / 12.0);
-
-        /*
-        if (mPeriodicIO.deploy) {
-            mDeploy.set(ControlMode.Position, Constants.IntakeConstants.kDeployDelta);
-        } else {
-            mDeploy.set(ControlMode.Position, 10.0);
-        }
-        */
+        mDeploy.set(ControlMode.PercentOutput, mPeriodicIO.deploy_demand / 12.0);
     }
     
     public void setState(State state) {
+        if (this.mState != state) {
+            mPeriodicIO.hold_intake = false;
+        }
+
         this.mState = state;
     }
 
     public void setState(WantedAction wanted_state) {
         switch (wanted_state) {
             case NONE:
-                mState = State.IDLE;
+                if (mState != State.IDLE) {
+                    mPeriodicIO.hold_intake = false;
+                    mState = State.IDLE;                    
+                }
                 break;
             case INTAKE:
-                mState = State.INTAKING;
+                if (mState != State.INTAKING) {
+                    mPeriodicIO.hold_intake = false;
+                    mState = State.INTAKING;
+                }
                 break;
             case REVERSE:
-                mState = State.REVERSING;
-                break;
-            case STAY_OUT:
-                mState = State.STAYING_OUT;
+                if (mState != State.REVERSING) {
+                    mPeriodicIO.hold_intake = false;
+                    mState = State.REVERSING;
+                }
                 break;
         }
     }
@@ -153,21 +160,33 @@ public class Intake extends Subsystem {
             case IDLE:
                 mPeriodicIO.intake_demand = 0;
                 mPeriodicIO.singulator_demand = 0;
-                mPeriodicIO.deploy = false;
+                mPeriodicIO.deploy_demand = Constants.IntakeConstants.kHoldingVoltage;
+
+                if (mPeriodicIO.hold_intake) {
+                    mPeriodicIO.deploy_demand = -Constants.IntakeConstants.kHoldingVoltage;
+                } else {
+                    mPeriodicIO.deploy_demand = -Constants.IntakeConstants.kDeployVoltage;
+                }
                 break;
             case INTAKING:
                 mPeriodicIO.intake_demand = Constants.IntakeConstants.kIntakingVoltage;
-                mPeriodicIO.singulator_demand = Constants.IndexerConstants.kSingulatorVoltage;
-                mPeriodicIO.deploy = true;
+                mPeriodicIO.singulator_demand = Constants.IntakeConstants.kSingulatorVoltage;
+
+                if (mPeriodicIO.hold_intake) {
+                    mPeriodicIO.deploy_demand = Constants.IntakeConstants.kHoldingVoltage;
+                } else {
+                    mPeriodicIO.deploy_demand = Constants.IntakeConstants.kDeployVoltage;
+                }
                 break;
             case REVERSING:
                 mPeriodicIO.intake_demand = -Constants.IntakeConstants.kIntakingVoltage;
-                mPeriodicIO.singulator_demand = -Constants.IndexerConstants.kSingulatorVoltage;
-                mPeriodicIO.deploy = true;
-                break;
-            case STAYING_OUT:
-                mPeriodicIO.intake_demand = 0;
-                mPeriodicIO.deploy = true;
+                mPeriodicIO.singulator_demand = -Constants.IntakeConstants.kSingulatorVoltage;
+                
+                if (mPeriodicIO.hold_intake) {
+                    mPeriodicIO.deploy_demand = Constants.IntakeConstants.kHoldingVoltage;
+                } else {
+                    mPeriodicIO.deploy_demand = Constants.IntakeConstants.kDeployVoltage;
+                }
                 break;
         }
     }
@@ -178,9 +197,6 @@ public class Intake extends Subsystem {
     }
     public boolean getIsDeployed() {
         return mPeriodicIO.intake_out;
-    }
-    public boolean getWantDeploy() {
-        return mPeriodicIO.deploy;
     }
     public double getIntakeVoltage() {
         return mPeriodicIO.intake_voltage;
@@ -204,15 +220,20 @@ public class Intake extends Subsystem {
     public static class PeriodicIO {
         // INPUTS
         private boolean intake_out;
+
         private double intake_current;
         private double singulator_current;
+        private double deploy_current;
+
         private double intake_voltage;
         private double singulator_voltage;
+        private double deploy_voltage;
 
         // OUTPUTS
         private double intake_demand;
         private double singulator_demand;
-        private boolean deploy;
+        private double deploy_demand;
+        private boolean hold_intake;
     }
 
     public void zeroSensors() {
@@ -269,7 +290,6 @@ public class Intake extends Subsystem {
         // add outputs
         items.add(mPeriodicIO.intake_demand);
         items.add(mPeriodicIO.singulator_demand);
-        items.add(mPeriodicIO.deploy ? 1.0 : 0.0);
 
         // send data to logging storage
         mStorage.addData(items);
