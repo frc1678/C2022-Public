@@ -101,13 +101,13 @@ public class Robot extends TimedRobot {
 			mSubsystemManager.setSubsystems(
 					mSwerve,
 					mSuperstructure,
-					// mInfrastructure,
-					// mIntake,
+					mInfrastructure,
+					mIntake,
 					// mIndexer,
-					// mShooter,
-					// mHood,
-					// mColorSensor //,
-					mClimber //,
+					mShooter,
+					mHood,
+					mColorSensor // ,
+					// mClimber,
 					// mLimelight
 			);
 

@@ -6,14 +6,12 @@ import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.CustomXboxController;
 import com.team1678.frc2022.regressions.ShooterRegression;
-import com.team1678.frc2022.subsystems.Indexer.WantedAction;
 import com.team254.lib.util.Util;
 import com.team254.lib.util.InterpolatingDouble;
 import com.team254.lib.util.ReflectingCSVWriter;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Color;
 
 import java.util.Optional;
 
@@ -69,8 +67,8 @@ public class Superstructure extends Subsystem {
     }
 
     // setpoint tracker variables
-    public double mShooterSetpoint = 3000.0;
-    public double mHoodSetpoint = 10.0; // TODO: arbitrary value, change4
+    public double mShooterSetpoint = 1000.0;
+    public double mHoodSetpoint = 20.0; // TODO: arbitrary value, change4
     private double mHoodAngleAdjustment = 0.0;
     private boolean mResetHoodAngleAdjustment = false;
 
