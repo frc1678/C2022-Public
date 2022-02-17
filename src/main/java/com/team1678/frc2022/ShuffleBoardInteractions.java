@@ -500,10 +500,10 @@ public class ShuffleBoardInteractions {
 
         if (mLedApply.getValue().getBoolean()) {
             if (LEDs.State.valueOf(mLedState.getValue().getString()) != null) {
-                LEDs.getInstance().setState(LEDs.State.valueOf(mLedState.getValue().getString()));
+                LEDs.getInstance().setBottomState(LEDs.State.valueOf(mLedState.getValue().getString()));
             }
             if (LEDs.State.valueOf(mLedStripState.getValue().getString()) != null) {
-                LEDs.getInstance().setStripState(LEDs.State.valueOf(mLedStripState.getValue().getString()));
+                LEDs.getInstance().setTopState(LEDs.State.valueOf(mLedStripState.getValue().getString()));
             }
         } else {
             //mLedState.setString(mLEDs.getState().toString());

@@ -17,8 +17,8 @@ public class LEDs extends Subsystem {
 
     public CANdle mCandle = new CANdle(Ports.CANDLE);
     
-    public State mState = State.RAINBOW;
-    public State mStripState = State.RAINBOW;
+    public State mBottomState = State.RAINBOW;
+    public State mTopState = State.RAINBOW;
     public static LEDs mInstance;
     public double mLastTimestamp = Timer.getFPGATimestamp();
 
@@ -62,6 +62,8 @@ public class LEDs extends Subsystem {
         MERICA(0.3, 0, false, new Color(1, 1, 1), new Color(1, 0, 0), new Color(0, 0, 1)), // Unused
         CITRUS(0.5, 0.5, true, new Color(0.23, 0.83, 0.18), new Color(0, 1, 0)), // Unused
         WORSE_RAINBOW(5, 0.5, true, new Color(1, 0, 0), new Color(1, 0.5, 0), new Color(1, 1, 0), new Color(0, 1, 0), new Color(0, 0, 1), new Color(0.29, 0, 0.51), new Color(0.58, 0, 0.83)), // Unused
+        POLICE_RED(0.15, 0.0, true, new Color(1, 0, 0), new Color(0, 0, 0)),
+        POLICE_BLUE(0.15, 0.0, true, new Color(0, 0, 0), new Color(0, 0, 1)),
         RAINBOW(); // :)
 
         List<Color> colors = new ArrayList<Color>();
@@ -118,25 +120,25 @@ public class LEDs extends Subsystem {
 
     public void updateState() {
         if (mSuperstructure.hasEmergency) {
-            setState(State.EMERGENCY);
-            setStripState(State.EMERGENCY);
+            setBottomState(State.EMERGENCY);
+            setTopState(State.EMERGENCY);
             return;
         }
 
         if (mIndexer.getBallCount() == 1) {
-            setStripState(State.ONE_BALL);
+            setTopState(State.ONE_BALL);
         } else if (mIndexer.getBallCount() == 2) {
-            setStripState(State.TWO_BALL);
+            setTopState(State.TWO_BALL);
         } else {
-            setStripState(State.IDLE);
+            setTopState(State.IDLE);
         }
 
         if (Limelight.getInstance().hasTarget()) {
-            setState(State.TARGET_VISIBLE);
+            setBottomState(State.TARGET_VISIBLE);
         } else if (mSuperstructure.isSpunUp()) {
-            setState(State.SHOT_READY);
+            setBottomState(State.SHOT_READY);
         } else {
-            setState(State.IDLE);
+            setBottomState(State.IDLE);
         }
     }
 
@@ -151,9 +153,9 @@ public class LEDs extends Subsystem {
 
         // For some reason we need to alternate setting states
         if (alt) {
-            updateLEDsFromState(mState, 0, 20, deltaTime * 2, timestamp);
+            updateLEDsFromState(mBottomState, 0, 20, deltaTime * 2, timestamp);
         } else {
-            updateLEDsFromState(mStripState, 20, 30, deltaTime * 2, timestamp);
+            updateLEDsFromState(mTopState, 20, 30, deltaTime * 2, timestamp);
         }
         alt = !alt;
 
@@ -223,21 +225,21 @@ public class LEDs extends Subsystem {
     }
 
     public State getState() {
-        return mState;
+        return mBottomState;
     }
 
     public State getStripState() {
-        return mStripState;
+        return mTopState;
     }
 
-    public void setState(State state) {
+    public void setBottomState(State state) {
         state.colorPhase = 0;
-        mState = state;
+        mBottomState = state;
     }
 
-    public void setStripState(State state) {
+    public void setTopState(State state) {
         state.colorPhase = 0;
-        mStripState = state;
+        mTopState = state;
     }
 
     @Override
@@ -266,8 +268,8 @@ public class LEDs extends Subsystem {
 
             @Override
             public void onStop(double timestamp) {
-                setState(State.DISABLED);
-                setStripState(State.DISABLED);
+                setBottomState(State.DISABLED);
+                setTopState(State.DISABLED);
             }
         });
     }
