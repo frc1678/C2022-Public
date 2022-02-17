@@ -11,15 +11,14 @@ import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
 
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 
 public class LEDs extends Subsystem {
 
     public CANdle mCandle = new CANdle(Ports.CANDLE);
     
-    public State mState = State.TWO_BALL;
-    public State mStripState = State.SHOT_READY;
+    public State mState = State.RAINBOW;
+    public State mStripState = State.RAINBOW;
     public static LEDs mInstance;
     public double mLastTimestamp = Timer.getFPGATimestamp();
 
@@ -37,20 +36,32 @@ public class LEDs extends Subsystem {
     }
 
     public enum State {
+
+        // Robot status indicators
         OFF(0, 0, 0, Double.POSITIVE_INFINITY, 0.0, false), // LEDs OFF
-        DISABLED(255, 20, 30, 4.0, 4.0, true), // Pink Breathing
+        DISABLED(255, 20, 30, 9.0, 4.0, true), // Pink Breathing
         IDLE(0, 0, 255, Double.POSITIVE_INFINITY, 0.0, false), // Blue
+        EMERGENCY(255, 0, 0, 0.3, 0.3, false), // Red Blinking
+
+        // Test Colors
         RED(255, 0, 0, Double.POSITIVE_INFINITY, 0.0, false), // RED
         GREEN(0, 255, 0, Double.POSITIVE_INFINITY, 0.0, false), // GREEN
-        EMERGENCY(255, 0, 0, 0.3, 0.3, false), // Red Blinking
-        ONE_BALL(0.2, 0.2, false, new Color(0.5, 0.1, 0.1), new Color(0.1, 0.1, 0.5)), // Alternating Yellow Blue
-        TWO_BALL(0.05, 0.05, false, new Color(0.5, 0.1, 0.1), new Color(0.1, 0.0, 0.0)), // Fast Alternating Yellow Red
+        BLUE(0, 255, 0, Double.POSITIVE_INFINITY, 0.0, false), // BLUE
+        WHITE(255, 255, 255, 10, 5, false), // WHITE BLINKING
+        MAGENTA(255, 0, 255, Double.POSITIVE_INFINITY, 0.0, false), // MAGENTA
+
+        // Strip States
+        ONE_BALL(0.2, 0.0, false, new Color(0.5, 0.1, 0.1), new Color(0.1, 0.1, 0.5)), // Alternating Yellow Blue
+        TWO_BALL(Double.POSITIVE_INFINITY, 0.05, false, new Color(0.5, 0.1, 0.1)), // Fast Alternating Yellow Red
+
+        // Regular States
         TARGET_VISIBLE(255, 255, 0, Double.POSITIVE_INFINITY, 0.0, false), // Slow Yellow
         SHOT_READY(255, 255, 0, 0.05, 0.05, false), // FAST Yellow
-        WHITE(255, 255, 255, 10, 5, false), // Unused
+
+        // Fun Colors!
         MERICA(0.3, 0, false, new Color(1, 1, 1), new Color(1, 0, 0), new Color(0, 0, 1)), // Unused
         CITRUS(0.5, 0.5, true, new Color(0.23, 0.83, 0.18), new Color(0, 1, 0)), // Unused
-        MAGENTA(255, 0, 255, Double.POSITIVE_INFINITY, 0.0, false), // Unused
+        WORSE_RAINBOW(5, 0.5, true, new Color(1, 0, 0), new Color(1, 0.5, 0), new Color(1, 1, 0), new Color(0, 1, 0), new Color(0, 0, 1), new Color(0.29, 0, 0.51), new Color(0.58, 0, 0.83)), // Unused
         RAINBOW(); // :)
 
         List<Color> colors = new ArrayList<Color>();
@@ -100,13 +111,12 @@ public class LEDs extends Subsystem {
         CANdleConfiguration config = new CANdleConfiguration();
         config.disableWhenLOS = true;
         config.stripType = LEDStripType.RGB; // set the strip type to RGB
-        config.brightnessScalar = 1; // dim the LEDs to half brightness
+        config.brightnessScalar = 0.3; // dim the LEDs to half brightness
         mCandle.configAllSettings(config);
 
     }
 
     public void updateState() {
-
         if (mSuperstructure.hasEmergency) {
             setState(State.EMERGENCY);
             setStripState(State.EMERGENCY);
@@ -141,19 +151,11 @@ public class LEDs extends Subsystem {
 
         // For some reason we need to alternate setting states
         if (alt) {
-            updateLEDsFromState(mState, 0, 4, deltaTime * 2, timestamp);
+            updateLEDsFromState(mState, 0, 20, deltaTime * 2, timestamp);
         } else {
-            updateLEDsFromState(mStripState, 4, 32, deltaTime * 2, timestamp);
+            updateLEDsFromState(mStripState, 20, 30, deltaTime * 2, timestamp);
         }
         alt = !alt;
-
-        SmartDashboard.putNumber("State Phase", mState.phase);
-        SmartDashboard.putNumber("Strip Phase", mStripState.phase);
-        SmartDashboard.putNumber("Strip Color ", mStripState.colorPhase);
-        SmartDashboard.putNumber("State Color ", mState.colorPhase);
-        SmartDashboard.putString("Strip Actual State ", mStripState.toString());
-        SmartDashboard.putString("State Actual State ", mState.toString());
-        SmartDashboard.putNumber("Delta Time", deltaTime);
 
     }
 
@@ -205,9 +207,9 @@ public class LEDs extends Subsystem {
 
         // Calculate R A I N B O W
         if (state.isCycleColors) {
-            red   = (int)(Math.sin(2*timestamp + 2) * 127 + 128);
-            green = (int)(Math.sin(2*timestamp + 0) * 127 + 128);
-            blue  = (int)(Math.sin(2*timestamp + 4) * 127 + 128);
+            red   = (int)(Math.sin(5*timestamp + 2) * 127 + 128);
+            green = (int)(Math.sin(5*timestamp + 0) * 127 + 128);
+            blue  = (int)(Math.sin(5*timestamp + 4) * 127 + 128);
         } else {
             Color color = state.colors.get(state.colorPhase);
             red = (int)(color.red * percentBrightness * 255);
@@ -259,12 +261,13 @@ public class LEDs extends Subsystem {
 
             @Override
             public void onLoop(double timestamp) {
-                updateLights();
-                //updateState();
+                updateState();
             }
 
             @Override
             public void onStop(double timestamp) {
+                setState(State.DISABLED);
+                setStripState(State.DISABLED);
             }
         });
     }
