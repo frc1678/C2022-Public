@@ -28,8 +28,9 @@ public class ColorSensor extends Subsystem {
 
     private final ColorMatch mColorMatch = new ColorMatch();
 
+    private Timer mHasBallTimer = new Timer();
+
     private Timer mEjectorTimer = new Timer();
-    private boolean mEjectorRunning = false;
 
     public ColorChoices mAllianceColor;
     public ColorChoices mMatchedColor;
@@ -87,6 +88,11 @@ public class ColorSensor extends Subsystem {
         return false;
     }
 
+    // check if we see a ball
+    public boolean seesBall() {
+        return mPeriodicIO.distance > Constants.ColorSensorConstants.kColorSensorThreshold;
+    }
+
     // check if we have the right color
     public boolean hasCorrectColor() {
         return mMatchedColor == mAllianceColor;
@@ -97,6 +103,25 @@ public class ColorSensor extends Subsystem {
         return !hasCorrectColor()
                     && (mMatchedColor != ColorChoices.OTHER)
                     && (mMatchedColor != ColorChoices.NONE);
+    }
+
+    // check if we have a ball
+    public void updateHasBall() {
+        if (seesBall()) {
+            // reset the timer if we see another ball
+            if (mPeriodicIO.has_ball) {
+                mHasBallTimer.reset();
+            }
+
+            mPeriodicIO.has_ball = true;
+            mHasBallTimer.start();
+        }
+
+        // if we don't see a ball and the threshold time for having a ball has passed, we don't have a ball anymore
+        if (!seesBall() && mHasBallTimer.hasElapsed(Constants.ColorSensorConstants.kTimeWithBall)) {
+            mHasBallTimer.reset();
+            mPeriodicIO.has_ball = false;
+        }
     }
 
     // update the color of the cargo we see
@@ -118,17 +143,17 @@ public class ColorSensor extends Subsystem {
     public void updateWantsEject() {
         if (hasOppositeColor()) {
             mPeriodicIO.eject = true;
-
             mEjectorTimer.start();
-            mEjectorRunning = true;
         }
 
         if (mEjectorTimer.hasElapsed(Constants.IndexerConstants.kEjectDelay) || hasCorrectColor()) {
             mPeriodicIO.eject = false;
-
             mEjectorTimer.reset();
-            mEjectorRunning = false;
         }
+    }
+
+    public boolean hasBall() {
+        return mPeriodicIO.has_ball;
     }
 
     public boolean wantsEject() {
@@ -145,6 +170,7 @@ public class ColorSensor extends Subsystem {
             mPeriodicIO.matched_color = mColorMatch.matchClosestColor(mPeriodicIO.raw_color).color;
         } 
 
+        updateHasBall();
         updateMatchedColor();
         updateWantsEject();
     }
@@ -179,14 +205,14 @@ public class ColorSensor extends Subsystem {
     }
 
     public static class PeriodicIO {
-        
         // INPUTS
         public ColorSensorData rawColorSensorData;
         public Color raw_color;
         public double distance;
         public Color matched_color;
 
-        //OUTPUTS
+        // OUTPUTS
+        public boolean has_ball;
         public boolean eject;
     }
     
