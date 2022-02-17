@@ -245,15 +245,11 @@ public class Constants {
     public static final class IntakeConstants {
         public static final double kIntakingVoltage = 10;
         public static final double kSpittingVoltage = -8;
+        public static final double kSingulatorVoltage = 5.0;
+        public static final double kDeployVoltage = 3.0;
+        public static final double kHoldingVoltage = 1.0;
 
-        public static final double kDeployMinTicks = 560;
-        public static final double kDeployMaxTicks = 2900;
-        public static final double kDeployDelta = kDeployMaxTicks - kDeployMinTicks + 1000;
-
-        public static final double kIntakeP = 0.1; 
-        public static final double kIntakeI = 0.0;
-        public static final double kIntakeD = 0.0;
-        public static final double kIntakeF = 0.0;
+        public static final double kDeployCurrentLimit = 50; // amps
     }
 
     public static final class ShooterConstants {
@@ -307,7 +303,7 @@ public class Constants {
             kHoodServoConstants.kPositionIZone = 0; // Ticks
             kHoodServoConstants.kPositionDeadband = 0; // Ticks
 
-            kHoodServoConstants.kMinUnitsLimit = 0; // TODO Add actual min/max limits (in degrees)
+            kHoodServoConstants.kMinUnitsLimit = 10; // TODO Add actual min/max limits (in degrees)
             kHoodServoConstants.kMaxUnitsLimit = 30;
 
             kHoodServoConstants.kCruiseVelocity = 20000; // Ticks / 100ms
@@ -327,29 +323,26 @@ public class Constants {
         public static final double kIndexerKi = 0.;
         public static final double kIndexerKd = 0.;
         public static final double kIndexerKf = .05;
+
         public static final double kIndexerVelocityKp = 0.05;
         public static final double kIndexerVelocityKi = 0.;
         public static final double kIndexerVelocityKd = 0.;
         public static final double kIndexerVelocityKf = .05;
+
         public static final int kIndexerMaxVelocity = 20000;
         public static final int kIndexerMaxAcceleration = 40000;
 
-        public static final double kIndexerIdleVoltage = 0.0;
-        public static final double kIndexerIndexingVoltage = 2.0;
-        public static final double kIndexerReversingVoltage = -5.0;
+        public static final double kIdleVoltage = 0.0;
+        public static final double kTunnelVoltage = 5.0;
+        public static final double kEjectorVoltage = 12.0;
+        public static final double kFeedingVoltage = 9.0;
+        public static final double kReversingVoltage = -5.0;
         
         public static final int kBottomBeamBreak = 1;
         public static final int kTopBeamBreak = 0;
 
-        public static final double kTriggerIdleVoltage = 0.0;
-        public static final double kTriggerIndexingVoltage = 5.0;
-        public static final double kTriggerReversingVoltage = -5.0;
-        
-        public static final double kOuttakeIdleVoltage = 0.0;
-        public static final double kOuttakeIndexingVoltage = 5.0;
-        public static final double kOuttakeReversingVoltage = -5.0;
+        public static final double kEjectDelay = 1.0;
 
-        public static final double kSingulatorVoltage = 5.0;
     }
     
     public static final class ClimberConstants {
@@ -377,9 +370,9 @@ public class Constants {
     }
 
     public static final class ColorSensorConstants {
-        public static final Color kBlueColor = new Color(0.140, 0.369, 0.493);
-        public static final Color kRedColor = new Color(0.543, 0.322, 0.136);
-        public static final double kColorSensorThreshold = 125;
+        public static final Color kBlueColor = new Color(0.222, 0.458, 0.319);
+        public static final Color kRedColor = new Color(0.325, 0.428, 0.247);
+        public static final double kColorSensorThreshold = 500;
     }
 
     // Timeout constants
