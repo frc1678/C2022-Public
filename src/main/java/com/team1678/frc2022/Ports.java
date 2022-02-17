@@ -36,10 +36,9 @@ public class Ports {
     public static final int SINGULATOR_ID = 10;
     public static final int TUNNEL_ID = 11;
     public static final int TRIGGER_ID = 12;
-    public static final int BOTTOM_BEAM_BREAK = 8;
-    public static final int TOP_BEAM_BREAK = 9;
+    public static final int BOTTOM_BEAM_BREAK = 1;
+    public static final int TOP_BEAM_BREAK = 2;
 
-<<<<<<< HEAD
     public static final int FLYWHEEL_MASTER_ID = 13;
     public static final int FLYWHEEL_SLAVE_ID = 14;
     public static final int HOOD_ID = 15;
@@ -47,23 +46,10 @@ public class Ports {
     public static final int CLIMBER_LEFT_ID = 16;
     public static final int CLIMBER_RIGHT_ID = 17;
 
-    public static final int OUTTAKE_ID = 18;
+    public static final int EJECTOR_ID = 18;
 
     // Infrastucture
     public static final int PCM = 21;
 
 
 }
-=======
-    public static final int CLIMBER_RIGHT_ID = 14;
-    public static final int CLIMBER_LEFT_ID = 15; 
-
-    public static final int FLYWHEEL_MASTER_ID = 12;
-    public static final int FLYWHEEL_SLAVE_ID = 16;
-    public static final int HOOD_ID = 13;
-    public static final int ACCELERATOR_ID = 18;
-    
-    // Infrastucture
-    public static final int PCM = 21;
-}
->>>>>>> 07fc09784dcc982aa462ab602f5b8f71dd47c6e0
