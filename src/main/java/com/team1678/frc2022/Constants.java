@@ -248,7 +248,7 @@ public class Constants {
 
         public static final double kDeployMinTicks = 560;
         public static final double kDeployMaxTicks = 2900;
-        public static final double kDeployDelta = kDeployMaxTicks - kDeployMinTicks;
+        public static final double kDeployDelta = kDeployMaxTicks - kDeployMinTicks + 1000;
 
         public static final double kIntakeP = 0.1; 
         public static final double kIntakeI = 0.0;

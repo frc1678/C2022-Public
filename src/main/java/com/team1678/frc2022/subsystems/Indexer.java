@@ -17,8 +17,8 @@ public class Indexer extends Subsystem {
 private static Indexer mInstance;
 public PeriodicIO mPeriodicIO = new PeriodicIO();
 
-private TalonFX mOuttake;
-private TalonFX mIndexer;
+private TalonFX mEjector;
+private TalonFX mTunnel;
 private TalonFX mTrigger;
 
 private final DigitalInput mBottomBeamBreak;
@@ -53,16 +53,16 @@ private boolean mBallInIndexer () {
 private State mState = State.IDLE;
 
 public enum WantedAction {
-    NONE, INDEX, OUTTAKE, REVERSE, 
+    NONE, INDEX, EJECT, REVERSE, 
 }
 
 public enum State{
-    IDLE, INDEXING, OUTTAKING, REVERSING,
+    IDLE, INDEXING, EJECTING, REVERSING,
 }
 
 private Indexer() {
-    mOuttake = TalonFXFactory.createDefaultTalon(Ports.OUTTAKE_ID);
-    mIndexer = TalonFXFactory.createDefaultTalon(Ports.TUNNEL_ID);
+    mEjector = TalonFXFactory.createDefaultTalon(Ports.OUTTAKE_ID);
+    mTunnel = TalonFXFactory.createDefaultTalon(Ports.TUNNEL_ID);
     mTrigger = TalonFXFactory.createDefaultTalon(Ports.TRIGGER_ID);
     mBottomBeamBreak = new DigitalInput(Ports.BOTTOM_BEAM_BREAK);
     mTopBeamBreak = new DigitalInput(Ports.TOP_BEAM_BREAK);
@@ -77,8 +77,8 @@ private Indexer() {
             case INDEX:
                 mState = State.INDEXING;
                 break;
-            case OUTTAKE:
-                mState = State.OUTTAKING;
+            case EJECT:
+                mState = State.EJECTING;
                 break;
             case REVERSE:
                 mState = State.REVERSING;
@@ -90,38 +90,37 @@ private Indexer() {
     public void runStateMachine() {
         switch (mState) {
             case IDLE:
-                mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakeIdleVoltage;
+                mPeriodicIO.ejector_demand = Constants.IndexerConstants.kOuttakeIdleVoltage;
                 mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
                 mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerIdleVoltage;
                 break;
             case INDEXING:
                 // Check for whether we want to outtake based off color sensor
                 if (mColorSensor.getOuttake()) {
-                    //if not correct color, goes to outtaking state
-                    this.setState(WantedAction.OUTTAKE);
+                    // if not correct color, goes to EJECTING state
+                    this.setState(WantedAction.EJECT);
                 } else {
-                    //runs trigger if top beam break isn't triggered
+                    // runs trigger if top beam break isn't triggered
                     if (mRunTrigger()) {
                         mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerIndexingVoltage;
                     } else {
                         mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerIdleVoltage;
                     }
-                    //stops indexer if bottom beam break is triggered, otherwise keeps indexing
+                    // stops indexer if bottom beam break is triggered, otherwise keeps indexing
                     if (stopIndexer()) {
                         mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIdleVoltage;
                     } else {
                         mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerIndexingVoltage;
                     }
 
-                    mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakeIdleVoltage;   
+                    mPeriodicIO.ejector_demand = Constants.IndexerConstants.kOuttakeIdleVoltage;   
                 }
-                
                 break;
-            case OUTTAKING:
+            case EJECTING:
                 //if not the correct color, outtakes the ball
                 if (mColorSensor.getOuttake()) {
                     mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerReversingVoltage;
-                    mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakeReversingVoltage;
+                    mPeriodicIO.ejector_demand = Constants.IndexerConstants.kOuttakeReversingVoltage;
                 } else if (!mColorSensor.getOuttake()) {
                     //if it is the corect color, it goes to the indexing state
                     this.setState(WantedAction.INDEX);
@@ -129,7 +128,7 @@ private Indexer() {
                 break;
             case REVERSING:
                 // reverses everything
-                mPeriodicIO.outtake_demand = Constants.IndexerConstants.kOuttakeIndexingVoltage;
+                mPeriodicIO.ejector_demand = Constants.IndexerConstants.kOuttakeIndexingVoltage;
                 mPeriodicIO.indexer_demand = Constants.IndexerConstants.kIndexerReversingVoltage;
                 mPeriodicIO.trigger_demand = Constants.IndexerConstants.kTriggerReversingVoltage;
                 break;
@@ -162,8 +161,8 @@ private Indexer() {
 
     @Override
     public synchronized void writePeriodicOutputs() {
-        mOuttake.set(ControlMode.PercentOutput, mPeriodicIO.outtake_demand/12.0);
-        mIndexer.set(ControlMode.PercentOutput, mPeriodicIO.indexer_demand/12.0);  
+        mEjector.set(ControlMode.PercentOutput, mPeriodicIO.ejector_demand/12.0);
+        mTunnel.set(ControlMode.PercentOutput, mPeriodicIO.indexer_demand/12.0);  
         mTrigger.set(ControlMode.PercentOutput, mPeriodicIO.trigger_demand/12.0); 
     }
 
@@ -217,7 +216,7 @@ private Indexer() {
     }
     
     public void setOuttakeDemand(double demand) {
-        mPeriodicIO.outtake_demand = demand;
+        mPeriodicIO.ejector_demand = demand;
     }
 
     public void setIndexerDemand(double demand) {
@@ -229,28 +228,28 @@ private Indexer() {
         return null;
     }
 
-    public double getOuttakeDemand() {
-       return mPeriodicIO.outtake_demand;
+    public double getEjectorDemand() {
+       return mPeriodicIO.ejector_demand;
     }
 
-    public double getOuttakeCurrent() {
-        return mPeriodicIO.outtake_current;
+    public double getEjectorCurrent() {
+        return mPeriodicIO.ejector_current;
     }
 
-    public double getOuttakeVoltage() {
-        return mPeriodicIO.outtake_voltage;
+    public double getEjectorVoltage() {
+        return mPeriodicIO.ejector_voltage;
     }
 
-    public double getIndexerCurrent() {
-        return mPeriodicIO.indexer_current;
+    public double getTunnelCurrent() {
+        return mPeriodicIO.tunnel_current;
     }
 
-    public double getIndexerDemand() {
+    public double getTunnelDemand() {
         return mPeriodicIO.indexer_demand;
     }
 
-    public double getIndexerVoltage() {
-        return mPeriodicIO.indexer_voltage;
+    public double getTunnelVoltage() {
+        return mPeriodicIO.tunnel_voltage;
     }
 
     public double getTriggerCurrent() {
@@ -283,18 +282,18 @@ private Indexer() {
         public boolean bottomLightBeamBreakSensor;
         public double ball_count;
         
-        public double outtake_current;
-        public double indexer_current;
+        public double ejector_current;
+        public double tunnel_current;
         public double trigger_current;
         
-        public double outtake_voltage;
-        public double indexer_voltage;
+        public double ejector_voltage;
+        public double tunnel_voltage;
         public double trigger_voltage;
 
         public Color detected_color;
 
         // OUTPUTS
-        public double outtake_demand;
+        public double ejector_demand;
         public double indexer_demand;
         public double trigger_demand;
     }

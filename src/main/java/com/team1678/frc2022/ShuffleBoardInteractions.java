@@ -109,13 +109,13 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mLimelightTy;
 
     /* INDEXER */
-    private final NetworkTableEntry mOuttakeCurrent;
-    private final NetworkTableEntry mOuttakeDemand;
-    private final NetworkTableEntry mOuttakeVoltage;
+    private final NetworkTableEntry mEjectorCurrent;
+    private final NetworkTableEntry mEjectorDemand;
+    private final NetworkTableEntry mEjectorVoltage;
 
-    private final NetworkTableEntry mIndexerCurrent;
-    private final NetworkTableEntry mIndexerDemand;
-    private final NetworkTableEntry mIndexerVoltage;
+    private final NetworkTableEntry mTunnelCurrent;
+    private final NetworkTableEntry mTunnelDemand;
+    private final NetworkTableEntry mTunnelVoltage;
 
     private final NetworkTableEntry mTriggerCurrent;
     private final NetworkTableEntry mTriggerDemand;
@@ -295,22 +295,22 @@ public class ShuffleBoardInteractions {
                 .getEntry();
 
         /* INDEXER */
-        mOuttakeCurrent = INDEXER_TAB
+        mEjectorCurrent = INDEXER_TAB
             .add("Outtake Current", 0.0)
             .getEntry();
-        mOuttakeDemand = INDEXER_TAB
+        mEjectorDemand = INDEXER_TAB
             .add("Outtake Demand", 0.0)
             .getEntry();
-        mOuttakeVoltage = INDEXER_TAB
+        mEjectorVoltage = INDEXER_TAB
             .add("Outtake Voltage", 0.0)
             .getEntry(); 
-        mIndexerCurrent = INDEXER_TAB
+        mTunnelCurrent = INDEXER_TAB
             .add("Indexer Current", 0.0)
             .getEntry();
-        mIndexerDemand = INDEXER_TAB
+        mTunnelDemand = INDEXER_TAB
             .add("Indexer Demand", 0.0)
             .getEntry();
-        mIndexerVoltage = INDEXER_TAB
+        mTunnelVoltage = INDEXER_TAB
             .add("Indexer Voltage", 0.0)
             .getEntry();
         mTriggerCurrent = INDEXER_TAB
@@ -541,13 +541,13 @@ public class ShuffleBoardInteractions {
         mLimelightTy.setDouble(mLimelight.getOffset()[1]);
 
         /* INDEXER */
-        mOuttakeCurrent.setDouble(mIndexer.getOuttakeCurrent());
-        mOuttakeDemand.setDouble(mIndexer.getOuttakeDemand());
-        mOuttakeVoltage.setDouble(mIndexer.getOuttakeVoltage());
+        mEjectorCurrent.setDouble(mIndexer.getEjectorCurrent());
+        mEjectorDemand.setDouble(mIndexer.getEjectorDemand());
+        mEjectorVoltage.setDouble(mIndexer.getEjectorVoltage());
 
-        mIndexerCurrent.setDouble(mIndexer.getIndexerCurrent());
-        mIndexerDemand.setDouble(mIndexer.getIndexerDemand());
-        mIndexerVoltage.setDouble(mIndexer.getIndexerVoltage());
+        mTunnelCurrent.setDouble(mIndexer.getTunnelCurrent());
+        mTunnelDemand.setDouble(mIndexer.getTunnelDemand());
+        mTunnelVoltage.setDouble(mIndexer.getTunnelVoltage());
 
         mTriggerCurrent.setDouble(mIndexer.getTriggerCurrent());
         mTriggerDemand.setDouble(mIndexer.getTriggerDemand());
