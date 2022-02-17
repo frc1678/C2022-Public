@@ -6,13 +6,14 @@ import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.CustomXboxController;
 import com.team1678.frc2022.regressions.ShooterRegression;
-
+import com.team1678.frc2022.subsystems.Indexer.WantedAction;
 import com.team254.lib.util.Util;
 import com.team254.lib.util.InterpolatingDouble;
 import com.team254.lib.util.ReflectingCSVWriter;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 
 import java.util.Optional;
 
@@ -35,7 +36,10 @@ public class Superstructure extends Subsystem {
     private final Indexer mIndexer = Indexer.getInstance();
     private final Shooter mShooter = Shooter.getInstance();
     private final Hood mHood = Hood.getInstance();
+    private final Climber mClimber = Climber.getInstance();
     private final Limelight mLimelight = Limelight.getInstance();
+
+    private final ColorSensor mColorSensor = ColorSensor.getInstance();
 
     // PeriodicIO instance and paired csv writer
     public PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -46,7 +50,7 @@ public class Superstructure extends Subsystem {
         // INPUTS
         // (superstructure actions)
         private boolean INTAKE = false; // run the intake to pick up cargo
-        private boolean OUTTAKE = false; // reverse the intake to spit out cargo
+        private boolean EJECT = false; // reverse the intake to spit out cargo
         private boolean PREP = false; // spin up and aim with shooting setpoints
         private boolean SHOOT = false; // shoot cargo
         private boolean FENDER = false; // shoot cargo from up against the hub
@@ -69,6 +73,11 @@ public class Superstructure extends Subsystem {
     public double mHoodSetpoint = 10.0; // TODO: arbitrary value, change4
     private double mHoodAngleAdjustment = 0.0;
     private boolean mResetHoodAngleAdjustment = false;
+
+    private boolean mClimbMode = false;
+	private boolean mOpenLoopClimbControlMode = false;
+	private boolean mResetClimberPosition = false;
+	private boolean mTraversalClimb = false;
 
     // constants
     private final double kFenderVelocity = 2300;
@@ -107,7 +116,7 @@ public class Superstructure extends Subsystem {
         mPeriodicIO.INTAKE = intake;
     }
     public void setWantOuttake(boolean outtake) {
-        mPeriodicIO.OUTTAKE = outtake;
+        mPeriodicIO.EJECT = outtake;
     }
     public void setWantPrep(boolean wants_prep) {
         mPeriodicIO.PREP = wants_prep;
@@ -143,10 +152,10 @@ public class Superstructure extends Subsystem {
         if (mControlBoard.operator.getTrigger(CustomXboxController.Side.RIGHT)) {
             mPeriodicIO.INTAKE = true;
         } else if (mControlBoard.operator.getTrigger(CustomXboxController.Side.LEFT)) {
-            mPeriodicIO.OUTTAKE = true;
+            mPeriodicIO.EJECT = true;
         } else {
             mPeriodicIO.INTAKE = false;
-            mPeriodicIO.OUTTAKE = false;
+            mPeriodicIO.EJECT = false;
         }
 
         // control shooting
@@ -181,6 +190,120 @@ public class Superstructure extends Subsystem {
             mResetHoodAngleAdjustment = true;
         }
 
+    
+        /* CLIMBER */
+        if (mControlBoard.getClimbMode()) {
+            mClimbMode = true;
+        }
+
+        /* Manual Controls */
+        if (mClimbMode) {
+            if (mControlBoard.getExitClimbMode()) {
+                mClimbMode = false;
+            }
+
+            if (mControlBoard.operator.getController().getLeftStickButtonPressed()) {
+                mOpenLoopClimbControlMode = !mOpenLoopClimbControlMode;
+            }
+
+            if (mControlBoard.operator.getController().getRightStickButtonPressed()) {
+                mResetClimberPosition = true;
+            }
+
+            SmartDashboard.putBoolean("Open Loop Climb", mOpenLoopClimbControlMode);
+
+            if (mResetClimberPosition) {
+                mClimber.resetClimberPosition();
+                mResetClimberPosition = false;
+            }
+
+            if (!mOpenLoopClimbControlMode) {
+                if (mControlBoard.operator.getController().getYButtonPressed()) {
+                    mClimber.setRightClimberPosition(Constants.ClimberConstants.kRightTravelDistance);
+                } else if (mControlBoard.operator.getController().getBButtonPressed()) {
+                    mClimber.setRightClimberPosition(Constants.ClimberConstants.kRightPartialTravelDistance);
+                } else if (mControlBoard.operator.getController().getAButtonPressed()){
+                    mClimber.setRightClimberPosition(0.0);
+                }
+
+                int pov = mControlBoard.operator.getController().getPOV();
+                if (pov == 0) {
+                    mClimber.setLeftClimberPosition(Constants.ClimberConstants.kLeftTravelDistance);
+                } else if (pov == 270) {
+                    mClimber.setLeftClimberPosition(Constants.ClimberConstants.kLeftPartialTravelDistance);
+                } else if (pov == 180) {
+                    mClimber.setLeftClimberPosition(0.0);
+                }
+            } else {
+                // set left climber motor
+                if (mControlBoard.operator.getController().getPOV() == 0) {
+                    mClimber.setLeftClimberOpenLoop(8.0);
+                    //mClimber.setClimberPosition(Constants.ClimberConstants.kClimberHeight);
+                } else if (mControlBoard.operator.getController().getPOV() == 180) {
+                    mClimber.setLeftClimberOpenLoop(-8.0);
+                    //mClimber.setClimberPosition(Constants.ClimberConstants.kRetractedHeight);
+                } else {
+                    mClimber.setLeftClimberOpenLoop(0.0);
+                    // mClimber.setLeftClimberPositionDelta(0.0);
+                }
+
+                // set right climber motor
+                if (mControlBoard.operator.getController().getYButton()) {
+                    mClimber.setRightClimberOpenLoop(8.0);
+                    //mClimber.setClimberPosition(Constants.ClimberConstants.kClimberHeight);
+                } else if (mControlBoard.operator.getController().getAButton()) {
+                    mClimber.setRightClimberOpenLoop(-8.0);
+                    //mClimber.setClimberPosition(Constants.ClimberConstants.kRetractedHeight);
+                } else {
+                    mClimber.setRightClimberOpenLoop(0.0);
+                    // mClimber.setRightClimberPositionDelta(0.0);
+                }
+            }
+                    
+            
+            /* Automated Climb */ 
+            /*
+            if (mControlBoard.getTraversalClimb()) {
+                mTraversalClimb = true; 
+            } else {
+                mTraversalClimb = false;
+            }
+
+            if (mTraversalClimb) {
+                // pull up with the right arm to the mid bar
+                mClimber.setRightClimberPosition(0.0);
+                mClimber.setLeftClimberPosition(Constants.ClimberConstants.kLeftTravelDistance);
+
+                // pull up with left arm on upper bar while extending right arm to traversal bar
+                if (Util.epsilonEquals(mSwerve.getPitch().getDegrees(), // check if dt pitch is at bar contact angle before climbing to next bar
+                                    Constants.ClimberConstants.kBarContactAngle,
+                                    Constants.ClimberConstants.kBarContactAngleEpsilon)
+                    &&
+                    Util.epsilonEquals(mClimber.getClimberPositionLeft(), // don't climb unless left arm is fully extended
+                                    Constants.ClimberConstants.kLeftTravelDistance,
+                                    Constants.ClimberConstants.kTravelDistanceEpsilon)) {
+
+                    mClimber.setRightClimberPosition(Constants.ClimberConstants.kRightTravelDistance);
+                    mClimber.setLeftClimberPosition(0.0);
+                }
+
+                // pull up with right arm to partial height on traversal bar
+                else if (Util.epsilonEquals(mSwerve.getPitch().getDegrees(), // check if dt pitch is at bar contact angle before climbing to next bar
+                                            Constants.ClimberConstants.kBarContactAngle,
+                                            Constants.ClimberConstants.kBarContactAngleEpsilon)
+                        &&
+                        Util.epsilonEquals(mClimber.getClimberPositionRight(), // don't climb unless right arm is fully extended
+                                            Constants.ClimberConstants.kRightTravelDistance,
+                                            Constants.ClimberConstants.kTravelDistanceEpsilon)) {
+
+                    mClimber.setRightClimberPosition(Constants.ClimberConstants.kRightPartialTravelDistance);
+                }
+            } else {
+                mClimber.setRightClimberPosition(0.0);
+                mClimber.setLeftClimberPosition(0.0);
+            }
+            */
+        }
     }
 
     /*** UPDATE SHOOTER AND HOOD SETPOINTS WHEN VISION AIMING ***/
@@ -228,20 +351,23 @@ public class Superstructure extends Subsystem {
 
             // only feed cargo to shoot when spun up and aimed
             if (isSpunUp() /*&& isAimed()*/) {
-                mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX;
+                mPeriodicIO.real_indexer = Indexer.WantedAction.FEED;
+            } else {
+                mPeriodicIO.real_indexer = Indexer.WantedAction.NONE;
+            }
+        } else {
+            mPeriodicIO.EJECT = mColorSensor.wantsEject();
+
+            if (mPeriodicIO.EJECT) {
+                mPeriodicIO.real_indexer = Indexer.WantedAction.EJECT;
             } else {
                 mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX;
             }
-        } else {
+
             if (mPeriodicIO.INTAKE) {
                 mPeriodicIO.real_intake = Intake.WantedAction.INTAKE;
-                mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX;
-            } else if (mPeriodicIO.OUTTAKE) {
-                mPeriodicIO.real_intake = Intake.WantedAction.REVERSE;
-                mPeriodicIO.real_indexer = Indexer.WantedAction.REVERSE;
             } else {
                 mPeriodicIO.real_intake = Intake.WantedAction.NONE;
-                mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX; // always in indexing state
             }
         }
 
@@ -320,8 +446,8 @@ public class Superstructure extends Subsystem {
     public boolean getIntaking() {
         return mPeriodicIO.INTAKE;
     }
-    public boolean getOuttaking() {
-        return mPeriodicIO.OUTTAKE;
+    public boolean getEjecting() {
+        return mPeriodicIO.EJECT;
     }
     public boolean getPrepping() {
         return mPeriodicIO.PREP;
@@ -351,7 +477,7 @@ public class Superstructure extends Subsystem {
     public void outputTelemetry() {
         // superstructure actions requested
         SmartDashboard.putBoolean("Intaking", mPeriodicIO.INTAKE);
-        SmartDashboard.putBoolean("Outtaking", mPeriodicIO.OUTTAKE);
+        SmartDashboard.putBoolean("Outtaking", mPeriodicIO.EJECT);
         SmartDashboard.putBoolean("Prepping", mPeriodicIO.PREP);
         SmartDashboard.putBoolean("Shooting", mPeriodicIO.SHOOT);
         SmartDashboard.putBoolean("Fender Shooting", mPeriodicIO.FENDER);
