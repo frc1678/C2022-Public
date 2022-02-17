@@ -35,7 +35,7 @@ public class Climber extends Subsystem {
 
         // for right motor
         mClimberRight.set(ControlMode.PercentOutput, 0);
-        mClimberRight.setInverted(true);
+        mClimberRight.setInverted(false);
         mClimberRight.setSelectedSensorPosition(0.0);
 
         mClimberRight.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
@@ -54,7 +54,7 @@ public class Climber extends Subsystem {
 
         // for left motor
         mClimberLeft.set(ControlMode.PercentOutput, 0);
-        mClimberLeft.setInverted(false);
+        mClimberLeft.setInverted(true);
         mClimberLeft.setSelectedSensorPosition(0.0);
 
         mClimberLeft.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
