@@ -366,10 +366,14 @@ public class Superstructure extends Subsystem {
                 mPeriodicIO.real_indexer = Indexer.WantedAction.NONE;
             }
 
-            if (mPeriodicIO.INTAKE) {
-                mPeriodicIO.real_intake = Intake.WantedAction.INTAKE;
-            } else {
+            if (stopIntaking()) {
                 mPeriodicIO.real_intake = Intake.WantedAction.NONE;
+            } else {
+                if (mPeriodicIO.INTAKE) {
+                    mPeriodicIO.real_intake = Intake.WantedAction.INTAKE;
+                } else {
+                    mPeriodicIO.real_intake = Intake.WantedAction.NONE;
+                }
             }
         }
 
@@ -419,6 +423,9 @@ public class Superstructure extends Subsystem {
     }
 
     // status checker methods
+    public boolean stopIntaking() {
+        return mIndexer.stopTunnel() && !mPeriodicIO.EJECT;
+    }
     public boolean isSpunUp() {
         return mShooter.spunUp();
     }

@@ -35,15 +35,15 @@ public class Indexer extends Subsystem {
     private boolean mBottomHadSeenBall = false;
     private boolean mTopHadSeenBall = false;
 
-    private boolean stopTunnel() {
+    public boolean stopTunnel() {
         return ballAtTrigger() && ballInTunnel() /*|| mPeriodicIO.ball_count == 2*/;
     }
 
-    private boolean ballAtTrigger() {
+    public boolean ballAtTrigger() {
         return mPeriodicIO.top_break;
     }
 
-    private boolean ballInTunnel () {
+    public boolean ballInTunnel () {
         return mPeriodicIO.bottom_break;
     }
 

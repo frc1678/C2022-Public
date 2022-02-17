@@ -160,7 +160,6 @@ public class Intake extends Subsystem {
             case IDLE:
                 mPeriodicIO.intake_demand = 0;
                 mPeriodicIO.singulator_demand = 0;
-                mPeriodicIO.deploy_demand = Constants.IntakeConstants.kHoldingVoltage;
 
                 if (mPeriodicIO.hold_intake) {
                     mPeriodicIO.deploy_demand = -Constants.IntakeConstants.kHoldingVoltage;
