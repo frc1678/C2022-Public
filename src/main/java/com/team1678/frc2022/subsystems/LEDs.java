@@ -113,9 +113,17 @@ public class LEDs extends Subsystem {
         CANdleConfiguration config = new CANdleConfiguration();
         config.disableWhenLOS = true;
         config.stripType = LEDStripType.RGB; // set the strip type to RGB
-        config.brightnessScalar = 0.3; // dim the LEDs to half brightness
+        config.brightnessScalar = 1.0; // dim the LEDs to half brightness
         mCandle.configAllSettings(config);
 
+    }
+
+    public double getCurrentDraw() {
+        return mCandle.getCurrent();
+    }
+
+    public double getTemperature() {
+        return mCandle.getTemperature();
     }
 
     public void updateState() {

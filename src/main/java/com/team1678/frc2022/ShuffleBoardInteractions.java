@@ -69,6 +69,8 @@ public class ShuffleBoardInteractions {
     /*** ENTRIES ***/
     
     /* CANdle */
+    private final NetworkTableEntry mLedTemperature;
+    private final NetworkTableEntry mLedCurrent;
     private final NetworkTableEntry mLedState;
     private final NetworkTableEntry mLedStripState;
     private final NetworkTableEntry mLedApply;
@@ -289,6 +291,8 @@ public class ShuffleBoardInteractions {
             .getEntry();
 
         /* CANdle */
+        mLedCurrent = CANDLE_TAB.add("Current (Amps)", 0).getEntry();
+        mLedTemperature = CANDLE_TAB.add("Temperature (Celcius)", 0).getEntry();
         mLedState = CANDLE_TAB.add("State", "Nothing yet :/").getEntry();
         mLedStripState = CANDLE_TAB.add("Strip State", "Nothing yet :\\").getEntry();
         mLedApply = CANDLE_TAB
@@ -607,6 +611,10 @@ public class ShuffleBoardInteractions {
         mCurrentAngleP.setDouble(currentPIDVals[0]);
         mCurrentAngleI.setDouble(currentPIDVals[1]);
         mCurrentAngleD.setDouble(currentPIDVals[2]);
+
+        /* CANDLE */
+        mLedCurrent.setDouble(mLEDs.getCurrentDraw());
+        mLedTemperature.setDouble(mLEDs.getTemperature());
 
         if (mLedApply.getValue().getBoolean()) {
             if (LEDs.State.valueOf(mLedState.getValue().getString()) != null) {
