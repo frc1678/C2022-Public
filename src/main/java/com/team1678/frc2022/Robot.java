@@ -103,7 +103,7 @@ public class Robot extends TimedRobot {
 					mSuperstructure,
 					mInfrastructure,
 					mIntake,
-					// mIndexer,
+					mIndexer,
 					mShooter,
 					mHood,
 					mColorSensor // ,

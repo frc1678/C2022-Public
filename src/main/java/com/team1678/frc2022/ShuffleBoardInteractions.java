@@ -172,8 +172,10 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mGValue;
     private final NetworkTableEntry mBValue;
     private final NetworkTableEntry mMatchedColor;
-    private final NetworkTableEntry mEject;
     private final NetworkTableEntry mReadDistance;
+
+    private final NetworkTableEntry mHasBall;
+    private final NetworkTableEntry mEject;
 
     // instantiate subsystems, tabs, and widgets
     public ShuffleBoardInteractions() {
@@ -421,12 +423,17 @@ public class ShuffleBoardInteractions {
         mMatchedColor = COLOR_SENSOR
             .add("Matched Color", "N/A")
             .getEntry();
-        mEject = COLOR_SENSOR
-            .add("Eject", false)
-            .getEntry();
         mReadDistance = COLOR_SENSOR
             .add("Read Distance", 0.0)
             .getEntry();
+            
+        mHasBall = COLOR_SENSOR
+            .add("Has Ball", false)
+            .getEntry();
+        mEject = COLOR_SENSOR
+            .add("Eject", false)
+            .getEntry();
+
 
         /* VISION */
         mLimelightOk = VISION_TAB
@@ -667,8 +674,10 @@ public class ShuffleBoardInteractions {
         mGValue.setDouble(mColorSensor.getDetectedGValue());
         mBValue.setDouble(mColorSensor.getDetectedBValue());
         mMatchedColor.setString(mColorSensor.getMatchedColor().toString());
-        mEject.setBoolean(mColorSensor.wantsEject());
         mReadDistance.setDouble(mColorSensor.getDistance());
+
+        mHasBall.setBoolean(mColorSensor.hasBall());
+        mEject.setBoolean(mColorSensor.wantsEject());
 
         /* SUPERSTRUCTURE */
         // update actions statuses

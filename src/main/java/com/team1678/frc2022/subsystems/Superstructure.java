@@ -356,10 +356,14 @@ public class Superstructure extends Subsystem {
         } else {
             mPeriodicIO.EJECT = mColorSensor.wantsEject();
 
-            if (mPeriodicIO.EJECT) {
-                mPeriodicIO.real_indexer = Indexer.WantedAction.EJECT;
+            if (mColorSensor.hasBall()) {
+                if (mPeriodicIO.EJECT) {
+                    mPeriodicIO.real_indexer = Indexer.WantedAction.EJECT;
+                } else {
+                    mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX;
+                }
             } else {
-                mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX;
+                mPeriodicIO.real_indexer = Indexer.WantedAction.NONE;
             }
 
             if (mPeriodicIO.INTAKE) {
