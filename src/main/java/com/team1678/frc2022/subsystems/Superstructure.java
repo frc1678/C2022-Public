@@ -5,6 +5,7 @@ import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.CustomXboxController;
+import com.team1678.frc2022.controlboard.CustomXboxController.Button;
 import com.team1678.frc2022.regressions.ShooterRegression;
 import com.team254.lib.util.Util;
 import com.team254.lib.util.InterpolatingDouble;
@@ -50,6 +51,7 @@ public class Superstructure extends Subsystem {
         // INPUTS
         // (superstructure actions)
         private boolean INTAKE = false; // run the intake to pick up cargo
+        private boolean REVERSE = false; // reverse the intake to reject cargo
         private boolean EJECT = false; // reverse the intake to spit out cargo
         private boolean PREP = false; // spin up and aim with shooting setpoints
         private boolean SHOOT = false; // shoot cargo
@@ -118,6 +120,9 @@ public class Superstructure extends Subsystem {
     /*** SETTERS FOR SUPERSTRUCTURE ACTIONS OUTSIDE OPERATOR INPUT ***/
     public void setWantIntake(boolean intake) {
         mPeriodicIO.INTAKE = intake;
+    }
+    public void setWantReverse(boolean reverse) {
+        mPeriodicIO.REVERSE = true;
     }
     public void setWantEject(boolean eject) {
         mPeriodicIO.EJECT = eject;
@@ -273,17 +278,42 @@ public class Superstructure extends Subsystem {
 
             /*** NORMAL TELEOP CONTROLS ***/
 
-            // control intake vs. outtake actions
-            if (mControlBoard.operator.getTrigger(CustomXboxController.Side.RIGHT)) {
-                mPeriodicIO.INTAKE = true;
-            } else if (mControlBoard.operator.getTrigger(CustomXboxController.Side.LEFT)) {
+            // toggle whether we want to force intake or decide whether we intake based on whether we have two correct cargo
+            if (mControlBoard.operator.getController().getPOV() == 270) {
+                mForceIntake = !mForceIntake;
+            }
+            // control intake + reverse actions
+            if (mForceIntake) {
+                normalIntakeControls();
+            } else {
+                if (stopIntaking()) {
+                    mReverseIntakeTimer.start();
+                    if (!mReverseIntakeTimer.hasElapsed(Constants.IntakeConstants.kReverseTime)) {
+                        // reverse for a period of time after we want to stop intaking to reject any incoming third cargo
+                        mPeriodicIO.REVERSE = true;
+                    } else {
+                        // set intake to do nothing after reversing, so we cannot intake while we have two correct cargo
+                        mPeriodicIO.real_intake = Intake.WantedAction.NONE;
+                    }
+                } else {
+                    normalIntakeControls();
+                }
+            }
+            
+
+            // toggle ejecting to disable if necessary
+            if (mControlBoard.operator.getController().getPOV() == 90) {
+                mDisableEjecting = !mDisableEjecting;
+            }
+            // control options to filter cargo and eject
+            if (mDisableEjecting) {
+                mPeriodicIO.EJECT = false;
+            } else if (mControlBoard.operator.getButton(Button.LB)) {
                 mPeriodicIO.EJECT = true;
             } else {
-                mPeriodicIO.INTAKE = false;
+                // when not forcing an eject, passively check whether want to passively eject using color sensor logic
+                mPeriodicIO.EJECT = mColorSensor.wantsEject();
             }
-
-            // when not forcing an eject, passively check whether want to passively eject using color sensor logic
-            mPeriodicIO.EJECT = mColorSensor.wantsEject();
 
             // control shooting
             if (mControlBoard.operator.getController().getYButtonPressed()) {
@@ -370,6 +400,7 @@ public class Superstructure extends Subsystem {
             }
         } else {
             
+            // only do any indexing action if we detect a ball
             if (mColorSensor.hasBall()) {
                 if (mPeriodicIO.EJECT) {
                     mPeriodicIO.real_indexer = Indexer.WantedAction.EJECT;
@@ -380,26 +411,13 @@ public class Superstructure extends Subsystem {
                 mPeriodicIO.real_indexer = Indexer.WantedAction.NONE;
             }
 
-            // force stop intaking when we have two correct color cargo
-            if (stopIntaking()) {
-                /*
-                mReverseIntakeTimer.start();
-                if (!mReverseIntakeTimer.hasElapsed(Constants.IntakeConstants.kReverseTime)) {
-                    // reverse for a period of time after we want to stop intaking to reject any incoming third cargo
-                    mPeriodicIO.real_intake = Intake.WantedAction.REVERSE;
-                } else {
-                    // set intake to do nothing after reversing, so we cannot intake while we have two correct cargo
-                    mPeriodicIO.real_intake = Intake.WantedAction.NONE;
-                }
-                */
-                mPeriodicIO.real_intake = Intake.WantedAction.NONE;
+            // normal operator manual control for intake
+            if (mPeriodicIO.INTAKE) {
+                mPeriodicIO.real_intake = Intake.WantedAction.INTAKE;
+            } else if (mPeriodicIO.REVERSE) {
+                mPeriodicIO.real_intake = Intake.WantedAction.REVERSE;
             } else {
-                // normal operator manual control for intake
-                if (mPeriodicIO.INTAKE) {
-                    mPeriodicIO.real_intake = Intake.WantedAction.INTAKE;
-                } else {
-                    mPeriodicIO.real_intake = Intake.WantedAction.NONE;
-                }
+                mPeriodicIO.real_intake = Intake.WantedAction.NONE;
             }
         }
 
@@ -448,16 +466,33 @@ public class Superstructure extends Subsystem {
         }
     }
 
-    // status checker methods
+    /* Status Checker Methods */
+    // call normal intake controls
+    public void normalIntakeControls() {
+        if (mControlBoard.operator.getTrigger(CustomXboxController.Side.RIGHT)) {
+            mPeriodicIO.INTAKE = true;
+            mPeriodicIO.REVERSE = false;
+        } else if (mControlBoard.operator.getTrigger(CustomXboxController.Side.LEFT)) {
+            mPeriodicIO.INTAKE = false;
+            mPeriodicIO.REVERSE = true;
+        } else {
+            mPeriodicIO.INTAKE = false;
+            mPeriodicIO.REVERSE = false;
+        }
+    }
+    // stop intaking if we have two of the correct cargo
     public boolean stopIntaking() {
         return mIndexer.stopTunnel() && !mPeriodicIO.EJECT;
     }
+    // check if our flywheel is spun up to the correct velocity
     public boolean isSpunUp() {
         return mShooter.spunUp();
     }
+    // check if our limelight sees a vision target
     public boolean hasTarget() {
         return mLimelight.hasTarget();
     }
+    // checked if we are vision aligned to the target within an acceptable horiz. error
     public boolean isAimed() {
         return mLimelight.isAimed();
     }
@@ -471,6 +506,7 @@ public class Superstructure extends Subsystem {
     @Override
     public void stop() {
         setWantIntake(false);
+        setWantReverse(false);
         setWantEject(false);
         setWantPrep(false);
         setWantShoot(false);
@@ -480,6 +516,9 @@ public class Superstructure extends Subsystem {
     // get actions
     public boolean getIntaking() {
         return mPeriodicIO.INTAKE;
+    }
+    public boolean getReversing() {
+        return mPeriodicIO.REVERSE;
     }
     public boolean getEjecting() {
         return mPeriodicIO.EJECT;
@@ -520,7 +559,8 @@ public class Superstructure extends Subsystem {
     public void outputTelemetry() {
         // superstructure actions requested
         SmartDashboard.putBoolean("Intaking", mPeriodicIO.INTAKE);
-        SmartDashboard.putBoolean("Outtaking", mPeriodicIO.EJECT);
+        SmartDashboard.putBoolean("Reversing", mPeriodicIO.REVERSE);
+        SmartDashboard.putBoolean("Ejecting", mPeriodicIO.EJECT);
         SmartDashboard.putBoolean("Prepping", mPeriodicIO.PREP);
         SmartDashboard.putBoolean("Shooting", mPeriodicIO.SHOOT);
         SmartDashboard.putBoolean("Fender Shooting", mPeriodicIO.FENDER);
@@ -536,6 +576,7 @@ public class Superstructure extends Subsystem {
         SmartDashboard.putBoolean("Is Spun Up", isSpunUp());
         SmartDashboard.putBoolean("Has Vision Target", mLimelight.hasTarget());
         SmartDashboard.putBoolean("Is Vision Aimed", mLimelight.isAimed());
+        SmartDashboard.putBoolean("Disable Ejecting", mDisableEjecting);
     }
 
     // included to continue logging while disabled
