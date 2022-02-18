@@ -56,6 +56,7 @@ public class Superstructure extends Subsystem {
         private boolean PREP = false; // spin up and aim with shooting setpoints
         private boolean SHOOT = false; // shoot cargo
         private boolean FENDER = false; // shoot cargo from up against the hub
+        private boolean SPIT = false; // spit cargo from shooter at low velocity
 
         // time measurements
         public double timestamp;
@@ -88,7 +89,10 @@ public class Superstructure extends Subsystem {
 
     // fender shot constants
     private final double kFenderVelocity = 2300;
-    private final double kFenderAngle = 10.0;
+    private final double kFenderAngle = 11.0;
+
+    private final double kSpitVelocity = 1000;
+    private final double kSpitAngle = 12.0;
 
     @Override
     public void registerEnabledLoops(ILooper enabledLooper) {
@@ -148,7 +152,8 @@ public class Superstructure extends Subsystem {
      * Shooting
      * - press A to prep for shot (spin up)
      * - press Y to shoot once ready
-     * - press X to toggle fender shot with set params
+     * - press B to toggle fender shot with set params
+     * - press X to toggle spit shot with set params
      * 
      * Manual Adjustment
      * - Use dpad to manually adjust hood with offset
@@ -330,8 +335,13 @@ public class Superstructure extends Subsystem {
             }
 
             // control fender shot
-            if (mControlBoard.operator.getController().getXButtonPressed()) {
+            if (mControlBoard.operator.getController().getBButtonPressed()) {
                 mPeriodicIO.FENDER = !mPeriodicIO.FENDER;
+            }
+
+            // control spit shot
+            if (mControlBoard.operator.getController().getXButtonPressed()) {
+                mPeriodicIO.SPIT = !mPeriodicIO.SPIT;
             }
 
             // control for adding manual hood adjustment
@@ -355,7 +365,10 @@ public class Superstructure extends Subsystem {
 
     /*** UPDATE SHOOTER AND HOOD SETPOINTS WHEN VISION AIMING ***/
     public synchronized void updateShootingParams() {
-        if (mPeriodicIO.FENDER) {
+        if (mPeriodicIO.SPIT) {
+            mShooterSetpoint = kSpitVelocity;
+            mHoodSetpoint = kSpitAngle;
+        } else if (mPeriodicIO.FENDER) {
             mShooterSetpoint = kFenderVelocity;
             mHoodSetpoint = kFenderAngle;
         } else if (hasTarget()) {
@@ -537,6 +550,9 @@ public class Superstructure extends Subsystem {
     }
     public boolean getWantsFender() {
         return mPeriodicIO.FENDER;
+    }
+    public boolean getWantsSpit() {
+        return mPeriodicIO.SPIT;
     }
 
     // get other statuses

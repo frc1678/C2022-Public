@@ -159,7 +159,8 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mEjecting;
     private final NetworkTableEntry mPrepping;
     private final NetworkTableEntry mShooting;
-    private final NetworkTableEntry mFender;
+    private final NetworkTableEntry mFenderShot;
+    private final NetworkTableEntry mSpitShot;
 
     // goals
     private final NetworkTableEntry mIntakeGoal;
@@ -510,8 +511,12 @@ public class ShuffleBoardInteractions {
             .add("Shooting", false)
             .withSize(2, 1)
             .getEntry();
-        mFender = SUPERSTRUCTURE_TAB
+        mFenderShot = SUPERSTRUCTURE_TAB
             .add("Fender Shot", false)
+            .withSize(2, 1)
+            .getEntry();
+        mSpitShot = SUPERSTRUCTURE_TAB
+            .add("Spit Shot", false)
             .withSize(2, 1)
             .getEntry();
 
@@ -681,7 +686,8 @@ public class ShuffleBoardInteractions {
         mEjecting.setBoolean(mSuperstructure.getEjecting());
         mPrepping.setBoolean(mSuperstructure.getPrepping());
         mShooting.setBoolean(mSuperstructure.getShooting());
-        mFender.setBoolean(mSuperstructure.getWantsFender());
+        mFenderShot.setBoolean(mSuperstructure.getWantsFender());
+        mSpitShot.setBoolean(mSuperstructure.getWantsSpit());
 
         // update superstructure goal statuses
         mIntakeGoal.setString(mSuperstructure.getIntakeGoal());
