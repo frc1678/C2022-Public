@@ -133,10 +133,12 @@ public class Swerve extends Subsystem {
     }
 
     public void visionAlignDrive(Translation2d translation2d, double rotation, boolean fieldRelative, boolean isOpenLoop) {
-        double adjustedRotation = rotation;
+        double adjustedRotation;
         if (mLimelight.hasTarget()) {
             adjustedRotation = mVisionAlignAdjustment;
-        } 
+        } else {
+            adjustedRotation = rotation;
+        }
         drive(translation2d, adjustedRotation, fieldRelative, isOpenLoop);
     }
 
