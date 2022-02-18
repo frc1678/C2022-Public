@@ -26,8 +26,6 @@ public class ColorSensor extends Subsystem {
     public PeriodicIO mPeriodicIO = new PeriodicIO();
     private REVColorSensorV3Wrapper mColorSensor;
 
-    private final ColorMatch mColorMatch = new ColorMatch();
-
     private Timer mHasBallTimer = new Timer();
     private Timer mEjectorTimer = new Timer();
 
@@ -48,9 +46,6 @@ public class ColorSensor extends Subsystem {
         }
         mMatchedColor = ColorChoices.NONE;
         mColorSensor = new REVColorSensorV3Wrapper(I2C.Port.kOnboard);
-        
-        mColorMatch.addColorMatch(Constants.ColorSensorConstants.kRedColor);
-        mColorMatch.addColorMatch(Constants.ColorSensorConstants.kBlueColor);
 
         mColorSensor.start();
     }
@@ -128,9 +123,9 @@ public class ColorSensor extends Subsystem {
         if (mPeriodicIO.distance < Constants.ColorSensorConstants.kColorSensorThreshold) { 
             mMatchedColor = ColorChoices.NONE;
         } else {
-            if (mPeriodicIO.matched_color.equals(Constants.ColorSensorConstants.kRedColor)) {
+            if (mPeriodicIO.raw_color.red > mPeriodicIO.raw_color.blue) {
                 mMatchedColor = ColorChoices.RED;
-            } else if (mPeriodicIO.matched_color.equals(Constants.ColorSensorConstants.kBlueColor)) {
+            } else if (mPeriodicIO.raw_color.blue > mPeriodicIO.raw_color.red) {
                 mMatchedColor = ColorChoices.BLUE;
             } else {
                 mMatchedColor = ColorChoices.OTHER;
@@ -166,7 +161,6 @@ public class ColorSensor extends Subsystem {
         if (mPeriodicIO.rawColorSensorData != null) {
             mPeriodicIO.raw_color = mPeriodicIO.rawColorSensorData.color;
             mPeriodicIO.distance = mPeriodicIO.rawColorSensorData.distance;
-            mPeriodicIO.matched_color = mColorMatch.matchClosestColor(mPeriodicIO.raw_color).color;
         } 
 
         updateHasBall();
@@ -208,7 +202,6 @@ public class ColorSensor extends Subsystem {
         public ColorSensorData rawColorSensorData;
         public Color raw_color;
         public double distance;
-        public Color matched_color;
 
         // OUTPUTS
         public boolean has_ball;
