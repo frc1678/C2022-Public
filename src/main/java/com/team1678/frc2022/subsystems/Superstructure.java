@@ -277,9 +277,10 @@ public class Superstructure extends Subsystem {
                 mPeriodicIO.EJECT = true;
             } else {
                 mPeriodicIO.INTAKE = false;
-                // when not forcing an eject, passively check whether want to passively eject using color sensor logic
-                mPeriodicIO.EJECT = mColorSensor.wantsEject();
             }
+
+            // when not forcing an eject, passively check whether want to passively eject using color sensor logic
+            mPeriodicIO.EJECT = mColorSensor.wantsEject();
 
             // control shooting
             if (mControlBoard.operator.getController().getYButtonPressed()) {
@@ -365,8 +366,7 @@ public class Superstructure extends Subsystem {
                 mPeriodicIO.real_indexer = Indexer.WantedAction.NONE;
             }
         } else {
-            mPeriodicIO.EJECT = mColorSensor.wantsEject();
-
+            
             if (mColorSensor.hasBall()) {
                 if (mPeriodicIO.EJECT) {
                     mPeriodicIO.real_indexer = Indexer.WantedAction.EJECT;
@@ -379,6 +379,7 @@ public class Superstructure extends Subsystem {
 
             // force stop intaking when we have two correct color cargo
             if (stopIntaking()) {
+                /*
                 mReverseIntakeTimer.start();
                 if (!mReverseIntakeTimer.hasElapsed(Constants.IntakeConstants.kReverseTime)) {
                     // reverse for a period of time after we want to stop intaking to reject any incoming third cargo
@@ -387,6 +388,8 @@ public class Superstructure extends Subsystem {
                     // set intake to do nothing after reversing, so we cannot intake while we have two correct cargo
                     mPeriodicIO.real_intake = Intake.WantedAction.NONE;
                 }
+                */
+                mPeriodicIO.real_intake = Intake.WantedAction.NONE;
             } else {
                 // normal operator manual control for intake
                 if (mPeriodicIO.INTAKE) {

@@ -162,7 +162,7 @@ public class Intake extends Subsystem {
                 mPeriodicIO.singulator_demand = 0;
 
                 if (mPeriodicIO.hold_intake) {
-                    mPeriodicIO.deploy_demand = -Constants.IntakeConstants.kHoldingVoltage;
+                    mPeriodicIO.deploy_demand = -Constants.IntakeConstants.kInHoldingVoltage;
                 } else {
                     mPeriodicIO.deploy_demand = -Constants.IntakeConstants.kDeployVoltage;
                 }
@@ -172,7 +172,7 @@ public class Intake extends Subsystem {
                 mPeriodicIO.singulator_demand = Constants.IntakeConstants.kSingulatorVoltage;
 
                 if (mPeriodicIO.hold_intake) {
-                    mPeriodicIO.deploy_demand = Constants.IntakeConstants.kHoldingVoltage;
+                    mPeriodicIO.deploy_demand = Constants.IntakeConstants.kOutHoldingVoltage;
                 } else {
                     mPeriodicIO.deploy_demand = Constants.IntakeConstants.kDeployVoltage;
                 }
@@ -182,7 +182,7 @@ public class Intake extends Subsystem {
                 mPeriodicIO.singulator_demand = -Constants.IntakeConstants.kSingulatorVoltage;
                 
                 if (mPeriodicIO.hold_intake) {
-                    mPeriodicIO.deploy_demand = Constants.IntakeConstants.kHoldingVoltage;
+                    mPeriodicIO.deploy_demand = Constants.IntakeConstants.kOutHoldingVoltage;
                 } else {
                     mPeriodicIO.deploy_demand = Constants.IntakeConstants.kDeployVoltage;
                 }

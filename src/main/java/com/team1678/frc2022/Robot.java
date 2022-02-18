@@ -102,13 +102,13 @@ public class Robot extends TimedRobot {
 					mSwerve,
 					mSuperstructure,
 					mInfrastructure,
-					// mIntake,
+					mIntake,
 					mIndexer,
 					mShooter,
 					mHood,
 					mColorSensor,
-					mClimber //,
-					// mLimelight
+					mClimber,
+					mLimelight
 			);
 
 			mSubsystemManager.registerEnabledLoops(mEnabledLooper);
@@ -198,6 +198,7 @@ public class Robot extends TimedRobot {
                 mAutoModeExecutor.stop();
             }
 
+			mLimelight.setLed(Limelight.LedMode.ON);
 			mLimelight.outputTelemetry();
 
 			// call operator commands container from superstructure

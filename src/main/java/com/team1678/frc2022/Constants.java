@@ -247,7 +247,8 @@ public class Constants {
         public static final double kSpittingVoltage = -8;
         public static final double kSingulatorVoltage = 5.0;
         public static final double kDeployVoltage = 3.0;
-        public static final double kHoldingVoltage = 1.0;
+        public static final double kInHoldingVoltage = 0.5;
+        public static final double kOutHoldingVoltage = 1.0;
 
         public static final double kDeployCurrentLimit = 50; // amps
 
