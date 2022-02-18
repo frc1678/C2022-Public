@@ -194,23 +194,29 @@ public class Intake extends Subsystem {
     public synchronized State getState() {
         return mState;
     }
-    public boolean getIsDeployed() {
-        return mPeriodicIO.intake_out;
+    public double getRollerCurrent() {
+        return mPeriodicIO.intake_current;
     }
-    public double getIntakeVoltage() {
+    public double getRollerVoltage() {
         return mPeriodicIO.intake_voltage;
     }
-    public double getSingulatorVoltage() {
-        return mPeriodicIO.singulator_voltage;
+    public double getRollerDemand() {
+        return mPeriodicIO.intake_demand;
     }
-    public double getIntakeCurrent() {
-        return mPeriodicIO.intake_current;
+    public double getDeployCurrent() {
+        return mPeriodicIO.deploy_current;
+    }
+    public double getDeployVoltage() {
+        return mPeriodicIO.deploy_voltage;
+    }
+    public double getDeployDemand() {
+        return mPeriodicIO.deploy_demand;
     }
     public double getSingulatorCurrent() {
         return mPeriodicIO.intake_current;
     }
-    public double getIntakeDemand() {
-        return mPeriodicIO.intake_demand;
+    public double getSingulatorVoltage() {
+        return mPeriodicIO.singulator_voltage;
     }
     public double getSingulatorDemand() {
         return mPeriodicIO.singulator_demand;
@@ -218,8 +224,6 @@ public class Intake extends Subsystem {
 
     public static class PeriodicIO {
         // INPUTS
-        private boolean intake_out;
-
         private double intake_current;
         private double singulator_current;
         private double deploy_current;
@@ -280,7 +284,6 @@ public class Intake extends Subsystem {
         items.add(Timer.getFPGATimestamp());
 
         // add inputs
-        items.add(mPeriodicIO.intake_out ? 1.0 : 0.0);
         items.add(mPeriodicIO.intake_current);
         items.add(mPeriodicIO.singulator_current);
         items.add(mPeriodicIO.intake_voltage);

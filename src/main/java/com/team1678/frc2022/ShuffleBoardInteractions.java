@@ -81,11 +81,13 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mCurrentAngleD;
 
     /* INTAKE */
-    private final NetworkTableEntry mIntakeCurrent;
     private final NetworkTableEntry mIntakeState;
-    private final NetworkTableEntry mIntakeVoltage;
-    private final NetworkTableEntry mIntakeDemand;
-    private final NetworkTableEntry mIntakeDeployed;
+    private final NetworkTableEntry mIntakeRollerCurrent;
+    private final NetworkTableEntry mIntakeRollerVoltage;
+    private final NetworkTableEntry mIntakeRollerDemand;
+    private final NetworkTableEntry mIntakeDeployCurrent;
+    private final NetworkTableEntry mIntakeDeployVoltage;
+    private final NetworkTableEntry mIntakeDeployDemand;
 
     // private final NetworkTableEntry mFlywheelManualPIDToggle;
     // private final NetworkTableEntry mFlywheelP;
@@ -133,15 +135,23 @@ public class ShuffleBoardInteractions {
     /* CLIMBER */
     private final NetworkTableEntry mClimberVelocityRight;
     private final NetworkTableEntry mClimberVelocityLeft;
+
     private final NetworkTableEntry mClimberDemandRight;
     private final NetworkTableEntry mClimberDemandLeft;
+
     private final NetworkTableEntry mClimberPositionRight;
     private final NetworkTableEntry mClimberPositionLeft;
+
     private final NetworkTableEntry mClimberCurrentRight;
     private final NetworkTableEntry mClimberCurrentLeft;
+
     private final NetworkTableEntry mClimberHomed;
+
     private final NetworkTableEntry mClimberLeftControlState;
     private final NetworkTableEntry mClimberRightControlState;
+
+    private final NetworkTableEntry mInClimbMode;
+    private final NetworkTableEntry mOpenLoopClimbControl;
 
     /* SUPERSTRUCTURE */
     // actions
@@ -296,23 +306,33 @@ public class ShuffleBoardInteractions {
             .getEntry();
 
         /* INTAKE */
-        mIntakeCurrent = INTAKE_TAB
-            .add("Intake Current", mIntake.getIntakeCurrent())
-            .getEntry();
         mIntakeState = INTAKE_TAB
-            .add("Intake State", mIntake.getState().toString())
+            .add("Intake State", "N/A")
             .getEntry();
-        mIntakeVoltage = INTAKE_TAB
-            .add("Intake Voltage", mIntake.getIntakeVoltage())
+        mIntakeRollerCurrent = INTAKE_TAB
+            .add("Roller Current", 0.0)
             .getEntry();
-        mIntakeDemand = INTAKE_TAB
-                .add("Intake Demand", mIntake.getIntakeDemand())
-                .getEntry();
-        mIntakeDeployed = INTAKE_TAB
-                .add("Intake Deployed", mIntake.getIsDeployed())
-                .getEntry();
+        mIntakeRollerVoltage = INTAKE_TAB
+            .add("Roller Voltage", 0.0)
+            .getEntry();
+        mIntakeRollerDemand = INTAKE_TAB
+            .add("Roller Demand", 0.0)
+            .getEntry();
+        mIntakeDeployCurrent = INTAKE_TAB
+            .add("Deploy Current", 0.0)
+            .getEntry();
+        mIntakeDeployVoltage = INTAKE_TAB
+            .add("Deploy Voltage", 0.0)
+            .getEntry();
+        mIntakeDeployDemand= INTAKE_TAB
+            .add("Deploy Demand", 0.0)
+            .getEntry();
+        
 
         /* INDEXER */
+        mIndexerState = INDEXER_TAB
+            .add("Indexer State", "N/A")
+            .getEntry();
         mEjectorCurrent = INDEXER_TAB
             .add("Outtake Current", 0.0)
             .getEntry();
@@ -340,14 +360,29 @@ public class ShuffleBoardInteractions {
         mTriggerVoltage = INDEXER_TAB
             .add("Trigger Voltage", 0.0)
             .getEntry();
-        mIndexerState = INDEXER_TAB
-            .add("Indexer State", "N/A")
+        mTopBeamBreak = INDEXER_TAB
+            .add("Top Beam Break Triggered", false)
+            .getEntry();
+        mBottomBeamBreak = INDEXER_TAB
+            .add("Bottom Beam Break Triggered", false)
             .getEntry();
         mBallCount = INDEXER_TAB
             .add("Ball Count", 0.0)
             .getEntry();
 
         /* CLIMBER */
+        mInClimbMode = CLIMBER_TAB
+            .add("Climb Mode", false)
+            .getEntry();
+        mOpenLoopClimbControl = CLIMBER_TAB
+            .add("Open Loop Climb Control", false)
+            .getEntry();
+        mClimberLeftControlState = CLIMBER_TAB
+            .add("Climber Left Control State", mClimber.mLeftControlState.toString())
+            .getEntry();
+        mClimberRightControlState = CLIMBER_TAB
+            .add("Climber Right Control State", mClimber.mRightControlState.toString())
+            .getEntry();
         mClimberVelocityRight = CLIMBER_TAB
             .add("Right Climber Velocity", 0.0)
             .getEntry();
@@ -374,18 +409,6 @@ public class ShuffleBoardInteractions {
             .getEntry();
         mClimberHomed = CLIMBER_TAB
             .add("Climber is Homed", false)
-            .getEntry();
-        mClimberLeftControlState = CLIMBER_TAB
-            .add("Climber Left Control State", mClimber.mLeftControlState.toString())
-            .getEntry();
-        mClimberRightControlState = CLIMBER_TAB
-            .add("Climber Right Control State", mClimber.mRightControlState.toString())
-            .getEntry();
-        mTopBeamBreak = INDEXER_TAB
-            .add("Top Beam Break Triggered", false)
-            .getEntry();
-        mBottomBeamBreak = INDEXER_TAB
-            .add("Bottom Beam Break Triggered", false)
             .getEntry();
 
         /* SHOOTER */
@@ -541,58 +564,7 @@ public class ShuffleBoardInteractions {
     }
 
     public void update() {
-        
-        /* Intake */
-        mIntakeState.setString(mIntake.getState().toString());
-        mIntakeVoltage.setDouble(mIntake.getIntakeVoltage());
-        mIntakeDemand.setDouble(mIntake.getIntakeDemand());
-        mIntakeCurrent.setDouble(mIntake.getIntakeCurrent());
 
-        /* Shooter */
-        mFlywheelRPM.setDouble(truncate(mShooter.getFlywheelRPM()));
-        mAcceleratorRPM.setDouble(truncate(mShooter.getAcceleratorRPM()));
-        mShooterOpenLoop.setBoolean(mShooter.getIsOpenLoop());
-        mFlywheelDemand.setDouble(truncate(mShooter.getFlywheelDemand()));
-        mAcceleratorDemand.setDouble(truncate(mShooter.getAcceleratorDemand()));
-        
-        /* Indexer */
-        mIndexerState.setString(mIndexer.getState().toString());
-        mTopBeamBreak.setBoolean(mIndexer.getTopBeamBreak());
-        mBottomBeamBreak.setBoolean(mIndexer.getBottomBeamBreak());
-
-        mTunnelDemand.setDouble(truncate(mIndexer.getTunnelDemand()));
-        mTunnelCurrent.setDouble(truncate(mIndexer.getTunnelCurrent()));
-        mTunnelVoltage.setDouble(truncate(mIndexer.getTunnelVoltage()));
-
-        mTriggerDemand.setDouble(truncate(mIndexer.getTriggerDemand()));
-        mTriggerCurrent.setDouble(truncate(mIndexer.getTriggerCurrent()));
-        mTriggerVoltage.setDouble(truncate(mIndexer.getTriggerVoltage()));
-
-        /* Climber */
-        mClimberVelocityRight.setDouble(mClimber.getClimberVelocityRight());
-        mClimberVelocityLeft.setDouble(mClimber.getClimberVelocityLeft());
-        
-        mClimberDemandRight.setDouble(mClimber.getClimberDemandRight());
-        mClimberDemandLeft.setDouble(mClimber.getClimberPositionLeft());
-
-        mClimberPositionRight.setDouble(mClimber.getClimberPositionRight());
-        mClimberPositionLeft.setDouble(mClimber.getClimberPositionLeft());
-
-        mClimberCurrentRight.setDouble(mClimber.getClimberCurrentRight());
-        mClimberCurrentLeft.setDouble(mClimber.getClimberCurrentLeft());
-        
-        mClimberHomed.setBoolean(mClimber.getHomed());
-        mClimberLeftControlState.setString(mClimber.getLeftControlState().toString());
-        mClimberRightControlState.setString(mClimber.getRightControlState().toString());
-
-        /* Vision */
-        mSeesTarget.setBoolean(mLimelight.hasTarget());
-        mLimelightOk.setBoolean(mLimelight.limelightOK());
-        mLimelightLatency.setDouble(mLimelight.getLatency());
-        mLimelightDt.setDouble(mLimelight.getDt());
-        mLimelightTx.setDouble(mLimelight.getOffset()[0]);
-        mLimelightTy.setDouble(mLimelight.getOffset()[1]);
-        
         /* SWERVE */
 
         /*
@@ -628,12 +600,16 @@ public class ShuffleBoardInteractions {
         mCurrentAngleI.setDouble(currentPIDVals[1]);
         mCurrentAngleD.setDouble(currentPIDVals[2]);
 
-        
         /* INTAKE */
         mIntakeState.setString(mIntake.getState().toString());
-        mIntakeVoltage.setDouble(mIntake.getIntakeVoltage());
-        mIntakeDemand.setDouble(mIntake.getIntakeDemand());
-        mIntakeCurrent.setDouble(mIntake.getIntakeCurrent());
+
+        mIntakeRollerCurrent.setDouble(mIntake.getRollerCurrent());
+        mIntakeRollerVoltage.setDouble(mIntake.getRollerVoltage());
+        mIntakeRollerDemand.setDouble(mIntake.getRollerDemand());
+
+        mIntakeDeployCurrent.setDouble(mIntake.getDeployCurrent());
+        mIntakeDeployVoltage.setDouble(mIntake.getDeployVoltage());
+        mIntakeDeployDemand.setDouble(mIntake.getDeployDemand());
         
         /* SHOOTER */
         mFlywheelRPM.setDouble(truncate(mShooter.getFlywheelRPM()));
@@ -678,6 +654,26 @@ public class ShuffleBoardInteractions {
 
         mHasBall.setBoolean(mColorSensor.hasBall());
         mEject.setBoolean(mColorSensor.wantsEject());
+
+        /* CLIMBER */
+        mInClimbMode.setBoolean(mSuperstructure.getInClimbMode());
+        mOpenLoopClimbControl.setBoolean(mSuperstructure.isOpenLoopClimbControl());
+        mClimberLeftControlState.setString(mClimber.getLeftControlState().toString());
+        mClimberRightControlState.setString(mClimber.getRightControlState().toString());
+
+        mClimberVelocityRight.setDouble(mClimber.getClimberVelocityRight());
+        mClimberVelocityLeft.setDouble(mClimber.getClimberVelocityLeft());
+        
+        mClimberDemandRight.setDouble(mClimber.getClimberDemandRight());
+        mClimberDemandLeft.setDouble(mClimber.getClimberPositionLeft());
+
+        mClimberPositionRight.setDouble(mClimber.getClimberPositionRight());
+        mClimberPositionLeft.setDouble(mClimber.getClimberPositionLeft());
+
+        mClimberCurrentRight.setDouble(mClimber.getClimberCurrentRight());
+        mClimberCurrentLeft.setDouble(mClimber.getClimberCurrentLeft());
+        
+        mClimberHomed.setBoolean(mClimber.getHomed());
 
         /* SUPERSTRUCTURE */
         // update actions statuses

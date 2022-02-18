@@ -481,6 +481,14 @@ public class Superstructure extends Subsystem {
         return mPeriodicIO.FENDER;
     }
 
+    // get other statuses
+    public boolean getInClimbMode() {
+        return mClimbMode;
+    }
+    public boolean isOpenLoopClimbControl() {
+        return mOpenLoopClimbControlMode;
+    }
+
     // get goals
     public String getIntakeGoal() {
         return mPeriodicIO.real_intake.toString();
