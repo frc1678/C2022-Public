@@ -42,7 +42,7 @@ public class Climber extends Subsystem {
 
         mClimberRight.configMotionAcceleration(40000, Constants.kLongCANTimeoutMs);
         mClimberRight.configMotionCruiseVelocity(20000, Constants.kLongCANTimeoutMs);
-        mClimberRight.config_kP(0, 0.8);
+        mClimberRight.config_kP(0, 0.6);
         mClimberRight.config_kI(0, 0);
         mClimberRight.config_kD(0, 0);
         mClimberRight.config_kF(0, 0.077);
@@ -61,7 +61,7 @@ public class Climber extends Subsystem {
 
         mClimberLeft.configMotionAcceleration(40000, Constants.kLongCANTimeoutMs);
         mClimberLeft.configMotionCruiseVelocity(20000, Constants.kLongCANTimeoutMs);
-        mClimberLeft.config_kP(0, 0.8);
+        mClimberLeft.config_kP(0, 0.6);
         mClimberLeft.config_kI(0, 0);
         mClimberLeft.config_kD(0, 0);
         mClimberLeft.config_kF(0, 0.077);
@@ -187,6 +187,53 @@ public class Climber extends Subsystem {
         }
 
         mPeriodicIO.climber_demand_left = mPeriodicIO.climber_demand_left + wantedPositionDelta;
+    }
+
+    /*** CLIMB METHODS
+     * 
+     * 1. always start climbing using setExtendForClimb() to prep for climb action
+     * 
+     * 2. use setClimbMidBar() when only climbing to second bar
+     * 
+     * 3. use labeled sequence of traversal climb steps for traversal climb
+     *    - setClimbMidBarAndExtend() to climb mid bar with right arm and extend left arm
+     *    - setClimbHighBarAndExtend() to climb high bar with left arm and extend right arm
+     *    - setClimbTraversalBar() to climb a partial distance with right arm on traversal bar
+     * 
+     * IF NOT DOING ANY OF THE ABOVE: set
+     *
+     * */
+
+    // extend right arm to start climbing
+    public void setExtendForClimb() {
+        setRightClimberPosition(Constants.ClimberConstants.kRightTravelDistance);
+    }
+
+    // use when only climbing to mid bar
+    public void setClimbMidBar() {
+        setRightClimberPosition(Constants.ClimberConstants.kSafetyMinimum);
+    }
+
+
+    // second step for traversal
+    public void setClimbMidBarAndExtend() {
+        setLeftClimberPosition(Constants.ClimberConstants.kLeftTravelDistance);
+        setRightClimberPosition(Constants.ClimberConstants.kSafetyMinimum);
+    }
+    // third step for traversal
+    public void setClimbHighBarAndExtend() {
+        setLeftClimberPosition(Constants.ClimberConstants.kSafetyMinimum);
+        setRightClimberPosition(Constants.ClimberConstants.kRightTravelDistance);
+    }
+    // final step for traversal
+    public void setClimbTraversalBar() {
+        setRightClimberPosition(Constants.ClimberConstants.kRightPartialTravelDistance);
+    }
+
+    public void setClimberNone() {
+        setRightClimberPosition(Constants.ClimberConstants.kSafetyMinimum);
+        setLeftClimberPosition(Constants.ClimberConstants.kSafetyMinimum);
+
     }
 
     public enum RightControlState {

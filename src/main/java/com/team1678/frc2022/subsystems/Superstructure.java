@@ -149,50 +149,7 @@ public class Superstructure extends Subsystem {
      * 
      * */
     public void updateOperatorCommands() {
-        // control intake vs. outtake actions
-        if (mControlBoard.operator.getTrigger(CustomXboxController.Side.RIGHT)) {
-            mPeriodicIO.INTAKE = true;
-        } else if (mControlBoard.operator.getTrigger(CustomXboxController.Side.LEFT)) {
-            mPeriodicIO.EJECT = true;
-        } else {
-            mPeriodicIO.INTAKE = false;
-            // when not forcing an eject, passively check whether want to passively eject using color sensor logic
-            mPeriodicIO.EJECT = mColorSensor.wantsEject();
-        }
-
-        // control shooting
-        if (mControlBoard.operator.getController().getYButtonPressed()) {
-            mPeriodicIO.SHOOT = !mPeriodicIO.SHOOT;
-        }
-
-        // control prepping
-        if (mControlBoard.operator.getController().getAButtonPressed()) {
-            mPeriodicIO.PREP = !mPeriodicIO.PREP;
-        }
-
-        // control fender shot
-        if (mControlBoard.operator.getController().getXButtonPressed()) {
-            mPeriodicIO.FENDER = !mPeriodicIO.FENDER;
-        }
-
-        // control for adding manual hood adjustment
-        switch(mControlBoard.getHoodManualAdjustment()) {
-            case 1:
-                mHoodAngleAdjustment += 1;
-                break;
-            case -1:
-                mHoodAngleAdjustment += -1;
-                break;
-            case 0:
-                mHoodAngleAdjustment += 0;
-                break;
-        }
-        // reset manual hood adjustment if necessary
-        if (mControlBoard.operator.getButton(CustomXboxController.Button.START)) {
-            mResetHoodAngleAdjustment = true;
-        }
-
-    
+          
         /* CLIMBER */
         if (mControlBoard.getClimbMode()) {
             mClimbMode = true;
@@ -200,12 +157,20 @@ public class Superstructure extends Subsystem {
 
         /* Manual Controls */
         if (mClimbMode) {
+
+            mPeriodicIO.INTAKE = false;
+            mPeriodicIO.PREP = false;
+            mPeriodicIO.EJECT = false;
+            mPeriodicIO.SHOOT = false;
+            mPeriodicIO.FENDER = false;
+
             if (mControlBoard.getExitClimbMode()) {
                 mClimbMode = false;
             }
 
             if (mControlBoard.operator.getController().getLeftStickButtonPressed()) {
                 mOpenLoopClimbControlMode = !mOpenLoopClimbControlMode;
+                mClimber.setClimberNone();
             }
 
             if (mControlBoard.operator.getController().getRightStickButtonPressed()) {
@@ -220,22 +185,21 @@ public class Superstructure extends Subsystem {
             }
 
             if (!mOpenLoopClimbControlMode) {
-                if (mControlBoard.operator.getController().getYButtonPressed()) {
-                    mClimber.setRightClimberPosition(Constants.ClimberConstants.kRightTravelDistance);
+
+                if (mControlBoard.operator.getController().getAButtonPressed()) {
+                    mClimber.setExtendForClimb();
                 } else if (mControlBoard.operator.getController().getBButtonPressed()) {
-                    mClimber.setRightClimberPosition(Constants.ClimberConstants.kRightPartialTravelDistance);
-                } else if (mControlBoard.operator.getController().getAButtonPressed()){
-                    mClimber.setRightClimberPosition(0.0);
+                    mClimber.setClimbMidBar();
+                } else if (mControlBoard.operator.getController().getPOV() == 180) {
+                    mClimber.setClimbMidBarAndExtend();
+                } else if (mControlBoard.operator.getController().getPOV() == 90) {
+                    mClimber.setClimbHighBarAndExtend();
+                } else if (mControlBoard.operator.getController().getPOV() == 0) {
+                    mClimber.setClimbTraversalBar();
+                } else if (mControlBoard.operator.getController().getXButtonPressed()) {
+                    mClimber.setClimberNone();
                 }
 
-                int pov = mControlBoard.operator.getController().getPOV();
-                if (pov == 0) {
-                    mClimber.setLeftClimberPosition(Constants.ClimberConstants.kLeftTravelDistance);
-                } else if (pov == 270) {
-                    mClimber.setLeftClimberPosition(Constants.ClimberConstants.kLeftPartialTravelDistance);
-                } else if (pov == 180) {
-                    mClimber.setLeftClimberPosition(0.0);
-                }
             } else {
                 // set left climber motor
                 if (mControlBoard.operator.getController().getPOV() == 0) {
@@ -305,6 +269,49 @@ public class Superstructure extends Subsystem {
                 mClimber.setLeftClimberPosition(0.0);
             }
             */
+        } else {
+            // control intake vs. outtake actions
+            if (mControlBoard.operator.getTrigger(CustomXboxController.Side.RIGHT)) {
+                mPeriodicIO.INTAKE = true;
+            } else if (mControlBoard.operator.getTrigger(CustomXboxController.Side.LEFT)) {
+                mPeriodicIO.EJECT = true;
+            } else {
+                mPeriodicIO.INTAKE = false;
+                // when not forcing an eject, passively check whether want to passively eject using color sensor logic
+                mPeriodicIO.EJECT = mColorSensor.wantsEject();
+            }
+
+            // control shooting
+            if (mControlBoard.operator.getController().getYButtonPressed()) {
+                mPeriodicIO.SHOOT = !mPeriodicIO.SHOOT;
+            }
+
+            // control prepping
+            if (mControlBoard.operator.getController().getAButtonPressed()) {
+                mPeriodicIO.PREP = !mPeriodicIO.PREP;
+            }
+
+            // control fender shot
+            if (mControlBoard.operator.getController().getXButtonPressed()) {
+                mPeriodicIO.FENDER = !mPeriodicIO.FENDER;
+            }
+
+            // control for adding manual hood adjustment
+            switch(mControlBoard.getHoodManualAdjustment()) {
+                case 1:
+                    mHoodAngleAdjustment += 1;
+                    break;
+                case -1:
+                    mHoodAngleAdjustment += -1;
+                    break;
+                case 0:
+                    mHoodAngleAdjustment += 0;
+                    break;
+            }
+            // reset manual hood adjustment if necessary
+            if (mControlBoard.operator.getButton(CustomXboxController.Button.START)) {
+                mResetHoodAngleAdjustment = true;
+            }
         }
     }
 

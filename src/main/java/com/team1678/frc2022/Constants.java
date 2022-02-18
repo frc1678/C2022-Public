@@ -247,7 +247,7 @@ public class Constants {
         public static final double kSpittingVoltage = -8;
         public static final double kSingulatorVoltage = 5.0;
         public static final double kDeployVoltage = 3.0;
-        public static final double kHoldingVoltage = 0.75;
+        public static final double kHoldingVoltage = 1.0;
 
         public static final double kDeployCurrentLimit = 50; // amps
 
@@ -343,7 +343,7 @@ public class Constants {
         public static final int kBottomBeamBreak = 1;
         public static final int kTopBeamBreak = 0;
 
-        public static final double kEjectDelay = 1.0;
+        public static final double kEjectDelay = 1.5;
 
     }
     
@@ -356,14 +356,16 @@ public class Constants {
         public static final double kClimbingVoltageLeft =  8.0;
         
         public static final int kLeftMinHeight = 0; // ticks
-        public static final int kLeftMaxHeight = 225108; // ticks
-        public static final int kLeftTravelDistance = kLeftMaxHeight - kLeftMinHeight; // ticks
-        public static final int kLeftPartialTravelDistance = 180086;
+        public static final int kLeftMaxHeight = 250584; // ticks
+        public static final int kLeftTravelDistance = kLeftMaxHeight - kLeftMinHeight + 500; // ticks
+        public static final int kLeftPartialTravelDistance = 200467;
         
         public static final int kRightMinHeight = 0; // ticks
-        public static final int kRightMaxHeight = 207799; // ticks
-        public static final int kRightTravelDistance = kRightMaxHeight - kRightMinHeight; // ticks
-        public static final int kRightPartialTravelDistance = 166239; // kRightTravelDistance * 0.80
+        public static final int kRightMaxHeight = 248631; // ticks
+        public static final int kRightTravelDistance = kRightMaxHeight - kRightMinHeight + 500; // ticks
+        public static final int kRightPartialTravelDistance = 198904; // kRightTravelDistance * 0.80
+
+        public static final int kSafetyMinimum = -500; // minimum outside 0 ticks
 
         public static final double kTravelDistanceEpsilon = 100;
 
