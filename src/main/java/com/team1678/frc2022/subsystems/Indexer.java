@@ -114,8 +114,8 @@ public class Indexer extends Subsystem {
                 break;
             case FEEDING:
                 mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kFeedingVoltage;
-                mPeriodicIO.ejector_demand = Constants.IndexerConstants.kEjectorVoltage;
-                mPeriodicIO.trigger_demand = -Constants.IndexerConstants.kFeedingVoltage;
+                mPeriodicIO.ejector_demand = Constants.IndexerConstants.kEjectorFeedingVoltage;
+                mPeriodicIO.trigger_demand = -Constants.IndexerConstants.kTriggerVoltage;
                 break;
             case REVERSING:
                 // reverses everything

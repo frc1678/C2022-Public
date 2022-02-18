@@ -247,7 +247,7 @@ public class Constants {
         public static final double kSpittingVoltage = -8;
         public static final double kSingulatorVoltage = 5.0;
         public static final double kDeployVoltage = 3.0;
-        public static final double kInHoldingVoltage = 0.5;
+        public static final double kInHoldingVoltage = 0.75;
         public static final double kOutHoldingVoltage = 1.0;
 
         public static final double kDeployCurrentLimit = 50; // amps
@@ -336,9 +336,11 @@ public class Constants {
         public static final int kIndexerMaxAcceleration = 40000;
 
         public static final double kIdleVoltage = 0.0;
-        public static final double kTunnelVoltage = 5.0;
+        public static final double kTunnelVoltage = 6.0;
         public static final double kEjectorVoltage = 12.0;
-        public static final double kFeedingVoltage = 9.0;
+        public static final double kTriggerVoltage = 5.0;
+        public static final double kEjectorFeedingVoltage = 8.0;
+        public static final double kFeedingVoltage = 4.0;
         public static final double kReversingVoltage = -5.0;
         
         public static final int kBottomBeamBreak = 1;

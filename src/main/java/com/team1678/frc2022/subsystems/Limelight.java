@@ -159,7 +159,7 @@ public class Limelight extends Subsystem {
         final double latency = mNetworkTable.getEntry("tl").getDouble(0) / 1000.0 + Constants.VisionConstants.kImageCaptureLatency;
         mPeriodicIO.givenLedMode = (int) mNetworkTable.getEntry("ledMode").getDouble(1.0);
         mPeriodicIO.givenPipeline = (int) mNetworkTable.getEntry("pipeline").getDouble(0);
-        mPeriodicIO.xOffset = -mNetworkTable.getEntry("tx").getDouble(0.0);
+        mPeriodicIO.xOffset = mNetworkTable.getEntry("tx").getDouble(0.0);
         mPeriodicIO.yOffset = mNetworkTable.getEntry("ty").getDouble(0.0);
         mPeriodicIO.area = mNetworkTable.getEntry("ta").getDouble(0.0);
 
