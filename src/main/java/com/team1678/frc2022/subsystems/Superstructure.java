@@ -78,6 +78,7 @@ public class Superstructure extends Subsystem {
 
     // intake / eject locking status
     private boolean mForceIntake = false;
+    private boolean mForceEject = false;
     private boolean mDisableEjecting = false;
 
     // climb mode tracker variables
@@ -103,7 +104,7 @@ public class Superstructure extends Subsystem {
 
                 updateShootingParams();
                 setGoals();
-                // outputTelemetry();
+                outputTelemetry();
 
                 final double end = Timer.getFPGATimestamp();
                 mPeriodicIO.dt = end - start;
@@ -285,21 +286,22 @@ public class Superstructure extends Subsystem {
             // control intake + reverse actions
             if (mForceIntake) {
                 normalIntakeControls();
-            } else {
-                if (stopIntaking()) {
-                    mReverseIntakeTimer.start();
-                    if (!mReverseIntakeTimer.hasElapsed(Constants.IntakeConstants.kReverseTime)) {
-                        // reverse for a period of time after we want to stop intaking to reject any incoming third cargo
-                        mPeriodicIO.REVERSE = true;
-                    } else {
-                        // set intake to do nothing after reversing, so we cannot intake while we have two correct cargo
-                        mPeriodicIO.real_intake = Intake.WantedAction.NONE;
-                    }
+            } else if (stopIntaking()) {
+                /*
+                mReverseIntakeTimer.start();
+                if (!mReverseIntakeTimer.hasElapsed(Constants.IntakeConstants.kReverseTime)) {
+                    // reverse for a period of time after we want to stop intaking to reject any incoming third cargo
+                    mPeriodicIO.REVERSE = true;
                 } else {
-                    normalIntakeControls();
+                    // set intake to do nothing after reversing, so we cannot intake while we have two correct cargo
+                    mPeriodicIO.real_intake = Intake.WantedAction.NONE;
                 }
-            }
-            
+                */
+                mPeriodicIO.INTAKE = false;
+                mPeriodicIO.REVERSE = false;
+            } else {
+                normalIntakeControls();
+            }            
 
             // toggle ejecting to disable if necessary
             if (mControlBoard.operator.getController().getPOV() == 90) {
@@ -310,7 +312,9 @@ public class Superstructure extends Subsystem {
                 mPeriodicIO.EJECT = false;
             } else if (mControlBoard.operator.getButton(Button.LB)) {
                 mPeriodicIO.EJECT = true;
+                mForceEject = true;
             } else {
+                mForceEject = false;
                 // when not forcing an eject, passively check whether want to passively eject using color sensor logic
                 mPeriodicIO.EJECT = mColorSensor.wantsEject();
             }
@@ -399,9 +403,11 @@ public class Superstructure extends Subsystem {
                 mPeriodicIO.real_indexer = Indexer.WantedAction.NONE;
             }
         } else {
-            
+            // force eject
+            if (mPeriodicIO.EJECT && mForceEject) {
+                mPeriodicIO.real_indexer = Indexer.WantedAction.EJECT;
             // only do any indexing action if we detect a ball
-            if (mColorSensor.hasBall()) {
+            } else if (mColorSensor.hasBall()) {
                 if (mPeriodicIO.EJECT) {
                     mPeriodicIO.real_indexer = Indexer.WantedAction.EJECT;
                 } else {
@@ -557,26 +563,30 @@ public class Superstructure extends Subsystem {
 
     /* Output superstructure actions and other related statuses */
     public void outputTelemetry() {
-        // superstructure actions requested
-        SmartDashboard.putBoolean("Intaking", mPeriodicIO.INTAKE);
-        SmartDashboard.putBoolean("Reversing", mPeriodicIO.REVERSE);
-        SmartDashboard.putBoolean("Ejecting", mPeriodicIO.EJECT);
-        SmartDashboard.putBoolean("Prepping", mPeriodicIO.PREP);
-        SmartDashboard.putBoolean("Shooting", mPeriodicIO.SHOOT);
-        SmartDashboard.putBoolean("Fender Shooting", mPeriodicIO.FENDER);
+        // // superstructure actions requested
+        // SmartDashboard.putBoolean("Intaking", mPeriodicIO.INTAKE);
+        // SmartDashboard.putBoolean("Reversing", mPeriodicIO.REVERSE);
+        // SmartDashboard.putBoolean("Ejecting", mPeriodicIO.EJECT);
+        // SmartDashboard.putBoolean("Prepping", mPeriodicIO.PREP);
+        // SmartDashboard.putBoolean("Shooting", mPeriodicIO.SHOOT);
+        // SmartDashboard.putBoolean("Fender Shooting", mPeriodicIO.FENDER);
 
-        // superstructure goals being set
-        SmartDashboard.putString("Intake Goal", mPeriodicIO.real_intake.toString());
-        SmartDashboard.putString("Indexer Goal", mPeriodicIO.real_indexer.toString());
-        SmartDashboard.putNumber("Shooter Goal", mPeriodicIO.real_shooter);
-        SmartDashboard.putNumber("Hood Goal", mPeriodicIO.real_hood);
+        // // superstructure goals being set
+        // SmartDashboard.putString("Intake Goal", mPeriodicIO.real_intake.toString());
+        // SmartDashboard.putString("Indexer Goal", mPeriodicIO.real_indexer.toString());
+        // SmartDashboard.putNumber("Shooter Goal", mPeriodicIO.real_shooter);
+        // SmartDashboard.putNumber("Hood Goal", mPeriodicIO.real_hood);
 
-        // other status variables
-        SmartDashboard.putNumber("Superstructure dt", mPeriodicIO.dt);
-        SmartDashboard.putBoolean("Is Spun Up", isSpunUp());
-        SmartDashboard.putBoolean("Has Vision Target", mLimelight.hasTarget());
-        SmartDashboard.putBoolean("Is Vision Aimed", mLimelight.isAimed());
+        // // other status variables
+        // SmartDashboard.putNumber("Superstructure dt", mPeriodicIO.dt);
+        // SmartDashboard.putBoolean("Is Spun Up", isSpunUp());
+        // SmartDashboard.putBoolean("Has Vision Target", mLimelight.hasTarget());
+        // SmartDashboard.putBoolean("Is Vision Aimed", mLimelight.isAimed());
+       
         SmartDashboard.putBoolean("Disable Ejecting", mDisableEjecting);
+        SmartDashboard.putBoolean("Stop Intaking", stopIntaking());
+        SmartDashboard.putBoolean("Force Intake", mForceIntake);
+        SmartDashboard.putBoolean("Force Eject", mForceEject);
     }
 
     // included to continue logging while disabled

@@ -499,7 +499,7 @@ public class ShuffleBoardInteractions {
             .withSize(2, 1)
             .getEntry();
         mEjecting = SUPERSTRUCTURE_TAB
-            .add("Outtaking", false)
+            .add("Ejecting", false)
             .withSize(2, 1)
             .getEntry();
         mPrepping = SUPERSTRUCTURE_TAB

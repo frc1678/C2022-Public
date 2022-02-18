@@ -1,5 +1,7 @@
 package com.team1678.frc2022.subsystems;
 
+import java.sql.ShardingKey;
+
 import com.revrobotics.ColorMatch;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.loops.ILooper;
@@ -10,6 +12,7 @@ import com.team1678.lib.drivers.REVColorSensorV3Wrapper.ColorSensorData;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.util.Color;
 
@@ -166,6 +169,8 @@ public class ColorSensor extends Subsystem {
         updateHasBall();
         updateMatchedColor();
         updateWantsEject();
+
+        SmartDashboard.putString("Alliance Color", mAllianceColor.toString());
     }
 
     @Override 
