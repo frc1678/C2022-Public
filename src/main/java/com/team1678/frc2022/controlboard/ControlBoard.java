@@ -164,13 +164,17 @@ public class ControlBoard {
         return operator.getButton(Button.A);
     }
 
-    //Climber Controls
+    // Climber Controls
     public boolean getClimbMode() {
         return operator.getButton(Button.LB) && operator.getButton(Button.RB) && operator.getTrigger(Side.LEFT) && operator.getTrigger(Side.RIGHT);
     }
 
     public boolean getExitClimbMode() {
         return operator.getButton(Button.BACK) && operator.getButton(Button.START);
+    }
+    
+    public boolean getTraversalClimb() {
+        return operator.getButton(Button.LB) && operator.getController().getYButtonPressed();
     }
 
     public boolean getSwitchClimbControlMode() {
@@ -203,10 +207,6 @@ public class ControlBoard {
             default:
                 return 0;
         }
-    }
-
-    public boolean getTraversalClimb() {
-        return operator.getTrigger(Side.LEFT) && operator.getTrigger(Side.RIGHT);
     }
     
 }

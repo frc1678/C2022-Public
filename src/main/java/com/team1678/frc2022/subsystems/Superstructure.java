@@ -17,9 +17,8 @@ import java.util.Optional;
 
 public class Superstructure extends Subsystem {
 
-    /* Superstructure Instance */
+    // superstructure instance
     private static Superstructure mInstance;
-
     public synchronized static Superstructure getInstance() {
         if (mInstance == null) {
             mInstance = new Superstructure();
@@ -30,14 +29,14 @@ public class Superstructure extends Subsystem {
 
     /*** REQUIRED INSTANCES ***/
     private final ControlBoard mControlBoard = ControlBoard.getInstance();
+    private final Swerve mSwerve = Swerve.getInstance();
     private final Intake mIntake = Intake.getInstance();
     private final Indexer mIndexer = Indexer.getInstance();
+    private final ColorSensor mColorSensor = ColorSensor.getInstance();
     private final Shooter mShooter = Shooter.getInstance();
     private final Hood mHood = Hood.getInstance();
     private final Climber mClimber = Climber.getInstance();
     private final Limelight mLimelight = Limelight.getInstance();
-
-    private final ColorSensor mColorSensor = ColorSensor.getInstance();
 
     // timer for reversing the intake and then stopping it once we have two correct cargo
     Timer mReverseIntakeTimer = new Timer();
@@ -69,18 +68,23 @@ public class Superstructure extends Subsystem {
         
     }
 
-    // setpoint tracker variables
+    /* Setpoint Tracker Variables */
+    // shooting system setpoints
     public double mShooterSetpoint = 1000.0;
     public double mHoodSetpoint = 20.0; // TODO: arbitrary value, change4
     private double mHoodAngleAdjustment = 0.0;
     private boolean mResetHoodAngleAdjustment = false;
 
+    // intake / eject locking status
+    private boolean mForceIntake = false;
+    private boolean mDisableEjecting = false;
+
+    // climb mode tracker variables
     private boolean mClimbMode = false;
 	private boolean mOpenLoopClimbControlMode = false;
 	private boolean mResetClimberPosition = false;
-	private boolean mTraversalClimb = false;
 
-    // constants
+    // fender shot constants
     private final double kFenderVelocity = 2300;
     private final double kFenderAngle = 10.0;
 
@@ -150,19 +154,17 @@ public class Superstructure extends Subsystem {
      * */
     public void updateOperatorCommands() {
           
-        /* CLIMBER */
+        // get whether we want to enter climb mode
         if (mControlBoard.getClimbMode()) {
             mClimbMode = true;
         }
 
-        /* Manual Controls */
         if (mClimbMode) {
 
-            mPeriodicIO.INTAKE = false;
-            mPeriodicIO.PREP = false;
-            mPeriodicIO.EJECT = false;
-            mPeriodicIO.SHOOT = false;
-            mPeriodicIO.FENDER = false;
+            /*** CLIMB MODE CONTROLS ***/
+
+            // stop all other superstructure actions
+            stop();
 
             if (mControlBoard.getExitClimbMode()) {
                 mClimbMode = false;
@@ -177,8 +179,6 @@ public class Superstructure extends Subsystem {
                 mResetClimberPosition = true;
             }
 
-            SmartDashboard.putBoolean("Open Loop Climb", mOpenLoopClimbControlMode);
-
             if (mResetClimberPosition) {
                 mClimber.resetClimberPosition();
                 mResetClimberPosition = false;
@@ -186,75 +186,43 @@ public class Superstructure extends Subsystem {
 
             if (!mOpenLoopClimbControlMode) {
 
-                if (mControlBoard.operator.getController().getAButtonPressed()) {
+                if (mControlBoard.operator.getController().getXButtonPressed()) {
+                    mClimber.setClimberNone();
+                    
+                } else if (mControlBoard.operator.getController().getAButtonPressed()) {
                     mClimber.setExtendForClimb();
+
                 } else if (mControlBoard.operator.getController().getBButtonPressed()) {
                     mClimber.setClimbMidBar();
+
                 } else if (mControlBoard.operator.getController().getPOV() == 180) {
                     mClimber.setClimbMidBarAndExtend();
+
                 } else if (mControlBoard.operator.getController().getPOV() == 90) {
                     mClimber.setClimbHighBarAndExtend();
+
                 } else if (mControlBoard.operator.getController().getPOV() == 0) {
                     mClimber.setClimbTraversalBar();
-                } else if (mControlBoard.operator.getController().getXButtonPressed()) {
-                    mClimber.setClimberNone();
-                }
 
-            } else {
-                // set left climber motor
-                if (mControlBoard.operator.getController().getPOV() == 0) {
-                    mClimber.setLeftClimberOpenLoop(8.0);
-                    //mClimber.setClimberPosition(Constants.ClimberConstants.kClimberHeight);
-                } else if (mControlBoard.operator.getController().getPOV() == 180) {
-                    mClimber.setLeftClimberOpenLoop(-8.0);
-                    //mClimber.setClimberPosition(Constants.ClimberConstants.kRetractedHeight);
-                } else {
-                    mClimber.setLeftClimberOpenLoop(0.0);
-                    // mClimber.setLeftClimberPositionDelta(0.0);
-                }
-
-                // set right climber motor
-                if (mControlBoard.operator.getController().getYButton()) {
-                    mClimber.setRightClimberOpenLoop(8.0);
-                    //mClimber.setClimberPosition(Constants.ClimberConstants.kClimberHeight);
-                } else if (mControlBoard.operator.getController().getAButton()) {
-                    mClimber.setRightClimberOpenLoop(-8.0);
-                    //mClimber.setClimberPosition(Constants.ClimberConstants.kRetractedHeight);
-                } else {
-                    mClimber.setRightClimberOpenLoop(0.0);
-                    // mClimber.setRightClimberPositionDelta(0.0);
-                }
-            }
+                } else if (mControlBoard.getTraversalClimb()) {
                     
-            
-            /* Automated Climb */ 
-            /*
-            if (mControlBoard.getTraversalClimb()) {
-                mTraversalClimb = true; 
-            } else {
-                mTraversalClimb = false;
-            }
+                    // climb mid bar and extend to high bar
+                    mClimber.setClimbMidBarAndExtend();
 
-            if (mTraversalClimb) {
-                // pull up with the right arm to the mid bar
-                mClimber.setRightClimberPosition(0.0);
-                mClimber.setLeftClimberPosition(Constants.ClimberConstants.kLeftTravelDistance);
+                    // pull up with left arm on upper bar while extending right arm to traversal bar
+                    if (Util.epsilonEquals(mSwerve.getPitch().getDegrees(), // check if dt pitch is at bar contact angle before climbing to next bar
+                                            Constants.ClimberConstants.kBarContactAngle,
+                                            Constants.ClimberConstants.kBarContactAngleEpsilon)
+                        &&
+                        Util.epsilonEquals(mClimber.getClimberPositionLeft(), // don't climb unless left arm is fully extended
+                                            Constants.ClimberConstants.kLeftTravelDistance,
+                                            Constants.ClimberConstants.kTravelDistanceEpsilon)) {
 
-                // pull up with left arm on upper bar while extending right arm to traversal bar
-                if (Util.epsilonEquals(mSwerve.getPitch().getDegrees(), // check if dt pitch is at bar contact angle before climbing to next bar
-                                    Constants.ClimberConstants.kBarContactAngle,
-                                    Constants.ClimberConstants.kBarContactAngleEpsilon)
-                    &&
-                    Util.epsilonEquals(mClimber.getClimberPositionLeft(), // don't climb unless left arm is fully extended
-                                    Constants.ClimberConstants.kLeftTravelDistance,
-                                    Constants.ClimberConstants.kTravelDistanceEpsilon)) {
+                        mClimber.setClimbHighBarAndExtend();
+                    }
 
-                    mClimber.setRightClimberPosition(Constants.ClimberConstants.kRightTravelDistance);
-                    mClimber.setLeftClimberPosition(0.0);
-                }
-
-                // pull up with right arm to partial height on traversal bar
-                else if (Util.epsilonEquals(mSwerve.getPitch().getDegrees(), // check if dt pitch is at bar contact angle before climbing to next bar
+                    // pull up with right arm to partial height on traversal bar
+                    if (Util.epsilonEquals(mSwerve.getPitch().getDegrees(), // check if dt pitch is at bar contact angle before climbing to next bar
                                             Constants.ClimberConstants.kBarContactAngle,
                                             Constants.ClimberConstants.kBarContactAngleEpsilon)
                         &&
@@ -262,14 +230,36 @@ public class Superstructure extends Subsystem {
                                             Constants.ClimberConstants.kRightTravelDistance,
                                             Constants.ClimberConstants.kTravelDistanceEpsilon)) {
 
-                    mClimber.setRightClimberPosition(Constants.ClimberConstants.kRightPartialTravelDistance);
+                        mClimber.setClimbTraversalBar();
+                    }
                 }
+
             } else {
-                mClimber.setRightClimberPosition(0.0);
-                mClimber.setLeftClimberPosition(0.0);
+
+                // set left climber motor open loop
+                if (mControlBoard.operator.getController().getPOV() == 0) {
+                    mClimber.setLeftClimberOpenLoop(8.0);
+                } else if (mControlBoard.operator.getController().getPOV() == 180) {
+                    mClimber.setLeftClimberOpenLoop(-8.0);
+                } else {
+                    mClimber.setLeftClimberOpenLoop(0.0);
+                }
+
+                // set right climber motor open loop
+                if (mControlBoard.operator.getController().getYButton()) {
+                    mClimber.setRightClimberOpenLoop(8.0);
+                } else if (mControlBoard.operator.getController().getAButton()) {
+                    mClimber.setRightClimberOpenLoop(-8.0);
+                } else {
+                    mClimber.setRightClimberOpenLoop(0.0);
+                }
+
             }
-            */
+        
         } else {
+
+            /*** NORMAL TELEOP CONTROLS ***/
+
             // control intake vs. outtake actions
             if (mControlBoard.operator.getTrigger(CustomXboxController.Side.RIGHT)) {
                 mPeriodicIO.INTAKE = true;
