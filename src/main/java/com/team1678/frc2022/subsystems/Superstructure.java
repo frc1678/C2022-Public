@@ -64,8 +64,7 @@ public class Superstructure extends Subsystem {
         private Intake.WantedAction real_intake = Intake.WantedAction.NONE;
         private Indexer.WantedAction real_indexer = Indexer.WantedAction.NONE;
         private double real_shooter = 0.0;
-        private double real_hood = 0.0;
-        
+        private double real_hood = 0.0;   
     }
 
     /* Setpoint Tracker Variables */
@@ -150,6 +149,20 @@ public class Superstructure extends Subsystem {
      *   --> 0 to move hood up
      *   --> 180 to move hood down
      * - press START button to reset adjustment 
+     * 
+     * Climb Controls
+     * - press left bumper, right bumper, left trigger, right trigger to enter climb mode
+     * - press center "back" and "start" buttons to exit climb mode
+     * - press down on left joystick to toggle open loop control of climber arms
+     * - press down on right joystick to zero position on climber motors
+     *  
+     * - press A to prep for climb and extend right arm
+     * - press B to only climb to mid bar
+     * - press Y to complete full automated climb to traversal bar
+     * 
+     * - DPad down (POV 180) to climb mid bar and extend for high bar
+     * - DPad right (POV 90) to climb high bar and extend for traversal bar
+     * - DPad up (POV 0) to climb traversal bar
      * 
      * */
     public void updateOperatorCommands() {
