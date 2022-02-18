@@ -381,7 +381,7 @@ public class Constants {
         public static final Color kRedColor = new Color(0.325, 0.428, 0.247);
         public static final double kColorSensorThreshold = 500;
 
-        public static final double kTimeWithBall = 1.0;
+        public static final double kTimeWithBall = 2.0;
     }
 
     // Timeout constants
