@@ -39,6 +39,9 @@ public class Superstructure extends Subsystem {
 
     private final ColorSensor mColorSensor = ColorSensor.getInstance();
 
+    // timer for reversing the intake and then stopping it once we have two correct cargo
+    Timer mReverseIntakeTimer = new Timer();
+
     // PeriodicIO instance and paired csv writer
     public PeriodicIO mPeriodicIO = new PeriodicIO();
     private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
@@ -366,9 +369,18 @@ public class Superstructure extends Subsystem {
                 mPeriodicIO.real_indexer = Indexer.WantedAction.NONE;
             }
 
+            // force stop intaking when we have two correct color cargo
             if (stopIntaking()) {
-                mPeriodicIO.real_intake = Intake.WantedAction.NONE;
+                mReverseIntakeTimer.start();
+                if (!mReverseIntakeTimer.hasElapsed(Constants.IntakeConstants.kReverseTime)) {
+                    // reverse for a period of time after we want to stop intaking to reject any incoming third cargo
+                    mPeriodicIO.real_intake = Intake.WantedAction.REVERSE;
+                } else {
+                    // set intake to do nothing after reversing, so we cannot intake while we have two correct cargo
+                    mPeriodicIO.real_intake = Intake.WantedAction.NONE;
+                }
             } else {
+                // normal operator manual control for intake
                 if (mPeriodicIO.INTAKE) {
                     mPeriodicIO.real_intake = Intake.WantedAction.INTAKE;
                 } else {

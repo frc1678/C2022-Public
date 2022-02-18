@@ -250,6 +250,8 @@ public class Constants {
         public static final double kHoldingVoltage = 0.75;
 
         public static final double kDeployCurrentLimit = 50; // amps
+
+        public static final double kReverseTime = 1.0;
     }
 
     public static final class ShooterConstants {
@@ -318,7 +320,7 @@ public class Constants {
 
     public static final class IndexerConstants {
 
-        //TODO: find actual values
+        // TODO: find actual values
         public static final double kIndexerKp = 0.2;
         public static final double kIndexerKi = 0.;
         public static final double kIndexerKd = 0.;

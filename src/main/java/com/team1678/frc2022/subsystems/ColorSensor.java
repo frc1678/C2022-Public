@@ -29,7 +29,6 @@ public class ColorSensor extends Subsystem {
     private final ColorMatch mColorMatch = new ColorMatch();
 
     private Timer mHasBallTimer = new Timer();
-
     private Timer mEjectorTimer = new Timer();
 
     public ColorChoices mAllianceColor;
