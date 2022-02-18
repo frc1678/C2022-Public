@@ -116,8 +116,8 @@ public class Superstructure extends Subsystem {
     public void setWantIntake(boolean intake) {
         mPeriodicIO.INTAKE = intake;
     }
-    public void setWantOuttake(boolean outtake) {
-        mPeriodicIO.EJECT = outtake;
+    public void setWantEject(boolean eject) {
+        mPeriodicIO.EJECT = eject;
     }
     public void setWantPrep(boolean wants_prep) {
         mPeriodicIO.PREP = wants_prep;
@@ -134,7 +134,7 @@ public class Superstructure extends Subsystem {
      * 
      * Intaking
      * - hold right trigger to intake
-     * - hold left trigger to outtake
+     * - hold left trigger to manual eject
      * 
      * Shooting
      * - press A to prep for shot (spin up)
@@ -156,7 +156,8 @@ public class Superstructure extends Subsystem {
             mPeriodicIO.EJECT = true;
         } else {
             mPeriodicIO.INTAKE = false;
-            mPeriodicIO.EJECT = false;
+            // when not forcing an eject, passively check whether want to passively eject using color sensor logic
+            mPeriodicIO.EJECT = mColorSensor.wantsEject();
         }
 
         // control shooting
@@ -457,7 +458,7 @@ public class Superstructure extends Subsystem {
     @Override
     public void stop() {
         setWantIntake(false);
-        setWantOuttake(false);
+        setWantEject(false);
         setWantPrep(false);
         setWantShoot(false);
     }
