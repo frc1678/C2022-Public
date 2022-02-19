@@ -1,5 +1,6 @@
 package com.team1678.frc2022.subsystems;
 
+import com.ctre.phoenix.sensors.Pigeon2;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
@@ -31,7 +32,7 @@ public class Swerve extends Subsystem {
 
     public SwerveDriveOdometry swerveOdometry;
     public SwerveModule[] mSwerveMods;
-    public PigeonIMU gyro;
+    public Pigeon2 gyro;
 
     public boolean isSnapping;
     private double mVisionAlignAdjustment;
@@ -59,7 +60,7 @@ public class Swerve extends Subsystem {
     }
 
     public Swerve() {
-        gyro = new PigeonIMU(Ports.PIGEON);
+        gyro = new Pigeon2(Ports.PIGEON, "canivore1");
         gyro.configFactoryDefault();
         
         swerveOdometry = new SwerveDriveOdometry(Constants.SwerveConstants.swerveKinematics, getYaw());
@@ -234,8 +235,8 @@ public class Swerve extends Subsystem {
     }
 
     public void resetOdometry(Pose2d pose) {
-        // zeroGyro(pose.getRotation().getDegrees());
-        swerveOdometry.resetPosition(pose, getYaw());
+        swerveOdometry.resetPosition(pose, pose.getRotation());
+        zeroGyro(pose.getRotation().getDegrees());
     }
 
     public void resetAnglesToAbsolute() {

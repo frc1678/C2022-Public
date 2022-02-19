@@ -5,8 +5,8 @@ import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.CustomXboxController;
+import com.team1678.frc2022.controlboard.CustomXboxController.Button;
 import com.team1678.frc2022.regressions.ShooterRegression;
-
 import com.team254.lib.util.Util;
 import com.team254.lib.util.InterpolatingDouble;
 import com.team254.lib.util.ReflectingCSVWriter;
@@ -16,11 +16,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.Optional;
 
+import javax.management.MBeanPermission;
+
 public class Superstructure extends Subsystem {
 
-    /* Superstructure Instance */
+    // superstructure instance
     private static Superstructure mInstance;
-
     public synchronized static Superstructure getInstance() {
         if (mInstance == null) {
             mInstance = new Superstructure();
@@ -31,11 +32,17 @@ public class Superstructure extends Subsystem {
 
     /*** REQUIRED INSTANCES ***/
     private final ControlBoard mControlBoard = ControlBoard.getInstance();
+    private final Swerve mSwerve = Swerve.getInstance();
     private final Intake mIntake = Intake.getInstance();
     private final Indexer mIndexer = Indexer.getInstance();
+    private final ColorSensor mColorSensor = ColorSensor.getInstance();
     private final Shooter mShooter = Shooter.getInstance();
     private final Hood mHood = Hood.getInstance();
+    private final Climber mClimber = Climber.getInstance();
     private final Limelight mLimelight = Limelight.getInstance();
+
+    // timer for reversing the intake and then stopping it once we have two correct cargo
+    Timer mReverseIntakeTimer = new Timer();
 
     // PeriodicIO instance and paired csv writer
     public PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -46,10 +53,12 @@ public class Superstructure extends Subsystem {
         // INPUTS
         // (superstructure actions)
         private boolean INTAKE = false; // run the intake to pick up cargo
-        private boolean OUTTAKE = false; // reverse the intake to spit out cargo
+        private boolean REVERSE = false; // reverse the intake to reject cargo
+        private boolean EJECT = false; // reverse the intake to spit out cargo
         private boolean PREP = false; // spin up and aim with shooting setpoints
         private boolean SHOOT = false; // shoot cargo
         private boolean FENDER = false; // shoot cargo from up against the hub
+        private boolean SPIT = false; // spit cargo from shooter at low velocity
 
         // time measurements
         public double timestamp;
@@ -60,19 +69,32 @@ public class Superstructure extends Subsystem {
         private Intake.WantedAction real_intake = Intake.WantedAction.NONE;
         private Indexer.WantedAction real_indexer = Indexer.WantedAction.NONE;
         private double real_shooter = 0.0;
-        private double real_hood = 0.0;
-        
+        private double real_hood = 0.0;   
     }
 
-    // setpoint tracker variables
-    public double mShooterSetpoint = 3000.0;
-    public double mHoodSetpoint = 10.0; // TODO: arbitrary value, change4
+    /* Setpoint Tracker Variables */
+    // shooting system setpoints
+    public double mShooterSetpoint = 1000.0;
+    public double mHoodSetpoint = 20.0; // TODO: arbitrary value, change4
     private double mHoodAngleAdjustment = 0.0;
     private boolean mResetHoodAngleAdjustment = false;
 
-    // constants
+    // intake / eject locking status
+    private boolean mForceIntake = false;
+    private boolean mForceEject = false;
+    private boolean mDisableEjecting = false;
+
+    // climb mode tracker variables
+    private boolean mClimbMode = false;
+	private boolean mOpenLoopClimbControlMode = false;
+	private boolean mResetClimberPosition = false;
+
+    // fender shot constants
     private final double kFenderVelocity = 2300;
-    private final double kFenderAngle = 10.0;
+    private final double kFenderAngle = 12.0;
+
+    private final double kSpitVelocity = 1000;
+    private final double kSpitAngle = 12.0;
 
     @Override
     public void registerEnabledLoops(ILooper enabledLooper) {
@@ -88,7 +110,7 @@ public class Superstructure extends Subsystem {
 
                 updateShootingParams();
                 setGoals();
-                // outputTelemetry();
+                outputTelemetry();
 
                 final double end = Timer.getFPGATimestamp();
                 mPeriodicIO.dt = end - start;
@@ -106,8 +128,11 @@ public class Superstructure extends Subsystem {
     public void setWantIntake(boolean intake) {
         mPeriodicIO.INTAKE = intake;
     }
-    public void setWantOuttake(boolean outtake) {
-        mPeriodicIO.OUTTAKE = outtake;
+    public void setWantReverse(boolean reverse) {
+        mPeriodicIO.REVERSE = true;
+    }
+    public void setWantEject(boolean eject) {
+        mPeriodicIO.EJECT = eject;
     }
     public void setWantPrep(boolean wants_prep) {
         mPeriodicIO.PREP = wants_prep;
@@ -124,68 +149,239 @@ public class Superstructure extends Subsystem {
      * 
      * Intaking
      * - hold right trigger to intake
-     * - hold left trigger to outtake
+     * - hold left trigger to manual eject
      * 
      * Shooting
      * - press A to prep for shot (spin up)
      * - press Y to shoot once ready
-     * - press X to toggle fender shot with set params
+     * - press B to toggle fender shot with set params
+     * - press X to toggle spit shot with set params
      * 
-     * Manual Adjustment
+     * Manual Hood Adjustment
      * - Use dpad to manually adjust hood with offset
      *   --> 0 to move hood up
      *   --> 180 to move hood down
-     * - press START button to reset adjustment 
+     * - press START button to reset adjustment
+     * 
+     * Other Manual Sets
+     * - press dpad left (POV 270) to toggle force intake
+     * - press dpad right (POV 90) to toggle disabling the ejector
+     * - hold left bumper to eject balls manuallyo
+     * 
+     * Climb Controls
+     * - press left bumper, right bumper, left trigger, right trigger to enter climb mode
+     * - press center "back" and "start" buttons to exit climb mode
+     * - press down on left joystick to toggle open loop control of climber arms
+     * - press down on right joystick to zero position on climber motors
+     *  
+     * - press A to prep for climb and extend right arm
+     * - press B to only climb to mid bar
+     * - press Y to complete full automated climb to traversal bar
+     * 
+     * - DPad down (POV 180) to climb mid bar and extend for high bar
+     * - DPad right (POV 90) to climb high bar and extend for traversal bar
+     * - DPad up (POV 0) to climb traversal bar
      * 
      * */
     public void updateOperatorCommands() {
-        // control intake vs. outtake actions
-        if (mControlBoard.operator.getTrigger(CustomXboxController.Side.RIGHT)) {
-            mPeriodicIO.INTAKE = true;
-        } else if (mControlBoard.operator.getTrigger(CustomXboxController.Side.LEFT)) {
-            mPeriodicIO.OUTTAKE = true;
-        } else {
+          
+        // get whether we want to enter climb mode
+        if (mControlBoard.getClimbMode()) {
+            mClimbMode = true;
+        }
+
+        if (mClimbMode) {
+
+            /*** CLIMB MODE CONTROLS ***/
+
+            // stop all other superstructure actions
             mPeriodicIO.INTAKE = false;
-            mPeriodicIO.OUTTAKE = false;
-        }
+            mPeriodicIO.REVERSE = false;
+            mPeriodicIO.EJECT = false;
+            mPeriodicIO.PREP = false;
+            mPeriodicIO.SHOOT = false;
+            mPeriodicIO.FENDER = false;
+            mPeriodicIO.SPIT = false;
 
-        // control shooting
-        if (mControlBoard.operator.getController().getYButtonPressed()) {
-            mPeriodicIO.SHOOT = !mPeriodicIO.SHOOT;
-        }
+            if (mControlBoard.getExitClimbMode()) {
+                mClimbMode = false;
+            }
 
-        // control prepping
-        if (mControlBoard.operator.getController().getAButtonPressed()) {
-            mPeriodicIO.PREP = !mPeriodicIO.PREP;
-        }
+            if (mControlBoard.operator.getController().getLeftStickButtonPressed()) {
+                mOpenLoopClimbControlMode = !mOpenLoopClimbControlMode;
+                mClimber.setClimberNone();
+            }
 
-        // control fender shot
-        if (mControlBoard.operator.getController().getXButtonPressed()) {
-            mPeriodicIO.FENDER = !mPeriodicIO.FENDER;
-        }
+            if (mControlBoard.operator.getController().getRightStickButtonPressed()) {
+                mResetClimberPosition = true;
+            }
 
-        // control for adding manual hood adjustment
-        switch(mControlBoard.getHoodManualAdjustment()) {
-            case 1:
-                mHoodAngleAdjustment += 1;
-                break;
-            case -1:
-                mHoodAngleAdjustment += -1;
-                break;
-            case 0:
-                mHoodAngleAdjustment += 0;
-                break;
-        }
-        // reset manual hood adjustment if necessary
-        if (mControlBoard.operator.getButton(CustomXboxController.Button.START)) {
-            mResetHoodAngleAdjustment = true;
-        }
+            if (mResetClimberPosition) {
+                mClimber.resetClimberPosition();
+                mResetClimberPosition = false;
+            }
 
+            if (!mOpenLoopClimbControlMode) {
+
+                if (mControlBoard.operator.getController().getXButtonPressed()) {
+                    mClimber.setClimberNone();
+                    
+                } else if (mControlBoard.operator.getController().getAButtonPressed()) {
+                    mClimber.setExtendForClimb();
+
+                } else if (mControlBoard.operator.getController().getBButtonPressed()) {
+                    mClimber.setClimbMidBar();
+
+                } else if (mControlBoard.operator.getController().getPOV() == 180) {
+                    mClimber.setClimbMidBarAndExtend();
+
+                } else if (mControlBoard.operator.getController().getPOV() == 90) {
+                    mClimber.setClimbHighBarAndExtend();
+
+                } else if (mControlBoard.operator.getController().getPOV() == 0) {
+                    mClimber.setClimbTraversalBar();
+
+                } else if (mControlBoard.getTraversalClimb()) {
+                    
+                    // climb mid bar and extend to high bar
+                    mClimber.setClimbMidBarAndExtend();
+
+                    // pull up with left arm on upper bar while extending right arm to traversal bar
+                    if (Util.epsilonEquals(mSwerve.getPitch().getDegrees(), // check if dt pitch is at bar contact angle before climbing to next bar
+                                            Constants.ClimberConstants.kBarContactAngle,
+                                            Constants.ClimberConstants.kBarContactAngleEpsilon)
+                        &&
+                        Util.epsilonEquals(mClimber.getClimberPositionLeft(), // don't climb unless left arm is fully extended
+                                            Constants.ClimberConstants.kLeftTravelDistance,
+                                            Constants.ClimberConstants.kTravelDistanceEpsilon)) {
+
+                        mClimber.setClimbHighBarAndExtend();
+                    }
+
+                    // pull up with right arm to partial height on traversal bar
+                    if (Util.epsilonEquals(mSwerve.getPitch().getDegrees(), // check if dt pitch is at bar contact angle before climbing to next bar
+                                            Constants.ClimberConstants.kBarContactAngle,
+                                            Constants.ClimberConstants.kBarContactAngleEpsilon)
+                        &&
+                        Util.epsilonEquals(mClimber.getClimberPositionRight(), // don't climb unless right arm is fully extended
+                                            Constants.ClimberConstants.kRightTravelDistance,
+                                            Constants.ClimberConstants.kTravelDistanceEpsilon)) {
+
+                        mClimber.setClimbTraversalBar();
+                    }
+                }
+
+            } else {
+
+                // set left climber motor open loop
+                if (mControlBoard.operator.getController().getPOV() == 0) {
+                    mClimber.setLeftClimberOpenLoop(8.0);
+                } else if (mControlBoard.operator.getController().getPOV() == 180) {
+                    mClimber.setLeftClimberOpenLoop(-8.0);
+                } else {
+                    mClimber.setLeftClimberOpenLoop(0.0);
+                }
+
+                // set right climber motor open loop
+                if (mControlBoard.operator.getController().getYButton()) {
+                    mClimber.setRightClimberOpenLoop(8.0);
+                } else if (mControlBoard.operator.getController().getAButton()) {
+                    mClimber.setRightClimberOpenLoop(-8.0);
+                } else {
+                    mClimber.setRightClimberOpenLoop(0.0);
+                }
+
+            }
+        
+        } else {
+
+            /*** NORMAL TELEOP CONTROLS ***/
+
+            // toggle whether we want to force intake or decide whether we intake based on whether we have two correct cargo
+            if (mControlBoard.operator.getController().getPOV() == 270) {
+                mForceIntake = !mForceIntake;
+            }
+            // control intake + reverse actions
+            if (mForceIntake) {
+                normalIntakeControls();
+            } else if (stopIntaking()) {
+                /*
+                mReverseIntakeTimer.start();
+                if (!mReverseIntakeTimer.hasElapsed(Constants.IntakeConstants.kReverseTime)) {
+                    // reverse for a period of time after we want to stop intaking to reject any incoming third cargo
+                    mPeriodicIO.REVERSE = true;
+                } else {
+                    // set intake to do nothing after reversing, so we cannot intake while we have two correct cargo
+                    mPeriodicIO.real_intake = Intake.WantedAction.NONE;
+                }
+                */
+                mPeriodicIO.INTAKE = false;
+                mPeriodicIO.REVERSE = false;
+            } else {
+                normalIntakeControls();
+            }            
+
+            // toggle ejecting to disable if necessary
+            if (mControlBoard.operator.getController().getPOV() == 90) {
+                mDisableEjecting = !mDisableEjecting;
+            }
+            // control options to filter cargo and eject
+            if (mDisableEjecting) {
+                mPeriodicIO.EJECT = false;
+            } else if (mControlBoard.operator.getButton(Button.LB)) {
+                mPeriodicIO.EJECT = true;
+                mForceEject = true;
+            } else {
+                mForceEject = false;
+                // when not forcing an eject, passively check whether want to passively eject using color sensor logic
+                mPeriodicIO.EJECT = mColorSensor.wantsEject();
+            }
+
+            // control shooting
+            if (mControlBoard.operator.getController().getYButtonPressed()) {
+                mPeriodicIO.SHOOT = !mPeriodicIO.SHOOT;
+            }
+
+            // control prepping
+            if (mControlBoard.operator.getController().getAButtonPressed()) {
+                mPeriodicIO.PREP = !mPeriodicIO.PREP;
+            }
+
+            // control fender shot
+            if (mControlBoard.operator.getController().getBButtonPressed()) {
+                mPeriodicIO.FENDER = !mPeriodicIO.FENDER;
+            }
+
+            // control spit shot
+            if (mControlBoard.operator.getController().getXButtonPressed()) {
+                mPeriodicIO.SPIT = !mPeriodicIO.SPIT;
+            }
+
+            // control for adding manual hood adjustment
+            switch(mControlBoard.getHoodManualAdjustment()) {
+                case 1:
+                    mHoodAngleAdjustment += 1;
+                    break;
+                case -1:
+                    mHoodAngleAdjustment += -1;
+                    break;
+                case 0:
+                    mHoodAngleAdjustment += 0;
+                    break;
+            }
+            // reset manual hood adjustment if necessary
+            if (mControlBoard.operator.getButton(CustomXboxController.Button.START)) {
+                mResetHoodAngleAdjustment = true;
+            }
+        }
     }
 
     /*** UPDATE SHOOTER AND HOOD SETPOINTS WHEN VISION AIMING ***/
     public synchronized void updateShootingParams() {
-        if (mPeriodicIO.FENDER) {
+        if (mPeriodicIO.SPIT) {
+            mShooterSetpoint = kSpitVelocity;
+            mHoodSetpoint = kSpitAngle;
+        } else if (mPeriodicIO.FENDER) {
             mShooterSetpoint = kFenderVelocity;
             mHoodSetpoint = kFenderAngle;
         } else if (hasTarget()) {
@@ -230,18 +426,30 @@ public class Superstructure extends Subsystem {
             if (isSpunUp() /*&& isAimed()*/) {
                 mPeriodicIO.real_indexer = Indexer.WantedAction.FEED;
             } else {
-                mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX;
+                mPeriodicIO.real_indexer = Indexer.WantedAction.NONE;
             }
         } else {
+            // force eject
+            if (mPeriodicIO.EJECT && mForceEject) {
+                mPeriodicIO.real_indexer = Indexer.WantedAction.EJECT;
+            // only do any indexing action if we detect a ball
+            } else if (mColorSensor.hasBall()) {
+                if (mPeriodicIO.EJECT) {
+                    mPeriodicIO.real_indexer = Indexer.WantedAction.EJECT;
+                } else {
+                    mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX;
+                }
+            } else {
+                mPeriodicIO.real_indexer = Indexer.WantedAction.NONE;
+            }
+
+            // normal operator manual control for intake
             if (mPeriodicIO.INTAKE) {
                 mPeriodicIO.real_intake = Intake.WantedAction.INTAKE;
-                mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX;
-            } else if (mPeriodicIO.OUTTAKE) {
+            } else if (mPeriodicIO.REVERSE) {
                 mPeriodicIO.real_intake = Intake.WantedAction.REVERSE;
-                mPeriodicIO.real_indexer = Indexer.WantedAction.REVERSE;
             } else {
                 mPeriodicIO.real_intake = Intake.WantedAction.NONE;
-                mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX; // always in indexing state
             }
         }
 
@@ -249,7 +457,6 @@ public class Superstructure extends Subsystem {
 
         // set intake and indexer states
         mIntake.setState(mPeriodicIO.real_intake);
-        mIndexer.setForceTunnel(mPeriodicIO.real_intake == Intake.WantedAction.INTAKE);
         mIndexer.setState(mPeriodicIO.real_indexer);
 
         // set shooter subsystem setpoint
@@ -291,13 +498,33 @@ public class Superstructure extends Subsystem {
         }
     }
 
-    // status checker methods
+    /* Status Checker Methods */
+    // call normal intake controls
+    public void normalIntakeControls() {
+        if (mControlBoard.operator.getTrigger(CustomXboxController.Side.RIGHT)) {
+            mPeriodicIO.INTAKE = true;
+            mPeriodicIO.REVERSE = false;
+        } else if (mControlBoard.operator.getTrigger(CustomXboxController.Side.LEFT)) {
+            mPeriodicIO.INTAKE = false;
+            mPeriodicIO.REVERSE = true;
+        } else {
+            mPeriodicIO.INTAKE = false;
+            mPeriodicIO.REVERSE = false;
+        }
+    }
+    // stop intaking if we have two of the correct cargo
+    public boolean stopIntaking() {
+        return mIndexer.stopTunnel() && !mPeriodicIO.EJECT;
+    }
+    // check if our flywheel is spun up to the correct velocity
     public boolean isSpunUp() {
         return mShooter.spunUp();
     }
+    // check if our limelight sees a vision target
     public boolean hasTarget() {
         return mLimelight.hasTarget();
     }
+    // checked if we are vision aligned to the target within an acceptable horiz. error
     public boolean isAimed() {
         return mLimelight.isAimed();
     }
@@ -311,7 +538,8 @@ public class Superstructure extends Subsystem {
     @Override
     public void stop() {
         setWantIntake(false);
-        setWantOuttake(false);
+        setWantReverse(false);
+        setWantEject(false);
         setWantPrep(false);
         setWantShoot(false);
     }
@@ -321,8 +549,11 @@ public class Superstructure extends Subsystem {
     public boolean getIntaking() {
         return mPeriodicIO.INTAKE;
     }
-    public boolean getOuttaking() {
-        return mPeriodicIO.OUTTAKE;
+    public boolean getReversing() {
+        return mPeriodicIO.REVERSE;
+    }
+    public boolean getEjecting() {
+        return mPeriodicIO.EJECT;
     }
     public boolean getPrepping() {
         return mPeriodicIO.PREP;
@@ -332,6 +563,17 @@ public class Superstructure extends Subsystem {
     }
     public boolean getWantsFender() {
         return mPeriodicIO.FENDER;
+    }
+    public boolean getWantsSpit() {
+        return mPeriodicIO.SPIT;
+    }
+
+    // get other statuses
+    public boolean getInClimbMode() {
+        return mClimbMode;
+    }
+    public boolean isOpenLoopClimbControl() {
+        return mOpenLoopClimbControlMode;
     }
 
     // get goals
@@ -350,24 +592,30 @@ public class Superstructure extends Subsystem {
 
     /* Output superstructure actions and other related statuses */
     public void outputTelemetry() {
-        // superstructure actions requested
-        SmartDashboard.putBoolean("Intaking", mPeriodicIO.INTAKE);
-        SmartDashboard.putBoolean("Outtaking", mPeriodicIO.OUTTAKE);
-        SmartDashboard.putBoolean("Prepping", mPeriodicIO.PREP);
-        SmartDashboard.putBoolean("Shooting", mPeriodicIO.SHOOT);
-        SmartDashboard.putBoolean("Fender Shooting", mPeriodicIO.FENDER);
+        // // superstructure actions requested
+        // SmartDashboard.putBoolean("Intaking", mPeriodicIO.INTAKE);
+        // SmartDashboard.putBoolean("Reversing", mPeriodicIO.REVERSE);
+        // SmartDashboard.putBoolean("Ejecting", mPeriodicIO.EJECT);
+        // SmartDashboard.putBoolean("Prepping", mPeriodicIO.PREP);
+        // SmartDashboard.putBoolean("Shooting", mPeriodicIO.SHOOT);
+        // SmartDashboard.putBoolean("Fender Shooting", mPeriodicIO.FENDER);
 
-        // superstructure goals being set
-        SmartDashboard.putString("Intake Goal", mPeriodicIO.real_intake.toString());
-        SmartDashboard.putString("Indexer Goal", mPeriodicIO.real_indexer.toString());
-        SmartDashboard.putNumber("Shooter Goal", mPeriodicIO.real_shooter);
-        SmartDashboard.putNumber("Hood Goal", mPeriodicIO.real_hood);
+        // // superstructure goals being set
+        // SmartDashboard.putString("Intake Goal", mPeriodicIO.real_intake.toString());
+        // SmartDashboard.putString("Indexer Goal", mPeriodicIO.real_indexer.toString());
+        // SmartDashboard.putNumber("Shooter Goal", mPeriodicIO.real_shooter);
+        // SmartDashboard.putNumber("Hood Goal", mPeriodicIO.real_hood);
 
-        // other status variables
-        SmartDashboard.putNumber("Superstructure dt", mPeriodicIO.dt);
-        SmartDashboard.putBoolean("Is Spun Up", isSpunUp());
-        SmartDashboard.putBoolean("Has Vision Target", mLimelight.hasTarget());
-        SmartDashboard.putBoolean("Is Vision Aimed", mLimelight.isAimed());
+        // // other status variables
+        // SmartDashboard.putNumber("Superstructure dt", mPeriodicIO.dt);
+        // SmartDashboard.putBoolean("Is Spun Up", isSpunUp());
+        // SmartDashboard.putBoolean("Has Vision Target", mLimelight.hasTarget());
+        // SmartDashboard.putBoolean("Is Vision Aimed", mLimelight.isAimed());
+       
+        SmartDashboard.putBoolean("Disable Ejecting", mDisableEjecting);
+        SmartDashboard.putBoolean("Stop Intaking", stopIntaking());
+        SmartDashboard.putBoolean("Force Intake", mForceIntake);
+        SmartDashboard.putBoolean("Force Eject", mForceEject);
     }
 
     // included to continue logging while disabled
