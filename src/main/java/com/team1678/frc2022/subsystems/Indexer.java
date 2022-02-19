@@ -209,7 +209,8 @@ public class Indexer extends Subsystem {
         return false;
     } 
 
-    //subsystem setters
+    // subsystem setters
+
     public void setTriggerDemand(double demand) {
         mPeriodicIO.trigger_demand = demand;
     }

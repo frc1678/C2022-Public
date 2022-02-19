@@ -247,7 +247,7 @@ public class Robot extends TimedRobot {
 
 			mLoggingLooper.stop();
 
-			mLimelight.setLed(Limelight.LedMode.ON);
+			mLimelight.setLed(Limelight.LedMode.PIPELINE);
             mLimelight.triggerOutputs();
 
 			mSwerve.setModuleStates(
@@ -278,7 +278,7 @@ public class Robot extends TimedRobot {
 			mAutoModeSelector.updateModeCreator();
 			// mSwerve.resetAnglesToAbsolute();
 
-			mLimelight.setLed(Limelight.LedMode.ON);
+			mLimelight.setLed(Limelight.LedMode.PIPELINE);
 			mLimelight.writePeriodicOutputs();
 			mLimelight.outputTelemetry();
 

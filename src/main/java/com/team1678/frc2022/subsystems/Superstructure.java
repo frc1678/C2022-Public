@@ -157,11 +157,16 @@ public class Superstructure extends Subsystem {
      * - press B to toggle fender shot with set params
      * - press X to toggle spit shot with set params
      * 
-     * Manual Adjustment
+     * Manual Hood Adjustment
      * - Use dpad to manually adjust hood with offset
      *   --> 0 to move hood up
      *   --> 180 to move hood down
-     * - press START button to reset adjustment 
+     * - press START button to reset adjustment
+     * 
+     * Other Manual Sets
+     * - press dpad left (POV 270) to toggle force intake
+     * - press dpad right (POV 90) to toggle disabling the ejector
+     * - hold left bumper to eject balls manuallyo
      * 
      * Climb Controls
      * - press left bumper, right bumper, left trigger, right trigger to enter climb mode
