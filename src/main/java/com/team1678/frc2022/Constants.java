@@ -307,7 +307,7 @@ public class Constants {
             kHoodServoConstants.kPositionDeadband = 0; // Ticks
 
             kHoodServoConstants.kMinUnitsLimit = 10; // TODO Add actual min/max limits (in degrees)
-            kHoodServoConstants.kMaxUnitsLimit = 30;
+            kHoodServoConstants.kMaxUnitsLimit = 35;
 
             kHoodServoConstants.kCruiseVelocity = 20000; // Ticks / 100ms
             kHoodServoConstants.kAcceleration = 20000; // Ticks / 100ms / s

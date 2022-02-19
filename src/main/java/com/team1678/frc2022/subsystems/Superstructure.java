@@ -16,6 +16,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.Optional;
 
+import javax.management.MBeanPermission;
+
 public class Superstructure extends Subsystem {
 
     // superstructure instance
@@ -89,7 +91,7 @@ public class Superstructure extends Subsystem {
 
     // fender shot constants
     private final double kFenderVelocity = 2300;
-    private final double kFenderAngle = 11.0;
+    private final double kFenderAngle = 12.0;
 
     private final double kSpitVelocity = 1000;
     private final double kSpitAngle = 12.0;
@@ -188,7 +190,13 @@ public class Superstructure extends Subsystem {
             /*** CLIMB MODE CONTROLS ***/
 
             // stop all other superstructure actions
-            stop();
+            mPeriodicIO.INTAKE = false;
+            mPeriodicIO.REVERSE = false;
+            mPeriodicIO.EJECT = false;
+            mPeriodicIO.PREP = false;
+            mPeriodicIO.SHOOT = false;
+            mPeriodicIO.FENDER = false;
+            mPeriodicIO.SPIT = false;
 
             if (mControlBoard.getExitClimbMode()) {
                 mClimbMode = false;
