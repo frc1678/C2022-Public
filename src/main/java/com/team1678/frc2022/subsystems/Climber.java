@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Climber extends Subsystem {
 
-    private final TalonFX mClimberRight;
+    // private final TalonFX mClimberRight;
     private final TalonFX mClimberLeft;
 
     public boolean mHomed;
@@ -30,27 +30,27 @@ public class Climber extends Subsystem {
     public PeriodicIO mPeriodicIO = new PeriodicIO();
 
     private Climber() {
-        mClimberRight = TalonFXFactory.createDefaultTalon(Ports.CLIMBER_RIGHT_ID);
+        // mClimberRight = TalonFXFactory.createDefaultTalon(Ports.CLIMBER_RIGHT_ID);
         mClimberLeft = TalonFXFactory.createDefaultTalon(Ports.CLIMBER_LEFT_ID);
 
         // for right motor
-        mClimberRight.set(ControlMode.PercentOutput, 0);
-        mClimberRight.setInverted(false);
-        mClimberRight.setSelectedSensorPosition(0.0);
+        // mClimberRight.set(ControlMode.PercentOutput, 0);
+        // mClimberRight.setInverted(false);
+        // mClimberRight.setSelectedSensorPosition(0.0);
 
-        mClimberRight.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
+        // mClimberRight.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
 
-        mClimberRight.configMotionAcceleration(40000, Constants.kLongCANTimeoutMs);
-        mClimberRight.configMotionCruiseVelocity(20000, Constants.kLongCANTimeoutMs);
-        mClimberRight.config_kP(0, 0.6);
-        mClimberRight.config_kI(0, 0);
-        mClimberRight.config_kD(0, 0);
-        mClimberRight.config_kF(0, 0.077);
+        // mClimberRight.configMotionAcceleration(40000, Constants.kLongCANTimeoutMs);
+        // mClimberRight.configMotionCruiseVelocity(20000, Constants.kLongCANTimeoutMs);
+        // mClimberRight.config_kP(0, 0.6);
+        // mClimberRight.config_kI(0, 0);
+        // mClimberRight.config_kD(0, 0);
+        // mClimberRight.config_kF(0, 0.077);
 
-        mClimberRight.setNeutralMode(NeutralMode.Brake);
+        // mClimberRight.setNeutralMode(NeutralMode.Brake);
 
-        mClimberRight.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
-        mClimberRight.enableVoltageCompensation(true);
+        // mClimberRight.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
+        // mClimberRight.enableVoltageCompensation(true);
 
         // for left motor
         mClimberLeft.set(ControlMode.PercentOutput, 0);
@@ -82,16 +82,16 @@ public class Climber extends Subsystem {
 
     private void zeroEncoders() {
         mClimberLeft.setSelectedSensorPosition(0.0);
-        mClimberRight.setSelectedSensorPosition(0.0);
+        // mClimberRight.setSelectedSensorPosition(0.0);
         mHomed = true;
     }
 
     @Override
     public void readPeriodicInputs() {
-        mPeriodicIO.climber_voltage_right = mClimberRight.getMotorOutputVoltage();
-        mPeriodicIO.climber_stator_current_right = mClimberRight.getStatorCurrent();
-        mPeriodicIO.climber_motor_velocity_right = mClimberRight.getSelectedSensorVelocity();
-        mPeriodicIO.climber_motor_position_right = mClimberRight.getSelectedSensorPosition();
+        // mPeriodicIO.climber_voltage_right = mClimberRight.getMotorOutputVoltage();
+        // mPeriodicIO.climber_stator_current_right = mClimberRight.getStatorCurrent();
+        // mPeriodicIO.climber_motor_velocity_right = mClimberRight.getSelectedSensorVelocity();
+        // mPeriodicIO.climber_motor_position_right = mClimberRight.getSelectedSensorPosition();
         
         mPeriodicIO.climber_voltage_left = mClimberLeft.getMotorOutputVoltage();
         mPeriodicIO.climber_stator_current_left = mClimberLeft.getStatorCurrent();
@@ -101,17 +101,17 @@ public class Climber extends Subsystem {
 
     @Override
     public void writePeriodicOutputs() {
-        switch (mRightControlState) {
-            case OPEN_LOOP:
-                mClimberRight.set(ControlMode.PercentOutput, mPeriodicIO.climber_demand_right / 12.0);
-                break;
-            case MOTION_MAGIC:
-                mClimberRight.set(ControlMode.MotionMagic, mPeriodicIO.climber_demand_right);
-                break;
-            default:
-                mClimberRight.set(ControlMode.MotionMagic,0.0);
-                break;
-        }
+        // switch (mRightControlState) {
+        //     case OPEN_LOOP:
+        //         mClimberRight.set(ControlMode.PercentOutput, mPeriodicIO.climber_demand_right / 12.0);
+        //         break;
+        //     case MOTION_MAGIC:
+        //         mClimberRight.set(ControlMode.MotionMagic, mPeriodicIO.climber_demand_right);
+        //         break;
+        //     default:
+        //         mClimberRight.set(ControlMode.MotionMagic,0.0);
+        //         break;
+        // }
 
         switch (mLeftControlState) {
             case OPEN_LOOP:
@@ -128,12 +128,12 @@ public class Climber extends Subsystem {
     }
 
     public synchronized void setBrakeMode(boolean brake) {
-        mClimberRight.setNeutralMode(brake ? NeutralMode.Brake : NeutralMode.Coast);
+        // mClimberRight.setNeutralMode(brake ? NeutralMode.Brake : NeutralMode.Coast);
         mClimberLeft.setNeutralMode(brake ? NeutralMode.Brake : NeutralMode.Coast);
     }
 
     public synchronized void resetClimberPosition() {
-        mClimberRight.setSelectedSensorPosition(0.0);
+        // mClimberRight.setSelectedSensorPosition(0.0);
         mClimberLeft.setSelectedSensorPosition(0.0);
     }
 
@@ -206,14 +206,15 @@ public class Climber extends Subsystem {
 
     // extend right arm to start climbing
     public void setExtendForClimb() {
-        setRightClimberPosition(Constants.ClimberConstants.kRightTravelDistance);
+        // setRightClimberPosition(Constants.ClimberConstants.kRightTravelDistance);
+        setLeftClimberPosition(Constants.ClimberConstants.kLeftTravelDistance);
     }
 
     // use when only climbing to mid bar
     public void setClimbMidBar() {
-        setRightClimberPosition(Constants.ClimberConstants.kSafetyMinimum);
+        // setRightClimberPosition(Constants.ClimberConstants.kSafetyMinimum)
+        setLeftClimberPosition(Constants.ClimberConstants.kSafetyMinimum);
     }
-
 
     // second step for traversal
     public void setClimbMidBarAndExtend() {
@@ -249,7 +250,7 @@ public class Climber extends Subsystem {
     }
     
     public void stop() {
-        mClimberRight.set(ControlMode.PercentOutput, 0.0);
+        // mClimberRight.set(ControlMode.PercentOutput, 0.0);
         mClimberLeft.set(ControlMode.PercentOutput, 0.0);
     }
 
