@@ -1,12 +1,19 @@
 package com.team1678.frc2022.subsystems;
 
+import java.util.ArrayList;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
+import com.team1678.frc2022.logger.LogStorage;
+import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
 import com.team254.lib.drivers.TalonFXFactory;
+import com.team254.lib.util.ReflectingCSVWriter;
+
+import edu.wpi.first.wpilibj.Timer;
 
 public class Trigger extends Subsystem {
 
@@ -19,6 +26,9 @@ public class Trigger extends Subsystem {
     }
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
+    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
+    LogStorage<PeriodicIO> mStorage = null;
+
     private State mState = State.IDLE;
 
     private final TalonFX mTrigger;
@@ -43,6 +53,7 @@ public class Trigger extends Subsystem {
             @Override
             public void onStart(double timestamp) {
                 mState = State.IDLE;
+                startLogging();
             }
 
             @Override
@@ -52,6 +63,7 @@ public class Trigger extends Subsystem {
 
             @Override
             public void onStop(double timestamp) {
+                stopLogging();
             }
         });
     }
@@ -109,6 +121,7 @@ public class Trigger extends Subsystem {
     public void readPeriodicInputs() {
         mPeriodicIO.current = mTrigger.getStatorCurrent();
         mPeriodicIO.voltage = mTrigger.getMotorOutputVoltage();
+        SendLog();
     }
 
     @Override
@@ -138,5 +151,47 @@ public class Trigger extends Subsystem {
     public boolean checkSystem() {
         // TODO Auto-generated method stub
         return false;
+    }
+
+    // Logging
+    
+    @Override
+    public void registerLogger(LoggingSystem LS) {
+        SetupLog();
+        LS.register(mStorage, "INTAKE_LOGS.csv");
+    }
+        
+    public synchronized void startLogging() {
+        if (mCSVWriter == null) {
+            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/TRIGGER-LOGS.csv", PeriodicIO.class);
+        }
+    }
+
+    public synchronized void stopLogging() {
+        if (mCSVWriter != null) {
+            mCSVWriter.flush();
+            mCSVWriter = null;
+        }
+    }
+    
+    public void SetupLog() {
+        mStorage = new LogStorage<PeriodicIO>();
+        mStorage.setHeadersFromClass(PeriodicIO.class);
+    }
+
+    public void SendLog() {
+        ArrayList<Number> items = new ArrayList<Number>();
+        items.add(Timer.getFPGATimestamp());
+
+        // add inputs
+        items.add(mPeriodicIO.current);
+        items.add(mPeriodicIO.voltage);
+        
+        // add outputs
+        items.add(mPeriodicIO.demand);
+        items.add(mPeriodicIO.demand);
+
+        // send data to logging storage
+        mStorage.addData(items);
     }
 }
