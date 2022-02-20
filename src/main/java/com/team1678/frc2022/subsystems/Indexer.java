@@ -153,6 +153,24 @@ public class Indexer extends Subsystem {
     }
 
     private void updateBallCounter() {
+        // new ball count code
+        int BottomBallCount = 0;
+        int TopBallCount = 0; 
+        mPeriodicIO.ball_count = BottomBallCount + TopBallCount;
+        if (mPeriodicIO.bottom_break = true) {
+            BottomBallCount++;
+            if (mPeriodicIO.ejector_demand < 0){
+                BottomBallCount--;
+            }
+        }
+        if (mPeriodicIO.top_break = true) {
+            TopBallCount++;
+            BottomBallCount--;
+            if (mPeriodicIO.trigger_demand < 0) {
+                TopBallCount--;
+            }
+        }
+
 
         // bottom beam break counts up when we index 
         if (mPeriodicIO.bottom_break) {
@@ -275,7 +293,7 @@ public class Indexer extends Subsystem {
         // INPUTS
         public boolean top_break;
         public boolean bottom_break;
-        public double ball_count;
+        public int ball_count;
         
         public double ejector_current;
         public double tunnel_current;
