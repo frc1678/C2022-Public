@@ -138,6 +138,7 @@ public class Robot extends TimedRobot {
 
 		try {
 
+			mDisabledLooper.stop();
 			mEnabledLooper.start();
 			mLoggingLooper.start();
 

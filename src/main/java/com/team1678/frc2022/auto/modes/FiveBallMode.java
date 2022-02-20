@@ -107,13 +107,16 @@ public class FiveBallMode extends AutoModeBase {
         SmartDashboard.putBoolean("Auto Finished", false);
 
         // reset odometry at the start of the trajectory
-        runAction(new LambdaAction(() -> mSwerve.resetOdometry(new Pose2d(driveToIntakeFirstCargo.getInitialPose().getX(), driveToIntakeFirstCargo.getInitialPose().getY(), Rotation2d.fromDegrees(270)))));
+        runAction(new LambdaAction(() -> mSwerve.resetOdometry(new Pose2d(
+            driveToIntakeFirstCargo.getInitialPose().getX(),
+            driveToIntakeFirstCargo.getInitialPose().getY(),
+            Rotation2d.fromDegrees(270)))));
         
         // start spinning up for shot
         runAction(new LambdaAction(() -> mSuperstructure.setWantPrep(true)));
 
         // wait 1 second for curr calibration on hood to complete
-        runAction(new WaitAction(0.5));
+        runAction(new WaitAction(1.0));
 
         // shoot first cargo
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
@@ -132,6 +135,9 @@ public class FiveBallMode extends AutoModeBase {
 
         // run trajectory to drive to first shot pose
         runAction(driveToFirstShot);
+
+        // wait for 0.5 seconds before the shot
+        runAction(new WaitAction(0.5));
 
         // shoot second and third cargo
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
@@ -152,7 +158,7 @@ public class FiveBallMode extends AutoModeBase {
         runAction(driveToShootFromTerminal);
         
         // shoot fourth and fifth cargo 
-        // runAction(new WaitAction(1.0));
+        runAction(new WaitAction(0.5));
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
 
         System.out.println("Finished auto!");
