@@ -302,21 +302,21 @@ public class Superstructure extends Subsystem {
             // control intake + reverse actions
             if (mForceIntake) {
                 normalIntakeControls();
-            } else if (stopIntaking()) {
-                /*
-                mReverseIntakeTimer.start();
-                if (!mReverseIntakeTimer.hasElapsed(Constants.IntakeConstants.kReverseTime)) {
+            } else {
+
+                if (stopIntaking()) {
+                    mReverseIntakeTimer.start();
+                }
+
+                if (mReverseIntakeTimer.hasElapsed(Constants.IntakeConstants.kReverseTime) || !stopIntaking()) {
+                    // set intake to do nothing after reversing, so we cannot intake while we have two correct cargo
+                    mReverseIntakeTimer.reset();
+                    normalIntakeControls();
+                } else {
                     // reverse for a period of time after we want to stop intaking to reject any incoming third cargo
                     mPeriodicIO.REVERSE = true;
-                } else {
-                    // set intake to do nothing after reversing, so we cannot intake while we have two correct cargo
-                    mPeriodicIO.real_intake = Intake.WantedAction.NONE;
+                    mPeriodicIO.INTAKE = false;
                 }
-                */
-                mPeriodicIO.INTAKE = false;
-                mPeriodicIO.REVERSE = false;
-            } else {
-                normalIntakeControls();
             }            
 
             // toggle ejecting to disable if necessary
@@ -512,7 +512,7 @@ public class Superstructure extends Subsystem {
     }
     // stop intaking if we have two of the correct cargo
     public boolean stopIntaking() {
-        return mIndexer.stopTunnel() && !mPeriodicIO.EJECT;
+        return (mIndexer.getTopBeamBreak() && mColorSensor.seesBall() && !mPeriodicIO.EJECT);
     }
     // check if our flywheel is spun up to the correct velocity
     public boolean isSpunUp() {
