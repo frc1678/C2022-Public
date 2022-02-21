@@ -361,19 +361,21 @@ public class Constants {
         public static final int kLeftMinHeight = 0; // ticks
         public static final int kLeftMaxHeight = 250584; // ticks
         public static final int kLeftTravelDistance = kLeftMaxHeight - kLeftMinHeight + 500; // ticks
-        public static final int kLeftPartialTravelDistance = 200467;
+        public static final int kLeftPartialTravelDistance = 187938; // kLeftTravelDistance * 0.80
         
         public static final int kRightMinHeight = 0; // ticks
         public static final int kRightMaxHeight = 248631; // ticks
         public static final int kRightTravelDistance = kRightMaxHeight - kRightMinHeight + 500; // ticks
-        public static final int kRightPartialTravelDistance = 198904; // kRightTravelDistance * 0.80
+        public static final int kRightPartialTravelDistance = 186473; // kRightTravelDistance * 0.80
 
         public static final int kSafetyMinimum = -500; // minimum outside 0 ticks
 
-        public static final double kTravelDistanceEpsilon = 100;
+        public static final double kTravelDistanceEpsilon = 2000;
 
-        public static final double kBarContactAngle = 36.5; //TODO: check values // degrees
-        public static final double kBarContactAngleEpsilon = 2.0; // degrees
+        public static final double kHighBarContactAngle = -28.0;
+        public static final double kTraversalBarExtendAngle = -18.0;
+        public static final double kTraversalBarContactAngle = -34.0;
+        public static final double kBarContactAngleEpsilon = 2.0;
     }
 
     public static final class ColorSensorConstants {
