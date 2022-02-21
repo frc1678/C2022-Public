@@ -156,6 +156,8 @@ public class ShuffleBoardInteractions {
     /* SUPERSTRUCTURE */
     // actions
     private final NetworkTableEntry mIntaking;
+    private final NetworkTableEntry mReversing;
+    private final NetworkTableEntry mRejecting;
     private final NetworkTableEntry mEjecting;
     private final NetworkTableEntry mPrepping;
     private final NetworkTableEntry mShooting;
@@ -497,27 +499,35 @@ public class ShuffleBoardInteractions {
         // actions
         mIntaking = SUPERSTRUCTURE_TAB
             .add("Intaking", false)
-            .withSize(2, 1)
+            .withSize(1, 1)
+            .getEntry();
+        mReversing = SUPERSTRUCTURE_TAB
+            .add("Reversing", false)
+            .withSize(1, 1)
+            .getEntry();
+        mRejecting = SUPERSTRUCTURE_TAB
+            .add("Rejecting", false)
+            .withSize(1, 1)
             .getEntry();
         mEjecting = SUPERSTRUCTURE_TAB
             .add("Ejecting", false)
-            .withSize(2, 1)
+            .withSize(1, 1)
             .getEntry();
         mPrepping = SUPERSTRUCTURE_TAB
             .add("Prepping", false)
-            .withSize(2, 1)
+            .withSize(1, 1)
             .getEntry();
         mShooting = SUPERSTRUCTURE_TAB
             .add("Shooting", false)
-            .withSize(2, 1)
+            .withSize(1, 1)
             .getEntry();
         mFenderShot = SUPERSTRUCTURE_TAB
             .add("Fender Shot", false)
-            .withSize(2, 1)
+            .withSize(1, 1)
             .getEntry();
         mSpitShot = SUPERSTRUCTURE_TAB
             .add("Spit Shot", false)
-            .withSize(2, 1)
+            .withSize(1, 1)
             .getEntry();
 
         // goals
@@ -683,6 +693,8 @@ public class ShuffleBoardInteractions {
         /* SUPERSTRUCTURE */
         // update actions statuses
         mIntaking.setBoolean(mSuperstructure.getIntaking());
+        mReversing.setBoolean(mSuperstructure.getReversing());
+        mRejecting.setBoolean(mSuperstructure.getRejecting());
         mEjecting.setBoolean(mSuperstructure.getEjecting());
         mPrepping.setBoolean(mSuperstructure.getPrepping());
         mShooting.setBoolean(mSuperstructure.getShooting());
