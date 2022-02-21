@@ -51,7 +51,7 @@ public class TwoBallRightMode extends AutoModeBase {
                                                             mSwerve::setModuleStates);
 
         // read trajectories from PathWeaver and generate trajectory actions
-        Trajectory traj_path_b = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_b, Constants.AutoConstants.zeroToDefaultSpeedConfig);
+        Trajectory traj_path_b = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_b, Constants.AutoConstants.defaultToZeroSpeedConfig);
         driveToShotPose = new SwerveTrajectoryAction(traj_path_b,
                                                             mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
                                                             new PIDController(Constants.AutoConstants.kPXController, 0, 0),
