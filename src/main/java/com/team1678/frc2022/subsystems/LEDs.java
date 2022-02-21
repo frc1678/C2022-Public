@@ -5,7 +5,10 @@ import java.util.List;
 
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.CANdleConfiguration;
+import com.ctre.phoenix.led.CANdleControlFrame;
+import com.ctre.phoenix.led.CANdleStatusFrame;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
+import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
@@ -19,6 +22,8 @@ public class LEDs extends Subsystem {
     
     public State mBottomState = State.RAINBOW;
     public State mTopState = State.RAINBOW;
+    public LEDSector mTopSector = new LEDSector(0, 32);
+    public LEDSector mBottomSector = new LEDSector(32, 512);
     public static LEDs mInstance;
     public double mLastTimestamp = Timer.getFPGATimestamp();
 
@@ -64,15 +69,13 @@ public class LEDs extends Subsystem {
         WORSE_RAINBOW(5, 0.5, true, new Color(1, 0, 0), new Color(1, 0.5, 0), new Color(1, 1, 0), new Color(0, 1, 0), new Color(0, 0, 1), new Color(0.29, 0, 0.51), new Color(0.58, 0, 0.83)), // Unused
         POLICE_RED(0.15, 0.0, true, new Color(1, 0, 0), new Color(0, 0, 0)),
         POLICE_BLUE(0.15, 0.0, true, new Color(0, 0, 0), new Color(0, 0, 1)),
+        DAVID(0.1, 0.1, true, new Color(5, 2, 9), new Color(5, 0, 9)),
         RAINBOW(); // :)
 
         List<Color> colors = new ArrayList<Color>();
         double onTime, offTime;
         boolean breathing = false;
         boolean isCycleColors = false;
-        public int colorPhase = 0;
-        public double phase = 0;
-        public boolean rising = false;
 
         /**
          * Creates a new state
@@ -109,12 +112,31 @@ public class LEDs extends Subsystem {
         }
     }
 
+    /**
+     * This class holds information about the led sectors and their current status
+     */
+    private class LEDSector {
+        public int colorPhase = 0;
+        public double phase = 0;
+        public boolean rising = false;
+        public int startLed = 0;
+        public int ledCount = 0;
+
+        public LEDSector(int startLed, int ledCount) {
+            this.startLed = startLed;
+            this.ledCount = ledCount;
+        }
+    }
+
     public LEDs() {
         CANdleConfiguration config = new CANdleConfiguration();
         config.disableWhenLOS = true;
         config.stripType = LEDStripType.RGB; // set the strip type to RGB
-        config.brightnessScalar = 1.0; // dim the LEDs to half brightness
-        mCandle.configAllSettings(config);
+        config.brightnessScalar = 0.3; // dim the LEDs to half brightness
+        mCandle.configAllSettings(config, Constants.kLongCANTimeoutMs);
+        mCandle.setStatusFramePeriod(CANdleStatusFrame.CANdleStatusFrame_Status_1_General, 255);
+        mCandle.setControlFramePeriod(CANdleControlFrame.CANdle_Control_1_General, 10);
+        mCandle.setControlFramePeriod(CANdleControlFrame.CANdle_Control_2_ModulatedVBatOut, 255);
 
     }
 
@@ -161,39 +183,39 @@ public class LEDs extends Subsystem {
 
         // For some reason we need to alternate setting states
         if (alt) {
-            updateLEDsFromState(mBottomState, 0, 20, deltaTime * 2, timestamp);
+            updateLEDsFromState(mBottomState, this.mBottomSector, deltaTime, timestamp);
         } else {
-            updateLEDsFromState(mTopState, 20, 30, deltaTime * 2, timestamp);
+            updateLEDsFromState(mTopState, this.mTopSector, deltaTime * 2, timestamp);
         }
         alt = !alt;
 
     }
 
-    public void updateLEDsFromState(State state, int start, int end, double deltaTime, double timestamp) {
+    public void updateLEDsFromState(State state, LEDSector sector, double deltaTime, double timestamp) {
         
         if (state.onTime == Double.POSITIVE_INFINITY) {
             // Positive indicates no animaiton
             Color color = state.colors.get(0);
-            mCandle.setLEDs((int)(color.red * 255), (int)(color.green * 255), (int)(color.blue * 255), 0, start, end);
+            mCandle.setLEDs((int)(color.red * 255), (int)(color.green * 255), (int)(color.blue * 255), 0, sector.startLed, sector.ledCount);
             return;
         }
 
         // Basic oscillation between 0 and onTime then 0 offTime
-        if (state.rising) {
-            state.phase = state.phase + deltaTime;
-            if (state.phase > state.onTime) {
-                state.rising = false;
-                state.phase = 0;
+        if (sector.rising) {
+            sector.phase = sector.phase + deltaTime;
+            if (sector.phase > state.onTime) {
+                sector.rising = false;
+                sector.phase = 0;
             }
         } else {
-            state.phase = state.phase + deltaTime;
-            if (state.phase > state.offTime) {
-                state.rising = true;
-                state.phase = 0;
-                if (state.colorPhase == (state.colors.size() - 1)) {
-                    state.colorPhase = 0;
+            sector.phase = sector.phase + deltaTime;
+            if (sector.phase > state.offTime) {
+                sector.rising = true;
+                sector.phase = 0;
+                if (sector.colorPhase == (state.colors.size() - 1)) {
+                    sector.colorPhase = 0;
                 } else {
-                    state.colorPhase++;
+                    sector.colorPhase++;
                 }
             }
         }
@@ -201,13 +223,13 @@ public class LEDs extends Subsystem {
         // Calculate the proper brightness values
         double percentBrightness = 0;
         if (state.breathing) {
-            if (state.rising) {
-                percentBrightness = (state.phase / state.onTime);
+            if (sector.rising) {
+                percentBrightness = (sector.phase / state.onTime);
             } else {
-                percentBrightness = 1 - (state.phase / state.offTime);
+                percentBrightness = 1 - (sector.phase / state.offTime);
             }
         } else {
-            percentBrightness = state.rising ? 1 : 0;
+            percentBrightness = sector.rising ? 1 : 0;
         }
 
 
@@ -221,14 +243,14 @@ public class LEDs extends Subsystem {
             green = (int)(Math.sin(5*timestamp + 0) * 127 + 128);
             blue  = (int)(Math.sin(5*timestamp + 4) * 127 + 128);
         } else {
-            Color color = state.colors.get(state.colorPhase);
+            Color color = state.colors.get(sector.colorPhase);
             red = (int)(color.red * percentBrightness * 255);
             green = (int)(color.green * percentBrightness * 255);
             blue = (int)(color.blue * percentBrightness * 255);
 
         }
 
-        mCandle.setLEDs(red, green, blue, 0, start, end);
+        mCandle.setLEDs(red, green, blue, 0, sector.startLed, sector.ledCount);
 
     }
 
@@ -241,12 +263,12 @@ public class LEDs extends Subsystem {
     }
 
     public void setBottomState(State state) {
-        state.colorPhase = 0;
+        mBottomSector.colorPhase = 0;
         mBottomState = state;
     }
 
     public void setTopState(State state) {
-        state.colorPhase = 0;
+        mTopSector.colorPhase = 0;
         mTopState = state;
     }
 
