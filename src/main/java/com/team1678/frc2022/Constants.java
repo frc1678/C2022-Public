@@ -250,9 +250,10 @@ public class Constants {
         public static final double kInHoldingVoltage = 0.75;
         public static final double kOutHoldingVoltage = 1.0;
 
-        public static final double kDeployCurrentLimit = 50; // amps
+        public static final double kDeployCurrentLimit = 60; // amps
 
         public static final double kReverseTime = 1.0;
+        public static final double kSingulatorReverseDelay = 0.5;
     }
 
     public static final class ShooterConstants {

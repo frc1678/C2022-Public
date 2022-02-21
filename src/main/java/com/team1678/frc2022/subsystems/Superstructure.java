@@ -7,6 +7,7 @@ import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.CustomXboxController;
 import com.team1678.frc2022.controlboard.CustomXboxController.Button;
 import com.team1678.frc2022.regressions.ShooterRegression;
+import com.team1678.frc2022.subsystems.Intake.WantedAction;
 import com.team254.lib.util.Util;
 import com.team254.lib.util.InterpolatingDouble;
 import com.team254.lib.util.ReflectingCSVWriter;
@@ -50,9 +51,8 @@ public class Superstructure extends Subsystem {
     public static class PeriodicIO {
         // INPUTS
         // (superstructure actions)
-        private boolean INTAKE = false; // run the intake to pick up cargo
-        private boolean REVERSE = false; // reverse the intake to reject cargo
-        private boolean EJECT = false; // reverse the intake to spit out cargo
+        private Intake.WantedAction INTAKE = WantedAction.NONE; // run the intake to pick up cargo
+        private boolean EJECT = false; // run pooper
         private boolean PREP = false; // spin up and aim with shooting setpoints
         private boolean SHOOT = false; // shoot cargo
         private boolean FENDER = false; // shoot cargo from up against the hub
@@ -123,11 +123,17 @@ public class Superstructure extends Subsystem {
     }
 
     /*** SETTERS FOR SUPERSTRUCTURE ACTIONS OUTSIDE OPERATOR INPUT ***/
-    public void setWantIntake(boolean intake) {
-        mPeriodicIO.INTAKE = intake;
+    public void setStopIntake() {
+        mPeriodicIO.INTAKE = WantedAction.NONE;
     }
-    public void setWantReverse(boolean reverse) {
-        mPeriodicIO.REVERSE = true;
+    public void setWantIntake() {
+        mPeriodicIO.INTAKE = WantedAction.INTAKE;
+    }
+    public void setWantReverse() {
+        mPeriodicIO.INTAKE = WantedAction.REVERSE;
+    }
+    public void setWantReject() {
+        mPeriodicIO.INTAKE = WantedAction.REJECT;
     }
     public void setWantEject(boolean eject) {
         mPeriodicIO.EJECT = eject;
@@ -193,9 +199,7 @@ public class Superstructure extends Subsystem {
             /*** CLIMB MODE CONTROLS ***/
 
             // stop all other superstructure actions
-            mPeriodicIO.INTAKE = false;
-            mPeriodicIO.REVERSE = false;
-            mPeriodicIO.EJECT = false;
+            mPeriodicIO.INTAKE = WantedAction.NONE;
             mPeriodicIO.PREP = false;
             mPeriodicIO.SHOOT = false;
             mPeriodicIO.FENDER = false;
@@ -312,11 +316,14 @@ public class Superstructure extends Subsystem {
                     // set intake to do nothing after reversing, so we cannot intake while we have two correct cargo
                     mReverseIntakeTimer.stop();
                     mReverseIntakeTimer.reset();
-                    normalIntakeControls();
+                    if (indexerFull()) {
+                        setStopIntake();
+                    } else {
+                        normalIntakeControls();
+                    }
                 } else {
                     // reverse for a period of time after we want to stop intaking to reject any incoming third cargo
-                    mPeriodicIO.REVERSE = true;
-                    mPeriodicIO.INTAKE = false;
+                    mPeriodicIO.INTAKE = WantedAction.REJECT;
                 }
             }            
 
@@ -443,13 +450,7 @@ public class Superstructure extends Subsystem {
             }
 
             // normal operator manual control for intake
-            if (mPeriodicIO.INTAKE) {
-                mPeriodicIO.real_intake = Intake.WantedAction.INTAKE;
-            } else if (mPeriodicIO.REVERSE) {
-                mPeriodicIO.real_intake = Intake.WantedAction.REVERSE;
-            } else {
-                mPeriodicIO.real_intake = Intake.WantedAction.NONE;
-            }
+            mPeriodicIO.real_intake = mPeriodicIO.INTAKE;
         }
 
         /* Set subsystem states + setpoints based on wanted actions */
@@ -501,19 +502,20 @@ public class Superstructure extends Subsystem {
     // call normal intake controls
     public void normalIntakeControls() {
         if (mControlBoard.operator.getTrigger(CustomXboxController.Side.RIGHT)) {
-            mPeriodicIO.INTAKE = true;
-            mPeriodicIO.REVERSE = false;
+            mPeriodicIO.INTAKE = WantedAction.INTAKE;
         } else if (mControlBoard.operator.getTrigger(CustomXboxController.Side.LEFT)) {
-            mPeriodicIO.INTAKE = false;
-            mPeriodicIO.REVERSE = true;
+            mPeriodicIO.INTAKE = WantedAction.REVERSE;
         } else {
-            mPeriodicIO.INTAKE = false;
-            mPeriodicIO.REVERSE = false;
+            mPeriodicIO.INTAKE = WantedAction.NONE;
         }
     }
     // stop intaking if we have two of the correct cargo
     public boolean stopIntaking() {
         return (mIndexer.getTopBeamBreak() && mColorSensor.seesBall() && !mPeriodicIO.EJECT);
+    }
+    // ball at back beam break and top beam break
+    public boolean indexerFull() {
+        return (mIndexer.getTopBeamBreak() && mIndexer.getBottomBeamBreak());
     }
     // check if our flywheel is spun up to the correct velocity
     public boolean isSpunUp() {
@@ -536,8 +538,7 @@ public class Superstructure extends Subsystem {
 
     @Override
     public void stop() {
-        setWantIntake(false);
-        setWantReverse(false);
+        setStopIntake();
         setWantEject(false);
         setWantPrep(false);
         setWantShoot(false);
@@ -546,10 +547,10 @@ public class Superstructure extends Subsystem {
     /* Superstructure getters for action and goal statuses */
     // get actions
     public boolean getIntaking() {
-        return mPeriodicIO.INTAKE;
+        return mPeriodicIO.INTAKE == WantedAction.INTAKE;
     }
     public boolean getReversing() {
-        return mPeriodicIO.REVERSE;
+        return mPeriodicIO.INTAKE == WantedAction.REVERSE;
     }
     public boolean getEjecting() {
         return mPeriodicIO.EJECT;

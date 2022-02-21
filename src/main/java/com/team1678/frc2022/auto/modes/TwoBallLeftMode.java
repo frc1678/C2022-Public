@@ -74,7 +74,7 @@ public class TwoBallLeftMode extends AutoModeBase {
         // start spinning up for shot
         runAction(new LambdaAction(() -> mSuperstructure.setWantPrep(true)));
         // start intaking
-        runAction(new LambdaAction(() -> mSuperstructure.setWantIntake(true)));
+        runAction(new LambdaAction(() -> mSuperstructure.setWantIntake()));
         // run trajectory to intake second cargo
         runAction(driveToIntakeCargo);
         // wait for 0.5 seconds to finish intaking
