@@ -153,21 +153,31 @@ public class Indexer extends Subsystem {
     }
 
     private void updateBallCounter() {
-        // new ball count code
-        int BottomBallCount = 0;
-        int TopBallCount = 0; 
-        mPeriodicIO.ball_count = BottomBallCount + TopBallCount;
+        // create variables
+        int bottomBallCount = 0;
+        int topBallCount = 0;
+        mPeriodicIO.ball_count = bottomBallCount + topBallCount;
+        // if the bottom break is triggered increase ball count by 1
         if (mPeriodicIO.bottom_break = true) {
-            BottomBallCount++;
-            if (mPeriodicIO.ejector_demand < 0){
-                BottomBallCount--;
+            bottomBallCount++;
+            // if the ejector is triggered decrease ball count by 1
+            if (mPeriodicIO.ejector_demand > 0){
+                bottomBallCount--;
+                // make sure that ball count doesnt become negative when ejector is run without balls
+                if (bottomBallCount < 0)
+                    bottomBallCount = 0
             }
         }
+        // if the top break is triggered move around the ball count
         if (mPeriodicIO.top_break = true) {
-            TopBallCount++;
-            BottomBallCount--;
-            if (mPeriodicIO.trigger_demand < 0) {
-                TopBallCount--;
+            topBallCount++;
+            bottomBallCount--;
+            // if the shooter is triggered decrease the ball count by 1
+            if (mPeriodicIO.trigger_demand > 0) {
+                topBallCount--;
+                // make sure that the ball count doesnt become negative
+                if (topBallCount < 0)
+                    topBallCount = 0
             }
         }
 
