@@ -17,6 +17,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.Optional;
 
+import javax.management.MBeanPermission;
+
 public class Superstructure extends Subsystem {
 
     // superstructure instance
@@ -41,7 +43,7 @@ public class Superstructure extends Subsystem {
     private final Limelight mLimelight = Limelight.getInstance();
 
     // timer for reversing the intake and then stopping it once we have two correct cargo
-    Timer mReverseIntakeTimer = new Timer();
+    Timer mIntakeRejectTimer = new Timer();
 
     // PeriodicIO instance and paired csv writer
     public PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -51,7 +53,9 @@ public class Superstructure extends Subsystem {
     public static class PeriodicIO {
         // INPUTS
         // (superstructure actions)
-        private Intake.WantedAction INTAKE = WantedAction.NONE; // run the intake to pick up cargo
+        private boolean INTAKE = false; // run the intake to pick up cargo
+        private boolean REVERSE = false; // reverse the intake and singulator
+        private boolean REJECT = false; // have the intake reject cargo
         private boolean EJECT = false; // run pooper
         private boolean PREP = false; // spin up and aim with shooting setpoints
         private boolean SHOOT = false; // shoot cargo
@@ -78,6 +82,7 @@ public class Superstructure extends Subsystem {
     private boolean mResetHoodAngleAdjustment = false;
 
     // intake / eject locking status
+    private boolean mLockIntake = false;
     private boolean mForceIntake = false;
     private boolean mForceEject = false;
     private boolean mDisableEjecting = false;
@@ -123,17 +128,37 @@ public class Superstructure extends Subsystem {
     }
 
     /*** SETTERS FOR SUPERSTRUCTURE ACTIONS OUTSIDE OPERATOR INPUT ***/
-    public void setStopIntake() {
-        mPeriodicIO.INTAKE = WantedAction.NONE;
+    public void setWantIntake(boolean intake) {
+        mPeriodicIO.INTAKE = intake;
+
+        // set other intake actions to false if this action is true
+        if (mPeriodicIO.INTAKE) {
+            mPeriodicIO.REVERSE = false;
+            mPeriodicIO.REJECT = false;
+        }
     }
-    public void setWantIntake() {
-        mPeriodicIO.INTAKE = WantedAction.INTAKE;
+    public void setWantReverse(boolean reverse) {
+        mPeriodicIO.REVERSE = reverse;
+
+        // set other intake actions to false if this action is true
+        if (mPeriodicIO.REVERSE) {
+            mPeriodicIO.INTAKE = false;
+            mPeriodicIO.REJECT = false;
+        }
     }
-    public void setWantReverse() {
-        mPeriodicIO.INTAKE = WantedAction.REVERSE;
+    public void setWantReject(boolean reject) {
+        mPeriodicIO.REJECT = reject;
+
+        // set other intake actions to false if this action is true
+        if (mPeriodicIO.REJECT) {
+            mPeriodicIO.INTAKE = false;
+            mPeriodicIO.REVERSE = false;
+        }
     }
-    public void setWantReject() {
-        mPeriodicIO.INTAKE = WantedAction.REJECT;
+    public void setWantIntakeNone() {
+        mPeriodicIO.INTAKE = false;
+        mPeriodicIO.REVERSE = false;
+        mPeriodicIO.REJECT = false;
     }
     public void setWantEject(boolean eject) {
         mPeriodicIO.EJECT = eject;
@@ -199,11 +224,7 @@ public class Superstructure extends Subsystem {
             /*** CLIMB MODE CONTROLS ***/
 
             // stop all other superstructure actions
-            mPeriodicIO.INTAKE = WantedAction.NONE;
-            mPeriodicIO.PREP = false;
-            mPeriodicIO.SHOOT = false;
-            mPeriodicIO.FENDER = false;
-            mPeriodicIO.SPIT = false;
+            stop();
 
             if (mControlBoard.getExitClimbMode()) {
                 mClimbMode = false;
@@ -307,15 +328,42 @@ public class Superstructure extends Subsystem {
             if (mForceIntake) {
                 normalIntakeControls();
             } else {
-
+                // start a timer for rejecting balls and then locking the intake when we want to stop intaking
                 if (stopIntaking()) {
-                    mReverseIntakeTimer.start();
+                    mLockIntake = true;
+                    mIntakeRejectTimer.reset();
+                    mIntakeRejectTimer.start();
                 }
 
-                if (mReverseIntakeTimer.hasElapsed(Constants.IntakeConstants.kReverseTime) || (!mReverseIntakeTimer.hasElapsed(0.02) && !stopIntaking())) {
+                // if we want to lock the intake, reject incoming cargo for a short time and then lock the intake
+                if (mLockIntake) {
+                    if (mIntakeRejectTimer.hasElapsed(Constants.IntakeConstants.kIntakeRejectTime)) {
+                        mIntakeRejectTimer.stop();
+                        setWantIntakeNone();
+                    } else {
+                        setWantReject(true);
+                    }
+
+                    // if:
+                    // - we don't have a ball indexed and a ball in our system
+                    // - we don't have a ball at either fully indexed position
+                    // - we don't want to stop intaking
+                    // then unlock the intake
+                    if (!(mIndexer.getTopBeamBreak() && mColorSensor.hasBall())
+                            && !indexerFull()
+                            && !stopIntaking()) {
+                        
+                        mLockIntake = false;
+                    }
+                } else {
+                    normalIntakeControls();
+                }
+
+                /*
+                if (mIntakeSequenceTimer.hasElapsed(Constants.IntakeConstants.kReverseTime) || (!mIntakeSequenceTimer.hasElapsed(0.02) && !stopIntaking())) {
                     // set intake to do nothing after reversing, so we cannot intake while we have two correct cargo
-                    mReverseIntakeTimer.stop();
-                    mReverseIntakeTimer.reset();
+                    mIntakeSequenceTimer.stop();
+                    mIntakeSequenceTimer.reset();
                     if (indexerFull()) {
                         setStopIntake();
                     } else {
@@ -325,6 +373,7 @@ public class Superstructure extends Subsystem {
                     // reverse for a period of time after we want to stop intaking to reject any incoming third cargo
                     mPeriodicIO.INTAKE = WantedAction.REJECT;
                 }
+                */
             }            
 
             // toggle ejecting to disable if necessary
@@ -332,7 +381,8 @@ public class Superstructure extends Subsystem {
                 mDisableEjecting = !mDisableEjecting;
             }
             // control options to filter cargo and eject
-            if (mDisableEjecting) {
+            // don't eject if we want it disabled or if we lock the intake because we have two correct cargo
+            if (mDisableEjecting || mLockIntake) {
                 mPeriodicIO.EJECT = false;
             } else if (mControlBoard.operator.getButton(Button.LB)) {
                 mPeriodicIO.EJECT = true;
@@ -450,7 +500,15 @@ public class Superstructure extends Subsystem {
             }
 
             // normal operator manual control for intake
-            mPeriodicIO.real_intake = mPeriodicIO.INTAKE;
+            if (mPeriodicIO.INTAKE) {
+                mPeriodicIO.real_intake = Intake.WantedAction.INTAKE;
+            } else if (mPeriodicIO.REVERSE) {
+                mPeriodicIO.real_intake = Intake.WantedAction.REVERSE;
+            } else if (mPeriodicIO.REJECT) {
+                mPeriodicIO.real_intake = Intake.WantedAction.REJECT;
+            } else {
+                mPeriodicIO.real_intake = Intake.WantedAction.NONE;
+            }
         }
 
         /* Set subsystem states + setpoints based on wanted actions */
@@ -498,20 +556,19 @@ public class Superstructure extends Subsystem {
         }
     }
 
-    /* Status Checker Methods */
     // call normal intake controls
     public void normalIntakeControls() {
         if (mControlBoard.operator.getTrigger(CustomXboxController.Side.RIGHT)) {
-            mPeriodicIO.INTAKE = WantedAction.INTAKE;
+            setWantIntake(true);
         } else if (mControlBoard.operator.getTrigger(CustomXboxController.Side.LEFT)) {
-            mPeriodicIO.INTAKE = WantedAction.REVERSE;
+            setWantReverse(true);
         } else {
-            mPeriodicIO.INTAKE = WantedAction.NONE;
+            setWantIntakeNone();
         }
     }
     // stop intaking if we have two of the correct cargo
     public boolean stopIntaking() {
-        return (mIndexer.getTopBeamBreak() && mColorSensor.seesBall() && !mPeriodicIO.EJECT);
+        return (mIndexer.getTopBeamBreak() && mColorSensor.seesBall() && mColorSensor.hasCorrectColor());
     }
     // ball at back beam break and top beam break
     public boolean indexerFull() {
@@ -538,19 +595,26 @@ public class Superstructure extends Subsystem {
 
     @Override
     public void stop() {
-        setStopIntake();
-        setWantEject(false);
-        setWantPrep(false);
-        setWantShoot(false);
+        mPeriodicIO.INTAKE = false;
+        mPeriodicIO.REVERSE = false;
+        mPeriodicIO.REJECT = false;
+        mPeriodicIO.EJECT = false;
+        mPeriodicIO.PREP = false;
+        mPeriodicIO.SHOOT = false;
+        mPeriodicIO.FENDER = false;
+        mPeriodicIO.SPIT = false;
     }
 
     /* Superstructure getters for action and goal statuses */
     // get actions
     public boolean getIntaking() {
-        return mPeriodicIO.INTAKE == WantedAction.INTAKE;
+        return mPeriodicIO.INTAKE;
     }
     public boolean getReversing() {
-        return mPeriodicIO.INTAKE == WantedAction.REVERSE;
+        return mPeriodicIO.REVERSE;
+    }
+    public boolean getRejecting() {
+        return mPeriodicIO.REJECT;
     }
     public boolean getEjecting() {
         return mPeriodicIO.EJECT;
