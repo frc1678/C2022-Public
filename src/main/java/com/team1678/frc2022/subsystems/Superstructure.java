@@ -92,7 +92,7 @@ public class Superstructure extends Subsystem {
     private final double kFenderAngle = 12.0;
 
     private final double kSpitVelocity = 1000;
-    private final double kSpitAngle = 12.0;
+    private final double kSpitAngle = 20.0;
 
     @Override
     public void registerEnabledLoops(ILooper enabledLooper) {
