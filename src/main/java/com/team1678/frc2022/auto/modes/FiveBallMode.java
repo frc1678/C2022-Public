@@ -124,7 +124,7 @@ public class FiveBallMode extends AutoModeBase {
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
 
         // start intaking
-        runAction(new LambdaAction(() -> mSuperstructure.setWantIntake()));
+        runAction(new LambdaAction(() -> mSuperstructure.setWantIntake(true)));
 
         // run trajectories for first and second cargo intakes
         runAction(driveToIntakeFirstCargo);

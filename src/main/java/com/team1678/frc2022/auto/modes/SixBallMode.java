@@ -111,7 +111,7 @@ public class SixBallMode extends AutoModeBase {
         runAction(new LambdaAction(() -> mSwerve.resetOdometry(new Pose2d(driveToIntakeSecondCargo.getInitialPose().getX(), driveToIntakeSecondCargo.getInitialPose().getY(), Rotation2d.fromDegrees(135)))));
 
         // start intaking
-        runAction(new LambdaAction(() -> mSuperstructure.setWantIntake()));
+        runAction(new LambdaAction(() -> mSuperstructure.setWantIntake(true)));
 
         // start vision aiming to align drivetrain to target
         runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));

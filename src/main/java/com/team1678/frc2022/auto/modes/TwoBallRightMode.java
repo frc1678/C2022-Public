@@ -75,7 +75,7 @@ public class TwoBallRightMode extends AutoModeBase {
         // start spinning up for shot
         runAction(new LambdaAction(() -> mSuperstructure.setWantPrep(true)));
         // start intaking
-        runAction(new LambdaAction(() -> mSuperstructure.setWantIntake()));
+        runAction(new LambdaAction(() -> mSuperstructure.setWantIntake(true)));
 
         // start vision aiming to align drivetrain to target
         runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));
