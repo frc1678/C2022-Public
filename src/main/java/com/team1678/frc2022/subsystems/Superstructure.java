@@ -308,8 +308,9 @@ public class Superstructure extends Subsystem {
                     mReverseIntakeTimer.start();
                 }
 
-                if (mReverseIntakeTimer.hasElapsed(Constants.IntakeConstants.kReverseTime) || !stopIntaking()) {
+                if (mReverseIntakeTimer.hasElapsed(Constants.IntakeConstants.kReverseTime) || (!mReverseIntakeTimer.hasElapsed(0.02) && !stopIntaking())) {
                     // set intake to do nothing after reversing, so we cannot intake while we have two correct cargo
+                    mReverseIntakeTimer.stop();
                     mReverseIntakeTimer.reset();
                     normalIntakeControls();
                 } else {
