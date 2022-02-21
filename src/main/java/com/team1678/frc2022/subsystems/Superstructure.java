@@ -358,22 +358,6 @@ public class Superstructure extends Subsystem {
                 } else {
                     normalIntakeControls();
                 }
-
-                /*
-                if (mIntakeSequenceTimer.hasElapsed(Constants.IntakeConstants.kReverseTime) || (!mIntakeSequenceTimer.hasElapsed(0.02) && !stopIntaking())) {
-                    // set intake to do nothing after reversing, so we cannot intake while we have two correct cargo
-                    mIntakeSequenceTimer.stop();
-                    mIntakeSequenceTimer.reset();
-                    if (indexerFull()) {
-                        setStopIntake();
-                    } else {
-                        normalIntakeControls();
-                    }
-                } else {
-                    // reverse for a period of time after we want to stop intaking to reject any incoming third cargo
-                    mPeriodicIO.INTAKE = WantedAction.REJECT;
-                }
-                */
             }            
 
             // toggle ejecting to disable if necessary
