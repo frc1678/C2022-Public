@@ -204,7 +204,7 @@ public class Intake extends Subsystem {
                     mPeriodicIO.singulator_demand = Constants.IntakeConstants.kSingulatorVoltage;
                 }
 
-                mPeriodicIO.intake_demand = -Constants.IntakeConstants.kIntakingVoltage;
+                mPeriodicIO.intake_demand = Constants.IntakeConstants.kRejectingVoltage;
 
                 if (mPeriodicIO.hold_intake) {
                     mPeriodicIO.deploy_demand = Constants.IntakeConstants.kOutHoldingVoltage;
