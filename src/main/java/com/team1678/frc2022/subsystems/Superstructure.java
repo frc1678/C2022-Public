@@ -86,6 +86,8 @@ public class Superstructure extends Subsystem {
     private boolean mClimbMode = false;
 	private boolean mOpenLoopClimbControlMode = false;
 	private boolean mResetClimberPosition = false;
+    private boolean mAutoTraversalClimb = false;
+    private int mClimbStep = 0;
 
     // fender shot constants
     private final double kFenderVelocity = 2300;
@@ -223,6 +225,7 @@ public class Superstructure extends Subsystem {
 
                 if (mControlBoard.operator.getController().getXButtonPressed()) {
                     mClimber.setClimberNone();
+                    mClimbStep = 0;
                     
                 } else if (mControlBoard.operator.getController().getAButtonPressed()) {
                     mClimber.setExtendForClimb();
@@ -237,35 +240,63 @@ public class Superstructure extends Subsystem {
                     mClimber.setClimbHighBarAndExtend();
 
                 } else if (mControlBoard.operator.getController().getPOV() == 0) {
+                    mClimber.setTraversalExtend();
+                
+                } else if (mControlBoard.operator.getController().getPOV() == 270) {
                     mClimber.setClimbTraversalBar();
 
                 } else if (mControlBoard.getTraversalClimb()) {
-                    
+                    mAutoTraversalClimb = !mAutoTraversalClimb;
+                }
+                
+                if (mAutoTraversalClimb) {
+
                     // climb mid bar and extend to high bar
-                    mClimber.setClimbMidBarAndExtend();
+                    if (mClimbStep == 0) {
+                        mClimber.setClimbMidBarAndExtend();
+                        mClimbStep++; // climb step 1
+                    }
 
                     // pull up with left arm on upper bar while extending right arm to traversal bar
-                    if (Util.epsilonEquals(mSwerve.getPitch().getDegrees(), // check if dt pitch is at bar contact angle before climbing to next bar
-                                            Constants.ClimberConstants.kBarContactAngle,
-                                            Constants.ClimberConstants.kBarContactAngleEpsilon)
+                    if ((mSwerve.getRoll().getDegrees() > Constants.ClimberConstants.kHighBarContactAngle) // check if dt roll is at bar contact angle before climbing to next bar
                         &&
                         Util.epsilonEquals(mClimber.getClimberPositionLeft(), // don't climb unless left arm is fully extended
                                             Constants.ClimberConstants.kLeftTravelDistance,
-                                            Constants.ClimberConstants.kTravelDistanceEpsilon)) {
+                                            Constants.ClimberConstants.kTravelDistanceEpsilon)
+                        &&
+                        Util.epsilonEquals(mClimber.getClimberPositionRight(), // don't climb unless left arm is fully extended
+                                            Constants.ClimberConstants.kSafetyMinimum,
+                                            Constants.ClimberConstants.kTravelDistanceEpsilon)
+                        && (mClimbStep == 1)) {
 
                         mClimber.setClimbHighBarAndExtend();
+                        mClimbStep++; // climb step 2
                     }
 
-                    // pull up with right arm to partial height on traversal bar
-                    if (Util.epsilonEquals(mSwerve.getPitch().getDegrees(), // check if dt pitch is at bar contact angle before climbing to next bar
-                                            Constants.ClimberConstants.kBarContactAngle,
-                                            Constants.ClimberConstants.kBarContactAngleEpsilon)
+                    // set right arm to full extension from partial height to make contact on traversal bar
+                    if (mSwerve.getRoll().getDegrees() > Constants.ClimberConstants.kTraversalBarExtendAngle // check if dt roll is past traversal bar while swinging to extend
                         &&
-                        Util.epsilonEquals(mClimber.getClimberPositionRight(), // don't climb unless right arm is fully extended
+                        Util.epsilonEquals(mClimber.getClimberPositionRight(), // don't extend unless right arm is at partial height
+                                            Constants.ClimberConstants.kRightPartialTravelDistance,
+                                            Constants.ClimberConstants.kTravelDistanceEpsilon)
+                        && (mClimbStep == 2)) {
+
+                        mClimber.setTraversalExtend();
+                        mClimbStep++; // climb step 3
+                    }
+
+                    // climb on the right arm after we are fully extended on traversal bar
+                    if (Util.epsilonEquals(mSwerve.getRoll().getDegrees(), // check if dt roll is at the angle necessary 
+                                            Constants.ClimberConstants.kTraversalBarContactAngle,
+                                            2.0)
+                        &&
+                        Util.epsilonEquals(mClimber.getClimberPositionRight(), // don't extend unless right arm is at full height
                                             Constants.ClimberConstants.kRightTravelDistance,
-                                            Constants.ClimberConstants.kTravelDistanceEpsilon)) {
+                                            Constants.ClimberConstants.kTravelDistanceEpsilon)
+                        && (mClimbStep == 3)) {
 
                         mClimber.setClimbTraversalBar();
+                        mClimbStep++; // climb step 4
                     }
                 }
 
@@ -614,6 +645,9 @@ public class Superstructure extends Subsystem {
         SmartDashboard.putBoolean("Stop Intaking", stopIntaking());
         SmartDashboard.putBoolean("Force Intake", mForceIntake);
         SmartDashboard.putBoolean("Force Eject", mForceEject);
+
+        SmartDashboard.putBoolean("Auto Traversal Climb", mAutoTraversalClimb);
+        SmartDashboard.putNumber("Climb Step Number", mClimbStep);
     }
 
     // included to continue logging while disabled
