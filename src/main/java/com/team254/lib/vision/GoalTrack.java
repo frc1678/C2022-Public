@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.Timer;
 import java.util.Map;
 import java.util.TreeMap;
 
+
 /**
  * A class that is used to keep track of all goals detected by the vision system. As goals are detected/not detected
  * anymore by the vision system, function calls will be made to create, destroy, or update a goal track.
@@ -19,17 +20,39 @@ import java.util.TreeMap;
  */
 public class GoalTrack {
     TreeMap<Double, Pose2d> mObservedPositions = new TreeMap<>();
+
     Pose2d mSmoothedPosition = null;
     int mId;
 
+    double mx = 0;
+    double my = 0;
+    double ms = 0;  // sin of angle
+    double mc = 0;  // cos of angle
+
     private GoalTrack() {}
+
+   public synchronized void addPoint(double timestamp, Pose2d new_observation) {
+       mObservedPositions.put(timestamp, new_observation);
+       mx += new_observation.getTranslation().x();
+       my += new_observation.getTranslation().y();
+       ms += new_observation.getRotation().sin();
+       mc += new_observation.getRotation().cos();
+   }
+
+   public synchronized void removePoint(double timestamp, Pose2d old_observation) {
+       mx -= old_observation.getTranslation().x();
+       my -= old_observation.getTranslation().y();
+       ms -= old_observation.getRotation().sin();
+       mc -= old_observation.getRotation().cos();
+       mObservedPositions.remove(timestamp, old_observation);
+   }
 
     /**
      * Makes a new track based on the timestamp and the goal's coordinates (from vision)
      */
     public static synchronized GoalTrack makeNewTrack(double timestamp, Pose2d first_observation, int id) {
         GoalTrack rv = new GoalTrack();
-        rv.mObservedPositions.put(timestamp, first_observation);
+        rv.addPoint(timestamp, first_observation);
         rv.mSmoothedPosition = first_observation;
         rv.mId = id;
         return rv;
@@ -50,7 +73,7 @@ public class GoalTrack {
         }
         double distance = mSmoothedPosition.inverse().transformBy(new_observation).getTranslation().norm();
         if (distance < Constants.VisionConstants.kMaxTrackerDistance) {
-            mObservedPositions.put(timestamp, new_observation);
+            addPoint(timestamp, new_observation);
             pruneByTime();
             return true;
         } else {
@@ -70,7 +93,13 @@ public class GoalTrack {
      */
     synchronized void pruneByTime() {
         double delete_before = Timer.getFPGATimestamp() - Constants.VisionConstants.kMaxGoalTrackAge;
-        mObservedPositions.entrySet().removeIf(entry -> entry.getKey() < delete_before);
+        /* remove all old points one at a time */
+        for (Map.Entry<Double, Pose2d> entry : mObservedPositions.entrySet()) {
+            if (entry.getKey() < delete_before) {
+                removePoint(entry.getKey(), entry.getValue());
+            }
+        }
+        //mObservedPositions.entrySet().removeIf(entry -> entry.getKey() < delete_before);
         if (mObservedPositions.isEmpty()) {
             mSmoothedPosition = null;
         } else {
@@ -83,31 +112,16 @@ public class GoalTrack {
      */
     synchronized void smooth() {
         if (isAlive()) {
-            double x = 0;
-            double y = 0;
-            double s = 0;  // sin of angle
-            double c = 0;  // cos of angle
-            double t_now = Timer.getFPGATimestamp();
-            int num_samples = 0;
-            for (Map.Entry<Double, Pose2d> entry : mObservedPositions.entrySet()) {
-                if (t_now - entry.getKey() > Constants.VisionConstants.kMaxGoalTrackSmoothingTime) {
-                    continue;
-                }
-                ++num_samples;
-                x += entry.getValue().getTranslation().x();
-                y += entry.getValue().getTranslation().y();
-                c += entry.getValue().getRotation().cos();
-                s += entry.getValue().getRotation().sin();
-            }
-            x /= num_samples;
-            y /= num_samples;
-            s /= num_samples;
-            c /= num_samples;
+            int num_samples = mObservedPositions.size();
 
             if (num_samples == 0) {
                 // Handle the case that all samples are older than kMaxGoalTrackSmoothingTime.
                 mSmoothedPosition = mObservedPositions.lastEntry().getValue();
             } else {
+                double x = mx / num_samples;
+                double y = my / num_samples;
+                double s = ms / num_samples;  // sin of angle
+                double c = mc / num_samples;  // cos of angle
                 mSmoothedPosition = new Pose2d(x, y, new Rotation2d(c, s, true));
             }
         }
