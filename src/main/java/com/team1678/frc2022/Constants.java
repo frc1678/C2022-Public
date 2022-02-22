@@ -374,6 +374,7 @@ public class Constants {
 
         public static final double kTravelDistanceEpsilon = 2000;
 
+        public static final double kHighBarExtendAngle = -35.0;
         public static final double kHighBarContactAngle = -28.0;
         public static final double kTraversalBarExtendAngle = -18.0;
         public static final double kTraversalBarContactAngle = -34.0;

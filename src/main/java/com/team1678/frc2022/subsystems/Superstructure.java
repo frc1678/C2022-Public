@@ -7,7 +7,6 @@ import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.CustomXboxController;
 import com.team1678.frc2022.controlboard.CustomXboxController.Button;
 import com.team1678.frc2022.regressions.ShooterRegression;
-import com.team1678.frc2022.subsystems.Intake.WantedAction;
 import com.team254.lib.util.Util;
 import com.team254.lib.util.InterpolatingDouble;
 import com.team254.lib.util.ReflectingCSVWriter;
@@ -16,8 +15,6 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.Optional;
-
-import javax.management.MBeanPermission;
 
 public class Superstructure extends Subsystem {
 
@@ -265,7 +262,7 @@ public class Superstructure extends Subsystem {
                     mClimber.setClimbHighBarAndExtend();
 
                 } else if (mControlBoard.operator.getController().getPOV() == 0) {
-                    mClimber.setTraversalExtend();
+                    mClimber.setTraversalBarExtend();
                 
                 } else if (mControlBoard.operator.getController().getPOV() == 270) {
                     mClimber.setClimbTraversalBar();
@@ -282,6 +279,18 @@ public class Superstructure extends Subsystem {
                         mClimbStep++; // climb step 1
                     }
 
+                    // set left arm to full extension from partial height to make contact on high bar
+                    if (mSwerve.getRoll().getDegrees() < Constants.ClimberConstants.kHighBarExtendAngle // check if dt roll is past high bar while swinging to extend
+                        &&
+                        Util.epsilonEquals(mClimber.getClimberPositionLeft(), // don't extend unless left arm is at partial height
+                                            Constants.ClimberConstants.kLeftPartialTravelDistance,
+                                            Constants.ClimberConstants.kTravelDistanceEpsilon)
+                        && (mClimbStep == 1)) {
+
+                        mClimber.setHighBarExtend();
+                        mClimbStep++; // climb step 2
+                    }
+
                     // pull up with left arm on upper bar while extending right arm to traversal bar
                     if ((mSwerve.getRoll().getDegrees() > Constants.ClimberConstants.kHighBarContactAngle) // check if dt roll is at bar contact angle before climbing to next bar
                         &&
@@ -292,10 +301,10 @@ public class Superstructure extends Subsystem {
                         Util.epsilonEquals(mClimber.getClimberPositionRight(), // don't climb unless left arm is fully extended
                                             Constants.ClimberConstants.kSafetyMinimum,
                                             Constants.ClimberConstants.kTravelDistanceEpsilon)
-                        && (mClimbStep == 1)) {
+                        && (mClimbStep == 2)) {
 
                         mClimber.setClimbHighBarAndExtend();
-                        mClimbStep++; // climb step 2
+                        mClimbStep++; // climb step 3
                     }
 
                     // set right arm to full extension from partial height to make contact on traversal bar
@@ -304,10 +313,10 @@ public class Superstructure extends Subsystem {
                         Util.epsilonEquals(mClimber.getClimberPositionRight(), // don't extend unless right arm is at partial height
                                             Constants.ClimberConstants.kRightPartialTravelDistance,
                                             Constants.ClimberConstants.kTravelDistanceEpsilon)
-                        && (mClimbStep == 2)) {
+                        && (mClimbStep == 3)) {
 
-                        mClimber.setTraversalExtend();
-                        mClimbStep++; // climb step 3
+                        mClimber.setTraversalBarExtend();
+                        mClimbStep++; // climb step 4
                     }
 
                     // climb on the right arm after we are fully extended on traversal bar
@@ -318,10 +327,10 @@ public class Superstructure extends Subsystem {
                         Util.epsilonEquals(mClimber.getClimberPositionRight(), // don't extend unless right arm is at full height
                                             Constants.ClimberConstants.kRightTravelDistance,
                                             Constants.ClimberConstants.kTravelDistanceEpsilon)
-                        && (mClimbStep == 3)) {
+                        && (mClimbStep == 4)) {
 
                         mClimber.setClimbTraversalBar();
-                        mClimbStep++; // climb step 4
+                        mClimbStep++; // climb step 5
                     }
                 }
 
@@ -618,6 +627,9 @@ public class Superstructure extends Subsystem {
         mPeriodicIO.SHOOT = false;
         mPeriodicIO.FENDER = false;
         mPeriodicIO.SPIT = false;
+
+        mHoodSetpoint = Constants.HoodConstants.kHoodServoConstants.kMinUnitsLimit + 1;
+        mShooterSetpoint = 0.0;
     }
 
     /* Superstructure getters for action and goal statuses */
