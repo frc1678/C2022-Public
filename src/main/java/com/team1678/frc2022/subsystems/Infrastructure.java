@@ -9,14 +9,10 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 public class Infrastructure extends Subsystem {
 
     private static Infrastructure mInstance = new Infrastructure();
-    private Compressor mCompressor;
 
     private boolean mIsDuringAuto = false;
 
     private Infrastructure() {
-        mCompressor = new Compressor(Ports.PCM, PneumaticsModuleType.CTREPCM);
-        mCompressor.enableDigital();
-
     }
 
     public static Infrastructure getInstance() {
@@ -33,18 +29,8 @@ public class Infrastructure extends Subsystem {
         // No-op.
     }
 
-    private void startCompressor() {
-        mCompressor.enableDigital();;
-    }
-
-    private void stopCompressor() {
-        mCompressor.disable();;
-    }
-
     public synchronized void setIsDuringAuto(boolean isDuringAuto) {
         mIsDuringAuto = isDuringAuto;
-        if (isDuringAuto)
-            stopCompressor();
     }
 
     public synchronized boolean isDuringAuto() {
@@ -62,7 +48,6 @@ public class Infrastructure extends Subsystem {
             @Override
             public void onLoop(double timestamp) {
                 synchronized (Infrastructure.this) {
-                    startCompressor();
                 }
             }
 

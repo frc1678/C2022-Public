@@ -35,7 +35,7 @@ public class SwerveModule {
         angleOffset = moduleConstants.angleOffset;
         
         /* Angle Encoder Config */
-        angleEncoder = new CANCoder(moduleConstants.cancoderID);
+        angleEncoder = new CANCoder(moduleConstants.cancoderID, "canivore1");
         configAngleEncoder();
         angleEncoder.setStatusFramePeriod(CANCoderStatusFrame.SensorData, 255);
         angleEncoder.setStatusFramePeriod(CANCoderStatusFrame.VbatAndFaults, 255);

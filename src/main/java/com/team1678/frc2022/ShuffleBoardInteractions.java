@@ -1,13 +1,15 @@
 package com.team1678.frc2022;
 
+import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
+import com.team1678.frc2022.subsystems.ColorSensor;
+
+import com.team1678.frc2022.subsystems.Climber;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Intake;
 import com.team1678.frc2022.subsystems.Limelight;
 import com.team1678.frc2022.subsystems.Shooter;
 import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
-
-import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
@@ -38,7 +40,9 @@ public class ShuffleBoardInteractions {
     private final Intake mIntake;
     private final Shooter mShooter;
     private final Indexer mIndexer;
+    private final Climber mClimber;
     private final Superstructure mSuperstructure;
+    private final ColorSensor mColorSensor;
 
     /* Status Variables */
     private double lastCancoderUpdate = 0.0;
@@ -50,8 +54,10 @@ public class ShuffleBoardInteractions {
     private ShuffleboardTab INTAKE_TAB;
     private ShuffleboardTab SHOOTER_TAB;
     private ShuffleboardTab INDEXER_TAB;
+    private ShuffleboardTab CLIMBER_TAB;
     private ShuffleboardTab SUPERSTRUCTURE_TAB;
     private ShuffleboardTab MANUAL_PARAMS;
+    private ShuffleboardTab COLOR_SENSOR;   
 
     /*** ENTRIES ***/
     
@@ -77,27 +83,19 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mCurrentAngleD;
 
     /* INTAKE */
-    private final NetworkTableEntry mIntakeCurrent;
     private final NetworkTableEntry mIntakeState;
-    private final NetworkTableEntry mIntakeVoltage;
-    private final NetworkTableEntry mIntakeDemand;
-    private final NetworkTableEntry mIntakeDeployed;
+    private final NetworkTableEntry mIntakeRollerCurrent;
+    private final NetworkTableEntry mIntakeRollerVoltage;
+    private final NetworkTableEntry mIntakeRollerDemand;
+    private final NetworkTableEntry mIntakeDeployCurrent;
+    private final NetworkTableEntry mIntakeDeployVoltage;
+    private final NetworkTableEntry mIntakeDeployDemand;
 
-    /* INDEXER */
-    private final NetworkTableEntry mIndexerState;
-    private final NetworkTableEntry mTopBeamBreak;
-    private final NetworkTableEntry mBottomBeamBreak;
-    private final NetworkTableEntry mBallCount;
-
-    private final NetworkTableEntry mTunnelDemand;
-    private final NetworkTableEntry mTunnelVoltage;
-    private final NetworkTableEntry mTunnelCurrent;
-    private final NetworkTableEntry mTunnelVelocity;
-
-    private final NetworkTableEntry mTriggerDemand;
-    private final NetworkTableEntry mTriggerVoltage;
-    private final NetworkTableEntry mTriggerCurrent;
-    private final NetworkTableEntry mTriggerVelocity;
+    // private final NetworkTableEntry mFlywheelManualPIDToggle;
+    // private final NetworkTableEntry mFlywheelP;
+    // private final NetworkTableEntry mFlywheelI;
+    // private final NetworkTableEntry mFlywheelD;
+    // private final NetworkTableEntry mFlywheelF;
 
     /* SHOOTER */
     private final NetworkTableEntry mFlywheelRPM;
@@ -114,13 +112,59 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mLimelightTx;
     private final NetworkTableEntry mLimelightTy;
 
+    /* INDEXER */
+    private final NetworkTableEntry mEjectorCurrent;
+    private final NetworkTableEntry mEjectorDemand;
+    private final NetworkTableEntry mEjectorVoltage;
+
+    private final NetworkTableEntry mTunnelCurrent;
+    private final NetworkTableEntry mTunnelDemand;
+    private final NetworkTableEntry mTunnelVoltage;
+
+    private final NetworkTableEntry mTriggerCurrent;
+    private final NetworkTableEntry mTriggerDemand;
+    private final NetworkTableEntry mTriggerVoltage;
+
+    private final NetworkTableEntry mIndexerState;
+
+    private final NetworkTableEntry mBallCount;
+
+    private final NetworkTableEntry mTopBeamBreak;
+    private final NetworkTableEntry mBottomBeamBreak;
+
+    /* Superstructure */
+    
+    /* CLIMBER */
+    private final NetworkTableEntry mClimberVelocityRight;
+    private final NetworkTableEntry mClimberVelocityLeft;
+
+    private final NetworkTableEntry mClimberDemandRight;
+    private final NetworkTableEntry mClimberDemandLeft;
+
+    private final NetworkTableEntry mClimberPositionRight;
+    private final NetworkTableEntry mClimberPositionLeft;
+
+    private final NetworkTableEntry mClimberCurrentRight;
+    private final NetworkTableEntry mClimberCurrentLeft;
+
+    private final NetworkTableEntry mClimberHomed;
+
+    private final NetworkTableEntry mClimberLeftControlState;
+    private final NetworkTableEntry mClimberRightControlState;
+
+    private final NetworkTableEntry mInClimbMode;
+    private final NetworkTableEntry mOpenLoopClimbControl;
+
     /* SUPERSTRUCTURE */
     // actions
     private final NetworkTableEntry mIntaking;
-    private final NetworkTableEntry mOuttaking;
+    private final NetworkTableEntry mReversing;
+    private final NetworkTableEntry mRejecting;
+    private final NetworkTableEntry mEjecting;
     private final NetworkTableEntry mPrepping;
     private final NetworkTableEntry mShooting;
-    private final NetworkTableEntry mFender;
+    private final NetworkTableEntry mFenderShot;
+    private final NetworkTableEntry mSpitShot;
 
     // goals
     private final NetworkTableEntry mIntakeGoal;
@@ -138,6 +182,16 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mManualHoodAngle;
     private final NetworkTableEntry mShootingSetpointsEnableToggle;
 
+    /* COLOR SENSOR */
+    private final NetworkTableEntry mRValue;
+    private final NetworkTableEntry mGValue;
+    private final NetworkTableEntry mBValue;
+    private final NetworkTableEntry mMatchedColor;
+    private final NetworkTableEntry mReadDistance;
+
+    private final NetworkTableEntry mHasBall;
+    private final NetworkTableEntry mEject;
+
     // instantiate subsystems, tabs, and widgets
     public ShuffleBoardInteractions() {
         /* Get Subsystems */
@@ -145,19 +199,23 @@ public class ShuffleBoardInteractions {
         mSwerveModules = Swerve.getInstance().mSwerveMods;
         mIntake = Intake.getInstance();
         mIndexer = Indexer.getInstance();
+        mClimber = Climber.getInstance();
         mShooter = Shooter.getInstance();
         mLimelight = Limelight.getInstance();
         mSuperstructure = Superstructure.getInstance();
+        mColorSensor = ColorSensor.getInstance();
 
         /* Get Tabs */
         SWERVE_TAB = Shuffleboard.getTab("Swerve");
         PID_TAB = Shuffleboard.getTab("Module PID");
         INTAKE_TAB = Shuffleboard.getTab("Intake");
         INDEXER_TAB = Shuffleboard.getTab("Indexer");
+        CLIMBER_TAB = Shuffleboard.getTab("Climber");
         SHOOTER_TAB = Shuffleboard.getTab("Shooter");
         VISION_TAB = Shuffleboard.getTab("Vision");
         SUPERSTRUCTURE_TAB = Shuffleboard.getTab("Superstructure");
         MANUAL_PARAMS = Shuffleboard.getTab("Manual Params");
+        COLOR_SENSOR = Shuffleboard.getTab("Color Sensor");
         
         /*** Create Entries ***/
 
@@ -253,62 +311,111 @@ public class ShuffleBoardInteractions {
             .getEntry();
 
         /* INTAKE */
-        mIntakeCurrent = INTAKE_TAB
-            .add("Intake Current", mIntake.getIntakeCurrent())
-            .getEntry();
         mIntakeState = INTAKE_TAB
-            .add("Intake State", mIntake.getState().toString())
+            .add("Intake State", "N/A")
             .getEntry();
-        mIntakeVoltage = INTAKE_TAB
-            .add("Intake Voltage", mIntake.getIntakeVoltage())
+        mIntakeRollerCurrent = INTAKE_TAB
+            .add("Roller Current", 0.0)
             .getEntry();
-        mIntakeDemand = INTAKE_TAB
-                .add("Intake Demand", mIntake.getIntakeDemand())
-                .getEntry();
-        mIntakeDeployed = INTAKE_TAB
-                .add("Intake Deployed", mIntake.getIsDeployed())
-                .getEntry();
+        mIntakeRollerVoltage = INTAKE_TAB
+            .add("Roller Voltage", 0.0)
+            .getEntry();
+        mIntakeRollerDemand = INTAKE_TAB
+            .add("Roller Demand", 0.0)
+            .getEntry();
+        mIntakeDeployCurrent = INTAKE_TAB
+            .add("Deploy Current", 0.0)
+            .getEntry();
+        mIntakeDeployVoltage = INTAKE_TAB
+            .add("Deploy Voltage", 0.0)
+            .getEntry();
+        mIntakeDeployDemand= INTAKE_TAB
+            .add("Deploy Demand", 0.0)
+            .getEntry();
+        
 
         /* INDEXER */
         mIndexerState = INDEXER_TAB
             .add("Indexer State", "N/A")
             .getEntry();
-        mTopBeamBreak = INDEXER_TAB
-            .add("Top Beam Break", false)
+        mEjectorCurrent = INDEXER_TAB
+            .add("Outtake Current", 0.0)
             .getEntry();
-        mBottomBeamBreak = INDEXER_TAB
-            .add("Bottom Beam Break", false)
+        mEjectorDemand = INDEXER_TAB
+            .add("Outtake Demand", 0.0)
             .getEntry();
-        mBallCount = INDEXER_TAB
-            .add("Ball Count", 0.0)
+        mEjectorVoltage = INDEXER_TAB
+            .add("Outtake Voltage", 0.0)
+            .getEntry(); 
+        mTunnelCurrent = INDEXER_TAB
+            .add("Indexer Current", 0.0)
             .getEntry();
-
         mTunnelDemand = INDEXER_TAB
-            .add("Tunnel Demand", 0.0)
+            .add("Indexer Demand", 0.0)
             .getEntry();
         mTunnelVoltage = INDEXER_TAB
-            .add("Tunnel Voltage", 0.0)
+            .add("Indexer Voltage", 0.0)
             .getEntry();
-        mTunnelCurrent = INDEXER_TAB
-            .add("Tunnel Current", 0.0)
+        mTriggerCurrent = INDEXER_TAB
+            .add("Trigger Current", 0.0)
             .getEntry();
-        mTunnelVelocity = INDEXER_TAB
-            .add("Tunnel Velocity", 0.0)
-            .getEntry();
-
         mTriggerDemand = INDEXER_TAB
             .add("Trigger Demand", 0.0)
             .getEntry();
         mTriggerVoltage = INDEXER_TAB
             .add("Trigger Voltage", 0.0)
             .getEntry();
-        mTriggerCurrent = INDEXER_TAB
-            .add("Trigger Current", 0.0)
+        mTopBeamBreak = INDEXER_TAB
+            .add("Top Beam Break Triggered", false)
             .getEntry();
-        mTriggerVelocity = INDEXER_TAB
-            .add("Trigger Velocity", 0.0)
+        mBottomBeamBreak = INDEXER_TAB
+            .add("Bottom Beam Break Triggered", false)
             .getEntry();
-        
+        mBallCount = INDEXER_TAB
+            .add("Ball Count", 0.0)
+            .getEntry();
+
+        /* CLIMBER */
+        mInClimbMode = CLIMBER_TAB
+            .add("Climb Mode", false)
+            .getEntry();
+        mOpenLoopClimbControl = CLIMBER_TAB
+            .add("Open Loop Climb Control", false)
+            .getEntry();
+        mClimberLeftControlState = CLIMBER_TAB
+            .add("Climber Left Control State", mClimber.mLeftControlState.toString())
+            .getEntry();
+        mClimberRightControlState = CLIMBER_TAB
+            .add("Climber Right Control State", mClimber.mRightControlState.toString())
+            .getEntry();
+        mClimberVelocityRight = CLIMBER_TAB
+            .add("Right Climber Velocity", 0.0)
+            .getEntry();
+        mClimberVelocityLeft = CLIMBER_TAB
+            .add("Left Climber Velocity", 0.0)
+            .getEntry();
+        mClimberDemandRight = CLIMBER_TAB
+            .add("Right Climber Demand", 0.0)
+            .getEntry();
+        mClimberDemandLeft = CLIMBER_TAB
+            .add("Left Climber Demand", 0.0)
+            .getEntry();
+        mClimberPositionRight = CLIMBER_TAB
+            .add("Right Climber Position", 0.0)
+            .getEntry();
+        mClimberPositionLeft = CLIMBER_TAB
+            .add("Left Climber Position", 0.0)
+            .getEntry();
+        mClimberCurrentRight = CLIMBER_TAB
+            .add("Right Climber Current", 0.0)
+            .getEntry();
+        mClimberCurrentLeft = CLIMBER_TAB 
+            .add("Left Climber Current", 0.0)
+            .getEntry();
+        mClimberHomed = CLIMBER_TAB
+            .add("Climber is Homed", false)
+            .getEntry();
+
         /* SHOOTER */
         mFlywheelRPM = SHOOTER_TAB
                 .add("Shooter RPM", 0.0)
@@ -330,6 +437,31 @@ public class ShuffleBoardInteractions {
                 .add("Shooter Open Loop", false)
                 .withSize(2, 1)
                 .getEntry();
+        
+        /* COLOR SENSOR */
+        mRValue = COLOR_SENSOR
+            .add("Detected R Value", 0.0)
+            .getEntry();
+        mGValue = COLOR_SENSOR
+            .add("Detected G Value", 0.0)
+            .getEntry();
+        mBValue = COLOR_SENSOR
+            .add("Detected B Value", 0.0)
+            .getEntry();
+        mMatchedColor = COLOR_SENSOR
+            .add("Matched Color", "N/A")
+            .getEntry();
+        mReadDistance = COLOR_SENSOR
+            .add("Read Distance", 0.0)
+            .getEntry();
+            
+        mHasBall = COLOR_SENSOR
+            .add("Has Ball", false)
+            .getEntry();
+        mEject = COLOR_SENSOR
+            .add("Eject", false)
+            .getEntry();
+
 
         /* VISION */
         mLimelightOk = VISION_TAB
@@ -369,23 +501,35 @@ public class ShuffleBoardInteractions {
         // actions
         mIntaking = SUPERSTRUCTURE_TAB
             .add("Intaking", false)
-            .withSize(2, 1)
+            .withSize(1, 1)
             .getEntry();
-        mOuttaking = SUPERSTRUCTURE_TAB
-            .add("Outtaking", false)
-            .withSize(2, 1)
+        mReversing = SUPERSTRUCTURE_TAB
+            .add("Reversing", false)
+            .withSize(1, 1)
+            .getEntry();
+        mRejecting = SUPERSTRUCTURE_TAB
+            .add("Rejecting", false)
+            .withSize(1, 1)
+            .getEntry();
+        mEjecting = SUPERSTRUCTURE_TAB
+            .add("Ejecting", false)
+            .withSize(1, 1)
             .getEntry();
         mPrepping = SUPERSTRUCTURE_TAB
             .add("Prepping", false)
-            .withSize(2, 1)
+            .withSize(1, 1)
             .getEntry();
         mShooting = SUPERSTRUCTURE_TAB
             .add("Shooting", false)
-            .withSize(2, 1)
+            .withSize(1, 1)
             .getEntry();
-        mFender = SUPERSTRUCTURE_TAB
+        mFenderShot = SUPERSTRUCTURE_TAB
             .add("Fender Shot", false)
-            .withSize(2, 1)
+            .withSize(1, 1)
+            .getEntry();
+        mSpitShot = SUPERSTRUCTURE_TAB
+            .add("Spit Shot", false)
+            .withSize(1, 1)
             .getEntry();
 
         // goals
@@ -435,11 +579,9 @@ public class ShuffleBoardInteractions {
             .withSize(2, 1)
             .getEntry();
     }
-    
 
     public void update() {
-        
-        
+
         /* SWERVE */
 
         /*
@@ -474,30 +616,17 @@ public class ShuffleBoardInteractions {
         mCurrentAngleI.setDouble(currentPIDVals[1]);
         mCurrentAngleD.setDouble(currentPIDVals[2]);
 
-        
         /* INTAKE */
         mIntakeState.setString(mIntake.getState().toString());
-        mIntakeVoltage.setDouble(mIntake.getIntakeVoltage());
-        mIntakeDemand.setDouble(mIntake.getIntakeDemand());
-        mIntakeDeployed.setBoolean(mIntake.getWantDeploy());
-        mIntakeCurrent.setDouble(mIntake.getIntakeCurrent());
 
-        /* INDEXER */
-        mIndexerState.setString(mIndexer.getState().toString());
-        mTopBeamBreak.setBoolean(mIndexer.getTopBeamBreak());
-        mBottomBeamBreak.setBoolean(mIndexer.getBottomBeamBreak());
-        mBallCount.setDouble(mIndexer.getBallCount());
+        mIntakeRollerCurrent.setDouble(mIntake.getRollerCurrent());
+        mIntakeRollerVoltage.setDouble(mIntake.getRollerVoltage());
+        mIntakeRollerDemand.setDouble(mIntake.getRollerDemand());
 
-        mTunnelDemand.setDouble(truncate(mIndexer.getTunnelDemand()));
-        mTunnelCurrent.setDouble(truncate(mIndexer.getTunnelCurrent()));
-        mTunnelVoltage.setDouble(truncate(mIndexer.getTunnelVoltage()));
-        mTunnelVelocity.setDouble(mIndexer.getTunnelVelocity());
-
-        mTriggerDemand.setDouble(truncate(mIndexer.getTriggerDemand()));
-        mTriggerCurrent.setDouble(truncate(mIndexer.getTriggerCurrent()));
-        mTriggerVoltage.setDouble(truncate(mIndexer.getTriggerVoltage()));
-        mTriggerVelocity.setDouble(mIndexer.getTriggerVelocity());
-
+        mIntakeDeployCurrent.setDouble(mIntake.getDeployCurrent());
+        mIntakeDeployVoltage.setDouble(mIntake.getDeployVoltage());
+        mIntakeDeployDemand.setDouble(mIntake.getDeployDemand());
+        
         /* SHOOTER */
         mFlywheelRPM.setDouble(truncate(mShooter.getFlywheelRPM()));
         mAcceleratorRPM.setDouble(truncate(mShooter.getAcceleratorRPM()));
@@ -513,13 +642,65 @@ public class ShuffleBoardInteractions {
         mLimelightTx.setDouble(mLimelight.getOffset()[0]);
         mLimelightTy.setDouble(mLimelight.getOffset()[1]);
 
+        /* INDEXER */
+        mEjectorCurrent.setDouble(mIndexer.getEjectorCurrent());
+        mEjectorDemand.setDouble(mIndexer.getEjectorDemand());
+        mEjectorVoltage.setDouble(mIndexer.getEjectorVoltage());
+
+        mTunnelCurrent.setDouble(mIndexer.getTunnelCurrent());
+        mTunnelDemand.setDouble(mIndexer.getTunnelDemand());
+        mTunnelVoltage.setDouble(mIndexer.getTunnelVoltage());
+
+        mTriggerCurrent.setDouble(mIndexer.getTriggerCurrent());
+        mTriggerDemand.setDouble(mIndexer.getTriggerDemand());
+        mTriggerVoltage.setDouble(mIndexer.getTriggerVoltage());
+
+        mIndexerState.setString(mIndexer.getState().toString());
+        mBallCount.setDouble(mIndexer.getBallCount());
+
+        mTopBeamBreak.setBoolean(mIndexer.getTopBeamBreak());
+        mBottomBeamBreak.setBoolean(mIndexer.getBottomBeamBreak());
+
+        /* COLOR SENSOR */
+        mRValue.setDouble(mColorSensor.getDetectedRValue());
+        mGValue.setDouble(mColorSensor.getDetectedGValue());
+        mBValue.setDouble(mColorSensor.getDetectedBValue());
+        mMatchedColor.setString(mColorSensor.getMatchedColor().toString());
+        mReadDistance.setDouble(mColorSensor.getDistance());
+
+        mHasBall.setBoolean(mColorSensor.hasBall());
+        mEject.setBoolean(mColorSensor.wantsEject());
+
+        /* CLIMBER */
+        mInClimbMode.setBoolean(mSuperstructure.getInClimbMode());
+        mOpenLoopClimbControl.setBoolean(mSuperstructure.isOpenLoopClimbControl());
+        mClimberLeftControlState.setString(mClimber.getLeftControlState().toString());
+        mClimberRightControlState.setString(mClimber.getRightControlState().toString());
+
+        mClimberVelocityRight.setDouble(mClimber.getClimberVelocityRight());
+        mClimberVelocityLeft.setDouble(mClimber.getClimberVelocityLeft());
+        
+        mClimberDemandRight.setDouble(mClimber.getClimberDemandRight());
+        mClimberDemandLeft.setDouble(mClimber.getClimberPositionLeft());
+
+        mClimberPositionRight.setDouble(mClimber.getClimberPositionRight());
+        mClimberPositionLeft.setDouble(mClimber.getClimberPositionLeft());
+
+        mClimberCurrentRight.setDouble(mClimber.getClimberCurrentRight());
+        mClimberCurrentLeft.setDouble(mClimber.getClimberCurrentLeft());
+        
+        mClimberHomed.setBoolean(mClimber.getHomed());
+
         /* SUPERSTRUCTURE */
         // update actions statuses
         mIntaking.setBoolean(mSuperstructure.getIntaking());
-        mOuttaking.setBoolean(mSuperstructure.getOuttaking());
+        mReversing.setBoolean(mSuperstructure.getReversing());
+        mRejecting.setBoolean(mSuperstructure.getRejecting());
+        mEjecting.setBoolean(mSuperstructure.getEjecting());
         mPrepping.setBoolean(mSuperstructure.getPrepping());
         mShooting.setBoolean(mSuperstructure.getShooting());
-        mFender.setBoolean(mSuperstructure.getWantsFender());
+        mFenderShot.setBoolean(mSuperstructure.getWantsFender());
+        mSpitShot.setBoolean(mSuperstructure.getWantsSpit());
 
         // update superstructure goal statuses
         mIntakeGoal.setString(mSuperstructure.getIntakeGoal());

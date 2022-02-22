@@ -11,14 +11,16 @@ import com.team1678.frc2022.auto.AutoModeSelector;
 import com.team1678.frc2022.auto.modes.AutoModeBase;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.ControlBoard.SwerveCardinal;
+import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.loops.CrashTracker;
 import com.team1678.frc2022.loops.Looper;
+import com.team1678.frc2022.subsystems.Climber;
+import com.team1678.frc2022.subsystems.ColorSensor;
 import com.team1678.frc2022.subsystems.Hood;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Infrastructure;
 import com.team1678.frc2022.subsystems.Intake;
 import com.team1678.frc2022.subsystems.Limelight;
-import com.team1678.frc2022.RobotState;
 import com.team1678.frc2022.subsystems.RobotStateEstimator;
 import com.team1678.frc2022.subsystems.Shooter;
 import com.team1678.frc2022.subsystems.Superstructure;
@@ -30,7 +32,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 import edu.wpi.first.wpilibj.Timer;
-
 import com.team254.lib.wpilib.TimedRobot;
 
 /**
@@ -49,7 +50,14 @@ public class Robot extends TimedRobot {
 	 * initialization code.
 	 */
 
-	/* Declare necessary class objects */
+	 
+	// instantiate enabled and disabled loopers
+	private final Looper mEnabledLooper = new Looper();
+	private final Looper mDisabledLooper = new Looper();
+	// instantiate logging looper
+	private final Looper mLoggingLooper = new Looper();
+
+	// declare necessary class objects
 	private ShuffleBoardInteractions mShuffleBoardInteractions;
 	public static CTREConfigs ctreConfigs;
 
@@ -64,14 +72,16 @@ public class Robot extends TimedRobot {
 	private final Indexer mIndexer = Indexer.getInstance();
 	private final Shooter mShooter = Shooter.getInstance();
 	private final Hood mHood = Hood.getInstance();
+	private final ColorSensor mColorSensor = ColorSensor.getInstance();
+	private final Climber mClimber = Climber.getInstance();
 	private final Limelight mLimelight = Limelight.getInstance();
 
-	private final RobotStateEstimator mRobotStateEstimator = RobotStateEstimator.getInstance();
+	// robot state
 	private final RobotState mRobotState = RobotState.getInstance();
+	private final RobotStateEstimator mRobotStateEstimator = RobotStateEstimator.getInstance();
 
-	// instantiate enabled and disabled loopers
-	private final Looper mEnabledLooper = new Looper();
-	private final Looper mDisabledLooper = new Looper();
+	// logging system
+	private LoggingSystem mLogger = LoggingSystem.getInstance();
 
 	// auto instances
 	private AutoModeExecutor mAutoModeExecutor;
@@ -92,17 +102,22 @@ public class Robot extends TimedRobot {
 			mSubsystemManager.setSubsystems(
 					mRobotStateEstimator,
 					mSwerve,
-					// mInfrastructure,
+					mSuperstructure,
+					mInfrastructure,
 					mIntake,
 					mIndexer,
 					mShooter,
 					mHood,
-					mSuperstructure,
+					mColorSensor,
+					mClimber,
 					mLimelight
 			);
 
 			mSubsystemManager.registerEnabledLoops(mEnabledLooper);
 			mSubsystemManager.registerDisabledLoops(mDisabledLooper);
+			
+			mSubsystemManager.registerLoggingSystems(mLogger);
+            mLogger.registerLoops(mLoggingLooper);
 
 			mSwerve.resetOdometry(new Pose2d());
 			mSwerve.resetAnglesToAbsolute();
@@ -117,6 +132,8 @@ public class Robot extends TimedRobot {
 		mEnabledLooper.outputToSmartDashboard();
 		mShuffleBoardInteractions.update();
 		mRobotState.outputToSmartDashboard();
+		mSwerve.outputTelemetry();
+		mClimber.outputTelemetry();
 	}
 
 	@Override
@@ -125,7 +142,10 @@ public class Robot extends TimedRobot {
 
 		try {
 
+			mDisabledLooper.stop();
 			mEnabledLooper.start();
+			mLoggingLooper.start();
+
 			mAutoModeExecutor.start();
 
 			mInfrastructure.setIsDuringAuto(true);
@@ -158,6 +178,11 @@ public class Robot extends TimedRobot {
 
 			mDisabledLooper.stop();
 			mEnabledLooper.start();
+			mLoggingLooper.start();
+
+			// mInfrastructure.setIsDuringAuto(false);
+
+			mClimber.setBrakeMode(true);
 
 			mInfrastructure.setIsDuringAuto(false);
 		
@@ -178,6 +203,7 @@ public class Robot extends TimedRobot {
                 mAutoModeExecutor.stop();
             }
 
+			mLimelight.setLed(Limelight.LedMode.ON);
 			mLimelight.outputTelemetry();
 
 			// call operator commands container from superstructure
@@ -203,7 +229,7 @@ public class Robot extends TimedRobot {
 			double swerveRotation = mControlBoard.getSwerveRotation();
 
 			if (mControlBoard.getVisionAlign()) {
-				mSwerve.visionAlignDrive(swerveTranslation, true, true);
+				mSwerve.visionAlignDrive(swerveTranslation, swerveRotation, true, true);
 			} else {
 				mSwerve.drive(swerveTranslation, swerveRotation, true, true);
 			}
@@ -225,7 +251,9 @@ public class Robot extends TimedRobot {
 
 			RobotState.getInstance().reset(Timer.getFPGATimestamp(), new com.team254.lib.geometry.Pose2d());
 
-			mLimelight.setLed(Limelight.LedMode.ON);
+			mLoggingLooper.stop();
+
+			mLimelight.setLed(Limelight.LedMode.PIPELINE);
             mLimelight.triggerOutputs();
 
 			mSwerve.setModuleStates(
@@ -258,7 +286,7 @@ public class Robot extends TimedRobot {
 			mAutoModeSelector.updateModeCreator();
 			// mSwerve.resetAnglesToAbsolute();
 
-			mLimelight.setLed(Limelight.LedMode.ON);
+			mLimelight.setLed(Limelight.LedMode.PIPELINE);
 			mLimelight.writePeriodicOutputs();
 			mLimelight.outputTelemetry();
 
@@ -279,6 +307,9 @@ public class Robot extends TimedRobot {
 		try {
 			mDisabledLooper.stop();
 			mEnabledLooper.stop();
+
+			mLoggingLooper.stop();
+
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
 			throw t;

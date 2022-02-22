@@ -2,6 +2,8 @@ package com.team1678.frc2022.subsystems;
 
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.RobotState;
+import com.team1678.frc2022.logger.LogStorage;
+import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.loops.Loop;
 import com.team1678.frc2022.loops.ILooper;  
 
@@ -33,6 +35,9 @@ public class Limelight extends Subsystem {
     private static Limelight mInstance = null;
 
     private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
+    
+    // logger
+    LogStorage<PeriodicIO> mStorage = null;
 
     private int mLatencyCounter = 0;
 
@@ -185,6 +190,9 @@ public class Limelight extends Subsystem {
         if (mCSVWriter != null) {
             mCSVWriter.add(mPeriodicIO);
         }
+
+        // send log data
+        SendLog();
     }
 
     @Override
@@ -404,5 +412,45 @@ public class Limelight extends Subsystem {
 
     public double[] getOffset() {
         return new double[] {mPeriodicIO.xOffset, mPeriodicIO.yOffset};
+    }
+
+    // logger
+    
+    @Override
+    public void registerLogger(LoggingSystem LS) {
+        SetupLog();
+        LS.register(mStorage, "LIMELIGHT_LOGS.csv");
+    }
+    
+    public void SetupLog() {
+        mStorage = new LogStorage<PeriodicIO>();
+        
+        // mStorage.setHeadersFromClass(PeriodicIO.class);
+        ArrayList<String> headers = new ArrayList<String>();
+        headers.add("loop time");
+        headers.add("vision pipeline");
+        headers.add("has comms");
+        headers.add("vision latency");
+        headers.add("tx");
+        headers.add("ty");
+        headers.add("area");
+
+        mStorage.setHeaders(headers);
+        
+    }
+
+    public void SendLog() {
+        ArrayList<Number> items = new ArrayList<Number>();
+        
+        items.add(mPeriodicIO.dt);
+        items.add(mPeriodicIO.givenPipeline);
+        items.add(mPeriodicIO.has_comms ? 1.0 : 0.0);
+        items.add(mPeriodicIO.latency);
+        items.add(mPeriodicIO.xOffset);
+        items.add(mPeriodicIO.yOffset);
+        items.add(mPeriodicIO.area);
+
+        // send data to logging storage
+        mStorage.addData(items);
     }
 }

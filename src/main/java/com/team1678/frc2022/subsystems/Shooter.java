@@ -11,6 +11,7 @@ import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
 import com.team254.lib.drivers.TalonFXFactory;
+import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.util.Util;
 
 import edu.wpi.first.wpilibj.Timer;
@@ -28,14 +29,13 @@ public class Shooter extends Subsystem {
     }
 
     private PeriodicIO mPeriodicIO = new PeriodicIO();
+    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
 
     private boolean mIsOpenLoop = false;
 
     private TalonFX mMaster;
     private TalonFX mSlave;
     
-    private TalonFX mAccelerator;
-
     private Shooter() {
 
         /* MAIN FLYWHEEl */
@@ -66,26 +66,6 @@ public class Shooter extends Subsystem {
         mSlave = TalonFXFactory.createDefaultTalon(Ports.FLYWHEEL_SLAVE_ID);
         mSlave.setInverted(true);
 
-
-        /* ACCELERATOR */
-        mAccelerator = TalonFXFactory.createDefaultTalon(Ports.ACCELERATOR_ID);
-        mAccelerator.setInverted(true);
-        mAccelerator.setNeutralMode(NeutralMode.Coast);
-
-        mAccelerator.config_kP(0, Constants.ShooterConstants.kAcceleratorP, Constants.kLongCANTimeoutMs);
-        mAccelerator.config_kI(0, Constants.ShooterConstants.kAcceleratorI, Constants.kLongCANTimeoutMs);
-        mAccelerator.config_kD(0, Constants.ShooterConstants.kAcceleratorD, Constants.kLongCANTimeoutMs);
-        mAccelerator.config_kF(0, Constants.ShooterConstants.kAcceleratorF, Constants.kLongCANTimeoutMs);
-        mAccelerator.config_IntegralZone(0, (int) (200.0 / Constants.ShooterConstants.kFlywheelVelocityConversion));
-        mAccelerator.selectProfileSlot(0, 0);
-        mAccelerator.configClosedloopRamp(0.1);
-
-        /* Current and voltage limits */
-        SupplyCurrentLimitConfiguration accel_curr_lim = new SupplyCurrentLimitConfiguration(true, 40, 100, 0.02);
-        mAccelerator.configSupplyCurrentLimit(accel_curr_lim);
-        mAccelerator.configVoltageCompSaturation(12, Constants.kLongCANTimeoutMs);
-        mAccelerator.enableVoltageCompensation(true);
-
         setOpenLoop(0.0, 0.0);
 
         // reduce can util
@@ -93,9 +73,6 @@ public class Shooter extends Subsystem {
         // mMaster.changeMotionControlFramePeriod(255);
         // mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
         // mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
-        mAccelerator.changeMotionControlFramePeriod(255);
-        mAccelerator.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
-        mAccelerator.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
         mSlave.changeMotionControlFramePeriod(255);
         mSlave.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
         mSlave.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
@@ -106,7 +83,7 @@ public class Shooter extends Subsystem {
         enabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
-
+                startLogging();
             }
 
             @Override
@@ -116,6 +93,7 @@ public class Shooter extends Subsystem {
 
             @Override
             public void onStop(double timestamp) {
+                stopLogging();
                 stop();
             }
         });
@@ -128,10 +106,6 @@ public class Shooter extends Subsystem {
         mPeriodicIO.flywheel_voltage = mMaster.getMotorOutputVoltage();
         mPeriodicIO.flywheel_velocity = mMaster.getSelectedSensorVelocity();
 
-        mPeriodicIO.accelerator_current = mAccelerator.getSupplyCurrent();
-        mPeriodicIO.accelerator_voltage = mAccelerator.getMotorOutputVoltage();
-        mPeriodicIO.accelerator_velocity = mAccelerator.getSelectedSensorVelocity();
-
         mPeriodicIO.slave_current = mSlave.getSupplyCurrent();
         mPeriodicIO.slave_velocity = mSlave.getSelectedSensorVelocity();
         mPeriodicIO.slave_voltage = mSlave.getMotorOutputVoltage();
@@ -141,7 +115,6 @@ public class Shooter extends Subsystem {
     public void writePeriodicOutputs() {
         if (mIsOpenLoop) {
             mMaster.set(ControlMode.PercentOutput, mPeriodicIO.flywheel_demand);
-            mAccelerator.set(ControlMode.PercentOutput, mPeriodicIO.accelerator_demand);
         } else {
             SmartDashboard.putNumber("Flywheel Input Demand",
                     mPeriodicIO.flywheel_demand / Constants.ShooterConstants.kFlywheelVelocityConversion);
@@ -149,8 +122,6 @@ public class Shooter extends Subsystem {
                     mPeriodicIO.accelerator_demand / Constants.ShooterConstants.kFlywheelVelocityConversion);
             mMaster.set(ControlMode.Velocity,
                     mPeriodicIO.flywheel_demand / Constants.ShooterConstants.kFlywheelVelocityConversion);
-            mAccelerator.set(ControlMode.Velocity,
-                    mPeriodicIO.accelerator_demand / Constants.ShooterConstants.kAccleratorVelocityConversion);
         }
         
         mSlave.set(ControlMode.Follower, Ports.FLYWHEEL_MASTER_ID);
@@ -224,6 +195,19 @@ public class Shooter extends Subsystem {
         /* Outputs */
         private double flywheel_demand;
         private double accelerator_demand;
+    }
+
+    public synchronized void startLogging() {
+        if (mCSVWriter == null) {
+            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/SHOOTER-LOGS.csv", PeriodicIO.class);
+        }
+    }
+
+    public synchronized void stopLogging() {
+        if (mCSVWriter != null) {
+            mCSVWriter.flush();
+            mCSVWriter = null;
+        }
     }
 
     @Override
