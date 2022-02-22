@@ -216,15 +216,19 @@ public class Climber extends Subsystem {
 
     // second step for traversal
     public void setClimbMidBarAndExtend() {
-        setLeftClimberPosition(Constants.ClimberConstants.kLeftTravelDistance);
+        setLeftClimberPosition(Constants.ClimberConstants.kLeftPartialTravelDistance);
         setRightClimberPosition(Constants.ClimberConstants.kSafetyMinimum);
+    }
+    // third step for traversal
+    public void setHighBarExtend() {
+        setLeftClimberPosition(Constants.ClimberConstants.kLeftTravelDistance);
     }
     // third step for traversal
     public void setClimbHighBarAndExtend() {
         setLeftClimberPosition(Constants.ClimberConstants.kSafetyMinimum);
         setRightClimberPosition(Constants.ClimberConstants.kRightPartialTravelDistance);
     }
-    public void setTraversalExtend() {
+    public void setTraversalBarExtend() {
         setRightClimberPosition(Constants.ClimberConstants.kRightTravelDistance);
     }
     // final step for traversal
