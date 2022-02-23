@@ -62,6 +62,9 @@ public class Hood extends ServoMotorSubsystem {
         } else {
             super.writePeriodicOutputs();
         }
+
+        // send log data
+        SendLog();
     }
 
     @Override
@@ -78,9 +81,6 @@ public class Hood extends ServoMotorSubsystem {
         } else {
             mControlState = ControlState.MOTION_MAGIC;
         }
-
-        // sent log data
-        SendLog();
     }
 
     public void outputTelemetry() {
@@ -128,7 +128,7 @@ public class Hood extends ServoMotorSubsystem {
         headers.add("hood_angle");
         headers.add("hood_current");
 
-        mStorage.setHeadersFromClass(PeriodicIO.class);
+        mStorage.setHeaders(headers);
     }
 
     public void SendLog() {

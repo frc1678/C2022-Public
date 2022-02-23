@@ -145,6 +145,9 @@ public class Indexer extends Subsystem {
             public void onLoop(double timestamp) {
                 synchronized (Indexer.this){
                     runStateMachine();
+
+                    // send log data
+                    SendLog();
                 }
             }
 
@@ -167,9 +170,6 @@ public class Indexer extends Subsystem {
     public synchronized void readPeriodicInputs() {
         mPeriodicIO.top_break = !mTopBeamBreak.get();
         mPeriodicIO.bottom_break = !mBottomBeamBreak.get();
-
-        // send log data
-        SendLog();
     }
 
     public State getState() {
@@ -281,6 +281,8 @@ public class Indexer extends Subsystem {
 
         ArrayList<String> headers = new ArrayList<String>();
         headers.add("timestamp");
+        headers.add("bottom_break");
+        headers.add("top_break");
         headers.add("trigger_current");
         headers.add("trigger_voltage");
         headers.add("ejector_current");
@@ -290,15 +292,15 @@ public class Indexer extends Subsystem {
         headers.add("ejector_demand");
         headers.add("tunnel_current");
         headers.add("trigger_demand");
-        headers.add("bottom_break");
-        headers.add("top_break");
-
-        mStorage.setHeadersFromClass(PeriodicIO.class);
+        
+        mStorage.setHeaders(headers);
     }
 
     public void SendLog() {
         ArrayList<Number> items = new ArrayList<Number>();
         items.add(Timer.getFPGATimestamp());
+        items.add(mPeriodicIO.bottom_break ? 1.0 : 0.0);
+        items.add(mPeriodicIO.top_break ? 1.0 : 0.0);
         items.add(mPeriodicIO.trigger_current);
         items.add(mPeriodicIO.trigger_voltage);
         items.add(mPeriodicIO.ejector_current);
@@ -308,8 +310,6 @@ public class Indexer extends Subsystem {
         items.add(mPeriodicIO.ejector_demand);
         items.add(mPeriodicIO.tunnel_current);
         items.add(mPeriodicIO.trigger_demand);
-        items.add(mPeriodicIO.bottom_break ? 1.0 : 0.0);
-        items.add(mPeriodicIO.top_break ? 1.0 : 0.0);
 
         // send data to logging storage
         mStorage.addData(items);

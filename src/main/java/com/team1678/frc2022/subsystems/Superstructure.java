@@ -122,6 +122,9 @@ public class Superstructure extends Subsystem {
                 updateShootingParams();
                 setGoals();
                 outputTelemetry();
+                        
+                // send log data
+                SendLog();
 
                 final double end = Timer.getFPGATimestamp();
                 mPeriodicIO.dt = end - start;
@@ -757,9 +760,6 @@ public class Superstructure extends Subsystem {
     @Override
     public void readPeriodicInputs() {
         mPeriodicIO.timestamp = Timer.getFPGATimestamp();
-        
-        // send log data
-        SendLog();
     }
 
     // logger
@@ -774,27 +774,24 @@ public class Superstructure extends Subsystem {
 
         ArrayList<String> headers = new ArrayList<String>();
         headers.add("timestamp");
-        headers.add("real_hood = 0.0");
-        headers.add("real_shooter = 0.0");
-        headers.add("timestamp");
         headers.add("dt");
-        headers.add("SPIT = false");
-        headers.add("REJECT = false");
-        headers.add("EJECT = false");
-        headers.add("REVERSE = false");
-        headers.add("PREP = false");
-        headers.add("SHOOT = false");
-        headers.add("INTAKE = false");
-        headers.add("FENDER = false");
+        headers.add("INTAKE");
+        headers.add("REVERSE");
+        headers.add("REJECT");
+        headers.add("EJECT");
+        headers.add("PREP");
+        headers.add("SHOOT");
+        headers.add("FENDER");
+        headers.add("SPIT");
+        headers.add("real_shooter");
+        headers.add("real_hood");
 
-        mStorage.setHeadersFromClass(PeriodicIO.class);
+        mStorage.setHeaders(headers);
     }
 
     public void SendLog() {
         ArrayList<Number> items = new ArrayList<Number>();
         items.add(Timer.getFPGATimestamp());
-        items.add(mPeriodicIO.real_hood = 0.0);
-        items.add(mPeriodicIO.real_shooter = 0.0);
         items.add(mPeriodicIO.timestamp);
         items.add(mPeriodicIO.dt);
         items.add(mPeriodicIO.SPIT ? 1.0 : 0.0);
@@ -805,6 +802,8 @@ public class Superstructure extends Subsystem {
         items.add(mPeriodicIO.SHOOT ? 1.0 : 0.0);
         items.add(mPeriodicIO.INTAKE ? 1.0 : 0.0);
         items.add(mPeriodicIO.FENDER ? 1.0 : 0.0);
+        items.add(mPeriodicIO.real_shooter);
+        items.add(mPeriodicIO.real_hood);
 
         // send data to logging storage
         mStorage.addData(items);
