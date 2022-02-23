@@ -13,9 +13,9 @@ public class AutoModeSelector {
         TEST_PATH_AUTO,
         TWO_BALL_LEFT_AUTO,
         TWO_BALL_RIGHT_AUTO,
+        TWO_BY_TWO_AUTO,
         FIVE_BALL_AUTO,
-        SIX_BALL_AUTO, TWO_BY_TWO_AUTO
-    }
+        SIX_BALL_AUTO,    }
 
     private DesiredMode mCachedDesiredMode = DesiredMode.DO_NOTHING;
 
@@ -60,6 +60,9 @@ public class AutoModeSelector {
 
         case TWO_BALL_RIGHT_AUTO:
             return Optional.of(new TwoBallRightMode());
+
+        case TWO_BY_TWO_AUTO:
+            return Optional.of(new TwobyTwoMode());
 
         case FIVE_BALL_AUTO:
             return Optional.of(new FiveBallMode());

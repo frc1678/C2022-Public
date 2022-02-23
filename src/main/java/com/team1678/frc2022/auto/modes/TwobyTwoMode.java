@@ -48,7 +48,7 @@ public class TwobyTwoMode extends AutoModeBase {
                                                            new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                            new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                            thetaController,
-                                                           () -> Rotation2d.fromDegrees(235.0),
+                                                           () -> Rotation2d.fromDegrees(135.0),
                                                            mSwerve::getWantAutoVisionAim,
                                                            mSwerve::setModuleStates);
 
@@ -111,7 +111,7 @@ public class TwobyTwoMode extends AutoModeBase {
     
     // wait to outtake second cargo
     // runAction(new LambdaAction(() -> mSuperstructure.setWantEject(true)));
-    runAction(new WaitAction(2.0));
+    runAction(new WaitAction(1.5));
     // runAction(new LambdaAction(() -> mSuperstructure.setWantEject(false)));
 
     // run trajectory to drive to third cargo
@@ -119,7 +119,7 @@ public class TwobyTwoMode extends AutoModeBase {
 
     // wait to outtake third cargo
     // runAction(new LambdaAction(() -> mSuperstructure.setWantEject(true)));
-    runAction(new WaitAction(2.0));
+    runAction(new WaitAction(1.5));
     // runAction(new LambdaAction(() -> mSuperstructure.setWantEject(false)));
 
     System.out.println("Finished auto!");
