@@ -104,6 +104,10 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mFlywheelDemand;
     private final NetworkTableEntry mAcceleratorDemand;
 
+    private final NetworkTableEntry mTriggerVelocity;
+    private final NetworkTableEntry mTriggerCurrent;
+    private final NetworkTableEntry mTriggerDemand;
+    private final NetworkTableEntry mTriggerVoltage;
     /* VISION */
     private final NetworkTableEntry mSeesTarget;
     private final NetworkTableEntry mLimelightOk;
@@ -121,9 +125,7 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mTunnelDemand;
     private final NetworkTableEntry mTunnelVoltage;
 
-    private final NetworkTableEntry mTriggerCurrent;
-    private final NetworkTableEntry mTriggerDemand;
-    private final NetworkTableEntry mTriggerVoltage;
+
 
     private final NetworkTableEntry mIndexerState;
 
@@ -357,15 +359,6 @@ public class ShuffleBoardInteractions {
         mTunnelVoltage = INDEXER_TAB
             .add("Indexer Voltage", 0.0)
             .getEntry();
-        mTriggerCurrent = INDEXER_TAB
-            .add("Trigger Current", 0.0)
-            .getEntry();
-        mTriggerDemand = INDEXER_TAB
-            .add("Trigger Demand", 0.0)
-            .getEntry();
-        mTriggerVoltage = INDEXER_TAB
-            .add("Trigger Voltage", 0.0)
-            .getEntry();
         mTopBeamBreak = INDEXER_TAB
             .add("Top Beam Break Triggered", false)
             .getEntry();
@@ -432,6 +425,22 @@ public class ShuffleBoardInteractions {
                 .getEntry();
         mAcceleratorDemand = SHOOTER_TAB
                 .add("Accelerator Demand", 0.0)
+                .withSize(2, 1)
+                .getEntry();
+        mTriggerCurrent = INDEXER_TAB
+                .add("Trigger Current", 0.0)
+                .withSize(2, 1)
+                .getEntry();
+        mTriggerDemand = INDEXER_TAB
+                .add("Trigger Demand", 0.0)
+                .withSize(2, 1)
+                .getEntry();
+        mTriggerVoltage = INDEXER_TAB
+                .add("Trigger Voltage", 0.0)
+                .withSize(2, 1)
+                .getEntry();
+        mTriggerVelocity = INDEXER_TAB
+                .add("Trigger Velocity", 0.0)
                 .withSize(2, 1)
                 .getEntry();
         mShooterOpenLoop = SHOOTER_TAB
@@ -635,6 +644,11 @@ public class ShuffleBoardInteractions {
         mShooterOpenLoop.setBoolean(mShooter.getIsOpenLoop());
         mFlywheelDemand.setDouble(truncate(mShooter.getFlywheelDemand()));
         mAcceleratorDemand.setDouble(truncate(mShooter.getAcceleratorDemand()));
+
+        mTriggerCurrent.setDouble(mTrigger.getTriggerCurrent());
+        mTriggerDemand.setDouble(mTrigger.getTriggerDemand());
+        mTriggerVoltage.setDouble(mTrigger.getTriggerVoltage());
+        mTriggerVelocity.setDouble(mTrigger.getTriggerVelocity());
         
         /* VISION */
         mSeesTarget.setBoolean(mLimelight.hasTarget());
@@ -652,10 +666,6 @@ public class ShuffleBoardInteractions {
         mTunnelCurrent.setDouble(mIndexer.getTunnelCurrent());
         mTunnelDemand.setDouble(mIndexer.getTunnelDemand());
         mTunnelVoltage.setDouble(mIndexer.getTunnelVoltage());
-
-        mTriggerCurrent.setDouble(mTrigger.getTriggerCurrent());
-        mTriggerDemand.setDouble(mTrigger.getTriggerDemand());
-        mTriggerVoltage.setDouble(mTrigger.getTriggerVoltage());
 
         mIndexerState.setString(mIndexer.getState().toString());
         mBallCount.setDouble(mIndexer.getBallCount());
