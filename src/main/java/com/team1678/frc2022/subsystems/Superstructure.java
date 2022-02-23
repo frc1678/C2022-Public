@@ -72,6 +72,11 @@ public class Superstructure extends Subsystem {
     }
 
     /* Setpoint Tracker Variables */
+    // ball counting tracker variables
+    public double mBallCount = 0.0;
+    private boolean mHasTopBall = false;
+    private boolean mHasBottomBall = false;
+
     // shooting system setpoints
     public double mShooterSetpoint = 1000.0;
     public double mHoodSetpoint = 20.0; // TODO: arbitrary value, change4
@@ -110,6 +115,7 @@ public class Superstructure extends Subsystem {
             public void onLoop(double timestamp) {
                 final double start = Timer.getFPGATimestamp();
 
+                updateBallCounter();
                 updateShootingParams();
                 setGoals();
                 outputTelemetry();
@@ -456,6 +462,31 @@ public class Superstructure extends Subsystem {
         }
     }
 
+    /*** UPDATE BALL COUNTER FOR INDEXING STATUS ***/
+    public void updateBallCounter() {
+        // will always have the top ball if the top beam break is triggering
+        if (mIndexer.getTopBeamBreak()) {
+            mHasTopBall = true;
+        }
+
+        // we have our bottom ball if:
+        // - we are triggering the bottom beam break
+        // - we don't want to eject the ball we currently see
+        // - we already have our top ball
+        if (mIndexer.getBottomBeamBreak() && !mPeriodicIO.EJECT) {
+            mHasBottomBall = true;
+        }
+
+        // update ball counter based off of whether we have our first and second cargo
+        if (mHasTopBall && mHasBottomBall) {
+            mBallCount = 2;
+        } else if (mHasTopBall || mHasBottomBall) {
+            mBallCount = 1;
+        } else {
+            mBallCount = 0;
+        }
+    }
+
     /*** UPDATE SHOOTER AND HOOD SETPOINTS WHEN VISION AIMING ***/
     public synchronized void updateShootingParams() {
         if (mPeriodicIO.SPIT) {
@@ -593,6 +624,10 @@ public class Superstructure extends Subsystem {
     // stop intaking if we have two of the correct cargo
     public boolean stopIntaking() {
         return (mIndexer.getTopBeamBreak() && mColorSensor.seesBall() && mColorSensor.hasCorrectColor());
+    }
+    // get number of correct cargo in indexer
+    public double getBallCount() {
+        return mBallCount;
     }
     // ball at back beam break and top beam break
     public boolean indexerFull() {
