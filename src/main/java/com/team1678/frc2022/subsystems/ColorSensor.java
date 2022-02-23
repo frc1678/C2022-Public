@@ -138,12 +138,12 @@ public class ColorSensor extends Subsystem {
 
     // update whether we want to eject or not
     public void updateWantsEject() {
-        if (hasOppositeColor()) {
+        if (hasOppositeColor() && hasBall()) {
             mPeriodicIO.eject = true;
             mEjectorTimer.start();
         }
 
-        if (mEjectorTimer.hasElapsed(Constants.IndexerConstants.kEjectDelay) || hasCorrectColor()) {
+        if (mEjectorTimer.hasElapsed(Constants.IndexerConstants.kEjectDelay) || (hasCorrectColor() && hasBall())) {
             mPeriodicIO.eject = false;
             mEjectorTimer.reset();
         }

@@ -23,11 +23,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Intake extends Subsystem {
 
     public enum WantedAction {
-        NONE, INTAKE, REVERSE
+        NONE, INTAKE, REVERSE, REJECT
     }
 
     public enum State {
-        IDLE, INTAKING, REVERSING
+        IDLE, INTAKING, REVERSING, REJECTING
     }
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -38,6 +38,7 @@ public class Intake extends Subsystem {
 
     private static Intake mInstance;
     public State mState = State.IDLE;
+    private Timer mIntakeRejectionTimer = new Timer();
 
     private final TalonFX mRoller;
     private final TalonFX mDeploy;
@@ -152,6 +153,14 @@ public class Intake extends Subsystem {
                     mState = State.REVERSING;
                 }
                 break;
+            case REJECT:
+                if (mState != State.REJECTING) {
+                    mPeriodicIO.hold_intake = false;
+                    mIntakeRejectionTimer.reset();
+                    mIntakeRejectionTimer.start();
+                    mState = State.REJECTING;
+                }
+                break;
         }
     }
 
@@ -181,6 +190,22 @@ public class Intake extends Subsystem {
                 mPeriodicIO.intake_demand = -Constants.IntakeConstants.kIntakingVoltage;
                 mPeriodicIO.singulator_demand = -Constants.IntakeConstants.kSingulatorVoltage;
                 
+                if (mPeriodicIO.hold_intake) {
+                    mPeriodicIO.deploy_demand = Constants.IntakeConstants.kOutHoldingVoltage;
+                } else {
+                    mPeriodicIO.deploy_demand = Constants.IntakeConstants.kDeployVoltage;
+                }
+                break;
+            case REJECTING:
+                if (mIntakeRejectionTimer.hasElapsed(Constants.IntakeConstants.kSingulatorReverseDelay)) {
+                    mPeriodicIO.singulator_demand = -Constants.IntakeConstants.kSingulatorVoltage;
+                    mIntakeRejectionTimer.stop();
+                } else {
+                    mPeriodicIO.singulator_demand = Constants.IntakeConstants.kSingulatorVoltage;
+                }
+
+                mPeriodicIO.intake_demand = Constants.IntakeConstants.kRejectingVoltage;
+
                 if (mPeriodicIO.hold_intake) {
                     mPeriodicIO.deploy_demand = Constants.IntakeConstants.kOutHoldingVoltage;
                 } else {
