@@ -26,6 +26,7 @@ import com.team1678.frc2022.subsystems.Limelight;
 import com.team1678.frc2022.subsystems.Shooter;
 import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
+import com.team1678.frc2022.subsystems.Trigger;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -74,6 +75,7 @@ public class Robot extends TimedRobot {
 	private final Intake mIntake = Intake.getInstance();
 	private final Indexer mIndexer = Indexer.getInstance();
 	private final Shooter mShooter = Shooter.getInstance();
+	private final Trigger mTrigger = Trigger.getInstance();
 	private final Hood mHood = Hood.getInstance();
 	private final ColorSensor mColorSensor = ColorSensor.getInstance();
 	private final Climber mClimber = Climber.getInstance();
@@ -105,6 +107,7 @@ public class Robot extends TimedRobot {
 					mIntake,
 					mIndexer,
 					mShooter,
+					mTrigger,
 					mHood,
 					mColorSensor,
 					mClimber,
