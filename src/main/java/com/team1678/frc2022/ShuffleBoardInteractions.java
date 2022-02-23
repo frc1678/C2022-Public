@@ -97,10 +97,8 @@ public class ShuffleBoardInteractions {
 
     /* SHOOTER */
     private final NetworkTableEntry mFlywheelRPM;
-    private final NetworkTableEntry mAcceleratorRPM;
     private final NetworkTableEntry mShooterOpenLoop;
     private final NetworkTableEntry mFlywheelDemand;
-    private final NetworkTableEntry mAcceleratorDemand;
 
     /* VISION */
     private final NetworkTableEntry mSeesTarget;
@@ -130,8 +128,6 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mTopBeamBreak;
     private final NetworkTableEntry mBottomBeamBreak;
 
-    /* Superstructure */
-    
     /* CLIMBER */
     private final NetworkTableEntry mClimberVelocityRight;
     private final NetworkTableEntry mClimberVelocityLeft;
@@ -419,16 +415,8 @@ public class ShuffleBoardInteractions {
                 .add("Shooter RPM", 0.0)
                 .withSize(2, 1)
                 .getEntry();
-        mAcceleratorRPM = SHOOTER_TAB
-                .add("Accelerator RPM", 0.0)
-                .withSize(2, 1)
-                .getEntry();
         mFlywheelDemand = SHOOTER_TAB
                 .add("Shooter Demand", 0.0)
-                .withSize(2, 1)
-                .getEntry();
-        mAcceleratorDemand = SHOOTER_TAB
-                .add("Accelerator Demand", 0.0)
                 .withSize(2, 1)
                 .getEntry();
         mShooterOpenLoop = SHOOTER_TAB
@@ -628,10 +616,8 @@ public class ShuffleBoardInteractions {
         
         /* SHOOTER */
         mFlywheelRPM.setDouble(truncate(mShooter.getFlywheelRPM()));
-        mAcceleratorRPM.setDouble(truncate(mShooter.getAcceleratorRPM()));
         mShooterOpenLoop.setBoolean(mShooter.getIsOpenLoop());
         mFlywheelDemand.setDouble(truncate(mShooter.getFlywheelDemand()));
-        mAcceleratorDemand.setDouble(truncate(mShooter.getAcceleratorDemand()));
         
         /* VISION */
         mSeesTarget.setBoolean(mLimelight.hasTarget());

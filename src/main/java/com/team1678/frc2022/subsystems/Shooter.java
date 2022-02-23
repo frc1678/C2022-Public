@@ -66,7 +66,7 @@ public class Shooter extends Subsystem {
         mSlave = TalonFXFactory.createDefaultTalon(Ports.FLYWHEEL_SLAVE_ID);
         mSlave.setInverted(true);
 
-        setOpenLoop(0.0, 0.0);
+        setOpenLoop(0.0);
 
         // reduce can util
 
@@ -118,8 +118,6 @@ public class Shooter extends Subsystem {
         } else {
             SmartDashboard.putNumber("Flywheel Input Demand",
                     mPeriodicIO.flywheel_demand / Constants.ShooterConstants.kFlywheelVelocityConversion);
-            SmartDashboard.putNumber("Accelerator Input Demand",
-                    mPeriodicIO.accelerator_demand / Constants.ShooterConstants.kFlywheelVelocityConversion);
             mMaster.set(ControlMode.Velocity,
                     mPeriodicIO.flywheel_demand / Constants.ShooterConstants.kFlywheelVelocityConversion);
         }
@@ -127,12 +125,11 @@ public class Shooter extends Subsystem {
         mSlave.set(ControlMode.Follower, Ports.FLYWHEEL_MASTER_ID);
     }
 
-    public void setOpenLoop(double flywheelDemand, double acceleratorDemand) {
+    public void setOpenLoop(double flywheelDemand) {
         if (mIsOpenLoop != true) {
             mIsOpenLoop = true;
         }
         mPeriodicIO.flywheel_demand = flywheelDemand <= 12.0 ? flywheelDemand : 12.0;
-        mPeriodicIO.accelerator_demand = acceleratorDemand <= 12.0 ? acceleratorDemand : 12.0;
     }
 
     public void setVelocity(double demand, double accleratorDemand) {
@@ -140,23 +137,14 @@ public class Shooter extends Subsystem {
             mIsOpenLoop = false;
         }
         mPeriodicIO.flywheel_demand = demand;
-        mPeriodicIO.accelerator_demand = accleratorDemand;
     }
 
     public synchronized double getFlywheelRPM() {
         return mPeriodicIO.flywheel_velocity * Constants.ShooterConstants.kFlywheelVelocityConversion;
     }
 
-    public synchronized double getAcceleratorRPM() {
-        return mPeriodicIO.accelerator_velocity * Constants.ShooterConstants.kAccleratorVelocityConversion;
-    }
-    
     public synchronized double getFlywheelDemand() {
         return mPeriodicIO.flywheel_demand;
-    }
-
-    public synchronized double getAcceleratorDemand() {
-        return mPeriodicIO.accelerator_demand;
     }
 
     public synchronized boolean getIsOpenLoop() {
@@ -168,10 +156,7 @@ public class Shooter extends Subsystem {
             boolean flywheelSpunUp = Util.epsilonEquals(mPeriodicIO.flywheel_demand,
                                       mPeriodicIO.flywheel_velocity * Constants.ShooterConstants.kFlywheelVelocityConversion,
                                       Constants.ShooterConstants.kFlywheelTolerance);
-            boolean acceleratorSpunUp = Util.epsilonEquals(mPeriodicIO.accelerator_demand,
-                                      mPeriodicIO.accelerator_velocity * Constants.ShooterConstants.kAccleratorVelocityConversion,
-                                      Constants.ShooterConstants.kFlywheelTolerance);
-            return flywheelSpunUp/* && acceleratorSpunUp*/;
+            return flywheelSpunUp;
         }
         return false;
     }
@@ -188,13 +173,8 @@ public class Shooter extends Subsystem {
         private double slave_voltage;
         private double slave_current;
 
-        private double accelerator_velocity;
-        private double accelerator_voltage;
-        private double accelerator_current;
-
         /* Outputs */
         private double flywheel_demand;
-        private double accelerator_demand;
     }
 
     public synchronized void startLogging() {
@@ -213,7 +193,7 @@ public class Shooter extends Subsystem {
     @Override
     public void stop() {
         /* Set motor to open loop to avoid hard slowdown */
-        setOpenLoop(0.0, 0.0);
+        setOpenLoop(0.0);
     }
 
     public boolean checkSystem() {
