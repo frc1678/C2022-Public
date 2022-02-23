@@ -2,14 +2,19 @@ package com.team1678.frc2022.subsystems;
 
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
+import com.team1678.frc2022.logger.LogStorage;
+import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
 import com.team254.lib.drivers.TalonFXFactory;
+
+import java.util.ArrayList;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
-import com.team254.lib.util.ReflectingCSVWriter;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Indexer extends Subsystem {
@@ -23,7 +28,9 @@ public class Indexer extends Subsystem {
     }
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
-    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
+
+    // logger
+    LogStorage<PeriodicIO> mStorage = null;
 
     private TalonFX mEjector;
     private TalonFX mTunnel;
@@ -132,7 +139,6 @@ public class Indexer extends Subsystem {
             @Override
             public void onStart(double timestamp) {
                 mState = State.IDLE;
-                startLogging();
             }
 
             @Override
@@ -146,7 +152,6 @@ public class Indexer extends Subsystem {
             @Override
             public void onStop(double timestamp) {
                 mState = State.IDLE;
-                stopLogging();
                 stop();
             }
         });
@@ -192,6 +197,9 @@ public class Indexer extends Subsystem {
     public synchronized void readPeriodicInputs() {
         mPeriodicIO.top_break = !mTopBeamBreak.get();
         mPeriodicIO.bottom_break = !mBottomBeamBreak.get();
+
+        // send log data
+        SendLog();
     }
 
     public State getState() {
@@ -291,22 +299,57 @@ public class Indexer extends Subsystem {
         public double trigger_demand;
     }
 
-    public synchronized void startLogging() {
-        if (mCSVWriter == null) {
-            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/INDEXER-LOGS.csv", PeriodicIO.class);
-        }
-    }
-
-    public synchronized void stopLogging() {
-        if (mCSVWriter != null) {
-            mCSVWriter.flush();
-            mCSVWriter = null;
-        }
-    }
     // only call for quick status testing
     public void outputTelemetry() {
         SmartDashboard.putBoolean("Top Had Seen Ball", mTopHadSeenBall);
         SmartDashboard.putBoolean("Bottom Had Seen Ball", mBottomHadSeenBall);
+    }
+
+    @Override
+    public void registerLogger(LoggingSystem LS) {
+        SetupLog();
+        LS.register(mStorage, "INDEXER_LOGS.csv");
+    }
+
+    public void SetupLog() {
+        mStorage = new LogStorage<PeriodicIO>();
+
+        ArrayList<String> headers = new ArrayList<String>();
+        headers.add("timestamp");
+        headers.add("trigger_current");
+        headers.add("trigger_voltage");
+        headers.add("ejector_current");
+        headers.add("ejector_voltage");
+        headers.add("tunnel_voltage");
+        headers.add("tunnel_demand");
+        headers.add("ejector_demand");
+        headers.add("ball_count");
+        headers.add("tunnel_current");
+        headers.add("trigger_demand");
+        headers.add("bottom_break");
+        headers.add("top_break");
+
+        mStorage.setHeadersFromClass(PeriodicIO.class);
+    }
+
+    public void SendLog() {
+        ArrayList<Number> items = new ArrayList<Number>();
+        items.add(Timer.getFPGATimestamp());
+        items.add(mPeriodicIO.trigger_current);
+        items.add(mPeriodicIO.trigger_voltage);
+        items.add(mPeriodicIO.ejector_current);
+        items.add(mPeriodicIO.ejector_voltage);
+        items.add(mPeriodicIO.tunnel_voltage);
+        items.add(mPeriodicIO.tunnel_demand);
+        items.add(mPeriodicIO.ejector_demand);
+        items.add(mPeriodicIO.ball_count);
+        items.add(mPeriodicIO.tunnel_current);
+        items.add(mPeriodicIO.trigger_demand);
+        items.add(mPeriodicIO.bottom_break ? 1.0 : 0.0);
+        items.add(mPeriodicIO.top_break ? 1.0 : 0.0);
+
+        // send data to logging storage
+        mStorage.addData(items);
     }
     
 }
