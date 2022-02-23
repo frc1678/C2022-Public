@@ -15,7 +15,6 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.loops.Loop;
 import com.team254.lib.drivers.TalonFXFactory;
-import com.team254.lib.util.ReflectingCSVWriter;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -31,7 +30,6 @@ public class Intake extends Subsystem {
     }
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
-    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
 
     // logger
     LogStorage<PeriodicIO> mStorage = null;
@@ -80,17 +78,19 @@ public class Intake extends Subsystem {
             @Override
             public void onStart(double timestamp) {
                 mState = State.IDLE;
-                startLogging();
             }
 
             @Override
             public void onLoop(double timestamp) {
                 runStateMachine();
+                
+                // send log data
+                SendLog();
             }
 
             @Override
             public void onStop(double timestamp) {
-                stopLogging();
+                // empty
             }
        });
    }
@@ -107,17 +107,10 @@ public class Intake extends Subsystem {
             mPeriodicIO.hold_intake = true;
         }
 
-        if (mCSVWriter != null) {
-            mCSVWriter.add(mPeriodicIO);
-        }
-
         SmartDashboard.putBoolean("Hold Intake", mPeriodicIO.hold_intake);
         SmartDashboard.putNumber("Deploy Demand", mPeriodicIO.deploy_demand);
         SmartDashboard.putNumber("Deploy Voltage", mPeriodicIO.deploy_voltage);
         SmartDashboard.putNumber("Deploy Current", mPeriodicIO.deploy_current);
-
-        // send log data
-        SendLog();
     }
 
     @Override
@@ -279,19 +272,6 @@ public class Intake extends Subsystem {
     public boolean checkSystem() {
         return false;
     }
-    
-   public synchronized void startLogging() {
-        if (mCSVWriter == null) {
-            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/INTAKE-LOGS.csv", PeriodicIO.class);
-        }
-    }
-
-    public synchronized void stopLogging() {
-        if (mCSVWriter != null) {
-            mCSVWriter.flush();
-            mCSVWriter = null;
-        }
-    }
 
     // logger
     @Override
@@ -316,7 +296,7 @@ public class Intake extends Subsystem {
         headers.add("deploy_demand");
         headers.add("hold_intake");
 
-        mStorage.setHeadersFromClass(PeriodicIO.class);
+        mStorage.setHeaders(headers);
     }
 
     public void SendLog() {

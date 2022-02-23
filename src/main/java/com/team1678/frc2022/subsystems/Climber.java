@@ -414,7 +414,7 @@ public class Climber extends Subsystem {
         headers.add("climber_voltage_right");
         headers.add("climber_motor_velocity_left");
 
-        mStorage.setHeadersFromClass(PeriodicIO.class);
+        mStorage.setHeaders(headers);
     }
 
     public void SendLog() {

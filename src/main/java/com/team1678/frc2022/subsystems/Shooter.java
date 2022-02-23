@@ -93,7 +93,8 @@ public class Shooter extends Subsystem {
 
             @Override
             public void onLoop(double timestamp) {
-                // empty
+                // send log data
+                SendLog();
             }
 
             @Override
@@ -113,9 +114,6 @@ public class Shooter extends Subsystem {
         mPeriodicIO.slave_current = mSlave.getSupplyCurrent();
         mPeriodicIO.slave_velocity = mSlave.getSelectedSensorVelocity();
         mPeriodicIO.slave_voltage = mSlave.getMotorOutputVoltage();
-
-        // send log data
-        SendLog();
     }
 
     @Override
@@ -215,7 +213,7 @@ public class Shooter extends Subsystem {
         headers.add("flywheel_voltage");
         headers.add("slave_velocity");
 
-        mStorage.setHeadersFromClass(PeriodicIO.class);
+        mStorage.setHeaders(headers);
     }
 
     public void SendLog() {

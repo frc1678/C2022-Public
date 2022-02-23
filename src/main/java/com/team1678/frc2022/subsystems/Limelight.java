@@ -83,6 +83,9 @@ public class Limelight extends Subsystem {
 
                     // outputTelemetry();
                 }
+                
+                // send log data
+                SendLog();
 
                 setLed(LedMode.ON);
 
@@ -168,9 +171,6 @@ public class Limelight extends Subsystem {
         mPeriodicIO.has_comms = mLatencyCounter < 10;
 
         mSeesTarget = mNetworkTable.getEntry("tv").getDouble(0) == 1.0;
-
-        // send log data
-        SendLog();
     }
 
     @Override
@@ -396,7 +396,7 @@ public class Limelight extends Subsystem {
         headers.add("xOffset");
         headers.add("has_comms");
         
-        mStorage.setHeadersFromClass(PeriodicIO.class);
+        mStorage.setHeaders(headers);
     }
 
     public void SendLog() {
