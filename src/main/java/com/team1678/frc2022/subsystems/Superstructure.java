@@ -6,14 +6,16 @@ import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.CustomXboxController;
 import com.team1678.frc2022.controlboard.CustomXboxController.Button;
+import com.team1678.frc2022.logger.LogStorage;
+import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.regressions.ShooterRegression;
 import com.team254.lib.util.Util;
 import com.team254.lib.util.InterpolatingDouble;
-import com.team254.lib.util.ReflectingCSVWriter;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 public class Superstructure extends Subsystem {
@@ -27,6 +29,9 @@ public class Superstructure extends Subsystem {
 
         return mInstance;
     };
+
+    // logger
+    LogStorage<PeriodicIO> mStorage = null;
 
     /*** REQUIRED INSTANCES ***/
     private final ControlBoard mControlBoard = ControlBoard.getInstance();
@@ -44,7 +49,6 @@ public class Superstructure extends Subsystem {
 
     // PeriodicIO instance and paired csv writer
     public PeriodicIO mPeriodicIO = new PeriodicIO();
-    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
     
     /*** CONTAINER FOR SUPERSTRUCTURE ACTIONS AND GOALS ***/
     public static class PeriodicIO {
@@ -108,7 +112,6 @@ public class Superstructure extends Subsystem {
         enabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
-                startLogging();
             }
 
             @Override
@@ -127,7 +130,6 @@ public class Superstructure extends Subsystem {
             @Override
             public void onStop(double timestamp) {
                 stop();
-                stopLogging();
             }
         });
     }
@@ -751,25 +753,57 @@ public class Superstructure extends Subsystem {
     @Override
     public void readPeriodicInputs() {
         mPeriodicIO.timestamp = Timer.getFPGATimestamp();
-        // write inputs and ouputs from PeriodicIO to csv 
-        if (mCSVWriter != null) {
-            mCSVWriter.add(mPeriodicIO);
-        }
+        
+        // send log data
+        SendLog();
     }
 
-    // instantiate csv writer
-    public synchronized void startLogging() {
-        if (mCSVWriter == null) {
-            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/SUPERSTRUCTURE-LOGS.csv", PeriodicIO.class);
-        }
+    // logger
+    @Override
+    public void registerLogger(LoggingSystem LS) {
+        SetupLog();
+        LS.register(mStorage, "SUPERSTRUCTURE_LOGS.csv");
     }
 
-    // send written csv data to file and end log
-    public synchronized void stopLogging() {
-        if (mCSVWriter != null) {
-            mCSVWriter.flush();
-            mCSVWriter = null;
-        }
+    public void SetupLog() {
+        mStorage = new LogStorage<PeriodicIO>();
+
+        ArrayList<String> headers = new ArrayList<String>();
+        headers.add("timestamp");
+        headers.add("real_hood = 0.0");
+        headers.add("real_shooter = 0.0");
+        headers.add("timestamp");
+        headers.add("dt");
+        headers.add("SPIT = false");
+        headers.add("REJECT = false");
+        headers.add("EJECT = false");
+        headers.add("REVERSE = false");
+        headers.add("PREP = false");
+        headers.add("SHOOT = false");
+        headers.add("INTAKE = false");
+        headers.add("FENDER = false");
+
+        mStorage.setHeadersFromClass(PeriodicIO.class);
+    }
+
+    public void SendLog() {
+        ArrayList<Number> items = new ArrayList<Number>();
+        items.add(Timer.getFPGATimestamp());
+        items.add(mPeriodicIO.real_hood = 0.0);
+        items.add(mPeriodicIO.real_shooter = 0.0);
+        items.add(mPeriodicIO.timestamp);
+        items.add(mPeriodicIO.dt);
+        items.add(mPeriodicIO.SPIT ? 1.0 : 0.0);
+        items.add(mPeriodicIO.REJECT ? 1.0 : 0.0);
+        items.add(mPeriodicIO.EJECT ? 1.0 : 0.0);
+        items.add(mPeriodicIO.REVERSE ? 1.0 : 0.0);
+        items.add(mPeriodicIO.PREP ? 1.0 : 0.0);
+        items.add(mPeriodicIO.SHOOT ? 1.0 : 0.0);
+        items.add(mPeriodicIO.INTAKE ? 1.0 : 0.0);
+        items.add(mPeriodicIO.FENDER ? 1.0 : 0.0);
+
+        // send data to logging storage
+        mStorage.addData(items);
     }
     
 }
