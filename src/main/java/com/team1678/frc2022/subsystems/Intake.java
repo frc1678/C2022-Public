@@ -115,6 +115,8 @@ public class Intake extends Subsystem {
         SmartDashboard.putNumber("Deploy Demand", mPeriodicIO.deploy_demand);
         SmartDashboard.putNumber("Deploy Voltage", mPeriodicIO.deploy_voltage);
         SmartDashboard.putNumber("Deploy Current", mPeriodicIO.deploy_current);
+
+        // send log data
         SendLog();
     }
 
@@ -292,7 +294,6 @@ public class Intake extends Subsystem {
     }
 
     // logger
-    
     @Override
     public void registerLogger(LoggingSystem LS) {
         SetupLog();
@@ -301,22 +302,36 @@ public class Intake extends Subsystem {
     
     public void SetupLog() {
         mStorage = new LogStorage<PeriodicIO>();
+
+        ArrayList<String> headers = new ArrayList<String>();
+        headers.add("timestamp");
+        headers.add("deploy_current");
+        headers.add("singulator_current");
+        headers.add("singulator_demand");
+        headers.add("deploy_voltage");
+        headers.add("intake_current");
+        headers.add("intake_voltage");
+        headers.add("singulator_voltage");
+        headers.add("intake_demand");
+        headers.add("deploy_demand");
+        headers.add("hold_intake");
+
         mStorage.setHeadersFromClass(PeriodicIO.class);
     }
 
     public void SendLog() {
         ArrayList<Number> items = new ArrayList<Number>();
         items.add(Timer.getFPGATimestamp());
-
-        // add inputs
-        items.add(mPeriodicIO.intake_current);
+        items.add(mPeriodicIO.deploy_current);
         items.add(mPeriodicIO.singulator_current);
+        items.add(mPeriodicIO.singulator_demand);
+        items.add(mPeriodicIO.deploy_voltage);
+        items.add(mPeriodicIO.intake_current);
         items.add(mPeriodicIO.intake_voltage);
         items.add(mPeriodicIO.singulator_voltage);
-        
-        // add outputs
         items.add(mPeriodicIO.intake_demand);
-        items.add(mPeriodicIO.singulator_demand);
+        items.add(mPeriodicIO.deploy_demand);
+        items.add(mPeriodicIO.hold_intake ? 1.0 : 0.0);
 
         // send data to logging storage
         mStorage.addData(items);

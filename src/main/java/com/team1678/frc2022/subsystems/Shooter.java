@@ -1,5 +1,7 @@
 package com.team1678.frc2022.subsystems;
 
+import java.util.ArrayList;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
@@ -8,10 +10,11 @@ import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
+import com.team1678.frc2022.logger.LogStorage;
+import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
 import com.team254.lib.drivers.TalonFXFactory;
-import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.util.Util;
 
 import edu.wpi.first.wpilibj.Timer;
@@ -29,7 +32,9 @@ public class Shooter extends Subsystem {
     }
 
     private PeriodicIO mPeriodicIO = new PeriodicIO();
-    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
+    
+    // logger
+    LogStorage<PeriodicIO> mStorage = null;
 
     private boolean mIsOpenLoop = false;
 
@@ -83,17 +88,16 @@ public class Shooter extends Subsystem {
         enabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
-                startLogging();
+                // empty
             }
 
             @Override
             public void onLoop(double timestamp) {
-                
+                // empty
             }
 
             @Override
             public void onStop(double timestamp) {
-                stopLogging();
                 stop();
             }
         });
@@ -109,6 +113,9 @@ public class Shooter extends Subsystem {
         mPeriodicIO.slave_current = mSlave.getSupplyCurrent();
         mPeriodicIO.slave_velocity = mSlave.getSelectedSensorVelocity();
         mPeriodicIO.slave_voltage = mSlave.getMotorOutputVoltage();
+
+        // send log data
+        SendLog();
     }
 
     @Override
@@ -177,19 +184,6 @@ public class Shooter extends Subsystem {
         private double flywheel_demand;
     }
 
-    public synchronized void startLogging() {
-        if (mCSVWriter == null) {
-            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/SHOOTER-LOGS.csv", PeriodicIO.class);
-        }
-    }
-
-    public synchronized void stopLogging() {
-        if (mCSVWriter != null) {
-            mCSVWriter.flush();
-            mCSVWriter = null;
-        }
-    }
-
     @Override
     public void stop() {
         /* Set motor to open loop to avoid hard slowdown */
@@ -198,5 +192,45 @@ public class Shooter extends Subsystem {
 
     public boolean checkSystem() {
         return true;
+    }
+
+    // logger
+    @Override
+    public void registerLogger(LoggingSystem LS) {
+        SetupLog();
+        LS.register(mStorage, "SHOOTER_LOGS.csv");
+    }
+
+    public void SetupLog() {
+        mStorage = new LogStorage<PeriodicIO>();
+
+        ArrayList<String> headers = new ArrayList<String>();
+        headers.add("timestamp");
+        headers.add("flywheel_velocity");
+        headers.add("timestamp");
+        headers.add("flywheel_demand");
+        headers.add("slave_voltage");
+        headers.add("flywheel_current");
+        headers.add("slave_current");
+        headers.add("flywheel_voltage");
+        headers.add("slave_velocity");
+
+        mStorage.setHeadersFromClass(PeriodicIO.class);
+    }
+
+    public void SendLog() {
+        ArrayList<Number> items = new ArrayList<Number>();
+        items.add(Timer.getFPGATimestamp());
+        items.add(mPeriodicIO.flywheel_velocity);
+        items.add(mPeriodicIO.timestamp);
+        items.add(mPeriodicIO.flywheel_demand);
+        items.add(mPeriodicIO.slave_voltage);
+        items.add(mPeriodicIO.flywheel_current);
+        items.add(mPeriodicIO.slave_current);
+        items.add(mPeriodicIO.flywheel_voltage);
+        items.add(mPeriodicIO.slave_velocity);
+
+        // send data to logging storage
+        mStorage.addData(items);
     }
 }
