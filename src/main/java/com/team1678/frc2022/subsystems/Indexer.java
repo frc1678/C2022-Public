@@ -43,7 +43,7 @@ public class Indexer extends Subsystem {
     private boolean mTopHadSeenBall = false;
 
     public boolean stopTunnel() {
-        return ballAtTrigger() && ballInTunnel() /*|| mPeriodicIO.ball_count == 2*/;
+        return ballAtTrigger() && ballInTunnel();
     }
 
     public boolean ballAtTrigger() {
@@ -145,7 +145,6 @@ public class Indexer extends Subsystem {
             public void onLoop(double timestamp) {
                 synchronized (Indexer.this){
                     runStateMachine();
-                    updateBallCounter();
                 }
             }
 
@@ -157,35 +156,6 @@ public class Indexer extends Subsystem {
         });
     }
 
-    private void updateBallCounter() {
-
-        // bottom beam break counts up when we index 
-        if (mPeriodicIO.bottom_break) {
-            if (!mBottomHadSeenBall) {
-                mPeriodicIO.ball_count++;
-                mBottomHadSeenBall = true;
-            }
-        } else {
-            if (mBottomHadSeenBall) {
-                mBottomHadSeenBall = false;
-            }
-        }
-    
-        // top beam break counts down when we shoot
-        if (mPeriodicIO.top_break) {
-            if (!mTopHadSeenBall) {
-                mTopHadSeenBall = true;
-            }
-        } else {
-            if (mTopHadSeenBall) {
-                if (mState == State.FEEDING) {
-                    mPeriodicIO.ball_count--;
-                }
-                mTopHadSeenBall = false;
-            }
-        }
-    }
-   
     @Override
     public synchronized void writePeriodicOutputs() {
         mEjector.set(ControlMode.PercentOutput, mPeriodicIO.ejector_demand / 12.0);
@@ -267,10 +237,6 @@ public class Indexer extends Subsystem {
         return mPeriodicIO.trigger_voltage;
     }
 
-    public double getBallCount() {
-        return mPeriodicIO.ball_count;
-    }
-
     public boolean getTopBeamBreak() {
         return mPeriodicIO.top_break;
     }
@@ -283,7 +249,6 @@ public class Indexer extends Subsystem {
         // INPUTS
         public boolean top_break;
         public boolean bottom_break;
-        public double ball_count;
         
         public double ejector_current;
         public double tunnel_current;
@@ -323,7 +288,6 @@ public class Indexer extends Subsystem {
         headers.add("tunnel_voltage");
         headers.add("tunnel_demand");
         headers.add("ejector_demand");
-        headers.add("ball_count");
         headers.add("tunnel_current");
         headers.add("trigger_demand");
         headers.add("bottom_break");
@@ -342,7 +306,6 @@ public class Indexer extends Subsystem {
         items.add(mPeriodicIO.tunnel_voltage);
         items.add(mPeriodicIO.tunnel_demand);
         items.add(mPeriodicIO.ejector_demand);
-        items.add(mPeriodicIO.ball_count);
         items.add(mPeriodicIO.tunnel_current);
         items.add(mPeriodicIO.trigger_demand);
         items.add(mPeriodicIO.bottom_break ? 1.0 : 0.0);
