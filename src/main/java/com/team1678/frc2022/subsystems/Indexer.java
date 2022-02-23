@@ -288,7 +288,6 @@ public class Indexer extends Subsystem {
         headers.add("tunnel_voltage");
         headers.add("tunnel_demand");
         headers.add("ejector_demand");
-        headers.add("ball_count");
         headers.add("tunnel_current");
         headers.add("trigger_demand");
         headers.add("bottom_break");
@@ -307,7 +306,6 @@ public class Indexer extends Subsystem {
         items.add(mPeriodicIO.tunnel_voltage);
         items.add(mPeriodicIO.tunnel_demand);
         items.add(mPeriodicIO.ejector_demand);
-        items.add(mPeriodicIO.ball_count);
         items.add(mPeriodicIO.tunnel_current);
         items.add(mPeriodicIO.trigger_demand);
         items.add(mPeriodicIO.bottom_break ? 1.0 : 0.0);

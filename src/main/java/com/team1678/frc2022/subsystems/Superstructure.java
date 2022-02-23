@@ -469,6 +469,8 @@ public class Superstructure extends Subsystem {
         // will always have the top ball if the top beam break is triggering
         if (mIndexer.getTopBeamBreak()) {
             mHasTopBall = true;
+        } else {
+            mHasTopBall = false;
         }
 
         // we have our bottom ball if:
@@ -477,6 +479,8 @@ public class Superstructure extends Subsystem {
         // - we already have our top ball
         if (mIndexer.getBottomBeamBreak() && !mPeriodicIO.EJECT) {
             mHasBottomBall = true;
+        } else {
+            mHasBottomBall = false;
         }
 
         // update ball counter based off of whether we have our first and second cargo
