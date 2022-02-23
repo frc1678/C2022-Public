@@ -270,18 +270,20 @@ public class Constants {
         public static final double kShooterD = 0.0;
         public static final double kShooterF = 0.0545;
         public static final double kClosedLoopRamp = 0.1;
-
-        public static final double kAcceleratorP = 0.05;
-        public static final double kAcceleratorI = 0.0;
-        public static final double kAcceleratorD = 0.0;
-        public static final double kAcceleratorF = 0.045;
     }
 
     public static final class TriggerConstants {
-        public static final double kTriggerPassiveVoltage = -0.5;
-        public static final double kTriggerFeedingVoltage = 5.0;
-        public static final double kTriggerSlowFeedVoltage = 5.0;
-        public static final double kTriggerReverseVoltage = -5.0;
+        public static final double kTriggerPassiveVelocity = -0.5;
+        public static final double kTriggerFeedingVelocity = 5.0;
+        public static final double kTriggerSlowFeedVelocity = 3.0;
+        public static final double kTriggerReverseVelocity = -5.0;
+
+        public static final double kTriggerVelocityConversion = 600.0 / 2048.0 * (1.0 / 3.5); // 3.5 to 1
+
+        public static final double kTriggerP = 0.05;
+        public static final double kTriggerI = 0.0;
+        public static final double kTriggerD = 0.0;
+        public static final double kTriggerF = 0.045;
     }
 
     public static final class HoodConstants {

@@ -3,6 +3,7 @@ package com.team1678.frc2022.subsystems;
 import java.util.ArrayList;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
@@ -35,7 +36,17 @@ public class Trigger extends Subsystem {
 
     private Trigger() {
         mTrigger = TalonFXFactory.createDefaultTalon(Ports.TRIGGER_ID);
-        mTrigger.setInverted(true);
+        mTrigger.setInverted(false);
+
+        mTrigger.config_kP(0, Constants.TriggerConstants.kTriggerP, Constants.kLongCANTimeoutMs);
+        mTrigger.config_kI(0, Constants.TriggerConstants.kTriggerI, Constants.kLongCANTimeoutMs);
+        mTrigger.config_kD(0, Constants.TriggerConstants.kTriggerD, Constants.kLongCANTimeoutMs);
+        mTrigger.config_kF(0, Constants.TriggerConstants.kTriggerF, Constants.kLongCANTimeoutMs);
+        mTrigger.config_IntegralZone(0, (int) (200.0 / Constants.ShooterConstants.kFlywheelVelocityConversion));
+        mTrigger.selectProfileSlot(0, 0);
+        mTrigger.configClosedloopRamp(0.1);
+
+        mTrigger.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
     }
 
     private static Trigger mInstance;
@@ -94,16 +105,16 @@ public class Trigger extends Subsystem {
                 mPeriodicIO.demand = 0.0;
                 break;
             case PASSIVE_REVERSING:
-                mPeriodicIO.demand = Constants.TriggerConstants.kTriggerPassiveVoltage;
+                mPeriodicIO.demand = Constants.TriggerConstants.kTriggerPassiveVelocity;
                 break;
             case FEEDING:
-                mPeriodicIO.demand = Constants.TriggerConstants.kTriggerFeedingVoltage;
+                mPeriodicIO.demand = Constants.TriggerConstants.kTriggerFeedingVelocity;
                 break;
             case SLOW_FEEDING:
-                mPeriodicIO.demand = Constants.TriggerConstants.kTriggerSlowFeedVoltage;
+                mPeriodicIO.demand = Constants.TriggerConstants.kTriggerSlowFeedVelocity;
                 break;
             case REVERSING:
-                mPeriodicIO.demand = Constants.TriggerConstants.kTriggerReverseVoltage;
+                mPeriodicIO.demand = Constants.TriggerConstants.kTriggerReverseVelocity;
                 break;
         }
     }
@@ -112,6 +123,7 @@ public class Trigger extends Subsystem {
         // INPUTS
         public double current;
         public double voltage;
+        public double velocity;
         
         // OUTPUT
         public double demand;
@@ -121,12 +133,13 @@ public class Trigger extends Subsystem {
     public void readPeriodicInputs() {
         mPeriodicIO.current = mTrigger.getStatorCurrent();
         mPeriodicIO.voltage = mTrigger.getMotorOutputVoltage();
+        mPeriodicIO.velocity = mTrigger.getSelectedSensorVelocity();
         SendLog();
     }
 
     @Override
     public void writePeriodicOutputs() {
-        mTrigger.set(ControlMode.PercentOutput, mPeriodicIO.demand / 12.0);
+        mTrigger.set(ControlMode.Velocity, mPeriodicIO.demand / Constants.TriggerConstants.kTriggerVelocityConversion);
     }
 
     public double getTriggerCurrent() {
@@ -139,6 +152,15 @@ public class Trigger extends Subsystem {
 
     public double getTriggerDemand() {
         return mPeriodicIO.demand;
+    }
+
+    public double getTriggerVelocity() {
+        return mPeriodicIO.velocity;
+    }
+
+
+    public String getTriggerState() {
+        return mState.toString();
     }
 
     @Override
