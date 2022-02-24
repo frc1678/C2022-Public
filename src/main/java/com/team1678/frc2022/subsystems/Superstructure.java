@@ -417,11 +417,11 @@ public class Superstructure extends Subsystem {
             }
             // control options to filter cargo and eject
             // don't eject if we want it disabled or if we lock the intake because we have two correct cargo
-            if (mDisableEjecting || mLockIntake) {
-                mPeriodicIO.EJECT = false;
-            } else if (mControlBoard.operator.getButton(Button.LB)) {
+            if (mControlBoard.operator.getButton(Button.LB)) {
                 mPeriodicIO.EJECT = true;
                 mForceEject = true;
+            } else if (mDisableEjecting || mLockIntake) {
+                mPeriodicIO.EJECT = false;
             } else {
                 mForceEject = false;
                 // when not forcing an eject, passively check whether want to passively eject using color sensor logic
