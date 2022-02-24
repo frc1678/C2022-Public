@@ -2,14 +2,19 @@ package com.team1678.frc2022.subsystems;
 
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
+import com.team1678.frc2022.logger.LogStorage;
+import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
 import com.team254.lib.drivers.TalonFXFactory;
+
+import java.util.ArrayList;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
-import com.team254.lib.util.ReflectingCSVWriter;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Indexer extends Subsystem {
@@ -23,7 +28,9 @@ public class Indexer extends Subsystem {
     }
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
-    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
+
+    // logger
+    LogStorage<PeriodicIO> mStorage = null;
 
     private TalonFX mEjector;
     private TalonFX mTunnel;
@@ -36,7 +43,7 @@ public class Indexer extends Subsystem {
     private boolean mTopHadSeenBall = false;
 
     public boolean stopTunnel() {
-        return ballAtTrigger() && ballInTunnel() /*|| mPeriodicIO.ball_count == 2*/;
+        return ballAtTrigger() && ballInTunnel();
     }
 
     public boolean ballAtTrigger() {
@@ -132,55 +139,26 @@ public class Indexer extends Subsystem {
             @Override
             public void onStart(double timestamp) {
                 mState = State.IDLE;
-                startLogging();
             }
 
             @Override
             public void onLoop(double timestamp) {
                 synchronized (Indexer.this){
                     runStateMachine();
-                    updateBallCounter();
+
+                    // send log data
+                    SendLog();
                 }
             }
 
             @Override
             public void onStop(double timestamp) {
                 mState = State.IDLE;
-                stopLogging();
                 stop();
             }
         });
     }
 
-    private void updateBallCounter() {
-
-        // bottom beam break counts up when we index 
-        if (mPeriodicIO.bottom_break) {
-            if (!mBottomHadSeenBall) {
-                mPeriodicIO.ball_count++;
-                mBottomHadSeenBall = true;
-            }
-        } else {
-            if (mBottomHadSeenBall) {
-                mBottomHadSeenBall = false;
-            }
-        }
-    
-        // top beam break counts down when we shoot
-        if (mPeriodicIO.top_break) {
-            if (!mTopHadSeenBall) {
-                mTopHadSeenBall = true;
-            }
-        } else {
-            if (mTopHadSeenBall) {
-                if (mState == State.FEEDING) {
-                    mPeriodicIO.ball_count--;
-                }
-                mTopHadSeenBall = false;
-            }
-        }
-    }
-   
     @Override
     public synchronized void writePeriodicOutputs() {
         mEjector.set(ControlMode.PercentOutput, mPeriodicIO.ejector_demand / 12.0);
@@ -259,10 +237,6 @@ public class Indexer extends Subsystem {
         return mPeriodicIO.trigger_voltage;
     }
 
-    public double getBallCount() {
-        return mPeriodicIO.ball_count;
-    }
-
     public boolean getTopBeamBreak() {
         return mPeriodicIO.top_break;
     }
@@ -275,7 +249,6 @@ public class Indexer extends Subsystem {
         // INPUTS
         public boolean top_break;
         public boolean bottom_break;
-        public double ball_count;
         
         public double ejector_current;
         public double tunnel_current;
@@ -291,22 +264,55 @@ public class Indexer extends Subsystem {
         public double trigger_demand;
     }
 
-    public synchronized void startLogging() {
-        if (mCSVWriter == null) {
-            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/INDEXER-LOGS.csv", PeriodicIO.class);
-        }
-    }
-
-    public synchronized void stopLogging() {
-        if (mCSVWriter != null) {
-            mCSVWriter.flush();
-            mCSVWriter = null;
-        }
-    }
     // only call for quick status testing
     public void outputTelemetry() {
         SmartDashboard.putBoolean("Top Had Seen Ball", mTopHadSeenBall);
         SmartDashboard.putBoolean("Bottom Had Seen Ball", mBottomHadSeenBall);
+    }
+
+    @Override
+    public void registerLogger(LoggingSystem LS) {
+        SetupLog();
+        LS.register(mStorage, "INDEXER_LOGS.csv");
+    }
+
+    public void SetupLog() {
+        mStorage = new LogStorage<PeriodicIO>();
+
+        ArrayList<String> headers = new ArrayList<String>();
+        headers.add("timestamp");
+        headers.add("bottom_break");
+        headers.add("top_break");
+        headers.add("trigger_current");
+        headers.add("trigger_voltage");
+        headers.add("ejector_current");
+        headers.add("ejector_voltage");
+        headers.add("tunnel_voltage");
+        headers.add("tunnel_demand");
+        headers.add("ejector_demand");
+        headers.add("tunnel_current");
+        headers.add("trigger_demand");
+        
+        mStorage.setHeaders(headers);
+    }
+
+    public void SendLog() {
+        ArrayList<Number> items = new ArrayList<Number>();
+        items.add(Timer.getFPGATimestamp());
+        items.add(mPeriodicIO.bottom_break ? 1.0 : 0.0);
+        items.add(mPeriodicIO.top_break ? 1.0 : 0.0);
+        items.add(mPeriodicIO.trigger_current);
+        items.add(mPeriodicIO.trigger_voltage);
+        items.add(mPeriodicIO.ejector_current);
+        items.add(mPeriodicIO.ejector_voltage);
+        items.add(mPeriodicIO.tunnel_voltage);
+        items.add(mPeriodicIO.tunnel_demand);
+        items.add(mPeriodicIO.ejector_demand);
+        items.add(mPeriodicIO.tunnel_current);
+        items.add(mPeriodicIO.trigger_demand);
+
+        // send data to logging storage
+        mStorage.addData(items);
     }
     
 }

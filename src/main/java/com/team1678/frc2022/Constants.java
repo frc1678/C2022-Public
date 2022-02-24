@@ -6,11 +6,9 @@ import com.team1678.frc2022.subsystems.Limelight.LimelightConstants;
 import com.team1678.frc2022.subsystems.ServoMotorSubsystem.ServoMotorSubsystemConstants;
 import com.team254.lib.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.util.Color;
 
 public class Constants {
 
@@ -82,7 +80,7 @@ public class Constants {
 
         /* Swerve Profiling Values */
         public static final double maxSpeed = 4.5; // meters per second
-        public static final double maxAngularVelocity = 11.5;
+        public static final double maxAngularVelocity = 10.0;
 
         /* Neutral Modes */
         public static final NeutralMode angleNeutralMode = NeutralMode.Coast;
@@ -245,14 +243,16 @@ public class Constants {
     public static final class IntakeConstants {
         public static final double kIntakingVoltage = 10;
         public static final double kSpittingVoltage = -8;
+        public static final double kRejectingVoltage = -5;
         public static final double kSingulatorVoltage = 5.0;
         public static final double kDeployVoltage = 3.0;
         public static final double kInHoldingVoltage = 0.75;
         public static final double kOutHoldingVoltage = 1.0;
 
-        public static final double kDeployCurrentLimit = 50; // amps
+        public static final double kDeployCurrentLimit = 60; // amps
 
-        public static final double kReverseTime = 1.0;
+        public static final double kIntakeRejectTime = 1.0;
+        public static final double kSingulatorReverseDelay = 0.5;
     }
 
     public static final class ShooterConstants {
@@ -361,23 +361,26 @@ public class Constants {
         public static final int kLeftMinHeight = 0; // ticks
         public static final int kLeftMaxHeight = 250584; // ticks
         public static final int kLeftTravelDistance = kLeftMaxHeight - kLeftMinHeight + 500; // ticks
-        public static final int kLeftPartialTravelDistance = 200467;
+        public static final int kLeftPartialTravelDistance = 187938; // kLeftTravelDistance * 0.80
         
         public static final int kRightMinHeight = 0; // ticks
         public static final int kRightMaxHeight = 248631; // ticks
         public static final int kRightTravelDistance = kRightMaxHeight - kRightMinHeight + 500; // ticks
-        public static final int kRightPartialTravelDistance = 198904; // kRightTravelDistance * 0.80
+        public static final int kRightPartialTravelDistance = 186473; // kRightTravelDistance * 0.80
 
         public static final int kSafetyMinimum = -500; // minimum outside 0 ticks
 
-        public static final double kTravelDistanceEpsilon = 100;
+        public static final double kTravelDistanceEpsilon = 2000;
 
-        public static final double kBarContactAngle = 36.5; //TODO: check values // degrees
-        public static final double kBarContactAngleEpsilon = 2.0; // degrees
+        public static final double kHighBarExtendAngle = -35.0;
+        public static final double kHighBarContactAngle = -28.0;
+        public static final double kTraversalBarExtendAngle = -18.0;
+        public static final double kTraversalBarContactAngle = -34.0;
+        public static final double kBarContactAngleEpsilon = 2.0;
     }
 
     public static final class ColorSensorConstants {
-        public static final double kColorSensorThreshold = 500;
+        public static final double kColorSensorThreshold = 160;
 
         public static final double kTimeWithBall = 1.2;
     }

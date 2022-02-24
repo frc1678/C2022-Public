@@ -4,10 +4,8 @@
 
 package com.team1678.frc2022;
 
-import java.security.Principal;
 import java.util.Optional;
 
-import com.ctre.phoenix.motorcontrol.can.MotControllerJNI;
 import com.team1678.frc2022.auto.AutoModeExecutor;
 import com.team1678.frc2022.auto.AutoModeSelector;
 import com.team1678.frc2022.auto.modes.AutoModeBase;
@@ -31,10 +29,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Color;
 
-import com.team254.lib.util.Util;
 import com.team254.lib.wpilib.TimedRobot;
 
 /**
@@ -138,6 +133,7 @@ public class Robot extends TimedRobot {
 
 		try {
 
+			mDisabledLooper.stop();
 			mEnabledLooper.start();
 			mLoggingLooper.start();
 

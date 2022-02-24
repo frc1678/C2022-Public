@@ -1,5 +1,7 @@
 package com.team1678.frc2022.subsystems;
 
+import java.util.ArrayList;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
@@ -8,10 +10,11 @@ import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
+import com.team1678.frc2022.logger.LogStorage;
+import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
 import com.team254.lib.drivers.TalonFXFactory;
-import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.util.Util;
 
 import edu.wpi.first.wpilibj.Timer;
@@ -29,7 +32,9 @@ public class Shooter extends Subsystem {
     }
 
     private PeriodicIO mPeriodicIO = new PeriodicIO();
-    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
+    
+    // logger
+    LogStorage<PeriodicIO> mStorage = null;
 
     private boolean mIsOpenLoop = false;
 
@@ -66,7 +71,7 @@ public class Shooter extends Subsystem {
         mSlave = TalonFXFactory.createDefaultTalon(Ports.FLYWHEEL_SLAVE_ID);
         mSlave.setInverted(true);
 
-        setOpenLoop(0.0, 0.0);
+        setOpenLoop(0.0);
 
         // reduce can util
 
@@ -83,17 +88,17 @@ public class Shooter extends Subsystem {
         enabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
-                startLogging();
+                // empty
             }
 
             @Override
             public void onLoop(double timestamp) {
-                
+                // send log data
+                SendLog();
             }
 
             @Override
             public void onStop(double timestamp) {
-                stopLogging();
                 stop();
             }
         });
@@ -118,8 +123,6 @@ public class Shooter extends Subsystem {
         } else {
             SmartDashboard.putNumber("Flywheel Input Demand",
                     mPeriodicIO.flywheel_demand / Constants.ShooterConstants.kFlywheelVelocityConversion);
-            SmartDashboard.putNumber("Accelerator Input Demand",
-                    mPeriodicIO.accelerator_demand / Constants.ShooterConstants.kFlywheelVelocityConversion);
             mMaster.set(ControlMode.Velocity,
                     mPeriodicIO.flywheel_demand / Constants.ShooterConstants.kFlywheelVelocityConversion);
         }
@@ -127,12 +130,11 @@ public class Shooter extends Subsystem {
         mSlave.set(ControlMode.Follower, Ports.FLYWHEEL_MASTER_ID);
     }
 
-    public void setOpenLoop(double flywheelDemand, double acceleratorDemand) {
+    public void setOpenLoop(double flywheelDemand) {
         if (mIsOpenLoop != true) {
             mIsOpenLoop = true;
         }
         mPeriodicIO.flywheel_demand = flywheelDemand <= 12.0 ? flywheelDemand : 12.0;
-        mPeriodicIO.accelerator_demand = acceleratorDemand <= 12.0 ? acceleratorDemand : 12.0;
     }
 
     public void setVelocity(double demand, double accleratorDemand) {
@@ -140,23 +142,14 @@ public class Shooter extends Subsystem {
             mIsOpenLoop = false;
         }
         mPeriodicIO.flywheel_demand = demand;
-        mPeriodicIO.accelerator_demand = accleratorDemand;
     }
 
     public synchronized double getFlywheelRPM() {
         return mPeriodicIO.flywheel_velocity * Constants.ShooterConstants.kFlywheelVelocityConversion;
     }
 
-    public synchronized double getAcceleratorRPM() {
-        return mPeriodicIO.accelerator_velocity * Constants.ShooterConstants.kAccleratorVelocityConversion;
-    }
-    
     public synchronized double getFlywheelDemand() {
         return mPeriodicIO.flywheel_demand;
-    }
-
-    public synchronized double getAcceleratorDemand() {
-        return mPeriodicIO.accelerator_demand;
     }
 
     public synchronized boolean getIsOpenLoop() {
@@ -168,10 +161,7 @@ public class Shooter extends Subsystem {
             boolean flywheelSpunUp = Util.epsilonEquals(mPeriodicIO.flywheel_demand,
                                       mPeriodicIO.flywheel_velocity * Constants.ShooterConstants.kFlywheelVelocityConversion,
                                       Constants.ShooterConstants.kFlywheelTolerance);
-            boolean acceleratorSpunUp = Util.epsilonEquals(mPeriodicIO.accelerator_demand,
-                                      mPeriodicIO.accelerator_velocity * Constants.ShooterConstants.kAccleratorVelocityConversion,
-                                      Constants.ShooterConstants.kFlywheelTolerance);
-            return flywheelSpunUp/* && acceleratorSpunUp*/;
+            return flywheelSpunUp;
         }
         return false;
     }
@@ -188,35 +178,57 @@ public class Shooter extends Subsystem {
         private double slave_voltage;
         private double slave_current;
 
-        private double accelerator_velocity;
-        private double accelerator_voltage;
-        private double accelerator_current;
-
         /* Outputs */
         private double flywheel_demand;
-        private double accelerator_demand;
-    }
-
-    public synchronized void startLogging() {
-        if (mCSVWriter == null) {
-            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/SHOOTER-LOGS.csv", PeriodicIO.class);
-        }
-    }
-
-    public synchronized void stopLogging() {
-        if (mCSVWriter != null) {
-            mCSVWriter.flush();
-            mCSVWriter = null;
-        }
     }
 
     @Override
     public void stop() {
         /* Set motor to open loop to avoid hard slowdown */
-        setOpenLoop(0.0, 0.0);
+        setOpenLoop(0.0);
     }
 
     public boolean checkSystem() {
         return true;
+    }
+
+    // logger
+    @Override
+    public void registerLogger(LoggingSystem LS) {
+        SetupLog();
+        LS.register(mStorage, "SHOOTER_LOGS.csv");
+    }
+
+    public void SetupLog() {
+        mStorage = new LogStorage<PeriodicIO>();
+
+        ArrayList<String> headers = new ArrayList<String>();
+        headers.add("timestamp");
+        headers.add("flywheel_velocity");
+        headers.add("timestamp");
+        headers.add("flywheel_demand");
+        headers.add("slave_voltage");
+        headers.add("flywheel_current");
+        headers.add("slave_current");
+        headers.add("flywheel_voltage");
+        headers.add("slave_velocity");
+
+        mStorage.setHeaders(headers);
+    }
+
+    public void SendLog() {
+        ArrayList<Number> items = new ArrayList<Number>();
+        items.add(Timer.getFPGATimestamp());
+        items.add(mPeriodicIO.flywheel_velocity);
+        items.add(mPeriodicIO.timestamp);
+        items.add(mPeriodicIO.flywheel_demand);
+        items.add(mPeriodicIO.slave_voltage);
+        items.add(mPeriodicIO.flywheel_current);
+        items.add(mPeriodicIO.slave_current);
+        items.add(mPeriodicIO.flywheel_voltage);
+        items.add(mPeriodicIO.slave_velocity);
+
+        // send data to logging storage
+        mStorage.addData(items);
     }
 }

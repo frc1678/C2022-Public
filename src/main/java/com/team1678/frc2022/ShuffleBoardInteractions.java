@@ -97,10 +97,8 @@ public class ShuffleBoardInteractions {
 
     /* SHOOTER */
     private final NetworkTableEntry mFlywheelRPM;
-    private final NetworkTableEntry mAcceleratorRPM;
     private final NetworkTableEntry mShooterOpenLoop;
     private final NetworkTableEntry mFlywheelDemand;
-    private final NetworkTableEntry mAcceleratorDemand;
 
     /* VISION */
     private final NetworkTableEntry mSeesTarget;
@@ -130,8 +128,6 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mTopBeamBreak;
     private final NetworkTableEntry mBottomBeamBreak;
 
-    /* Superstructure */
-    
     /* CLIMBER */
     private final NetworkTableEntry mClimberVelocityRight;
     private final NetworkTableEntry mClimberVelocityLeft;
@@ -156,6 +152,8 @@ public class ShuffleBoardInteractions {
     /* SUPERSTRUCTURE */
     // actions
     private final NetworkTableEntry mIntaking;
+    private final NetworkTableEntry mReversing;
+    private final NetworkTableEntry mRejecting;
     private final NetworkTableEntry mEjecting;
     private final NetworkTableEntry mPrepping;
     private final NetworkTableEntry mShooting;
@@ -417,16 +415,8 @@ public class ShuffleBoardInteractions {
                 .add("Shooter RPM", 0.0)
                 .withSize(2, 1)
                 .getEntry();
-        mAcceleratorRPM = SHOOTER_TAB
-                .add("Accelerator RPM", 0.0)
-                .withSize(2, 1)
-                .getEntry();
         mFlywheelDemand = SHOOTER_TAB
                 .add("Shooter Demand", 0.0)
-                .withSize(2, 1)
-                .getEntry();
-        mAcceleratorDemand = SHOOTER_TAB
-                .add("Accelerator Demand", 0.0)
                 .withSize(2, 1)
                 .getEntry();
         mShooterOpenLoop = SHOOTER_TAB
@@ -497,27 +487,35 @@ public class ShuffleBoardInteractions {
         // actions
         mIntaking = SUPERSTRUCTURE_TAB
             .add("Intaking", false)
-            .withSize(2, 1)
+            .withSize(1, 1)
+            .getEntry();
+        mReversing = SUPERSTRUCTURE_TAB
+            .add("Reversing", false)
+            .withSize(1, 1)
+            .getEntry();
+        mRejecting = SUPERSTRUCTURE_TAB
+            .add("Rejecting", false)
+            .withSize(1, 1)
             .getEntry();
         mEjecting = SUPERSTRUCTURE_TAB
             .add("Ejecting", false)
-            .withSize(2, 1)
+            .withSize(1, 1)
             .getEntry();
         mPrepping = SUPERSTRUCTURE_TAB
             .add("Prepping", false)
-            .withSize(2, 1)
+            .withSize(1, 1)
             .getEntry();
         mShooting = SUPERSTRUCTURE_TAB
             .add("Shooting", false)
-            .withSize(2, 1)
+            .withSize(1, 1)
             .getEntry();
         mFenderShot = SUPERSTRUCTURE_TAB
             .add("Fender Shot", false)
-            .withSize(2, 1)
+            .withSize(1, 1)
             .getEntry();
         mSpitShot = SUPERSTRUCTURE_TAB
             .add("Spit Shot", false)
-            .withSize(2, 1)
+            .withSize(1, 1)
             .getEntry();
 
         // goals
@@ -618,10 +616,8 @@ public class ShuffleBoardInteractions {
         
         /* SHOOTER */
         mFlywheelRPM.setDouble(truncate(mShooter.getFlywheelRPM()));
-        mAcceleratorRPM.setDouble(truncate(mShooter.getAcceleratorRPM()));
         mShooterOpenLoop.setBoolean(mShooter.getIsOpenLoop());
         mFlywheelDemand.setDouble(truncate(mShooter.getFlywheelDemand()));
-        mAcceleratorDemand.setDouble(truncate(mShooter.getAcceleratorDemand()));
         
         /* VISION */
         mSeesTarget.setBoolean(mLimelight.hasTarget());
@@ -645,7 +641,7 @@ public class ShuffleBoardInteractions {
         mTriggerVoltage.setDouble(mIndexer.getTriggerVoltage());
 
         mIndexerState.setString(mIndexer.getState().toString());
-        mBallCount.setDouble(mIndexer.getBallCount());
+        mBallCount.setDouble(mSuperstructure.getBallCount());
 
         mTopBeamBreak.setBoolean(mIndexer.getTopBeamBreak());
         mBottomBeamBreak.setBoolean(mIndexer.getBottomBeamBreak());
@@ -683,6 +679,8 @@ public class ShuffleBoardInteractions {
         /* SUPERSTRUCTURE */
         // update actions statuses
         mIntaking.setBoolean(mSuperstructure.getIntaking());
+        mReversing.setBoolean(mSuperstructure.getReversing());
+        mRejecting.setBoolean(mSuperstructure.getRejecting());
         mEjecting.setBoolean(mSuperstructure.getEjecting());
         mPrepping.setBoolean(mSuperstructure.getPrepping());
         mShooting.setBoolean(mSuperstructure.getShooting());

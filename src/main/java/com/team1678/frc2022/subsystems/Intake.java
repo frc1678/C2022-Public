@@ -15,7 +15,6 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.loops.Loop;
 import com.team254.lib.drivers.TalonFXFactory;
-import com.team254.lib.util.ReflectingCSVWriter;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -23,21 +22,21 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Intake extends Subsystem {
 
     public enum WantedAction {
-        NONE, INTAKE, REVERSE
+        NONE, INTAKE, REVERSE, REJECT
     }
 
     public enum State {
-        IDLE, INTAKING, REVERSING
+        IDLE, INTAKING, REVERSING, REJECTING
     }
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
-    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
 
     // logger
     LogStorage<PeriodicIO> mStorage = null;
 
     private static Intake mInstance;
     public State mState = State.IDLE;
+    private Timer mIntakeRejectionTimer = new Timer();
 
     private final TalonFX mRoller;
     private final TalonFX mDeploy;
@@ -79,17 +78,19 @@ public class Intake extends Subsystem {
             @Override
             public void onStart(double timestamp) {
                 mState = State.IDLE;
-                startLogging();
             }
 
             @Override
             public void onLoop(double timestamp) {
                 runStateMachine();
+                
+                // send log data
+                SendLog();
             }
 
             @Override
             public void onStop(double timestamp) {
-                stopLogging();
+                // empty
             }
        });
    }
@@ -106,15 +107,10 @@ public class Intake extends Subsystem {
             mPeriodicIO.hold_intake = true;
         }
 
-        if (mCSVWriter != null) {
-            mCSVWriter.add(mPeriodicIO);
-        }
-
         SmartDashboard.putBoolean("Hold Intake", mPeriodicIO.hold_intake);
         SmartDashboard.putNumber("Deploy Demand", mPeriodicIO.deploy_demand);
         SmartDashboard.putNumber("Deploy Voltage", mPeriodicIO.deploy_voltage);
         SmartDashboard.putNumber("Deploy Current", mPeriodicIO.deploy_current);
-        SendLog();
     }
 
     @Override
@@ -152,6 +148,14 @@ public class Intake extends Subsystem {
                     mState = State.REVERSING;
                 }
                 break;
+            case REJECT:
+                if (mState != State.REJECTING) {
+                    mPeriodicIO.hold_intake = false;
+                    mIntakeRejectionTimer.reset();
+                    mIntakeRejectionTimer.start();
+                    mState = State.REJECTING;
+                }
+                break;
         }
     }
 
@@ -181,6 +185,22 @@ public class Intake extends Subsystem {
                 mPeriodicIO.intake_demand = -Constants.IntakeConstants.kIntakingVoltage;
                 mPeriodicIO.singulator_demand = -Constants.IntakeConstants.kSingulatorVoltage;
                 
+                if (mPeriodicIO.hold_intake) {
+                    mPeriodicIO.deploy_demand = Constants.IntakeConstants.kOutHoldingVoltage;
+                } else {
+                    mPeriodicIO.deploy_demand = Constants.IntakeConstants.kDeployVoltage;
+                }
+                break;
+            case REJECTING:
+                if (mIntakeRejectionTimer.hasElapsed(Constants.IntakeConstants.kSingulatorReverseDelay)) {
+                    mPeriodicIO.singulator_demand = -Constants.IntakeConstants.kSingulatorVoltage;
+                    mIntakeRejectionTimer.stop();
+                } else {
+                    mPeriodicIO.singulator_demand = Constants.IntakeConstants.kSingulatorVoltage;
+                }
+
+                mPeriodicIO.intake_demand = Constants.IntakeConstants.kRejectingVoltage;
+
                 if (mPeriodicIO.hold_intake) {
                     mPeriodicIO.deploy_demand = Constants.IntakeConstants.kOutHoldingVoltage;
                 } else {
@@ -252,22 +272,8 @@ public class Intake extends Subsystem {
     public boolean checkSystem() {
         return false;
     }
-    
-   public synchronized void startLogging() {
-        if (mCSVWriter == null) {
-            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/INTAKE-LOGS.csv", PeriodicIO.class);
-        }
-    }
-
-    public synchronized void stopLogging() {
-        if (mCSVWriter != null) {
-            mCSVWriter.flush();
-            mCSVWriter = null;
-        }
-    }
 
     // logger
-    
     @Override
     public void registerLogger(LoggingSystem LS) {
         SetupLog();
@@ -276,22 +282,36 @@ public class Intake extends Subsystem {
     
     public void SetupLog() {
         mStorage = new LogStorage<PeriodicIO>();
-        mStorage.setHeadersFromClass(PeriodicIO.class);
+
+        ArrayList<String> headers = new ArrayList<String>();
+        headers.add("timestamp");
+        headers.add("deploy_current");
+        headers.add("singulator_current");
+        headers.add("singulator_demand");
+        headers.add("deploy_voltage");
+        headers.add("intake_current");
+        headers.add("intake_voltage");
+        headers.add("singulator_voltage");
+        headers.add("intake_demand");
+        headers.add("deploy_demand");
+        headers.add("hold_intake");
+
+        mStorage.setHeaders(headers);
     }
 
     public void SendLog() {
         ArrayList<Number> items = new ArrayList<Number>();
         items.add(Timer.getFPGATimestamp());
-
-        // add inputs
-        items.add(mPeriodicIO.intake_current);
+        items.add(mPeriodicIO.deploy_current);
         items.add(mPeriodicIO.singulator_current);
+        items.add(mPeriodicIO.singulator_demand);
+        items.add(mPeriodicIO.deploy_voltage);
+        items.add(mPeriodicIO.intake_current);
         items.add(mPeriodicIO.intake_voltage);
         items.add(mPeriodicIO.singulator_voltage);
-        
-        // add outputs
         items.add(mPeriodicIO.intake_demand);
-        items.add(mPeriodicIO.singulator_demand);
+        items.add(mPeriodicIO.deploy_demand);
+        items.add(mPeriodicIO.hold_intake ? 1.0 : 0.0);
 
         // send data to logging storage
         mStorage.addData(items);

@@ -1,8 +1,5 @@
 package com.team1678.frc2022.subsystems;
 
-import java.sql.ShardingKey;
-
-import com.revrobotics.ColorMatch;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
@@ -138,12 +135,12 @@ public class ColorSensor extends Subsystem {
 
     // update whether we want to eject or not
     public void updateWantsEject() {
-        if (hasOppositeColor()) {
+        if (hasOppositeColor() && hasBall()) {
             mPeriodicIO.eject = true;
             mEjectorTimer.start();
         }
 
-        if (mEjectorTimer.hasElapsed(Constants.IndexerConstants.kEjectDelay) || hasCorrectColor()) {
+        if (mEjectorTimer.hasElapsed(Constants.IndexerConstants.kEjectDelay) || (hasCorrectColor() && hasBall())) {
             mPeriodicIO.eject = false;
             mEjectorTimer.reset();
         }

@@ -16,7 +16,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class TwobyTwoMode extends AutoModeBase {
+public class TwoByTwoMode extends AutoModeBase {
 
    // Swerve instance 
    private final Swerve mSwerve = Swerve.getInstance();
@@ -32,7 +32,7 @@ public class TwobyTwoMode extends AutoModeBase {
    SwerveTrajectoryAction driveToIntakeSecondEjectCargo;
    SwerveTrajectoryAction driveToIntakeThirdEjectCargo;
    
-   public TwobyTwoMode() {
+   public TwoByTwoMode() {
 
        SmartDashboard.putBoolean("Auto Finished", false);
 
@@ -78,52 +78,53 @@ public class TwobyTwoMode extends AutoModeBase {
         System.out.println("Running two ball right mode auto!");
         SmartDashboard.putBoolean("Auto Finished", false);
 
-    // reset odometry at the start of the trajectory
-    runAction(new LambdaAction(() -> mSwerve.resetOdometry(new Pose2d(driveToIntakeFirstShootCargo.getInitialPose().getX(),
-                                                                      driveToIntakeFirstShootCargo.getInitialPose().getY(),
-                                                                      Rotation2d.fromDegrees(235)))));
+        // reset odometry at the start of the trajectory
+        runAction(new LambdaAction(() -> mSwerve.resetOdometry(new Pose2d(
+            driveToIntakeFirstShootCargo.getInitialPose().getX(),
+            driveToIntakeFirstShootCargo.getInitialPose().getY(),
+            Rotation2d.fromDegrees(235)))));
 
-    // start spinning up for shot
-    runAction(new LambdaAction(() -> mSuperstructure.setWantPrep(true)));
+        // start spinning up for shot
+        runAction(new LambdaAction(() -> mSuperstructure.setWantPrep(true)));
    
-    // start intaking
-    runAction(new LambdaAction(() -> mSuperstructure.setWantIntake(true)));
+        // start intaking
+        runAction(new LambdaAction(() -> mSuperstructure.setWantIntake(true)));
 
-    // start vision aiming to align drivetrain to target
-    runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));
+        // start vision aiming to align drivetrain to target
+        runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));
 
-    // drive to intake our alliance cargo for shot
-    runAction(driveToIntakeFirstShootCargo);
+        // drive to intake our alliance cargo for shot
+        runAction(driveToIntakeFirstShootCargo);
 
-    // wait to settle
-    runAction(new WaitAction(0.5));
+        // wait to settle
+        runAction(new WaitAction(1.0));
 
-    // shoot preloaded and first cargo
-    runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
-    runAction(new WaitAction(1.0));
-    runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
+        // shoot preloaded and first cargo
+        runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
+        runAction(new WaitAction(1.0));
+        runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
 
-    // stop vision aiming to control robot heading
-    runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(false)));
+        // stop vision aiming to control robot heading
+        runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(false)));
 
-    // run trajectory to drive to second cargo
-    runAction(driveToIntakeSecondEjectCargo);
+        // run trajectory to drive to second cargo
+        runAction(driveToIntakeSecondEjectCargo);
     
-    // wait to outtake second cargo
-    // runAction(new LambdaAction(() -> mSuperstructure.setWantEject(true)));
-    runAction(new WaitAction(2.0));
-    // runAction(new LambdaAction(() -> mSuperstructure.setWantEject(false)));
+        // wait to outtake second cargo
+        //runAction(new LambdaAction(() -> mSuperstructure.setWantEject(true)));
+        runAction(new WaitAction(2.0));
+        // runAction(new LambdaAction(() -> mSuperstructure.setWantEject(false)));
 
-    // run trajectory to drive to third cargo
-    runAction(driveToIntakeThirdEjectCargo);
+        // run trajectory to drive to third cargo
+        runAction(driveToIntakeThirdEjectCargo);
 
-    // wait to outtake third cargo
-    // runAction(new LambdaAction(() -> mSuperstructure.setWantEject(true)));
-    runAction(new WaitAction(2.0));
-    // runAction(new LambdaAction(() -> mSuperstructure.setWantEject(false)));
+        // wait to outtake third cargo
+        // runAction(new LambdaAction(() -> mSuperstructure.setWantEject(true)));
+        runAction(new WaitAction(2.0));
+        // runAction(new LambdaAction(() -> mSuperstructure.setWantEject(false)));
 
-    System.out.println("Finished auto!");
-        SmartDashboard.putBoolean("Auto Finished", true);
+        System.out.println("Finished auto!");
+            SmartDashboard.putBoolean("Auto Finished", true);
 
     }
 
