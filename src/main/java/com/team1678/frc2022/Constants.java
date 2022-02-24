@@ -273,10 +273,10 @@ public class Constants {
     }
 
     public static final class TriggerConstants {
-        public static final double kTriggerPassiveVelocity = -0.5;
-        public static final double kTriggerFeedingVelocity = 5.0;
-        public static final double kTriggerSlowFeedVelocity = 3.0;
-        public static final double kTriggerReverseVelocity = -5.0;
+        public static final double kTriggerPassiveVelocity = 0;
+        public static final double kTriggerFeedingVelocity = 1700;
+        public static final double kTriggerSlowFeedVelocity = 1000;
+        public static final double kTriggerReverseVelocity = -1700;
 
         public static final double kTriggerVelocityConversion = 600.0 / 2048.0 * (1.0 / 3.5); // 3.5 to 1
 
