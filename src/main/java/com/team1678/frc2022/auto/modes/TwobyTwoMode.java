@@ -75,7 +75,7 @@ public class TwoByTwoMode extends AutoModeBase {
 
    @Override
     protected void routine() throws AutoModeEndedException {
-        System.out.println("Running two ball right mode auto!");
+        System.out.println("Running two by two left mode auto!");
         SmartDashboard.putBoolean("Auto Finished", false);
 
         // reset odometry at the start of the trajectory
