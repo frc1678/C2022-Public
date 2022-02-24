@@ -132,7 +132,7 @@ public class FiveBallMode extends AutoModeBase {
 
         // start vision aiming to align drivetrain to target
         runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));
-
+        
         // run trajectory to drive to first shot pose
         runAction(driveToFirstShot);
 
