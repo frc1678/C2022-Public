@@ -605,6 +605,7 @@ public class Superstructure extends Subsystem {
         mPeriodicIO.real_hood = Util.clamp(mPeriodicIO.real_hood,
                 Constants.HoodConstants.kHoodServoConstants.kMinUnitsLimit,
                 Constants.HoodConstants.kHoodServoConstants.kMaxUnitsLimit); 
+        
         if (mHood.mControlState != ServoMotorSubsystem.ControlState.OPEN_LOOP) {
             mHood.setSetpointMotionMagic(mPeriodicIO.real_hood);
         }
