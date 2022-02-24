@@ -3,6 +3,7 @@ package com.team1678.frc2022.subsystems;
 import com.team1678.frc2022.loops.Loop;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.Constants;
+import com.team1678.frc2022.auto.actions.WaitAction;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.CustomXboxController;
 import com.team1678.frc2022.controlboard.CustomXboxController.Button;
@@ -103,6 +104,9 @@ public class Superstructure extends Subsystem {
     // fender shot constants
     private final double kFenderVelocity = 2300;
     private final double kFenderAngle = 12.0;
+    private final double kFenderWaitTime = 0.5;
+
+    public double mFenderWaitTime = 0.5;
 
     private final double kSpitVelocity = 1000;
     private final double kSpitAngle = 20.0;
@@ -504,6 +508,7 @@ public class Superstructure extends Subsystem {
         } else if (mPeriodicIO.FENDER) {
             mShooterSetpoint = kFenderVelocity;
             mHoodSetpoint = kFenderAngle;
+            mFenderWaitTime = runAction(new WaitAction(kFenderWaitTime));
         } else if (hasTarget()) {
             Optional<Double> distance_to_target = mLimelight.getDistanceToTarget();
             if (distance_to_target.isPresent()) {
@@ -511,6 +516,10 @@ public class Superstructure extends Subsystem {
                 mHoodSetpoint = getHoodSetpointFromRegression(distance_to_target.get());
             }
         }
+    }
+
+    private double runAction(WaitAction waitAction) {
+        return 0;
     }
 
     /*** UPDATE SUBSYSTEM STATES + SETPOINTS AND SET GOALS
