@@ -16,7 +16,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class TwobyTwoMode extends AutoModeBase {
+public class TwoByTwoMode extends AutoModeBase {
 
    // Swerve instance 
    private final Swerve mSwerve = Swerve.getInstance();
@@ -32,7 +32,7 @@ public class TwobyTwoMode extends AutoModeBase {
    SwerveTrajectoryAction driveToIntakeSecondEjectCargo;
    SwerveTrajectoryAction driveToIntakeThirdEjectCargo;
    
-   public TwobyTwoMode() {
+   public TwoByTwoMode() {
 
        SmartDashboard.putBoolean("Auto Finished", false);
 
