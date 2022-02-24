@@ -1,8 +1,5 @@
 package com.team1678.frc2022.subsystems;
 
-import java.sql.ShardingKey;
-
-import com.revrobotics.ColorMatch;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;

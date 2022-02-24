@@ -654,7 +654,7 @@ public class ShuffleBoardInteractions {
         mTunnelVoltage.setDouble(mIndexer.getTunnelVoltage());
 
         mIndexerState.setString(mIndexer.getState().toString());
-        mBallCount.setDouble(mIndexer.getBallCount());
+        mBallCount.setDouble(mSuperstructure.getBallCount());
 
         mTopBeamBreak.setBoolean(mIndexer.getTopBeamBreak());
         mBottomBeamBreak.setBoolean(mIndexer.getBottomBeamBreak());

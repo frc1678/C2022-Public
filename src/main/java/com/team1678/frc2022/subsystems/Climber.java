@@ -1,13 +1,18 @@
 package com.team1678.frc2022.subsystems;
 
+import java.util.ArrayList;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
+import com.team1678.frc2022.logger.LogStorage;
+import com.team1678.frc2022.logger.LoggingSystem;
 import com.team254.lib.drivers.TalonFXFactory;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Climber extends Subsystem {
@@ -18,6 +23,9 @@ public class Climber extends Subsystem {
     public boolean mHomed;
 
     private static Climber mInstance;
+
+    // logger
+    LogStorage<PeriodicIO> mStorage = null;
 
     public RightControlState mRightControlState = RightControlState.OPEN_LOOP;
     public LeftControlState mLeftControlState = LeftControlState.OPEN_LOOP;
@@ -97,6 +105,9 @@ public class Climber extends Subsystem {
         mPeriodicIO.climber_stator_current_left = mClimberLeft.getStatorCurrent();
         mPeriodicIO.climber_motor_velocity_left = mClimberLeft.getSelectedSensorVelocity();
         mPeriodicIO.climber_motor_position_left = mClimberLeft.getSelectedSensorPosition();
+
+        // send log data
+        SendLog();
     }
 
     @Override
@@ -378,5 +389,49 @@ public class Climber extends Subsystem {
         /* Outputs */
         public double climber_demand_right;
         public double climber_demand_left;
+    }
+
+    // logger
+    @Override
+    public void registerLogger(LoggingSystem LS) {
+        SetupLog();
+        LS.register(mStorage, "CLIMBER_LOGS.csv");
+    }
+
+    public void SetupLog() {
+        mStorage = new LogStorage<PeriodicIO>();
+
+        ArrayList<String> headers = new ArrayList<String>();
+        headers.add("timestamp");
+        headers.add("climber_stator_current_right");
+        headers.add("climber_motor_position_right");
+        headers.add("climber_voltage_left");
+        headers.add("climber_motor_velocity_right");
+        headers.add("climber_stator_current_left");
+        headers.add("climber_demand_right");
+        headers.add("climber_motor_position_left");
+        headers.add("climber_demand_left");
+        headers.add("climber_voltage_right");
+        headers.add("climber_motor_velocity_left");
+
+        mStorage.setHeaders(headers);
+    }
+
+    public void SendLog() {
+        ArrayList<Number> items = new ArrayList<Number>();
+        items.add(Timer.getFPGATimestamp());
+        items.add(mPeriodicIO.climber_stator_current_right);
+        items.add(mPeriodicIO.climber_motor_position_right);
+        items.add(mPeriodicIO.climber_voltage_left);
+        items.add(mPeriodicIO.climber_motor_velocity_right);
+        items.add(mPeriodicIO.climber_stator_current_left);
+        items.add(mPeriodicIO.climber_demand_right);
+        items.add(mPeriodicIO.climber_motor_position_left);
+        items.add(mPeriodicIO.climber_demand_left);
+        items.add(mPeriodicIO.climber_voltage_right);
+        items.add(mPeriodicIO.climber_motor_velocity_left);
+
+        // send data to logging storage
+        mStorage.addData(items);
     }
 } 

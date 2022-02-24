@@ -27,7 +27,6 @@ public class Trigger extends Subsystem {
     }
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
-    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
     LogStorage<PeriodicIO> mStorage = null;
 
     private State mState = State.IDLE;
@@ -64,17 +63,16 @@ public class Trigger extends Subsystem {
             @Override
             public void onStart(double timestamp) {
                 mState = State.IDLE;
-                startLogging();
             }
 
             @Override
             public void onLoop(double timestamp) {
                 runStateMachine();
+                SendLog();
             }
 
             @Override
             public void onStop(double timestamp) {
-                stopLogging();
             }
         });
     }
@@ -180,25 +178,19 @@ public class Trigger extends Subsystem {
     @Override
     public void registerLogger(LoggingSystem LS) {
         SetupLog();
-        LS.register(mStorage, "INTAKE_LOGS.csv");
-    }
-        
-    public synchronized void startLogging() {
-        if (mCSVWriter == null) {
-            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/TRIGGER-LOGS.csv", PeriodicIO.class);
-        }
-    }
-
-    public synchronized void stopLogging() {
-        if (mCSVWriter != null) {
-            mCSVWriter.flush();
-            mCSVWriter = null;
-        }
+        LS.register(mStorage, "TRIGGER-LOGS.csv");
     }
     
     public void SetupLog() {
         mStorage = new LogStorage<PeriodicIO>();
-        mStorage.setHeadersFromClass(PeriodicIO.class);
+
+        ArrayList<String> headers = new ArrayList<String>();
+        headers.add("timestamp");
+        headers.add("trigger_current");
+        headers.add("trigger_voltage");
+        headers.add("trigger_demand");
+        
+        mStorage.setHeaders(headers);
     }
 
     public void SendLog() {
@@ -210,7 +202,6 @@ public class Trigger extends Subsystem {
         items.add(mPeriodicIO.voltage);
         
         // add outputs
-        items.add(mPeriodicIO.demand);
         items.add(mPeriodicIO.demand);
 
         // send data to logging storage
