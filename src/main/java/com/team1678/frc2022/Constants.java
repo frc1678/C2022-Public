@@ -342,6 +342,7 @@ public class Constants {
         public static final double kEjectorFeedingVoltage = 8.0;
         public static final double kFeedingVoltage = 4.0;
         public static final double kReversingVoltage = -5.0;
+        public static final double kTriggerFenderVoltage = 3.0;
         
         public static final int kBottomBeamBreak = 1;
         public static final int kTopBeamBreak = 0;

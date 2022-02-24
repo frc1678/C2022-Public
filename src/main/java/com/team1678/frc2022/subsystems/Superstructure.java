@@ -104,6 +104,8 @@ public class Superstructure extends Subsystem {
     private final double kFenderVelocity = 2300;
     private final double kFenderAngle = 12.0;
 
+    public double mTriggerFendorDemand = Constants.IndexerConstants.kTriggerFenderVoltage;
+
     private final double kSpitVelocity = 1000;
     private final double kSpitAngle = 20.0;
 
@@ -504,6 +506,7 @@ public class Superstructure extends Subsystem {
         } else if (mPeriodicIO.FENDER) {
             mShooterSetpoint = kFenderVelocity;
             mHoodSetpoint = kFenderAngle;
+            mTriggerFendorDemand = Indexer.getInstance().setTriggerFenderDemand(3.0);
         } else if (hasTarget()) {
             Optional<Double> distance_to_target = mLimelight.getDistanceToTarget();
             if (distance_to_target.isPresent()) {

@@ -201,6 +201,11 @@ public class Indexer extends Subsystem {
         mPeriodicIO.tunnel_demand = demand;
     }
 
+    public double setTriggerFenderDemand(double demand) {
+        demand = Constants.IndexerConstants.kTriggerFenderVoltage;
+        return mPeriodicIO.trigger_demand = demand;
+    }
+
     public double getEjectorDemand() {
        return mPeriodicIO.ejector_demand;
     }
