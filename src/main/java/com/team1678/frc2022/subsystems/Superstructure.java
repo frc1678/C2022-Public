@@ -3,6 +3,7 @@ package com.team1678.frc2022.subsystems;
 import com.team1678.frc2022.loops.Loop;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.Constants;
+import com.team1678.frc2022.Constants.IndexerConstants;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.CustomXboxController;
 import com.team1678.frc2022.controlboard.CustomXboxController.Button;
@@ -104,7 +105,8 @@ public class Superstructure extends Subsystem {
     private final double kFenderVelocity = 2300;
     private final double kFenderAngle = 12.0;
 
-    public double mTriggerFendorDemand = Constants.IndexerConstants.kTriggerFenderVoltage;
+    public double mTriggerFenderDemand = Constants.IndexerConstants.kTriggerFenderVoltage;
+    public double mTunnelFenderDemand = Constants.IndexerConstants.kTunnelVoltage;
 
     private final double kSpitVelocity = 1000;
     private final double kSpitAngle = 20.0;
@@ -506,7 +508,8 @@ public class Superstructure extends Subsystem {
         } else if (mPeriodicIO.FENDER) {
             mShooterSetpoint = kFenderVelocity;
             mHoodSetpoint = kFenderAngle;
-            mTriggerFendorDemand = Indexer.getInstance().setTriggerFenderDemand(3.0);
+            mTriggerFenderDemand = Indexer.getInstance().setTriggerFenderDemand(3.0);
+            mTunnelFenderDemand = Indexer.getInstance().getTunnelFenderDemand();
         } else if (hasTarget()) {
             Optional<Double> distance_to_target = mLimelight.getDistanceToTarget();
             if (distance_to_target.isPresent()) {

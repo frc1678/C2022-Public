@@ -197,7 +197,7 @@ public class Indexer extends Subsystem {
         mPeriodicIO.ejector_demand = demand;
     }
 
-    public void setIndexerDemand(double demand) {
+    public void setTunnelDemand(double demand) {
         mPeriodicIO.tunnel_demand = demand;
     }
 
@@ -224,6 +224,10 @@ public class Indexer extends Subsystem {
 
     public double getTunnelDemand() {
         return mPeriodicIO.tunnel_demand;
+    }
+
+    public double getTunnelFenderDemand() {
+        return mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelVoltage;
     }
 
     public double getTunnelVoltage() {
