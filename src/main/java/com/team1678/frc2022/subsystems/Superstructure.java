@@ -41,6 +41,7 @@ public class Superstructure extends Subsystem {
     private final Indexer mIndexer = Indexer.getInstance();
     private final ColorSensor mColorSensor = ColorSensor.getInstance();
     private final Shooter mShooter = Shooter.getInstance();
+    private final Trigger mTrigger = Trigger.getInstance();
     private final Hood mHood = Hood.getInstance();
     private final Climber mClimber = Climber.getInstance();
     private final Limelight mLimelight = Limelight.getInstance();
@@ -72,6 +73,7 @@ public class Superstructure extends Subsystem {
         // (superstructure goals/setpoints)
         private Intake.WantedAction real_intake = Intake.WantedAction.NONE;
         private Indexer.WantedAction real_indexer = Indexer.WantedAction.NONE;
+        private Trigger.WantedAction real_trigger = Trigger.WantedAction.NONE;
         private double real_shooter = 0.0;
         private double real_hood = 0.0;   
     }
@@ -554,21 +556,30 @@ public class Superstructure extends Subsystem {
             // only feed cargo to shoot when spun up and aimed
             if (isSpunUp() /*&& isAimed()*/) {
                 mPeriodicIO.real_indexer = Indexer.WantedAction.FEED;
+                if (mPeriodicIO.FENDER) {
+                    mPeriodicIO.real_trigger = Trigger.WantedAction.SLOW_FEED;
+                } else {
+                    mPeriodicIO.real_trigger = Trigger.WantedAction.FEED;
+                }
             } else {
+                mPeriodicIO.real_trigger = Trigger.WantedAction.NONE;
                 mPeriodicIO.real_indexer = Indexer.WantedAction.NONE;
             }
         } else {
             // force eject
             if (mPeriodicIO.EJECT && mForceEject) {
                 mPeriodicIO.real_indexer = Indexer.WantedAction.EJECT;
+                mPeriodicIO.real_trigger = Trigger.WantedAction.PASSIVE_REVERSE;
             // only do any indexing action if we detect a ball
             } else if (mColorSensor.hasBall()) {
+                mPeriodicIO.real_trigger = Trigger.WantedAction.PASSIVE_REVERSE;
                 if (mPeriodicIO.EJECT) {
                     mPeriodicIO.real_indexer = Indexer.WantedAction.EJECT;
                 } else {
                     mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX;
                 }
             } else {
+                mPeriodicIO.real_trigger = Trigger.WantedAction.NONE;
                 mPeriodicIO.real_indexer = Indexer.WantedAction.NONE;
             }
 
@@ -596,6 +607,7 @@ public class Superstructure extends Subsystem {
         } else {
             mShooter.setVelocity(mShooterSetpoint, mShooterSetpoint * Constants.ShooterConstants.kAcceleratorMultiplier);
         }
+        mTrigger.setState(mPeriodicIO.real_trigger);
 
         // set hood subsystem setpoint
         // safety clamp the hood goal between min and max hard stops for hood angle

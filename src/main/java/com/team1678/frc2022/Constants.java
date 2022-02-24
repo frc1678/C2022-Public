@@ -275,6 +275,13 @@ public class Constants {
         public static final double kAcceleratorF = 0.045;
     }
 
+    public static final class TriggerConstants {
+        public static final double kTriggerPassiveVoltage = -0.5;
+        public static final double kTriggerFeedingVoltage = 5.0;
+        public static final double kTriggerSlowFeedVoltage = 5.0;
+        public static final double kTriggerReverseVoltage = -5.0;
+    }
+
     public static final class HoodConstants {
         public static final double kCalibratingVoltage = -0.5;
         public static final double kCalibrationCurrentThreshold = 15.0;
@@ -336,11 +343,13 @@ public class Constants {
         public static final int kIndexerMaxAcceleration = 40000;
 
         public static final double kIdleVoltage = 0.0;
-        public static final double kTunnelVoltage = 6.0;
+
+        public static final double kTunnelIndexingVoltage = 6.0;
+        public static final double kTunnelFeedingVoltage = 4.0;
+
         public static final double kEjectorVoltage = 12.0;
-        public static final double kTriggerVoltage = 5.0;
         public static final double kEjectorFeedingVoltage = 8.0;
-        public static final double kFeedingVoltage = 4.0;
+
         public static final double kReversingVoltage = -5.0;
         
         public static final int kBottomBeamBreak = 1;

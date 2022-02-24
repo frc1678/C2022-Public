@@ -10,6 +10,7 @@ import com.team1678.frc2022.subsystems.Limelight;
 import com.team1678.frc2022.subsystems.Shooter;
 import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
+import com.team1678.frc2022.subsystems.Trigger;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
@@ -37,6 +38,7 @@ public class ShuffleBoardInteractions {
     private final SwerveModule[] mSwerveModules;
     private final Intake mIntake;
     private final Shooter mShooter;
+    private final Trigger mTrigger;
     private final Indexer mIndexer;
     private final Climber mClimber;
     private final Superstructure mSuperstructure;
@@ -195,6 +197,7 @@ public class ShuffleBoardInteractions {
         mIndexer = Indexer.getInstance();
         mClimber = Climber.getInstance();
         mShooter = Shooter.getInstance();
+        mTrigger = Trigger.getInstance();
         mLimelight = Limelight.getInstance();
         mSuperstructure = Superstructure.getInstance();
         mColorSensor = ColorSensor.getInstance();
@@ -636,9 +639,9 @@ public class ShuffleBoardInteractions {
         mTunnelDemand.setDouble(mIndexer.getTunnelDemand());
         mTunnelVoltage.setDouble(mIndexer.getTunnelVoltage());
 
-        mTriggerCurrent.setDouble(mIndexer.getTriggerCurrent());
-        mTriggerDemand.setDouble(mIndexer.getTriggerDemand());
-        mTriggerVoltage.setDouble(mIndexer.getTriggerVoltage());
+        mTriggerCurrent.setDouble(mTrigger.getTriggerCurrent());
+        mTriggerDemand.setDouble(mTrigger.getTriggerDemand());
+        mTriggerVoltage.setDouble(mTrigger.getTriggerVoltage());
 
         mIndexerState.setString(mIndexer.getState().toString());
         mBallCount.setDouble(mSuperstructure.getBallCount());
