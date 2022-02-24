@@ -42,7 +42,7 @@ public class Limelight extends Subsystem {
 
     public static class LimelightConstants {
         public String kName = "";
-        public String kTableName = "";
+        public String kTableName = "limelight";
         public double kHeight = 0.0;
         public Pose2d kTurretToLens = Pose2d.identity();
         public Rotation2d kHorizontalPlaneToLens = Rotation2d.identity();
