@@ -133,7 +133,7 @@ public class Trigger extends Subsystem {
     public void readPeriodicInputs() {
         mPeriodicIO.current = mTrigger.getStatorCurrent();
         mPeriodicIO.voltage = mTrigger.getMotorOutputVoltage();
-        mPeriodicIO.velocity = mTrigger.getSelectedSensorVelocity();
+        mPeriodicIO.velocity = mTrigger.getSelectedSensorVelocity() * Constants.TriggerConstants.kTriggerVelocityConversion;
         SendLog();
     }
 
