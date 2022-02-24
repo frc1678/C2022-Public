@@ -81,7 +81,7 @@ public class TwobyTwoMode extends AutoModeBase {
     // reset odometry at the start of the trajectory
     runAction(new LambdaAction(() -> mSwerve.resetOdometry(new Pose2d(driveToIntakeFirstShootCargo.getInitialPose().getX(),
                                                                       driveToIntakeFirstShootCargo.getInitialPose().getY(),
-                                                                      Rotation2d.fromDegrees(235)))));
+                                                                      Rotation2d.fromDegrees(135)))));
 
     // start spinning up for shot
     runAction(new LambdaAction(() -> mSuperstructure.setWantPrep(true)));
