@@ -283,7 +283,7 @@ public class Constants {
         public static final double kTriggerP = 0.05;
         public static final double kTriggerI = 0.0;
         public static final double kTriggerD = 0.0;
-        public static final double kTriggerF = 0.045;
+        public static final double kTriggerF = 0.05;
     }
 
     public static final class HoodConstants {
