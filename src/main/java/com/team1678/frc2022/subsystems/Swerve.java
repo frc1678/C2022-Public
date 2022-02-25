@@ -1,10 +1,14 @@
 package com.team1678.frc2022.subsystems;
 
+import java.util.ArrayList;
+
 import com.ctre.phoenix.sensors.Pigeon2;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.SwerveModule;
+import com.team1678.frc2022.logger.LogStorage;
+import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
 import com.team254.lib.util.TimeDelayedBoolean;
@@ -23,6 +27,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Swerve extends Subsystem {
 
     private static Swerve mInstance;
+
+    public PeriodicIO mPeriodicIO = new PeriodicIO();
+
+    //logger
+    LogStorage<PeriodicIO> mStorage = null;
 
     // required instance for vision align
     public Limelight mLimelight = Limelight.getInstance();
@@ -109,14 +118,7 @@ public class Swerve extends Subsystem {
     }
     
     public void outputTelemetry() {
-        SmartDashboard.putNumber("Odometry Pose X", swerveOdometry.getPoseMeters().getX());
-        SmartDashboard.putNumber("Odometry Pose Y", swerveOdometry.getPoseMeters().getY());
-        SmartDashboard.putNumber("Odometry Pose Rot", swerveOdometry.getPoseMeters().getRotation().getDegrees());
         SmartDashboard.putBoolean("Is Snapping", isSnapping);
-        SmartDashboard.putNumber("Pigeon Heading", getYaw().getDegrees());
-        SmartDashboard.putNumber("Robot Pitch", getPitch().getDegrees());
-        SmartDashboard.putNumber("Robot Roll", getRoll().getDegrees());
-        SmartDashboard.putNumber("Snap Target", Math.toDegrees(snapPIDController.getGoal().position));
         for(SwerveModule mod : mSwerveMods){
             //SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Cancoder", MathUtil.inputModulus(mod.getCanCoder().getDegrees() - mod.angleOffset, 0, 360));
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Integrated", mod.getState().angle.getDegrees());
@@ -310,4 +312,66 @@ public class Swerve extends Subsystem {
     public boolean checkSystem() {
         return true;
     }
+
+    @Override
+    public void readPeriodicInputs() {
+        mPeriodicIO.odometry_pose_x = swerveOdometry.getPoseMeters().getX();
+        mPeriodicIO.odometry_pose_y = swerveOdometry.getPoseMeters().getY();
+        mPeriodicIO.odometry_pose_rot = swerveOdometry.getPoseMeters().getRotation().getDegrees();
+        mPeriodicIO.pigeon_heading = getYaw().getDegrees();
+        mPeriodicIO.robot_pitch = getPitch().getDegrees();
+        mPeriodicIO.robot_roll = getRoll().getDegrees();
+        mPeriodicIO.snap_target = Math.toDegrees(snapPIDController.getGoal().position);
+
+        SendLog();
+    }
+
+    public static class PeriodicIO {
+
+        public double odometry_pose_x;
+        public double odometry_pose_y;
+        public double odometry_pose_rot;
+        public double pigeon_heading;
+        public double robot_pitch;
+        public double robot_roll;
+        public double snap_target;
+
+    }
+
+    //logger
+    @Override
+    public void registerLogger(LoggingSystem LS) {
+        SetupLog();
+        LS.register(mStorage, "CLIMBER_LOGS.csv");
+    }
+    
+    public void SetupLog() {
+        mStorage = new LogStorage<PeriodicIO>();
+
+        ArrayList<String> headers = new ArrayList<String>();
+        headers.add("Odometry Pose X");
+        headers.add("Odometry Pose Y");
+        headers.add("Odometry Pose Rot");
+        headers.add("Pigeon Heading");
+        headers.add("Robot Pitch");
+        headers.add("Robot Roll");
+        headers.add("Snap Target");
+
+        mStorage.setHeaders(headers);
+    }
+
+    public void SendLog() {
+        ArrayList<Number> items = new ArrayList<Number>();
+        items.add(mPeriodicIO.odometry_pose_x);
+        items.add(mPeriodicIO.odometry_pose_y);
+        items.add(mPeriodicIO.odometry_pose_rot);
+        items.add(mPeriodicIO.pigeon_heading);
+        items.add(mPeriodicIO.robot_pitch);
+        items.add(mPeriodicIO.robot_roll);
+        items.add(mPeriodicIO.snap_target);
+
+        // send data to logging storage
+        mStorage.addData(items);
+    }
+
 }
