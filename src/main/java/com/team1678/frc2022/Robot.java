@@ -4,10 +4,8 @@
 
 package com.team1678.frc2022;
 
-import java.security.Principal;
 import java.util.Optional;
 
-import com.ctre.phoenix.motorcontrol.can.MotControllerJNI;
 import com.team1678.frc2022.auto.AutoModeExecutor;
 import com.team1678.frc2022.auto.AutoModeSelector;
 import com.team1678.frc2022.auto.modes.AutoModeBase;
@@ -26,15 +24,13 @@ import com.team1678.frc2022.subsystems.Limelight;
 import com.team1678.frc2022.subsystems.Shooter;
 import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
+import com.team1678.frc2022.subsystems.Trigger;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Color;
 
-import com.team254.lib.util.Util;
 import com.team254.lib.wpilib.TimedRobot;
 
 /**
@@ -74,6 +70,7 @@ public class Robot extends TimedRobot {
 	private final Intake mIntake = Intake.getInstance();
 	private final Indexer mIndexer = Indexer.getInstance();
 	private final Shooter mShooter = Shooter.getInstance();
+	private final Trigger mTrigger = Trigger.getInstance();
 	private final Hood mHood = Hood.getInstance();
 	private final ColorSensor mColorSensor = ColorSensor.getInstance();
 	private final Climber mClimber = Climber.getInstance();
@@ -105,6 +102,7 @@ public class Robot extends TimedRobot {
 					mIntake,
 					mIndexer,
 					mShooter,
+					mTrigger,
 					mHood,
 					mColorSensor,
 					mClimber,
