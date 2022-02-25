@@ -106,21 +106,23 @@ public class TwobyTwoMode extends AutoModeBase {
     // stop vision aiming to control robot heading
     runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(false)));
 
+    // start ejecting cargo
+    runAction(new LambdaAction(() -> mSuperstructure.setWantEject(true)));
+
     // run trajectory to drive to second cargo
     runAction(driveToIntakeSecondEjectCargo);
     
-    // wait to outtake second cargo
-    // runAction(new LambdaAction(() -> mSuperstructure.setWantEject(true)));
+    // wait to outtake second cargo    
     runAction(new WaitAction(1.5));
-    // runAction(new LambdaAction(() -> mSuperstructure.setWantEject(false)));
 
     // run trajectory to drive to third cargo
     runAction(driveToIntakeThirdEjectCargo);
 
     // wait to outtake third cargo
-    // runAction(new LambdaAction(() -> mSuperstructure.setWantEject(true)));
     runAction(new WaitAction(1.5));
-    // runAction(new LambdaAction(() -> mSuperstructure.setWantEject(false)));
+
+    // stop ejecting cargo
+    runAction(new LambdaAction(() -> mSuperstructure.setWantEject(false)));
 
     System.out.println("Finished auto!");
         SmartDashboard.putBoolean("Auto Finished", true);
