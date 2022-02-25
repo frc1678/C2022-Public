@@ -75,7 +75,7 @@ public class TwobyTwoMode extends AutoModeBase {
 
    @Override
     protected void routine() throws AutoModeEndedException {
-        System.out.println("Running two ball right mode auto!");
+        System.out.println("Running two by two left mode auto!");
         SmartDashboard.putBoolean("Auto Finished", false);
 
     // reset odometry at the start of the trajectory
@@ -83,28 +83,28 @@ public class TwobyTwoMode extends AutoModeBase {
                                                                       driveToIntakeFirstShootCargo.getInitialPose().getY(),
                                                                       Rotation2d.fromDegrees(135)))));
 
-    // start spinning up for shot
-    runAction(new LambdaAction(() -> mSuperstructure.setWantPrep(true)));
+        // start spinning up for shot
+        runAction(new LambdaAction(() -> mSuperstructure.setWantPrep(true)));
    
-    // start intaking
-    runAction(new LambdaAction(() -> mSuperstructure.setWantIntake(true)));
+        // start intaking
+        runAction(new LambdaAction(() -> mSuperstructure.setWantIntake(true)));
 
-    // start vision aiming to align drivetrain to target
-    runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));
+        // start vision aiming to align drivetrain to target
+        runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));
 
-    // drive to intake our alliance cargo for shot
-    runAction(driveToIntakeFirstShootCargo);
+        // drive to intake our alliance cargo for shot
+        runAction(driveToIntakeFirstShootCargo);
 
-    // wait to settle
-    runAction(new WaitAction(0.5));
+        // wait to settle
+        runAction(new WaitAction(1.0));
 
-    // shoot preloaded and first cargo
-    runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
-    runAction(new WaitAction(1.0));
-    runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
+        // shoot preloaded and first cargo
+        runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
+        runAction(new WaitAction(1.0));
+        runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
 
-    // stop vision aiming to control robot heading
-    runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(false)));
+        // stop vision aiming to control robot heading
+        runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(false)));
 
     // start ejecting cargo
     runAction(new LambdaAction(() -> mSuperstructure.setWantEject(true)));
@@ -124,8 +124,8 @@ public class TwobyTwoMode extends AutoModeBase {
     // stop ejecting cargo
     runAction(new LambdaAction(() -> mSuperstructure.setWantEject(false)));
 
-    System.out.println("Finished auto!");
-        SmartDashboard.putBoolean("Auto Finished", true);
+        System.out.println("Finished auto!");
+            SmartDashboard.putBoolean("Auto Finished", true);
 
     }
 
