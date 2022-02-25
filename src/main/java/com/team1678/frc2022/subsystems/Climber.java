@@ -248,8 +248,8 @@ public class Climber extends Subsystem {
     }
 
     public void setClimberNone() {
-        setRightClimberPosition(Constants.ClimberConstants.kSafetyMinimum);
-        setLeftClimberPosition(Constants.ClimberConstants.kSafetyMinimum);
+        setRightClimberPosition(10); // ticks
+        setLeftClimberPosition(10); // ticks
 
     }
 
