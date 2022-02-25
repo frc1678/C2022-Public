@@ -27,10 +27,10 @@ public class ControlBoard {
 
     public enum SwerveCardinal {
         NONE(0),
-        FRONT(160),
-        LEFT(250),
-        RIGHT(70),
-        BACK(340);
+        FRONT(143),
+        LEFT(233),
+        RIGHT(53),
+        BACK(323);
 
         public final double degrees;
 

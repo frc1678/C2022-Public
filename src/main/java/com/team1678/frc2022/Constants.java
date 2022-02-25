@@ -144,7 +144,7 @@ public class Constants {
     }
 	
 	public static final class SnapConstants {
-        public static final double kP = 7.0; // TODO: tune value
+        public static final double kP = 5.0; // TODO: tune value
         public static final double kI = 0; // TODO: tune value
         public static final double kD = 0.0; // TODO: tune value
         public static final double snapTimeout = 0.25;
