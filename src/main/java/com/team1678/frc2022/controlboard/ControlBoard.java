@@ -27,10 +27,10 @@ public class ControlBoard {
 
     public enum SwerveCardinal {
         NONE(0),
-        FRONT(0),
-        LEFT(90),
-        RIGHT(-90),
-        BACk(180);
+        FRONT(160),
+        LEFT(250),
+        RIGHT(70),
+        BACK(340);
 
         public final double degrees;
 
@@ -98,7 +98,7 @@ public class ControlBoard {
 
     public SwerveCardinal getSwerveSnap() {
         if (driver.getButton(Button.A)) {
-            return SwerveCardinal.BACk;
+            return SwerveCardinal.BACK;
         }
         if (driver.getButton(Button.B)) {
             return SwerveCardinal.RIGHT;
