@@ -1,5 +1,6 @@
 package com.team1678.frc2022.subsystems;
 
+import com.ctre.phoenix.sensors.Pigeon2;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
@@ -12,6 +13,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -30,13 +32,15 @@ public class Swerve extends Subsystem {
 
     public SwerveDriveOdometry swerveOdometry;
     public SwerveModule[] mSwerveMods;
-    public PigeonIMU gyro;
+    public Pigeon2 gyro;
 
     public boolean isSnapping;
-    public ProfiledPIDController snapPIDController;
+    private double mVisionAlignAdjustment;
 
+    public ProfiledPIDController snapPIDController;
     public ProfiledPIDController visionPIDController;
 
+    
     // Private boolean to lock Swerve wheels
     private boolean mLocked = false;
     // Getter
@@ -56,9 +60,8 @@ public class Swerve extends Subsystem {
     }
 
     public Swerve() {
-        gyro = new PigeonIMU(Ports.PIGEON);
+        gyro = new Pigeon2(Ports.PIGEON, "canivore1");
         gyro.configFactoryDefault();
-        zeroGyro();
         
         swerveOdometry = new SwerveDriveOdometry(Constants.SwerveConstants.swerveKinematics, getYaw());
         
@@ -74,6 +77,7 @@ public class Swerve extends Subsystem {
                                                         Constants.VisionAlignConstants.kThetaControllerConstraints);
         visionPIDController.enableContinuousInput(-Math.PI, Math.PI);
 
+        zeroGyro();
 
         mSwerveMods = new SwerveModule[] {
             new SwerveModule(0, Constants.SwerveConstants.Mod0.SwerveModuleConstants()),
@@ -93,7 +97,8 @@ public class Swerve extends Subsystem {
 
             @Override
             public void onLoop(double timestamp) {
-                // outputTelemetry();
+                updateVisionAlignGoal();
+                outputTelemetry();
             }
 
             @Override
@@ -110,6 +115,7 @@ public class Swerve extends Subsystem {
         SmartDashboard.putBoolean("Is Snapping", isSnapping);
         SmartDashboard.putNumber("Pigeon Heading", getYaw().getDegrees());
         SmartDashboard.putNumber("Robot Pitch", getPitch().getDegrees());
+        SmartDashboard.putNumber("Robot Roll", getRoll().getDegrees());
         SmartDashboard.putNumber("Snap Target", Math.toDegrees(snapPIDController.getGoal().position));
         for(SwerveModule mod : mSwerveMods){
             //SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Cancoder", MathUtil.inputModulus(mod.getCanCoder().getDegrees() - mod.angleOffset, 0, 360));
@@ -128,15 +134,14 @@ public class Swerve extends Subsystem {
         return mWantsAutoVisionAim;
     }
 
-    public void visionAlignDrive(Translation2d translation2d, boolean fieldRelative, boolean isOpenLoop) {
-        double rotation = 0.0;
-
-        if (mLimelight.hasTarget() && mLimelight.isOK()) {
-            double currentAngle = getPose().getRotation().getRadians();
-            double targetOffset = Math.toRadians(mLimelight.getOffset()[0]);
-            rotation = visionPIDController.calculate(currentAngle, currentAngle - targetOffset);
+    public void visionAlignDrive(Translation2d translation2d, double rotation, boolean fieldRelative, boolean isOpenLoop) {
+        double adjustedRotation;
+        if (mLimelight.hasTarget()) {
+            adjustedRotation = mVisionAlignAdjustment;
+        } else {
+            adjustedRotation = rotation;
         }
-        drive(translation2d, rotation, fieldRelative, isOpenLoop);
+        drive(translation2d, adjustedRotation, fieldRelative, isOpenLoop);
     }
 
     public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
@@ -177,6 +182,17 @@ public class Swerve extends Subsystem {
             mod.setDesiredState(swerveModuleStates[mod.moduleNumber], isOpenLoop);
         }
     }    
+    
+    public void updateVisionAlignGoal() {
+        double currentAngle = getYaw().getRadians();
+        double targetOffset = 0.0;
+        if (mLimelight.hasTarget()) {
+            targetOffset = Math.toRadians(mLimelight.getOffset()[0]);
+        } 
+        visionPIDController.setGoal(new TrapezoidProfile.State(MathUtil.inputModulus(currentAngle - targetOffset, 0.0, 2 * Math.PI), 0.0));
+        mVisionAlignAdjustment = visionPIDController.calculate(currentAngle);
+    }
+
 
     public double calculateSnapValue() {
         return snapPIDController.calculate(getYaw().getRadians());
@@ -220,8 +236,8 @@ public class Swerve extends Subsystem {
     }
 
     public void resetOdometry(Pose2d pose) {
-        // zeroGyro(pose.getRotation().getDegrees());
-        swerveOdometry.resetPosition(pose, getYaw());
+        swerveOdometry.resetPosition(pose, pose.getRotation());
+        zeroGyro(pose.getRotation().getDegrees());
     }
 
     public void resetAnglesToAbsolute() {
@@ -254,11 +270,12 @@ public class Swerve extends Subsystem {
     }
     
     public void zeroGyro(){
-        gyro.setYaw(0);
+        zeroGyro(0);
     }
 
     public void zeroGyro(double reset){
         gyro.setYaw(reset);
+        visionPIDController.reset(reset);
     }
 
     public Rotation2d getYaw() {
@@ -273,6 +290,11 @@ public class Swerve extends Subsystem {
         return (Constants.SwerveConstants.invertGyro) ? Rotation2d.fromDegrees(360 - ypr[1]) : Rotation2d.fromDegrees(ypr[1]);
     }
 
+    public Rotation2d getRoll() {
+        double[] ypr = new double[3];
+        gyro.getYawPitchRoll(ypr);
+        return (Constants.SwerveConstants.invertGyro) ? Rotation2d.fromDegrees(360 - ypr[2]) : Rotation2d.fromDegrees(ypr[2]);
+    }
 
     public void updateSwerveOdometry(){
         swerveOdometry.update(getYaw(), getStates());  

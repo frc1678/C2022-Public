@@ -1,13 +1,18 @@
 package com.team1678.frc2022.subsystems;
 
+import java.util.ArrayList;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
+import com.team1678.frc2022.logger.LogStorage;
+import com.team1678.frc2022.logger.LoggingSystem;
 import com.team254.lib.drivers.TalonFXFactory;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Climber extends Subsystem {
@@ -18,6 +23,9 @@ public class Climber extends Subsystem {
     public boolean mHomed;
 
     private static Climber mInstance;
+
+    // logger
+    LogStorage<PeriodicIO> mStorage = null;
 
     public RightControlState mRightControlState = RightControlState.OPEN_LOOP;
     public LeftControlState mLeftControlState = LeftControlState.OPEN_LOOP;
@@ -35,14 +43,14 @@ public class Climber extends Subsystem {
 
         // for right motor
         mClimberRight.set(ControlMode.PercentOutput, 0);
-        mClimberRight.setInverted(true);
+        mClimberRight.setInverted(false);
         mClimberRight.setSelectedSensorPosition(0.0);
 
         mClimberRight.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
 
         mClimberRight.configMotionAcceleration(40000, Constants.kLongCANTimeoutMs);
         mClimberRight.configMotionCruiseVelocity(20000, Constants.kLongCANTimeoutMs);
-        mClimberRight.config_kP(0, 0.8);
+        mClimberRight.config_kP(0, 0.6);
         mClimberRight.config_kI(0, 0);
         mClimberRight.config_kD(0, 0);
         mClimberRight.config_kF(0, 0.077);
@@ -54,14 +62,14 @@ public class Climber extends Subsystem {
 
         // for left motor
         mClimberLeft.set(ControlMode.PercentOutput, 0);
-        mClimberLeft.setInverted(false);
+        mClimberLeft.setInverted(true);
         mClimberLeft.setSelectedSensorPosition(0.0);
 
         mClimberLeft.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
 
         mClimberLeft.configMotionAcceleration(40000, Constants.kLongCANTimeoutMs);
         mClimberLeft.configMotionCruiseVelocity(20000, Constants.kLongCANTimeoutMs);
-        mClimberLeft.config_kP(0, 0.8);
+        mClimberLeft.config_kP(0, 0.6);
         mClimberLeft.config_kI(0, 0);
         mClimberLeft.config_kD(0, 0);
         mClimberLeft.config_kF(0, 0.077);
@@ -97,6 +105,9 @@ public class Climber extends Subsystem {
         mPeriodicIO.climber_stator_current_left = mClimberLeft.getStatorCurrent();
         mPeriodicIO.climber_motor_velocity_left = mClimberLeft.getSelectedSensorVelocity();
         mPeriodicIO.climber_motor_position_left = mClimberLeft.getSelectedSensorPosition();
+
+        // send log data
+        SendLog();
     }
 
     @Override
@@ -187,6 +198,59 @@ public class Climber extends Subsystem {
         }
 
         mPeriodicIO.climber_demand_left = mPeriodicIO.climber_demand_left + wantedPositionDelta;
+    }
+
+    /*** CLIMB METHODS
+     * 
+     * 1. always start climbing using setExtendForClimb() to prep for climb action
+     * 
+     * 2. use setClimbMidBar() when only climbing to second bar
+     * 
+     * 3. use labeled sequence of traversal climb steps for traversal climb
+     *    - setClimbMidBarAndExtend() to climb mid bar with right arm and extend left arm
+     *    - setClimbHighBarAndExtend() to climb high bar with left arm and extend right arm
+     *    - setClimbTraversalBar() to climb a partial distance with right arm on traversal bar
+     * 
+     * IF NOT DOING ANY OF THE ABOVE: set
+     *
+     * */
+
+    // extend right arm to start climbing
+    public void setExtendForClimb() {
+        setRightClimberPosition(Constants.ClimberConstants.kRightTravelDistance);
+    }
+
+    // use when only climbing to mid bar
+    public void setClimbMidBar() {
+        setRightClimberPosition(Constants.ClimberConstants.kSafetyMinimum);
+    }
+
+    // second step for traversal
+    public void setClimbMidBarAndExtend() {
+        setLeftClimberPosition(Constants.ClimberConstants.kLeftPartialTravelDistance);
+        setRightClimberPosition(Constants.ClimberConstants.kSafetyMinimum);
+    }
+    // third step for traversal
+    public void setHighBarExtend() {
+        setLeftClimberPosition(Constants.ClimberConstants.kLeftTravelDistance);
+    }
+    // third step for traversal
+    public void setClimbHighBarAndExtend() {
+        setLeftClimberPosition(Constants.ClimberConstants.kSafetyMinimum);
+        setRightClimberPosition(Constants.ClimberConstants.kRightPartialTravelDistance);
+    }
+    public void setTraversalBarExtend() {
+        setRightClimberPosition(Constants.ClimberConstants.kRightTravelDistance);
+    }
+    // final step for traversal
+    public void setClimbTraversalBar() {
+        setRightClimberPosition(Constants.ClimberConstants.kRightPartialTravelDistance);
+    }
+
+    public void setClimberNone() {
+        setRightClimberPosition(Constants.ClimberConstants.kSafetyMinimum);
+        setLeftClimberPosition(Constants.ClimberConstants.kSafetyMinimum);
+
     }
 
     public enum RightControlState {
@@ -325,5 +389,49 @@ public class Climber extends Subsystem {
         /* Outputs */
         public double climber_demand_right;
         public double climber_demand_left;
+    }
+
+    // logger
+    @Override
+    public void registerLogger(LoggingSystem LS) {
+        SetupLog();
+        LS.register(mStorage, "CLIMBER_LOGS.csv");
+    }
+
+    public void SetupLog() {
+        mStorage = new LogStorage<PeriodicIO>();
+
+        ArrayList<String> headers = new ArrayList<String>();
+        headers.add("timestamp");
+        headers.add("climber_stator_current_right");
+        headers.add("climber_motor_position_right");
+        headers.add("climber_voltage_left");
+        headers.add("climber_motor_velocity_right");
+        headers.add("climber_stator_current_left");
+        headers.add("climber_demand_right");
+        headers.add("climber_motor_position_left");
+        headers.add("climber_demand_left");
+        headers.add("climber_voltage_right");
+        headers.add("climber_motor_velocity_left");
+
+        mStorage.setHeaders(headers);
+    }
+
+    public void SendLog() {
+        ArrayList<Number> items = new ArrayList<Number>();
+        items.add(Timer.getFPGATimestamp());
+        items.add(mPeriodicIO.climber_stator_current_right);
+        items.add(mPeriodicIO.climber_motor_position_right);
+        items.add(mPeriodicIO.climber_voltage_left);
+        items.add(mPeriodicIO.climber_motor_velocity_right);
+        items.add(mPeriodicIO.climber_stator_current_left);
+        items.add(mPeriodicIO.climber_demand_right);
+        items.add(mPeriodicIO.climber_motor_position_left);
+        items.add(mPeriodicIO.climber_demand_left);
+        items.add(mPeriodicIO.climber_voltage_right);
+        items.add(mPeriodicIO.climber_motor_velocity_left);
+
+        // send data to logging storage
+        mStorage.addData(items);
     }
 } 

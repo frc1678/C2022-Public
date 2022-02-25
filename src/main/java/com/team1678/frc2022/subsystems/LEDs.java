@@ -22,8 +22,8 @@ public class LEDs extends Subsystem {
     
     public State mBottomState = State.RAINBOW;
     public State mTopState = State.RAINBOW;
-    public LEDSector mTopSector = new LEDSector(0, 32);
-    public LEDSector mBottomSector = new LEDSector(32, 512);
+    public LEDSector mTopSector = new LEDSector(0, 32, 1);
+    public LEDSector mBottomSector = new LEDSector(32, 512, 1);
     public static LEDs mInstance;
     public double mLastTimestamp = Timer.getFPGATimestamp();
 
@@ -62,6 +62,9 @@ public class LEDs extends Subsystem {
         // Regular States
         TARGET_VISIBLE(255, 255, 0, Double.POSITIVE_INFINITY, 0.0, false), // Slow Yellow
         SHOT_READY(255, 255, 0, 0.05, 0.05, false), // FAST Yellow
+
+        // Super States
+        CLIMB_MODE(255, 0, 255, Double.POSITIVE_INFINITY, 0.0, false),
 
         // Fun Colors!
         MERICA(0.3, 0, false, new Color(1, 1, 1), new Color(1, 0, 0), new Color(0, 0, 1)), // Unused
@@ -121,10 +124,25 @@ public class LEDs extends Subsystem {
         public boolean rising = false;
         public int startLed = 0;
         public int ledCount = 0;
+        public int brightness = 1;
 
-        public LEDSector(int startLed, int ledCount) {
+        /**
+         * Create a new instance of LEDSector
+         * @param startLed the starting ID of the first LED (0-512)
+         * @param ledCount
+         * @param brightness
+         */
+        public LEDSector(int startLed, int ledCount, int brightness) {
+            if (startLed < 0 || startLed + ledCount > 512) {
+                throw new IllegalArgumentException("LED Count out of range (0-512)");
+            }
+            if (brightness < 0 || brightness > 1) {
+                throw new IllegalArgumentException("Brightness out of range (0.0-1.0)");
+            }
+
             this.startLed = startLed;
             this.ledCount = ledCount;
+            this.brightness = brightness;
         }
     }
 
@@ -132,7 +150,7 @@ public class LEDs extends Subsystem {
         CANdleConfiguration config = new CANdleConfiguration();
         config.disableWhenLOS = true;
         config.stripType = LEDStripType.RGB; // set the strip type to RGB
-        config.brightnessScalar = 0.3; // dim the LEDs to half brightness
+        config.brightnessScalar = 0.3; // global brightness scale
         mCandle.configAllSettings(config, Constants.kLongCANTimeoutMs);
         mCandle.setStatusFramePeriod(CANdleStatusFrame.CANdleStatusFrame_Status_1_General, 255);
         mCandle.setControlFramePeriod(CANdleControlFrame.CANdle_Control_1_General, 10);
@@ -155,9 +173,9 @@ public class LEDs extends Subsystem {
             return;
         }
 
-        if (mIndexer.getBallCount() == 1) {
+        if (mSuperstructure.getBallCount() == 1) {
             setTopState(State.ONE_BALL);
-        } else if (mIndexer.getBallCount() == 2) {
+        } else if (mSuperstructure.getBallCount() == 2) {
             setTopState(State.TWO_BALL);
         } else {
             setTopState(State.IDLE);
@@ -165,10 +183,15 @@ public class LEDs extends Subsystem {
 
         if (Limelight.getInstance().hasTarget()) {
             setBottomState(State.TARGET_VISIBLE);
-        } else if (mSuperstructure.isSpunUp()) {
+        } else if (mSuperstructure.isSpunUp() && mSuperstructure.isAimed()) {
             setBottomState(State.SHOT_READY);
         } else {
             setBottomState(State.IDLE);
+        }
+
+        if (mSuperstructure.getInClimbMode()) {
+            setTopState(State.CLIMB_MODE);
+            setBottomState(State.CLIMB_MODE);
         }
     }
 
@@ -183,7 +206,7 @@ public class LEDs extends Subsystem {
 
         // For some reason we need to alternate setting states
         if (alt) {
-            updateLEDsFromState(mBottomState, this.mBottomSector, deltaTime, timestamp);
+            updateLEDsFromState(mBottomState, this.mBottomSector, deltaTime * 2, timestamp);
         } else {
             updateLEDsFromState(mTopState, this.mTopSector, deltaTime * 2, timestamp);
         }
@@ -231,6 +254,7 @@ public class LEDs extends Subsystem {
         } else {
             percentBrightness = sector.rising ? 1 : 0;
         }
+        percentBrightness = percentBrightness * sector.brightness;
 
 
         int red = 255;
