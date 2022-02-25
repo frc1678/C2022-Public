@@ -34,7 +34,6 @@ public class Indexer extends Subsystem {
 
     private TalonFX mEjector;
     private TalonFX mTunnel;
-    private TalonFX mTrigger;
 
     private final DigitalInput mBottomBeamBreak;
     private final DigitalInput mTopBeamBreak;
@@ -67,10 +66,8 @@ public class Indexer extends Subsystem {
     private Indexer() {
         mEjector = TalonFXFactory.createDefaultTalon(Ports.EJECTOR_ID);
         mTunnel = TalonFXFactory.createDefaultTalon(Ports.TUNNEL_ID);
-        mTrigger = TalonFXFactory.createDefaultTalon(Ports.TRIGGER_ID);
 
         mTunnel.setInverted(true);
-        mTrigger.setInverted(true);
 
         mBottomBeamBreak = new DigitalInput(Ports.BOTTOM_BEAM_BREAK);
         mTopBeamBreak = new DigitalInput(Ports.TOP_BEAM_BREAK);
@@ -102,33 +99,28 @@ public class Indexer extends Subsystem {
             case IDLE:
                 mPeriodicIO.ejector_demand = Constants.IndexerConstants.kIdleVoltage;
                 mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kIdleVoltage;
-                mPeriodicIO.trigger_demand = Constants.IndexerConstants.kIdleVoltage;
                 break;
             case INDEXING:
                 if (!stopTunnel()) {
-                    mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelVoltage;
+                    mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVoltage;
                     mPeriodicIO.ejector_demand = Constants.IndexerConstants.kEjectorVoltage;
                 } else {
                     mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kIdleVoltage;
                     mPeriodicIO.ejector_demand = Constants.IndexerConstants.kIdleVoltage;
                 }
-                mPeriodicIO.trigger_demand = -0.5;
                 break;
             case EJECTING:
-                mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelVoltage;
+                mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVoltage;
                 mPeriodicIO.ejector_demand = -Constants.IndexerConstants.kEjectorVoltage;
-                mPeriodicIO.trigger_demand = -0.5;
                 break;
             case FEEDING:
-                mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kFeedingVoltage;
+                mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelFeedingVoltage;
                 mPeriodicIO.ejector_demand = Constants.IndexerConstants.kEjectorFeedingVoltage;
-                mPeriodicIO.trigger_demand = -Constants.IndexerConstants.kTriggerVoltage;
                 break;
             case REVERSING:
                 // reverses everything
                 mPeriodicIO.ejector_demand = Constants.IndexerConstants.kIdleVoltage;
                 mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kReversingVoltage;
-                mPeriodicIO.trigger_demand = Constants.IndexerConstants.kReversingVoltage;
                 break;
         }
     }
@@ -163,7 +155,6 @@ public class Indexer extends Subsystem {
     public synchronized void writePeriodicOutputs() {
         mEjector.set(ControlMode.PercentOutput, mPeriodicIO.ejector_demand / 12.0);
         mTunnel.set(ControlMode.PercentOutput, mPeriodicIO.tunnel_demand / 12.0);  
-        mTrigger.set(ControlMode.PercentOutput, mPeriodicIO.trigger_demand / 12.0);
     }
 
     @Override
@@ -188,10 +179,6 @@ public class Indexer extends Subsystem {
     } 
 
     // subsystem setters
-
-    public void setTriggerDemand(double demand) {
-        mPeriodicIO.trigger_demand = demand;
-    }
     
     public void setOuttakeDemand(double demand) {
         mPeriodicIO.ejector_demand = demand;
@@ -225,18 +212,6 @@ public class Indexer extends Subsystem {
         return mPeriodicIO.tunnel_voltage;
     }
 
-    public double getTriggerCurrent() {
-        return mPeriodicIO.trigger_current;
-    }
-
-    public double getTriggerDemand() {
-        return mPeriodicIO.trigger_demand;
-    }
-
-    public double getTriggerVoltage() {
-        return mPeriodicIO.trigger_voltage;
-    }
-
     public boolean getTopBeamBreak() {
         return mPeriodicIO.top_break;
     }
@@ -252,16 +227,13 @@ public class Indexer extends Subsystem {
         
         public double ejector_current;
         public double tunnel_current;
-        public double trigger_current;
         
         public double ejector_voltage;
         public double tunnel_voltage;
-        public double trigger_voltage;
 
         // OUTPUTS
         public double ejector_demand;
         public double tunnel_demand;
-        public double trigger_demand;
     }
 
     // only call for quick status testing
@@ -283,15 +255,12 @@ public class Indexer extends Subsystem {
         headers.add("timestamp");
         headers.add("bottom_break");
         headers.add("top_break");
-        headers.add("trigger_current");
-        headers.add("trigger_voltage");
         headers.add("ejector_current");
         headers.add("ejector_voltage");
         headers.add("tunnel_voltage");
         headers.add("tunnel_demand");
         headers.add("ejector_demand");
         headers.add("tunnel_current");
-        headers.add("trigger_demand");
         
         mStorage.setHeaders(headers);
     }
@@ -301,15 +270,12 @@ public class Indexer extends Subsystem {
         items.add(Timer.getFPGATimestamp());
         items.add(mPeriodicIO.bottom_break ? 1.0 : 0.0);
         items.add(mPeriodicIO.top_break ? 1.0 : 0.0);
-        items.add(mPeriodicIO.trigger_current);
-        items.add(mPeriodicIO.trigger_voltage);
         items.add(mPeriodicIO.ejector_current);
         items.add(mPeriodicIO.ejector_voltage);
         items.add(mPeriodicIO.tunnel_voltage);
         items.add(mPeriodicIO.tunnel_demand);
         items.add(mPeriodicIO.ejector_demand);
         items.add(mPeriodicIO.tunnel_current);
-        items.add(mPeriodicIO.trigger_demand);
 
         // send data to logging storage
         mStorage.addData(items);
