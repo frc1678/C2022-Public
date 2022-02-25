@@ -707,8 +707,13 @@ public class Superstructure extends Subsystem {
     public boolean getInClimbMode() {
         return mClimbMode;
     }
+
     public boolean isOpenLoopClimbControl() {
         return mOpenLoopClimbControlMode;
+    }
+
+    public boolean isAutoClimb() {
+        return mAutoTraversalClimb;
     }
 
     // get goals
