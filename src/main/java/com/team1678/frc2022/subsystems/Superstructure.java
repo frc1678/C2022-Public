@@ -6,15 +6,17 @@ import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.CustomXboxController;
 import com.team1678.frc2022.controlboard.CustomXboxController.Button;
+import com.team1678.frc2022.logger.LogStorage;
+import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.regressions.ShooterRegression;
 import com.team254.lib.util.Util;
 import com.team254.lib.util.InterpolatingDouble;
-import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.vision.AimingParameters;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 import com.team1678.frc2022.RobotState;
@@ -31,6 +33,9 @@ public class Superstructure extends Subsystem {
         return mInstance;
     };
 
+    // logger
+    LogStorage<PeriodicIO> mStorage = null;
+
     /*** REQUIRED INSTANCES ***/
     private final ControlBoard mControlBoard = ControlBoard.getInstance();
     private final Swerve mSwerve = Swerve.getInstance();
@@ -38,6 +43,7 @@ public class Superstructure extends Subsystem {
     private final Indexer mIndexer = Indexer.getInstance();
     private final ColorSensor mColorSensor = ColorSensor.getInstance();
     private final Shooter mShooter = Shooter.getInstance();
+    private final Trigger mTrigger = Trigger.getInstance();
     private final Hood mHood = Hood.getInstance();
     private final Climber mClimber = Climber.getInstance();
     private final Limelight mLimelight = Limelight.getInstance();
@@ -48,7 +54,6 @@ public class Superstructure extends Subsystem {
 
     // PeriodicIO instance and paired csv writer
     public PeriodicIO mPeriodicIO = new PeriodicIO();
-    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
     
     /*** CONTAINER FOR SUPERSTRUCTURE ACTIONS AND GOALS ***/
     public static class PeriodicIO {
@@ -71,11 +76,17 @@ public class Superstructure extends Subsystem {
         // (superstructure goals/setpoints)
         private Intake.WantedAction real_intake = Intake.WantedAction.NONE;
         private Indexer.WantedAction real_indexer = Indexer.WantedAction.NONE;
+        private Trigger.WantedAction real_trigger = Trigger.WantedAction.NONE;
         private double real_shooter = 0.0;
         private double real_hood = 0.0;   
     }
 
     /* Setpoint Tracker Variables */
+    // ball counting tracker variables
+    public double mBallCount = 0.0;
+    private boolean mHasTopBall = false;
+    private boolean mHasBottomBall = false;
+
     // shooting system setpoints
     public double mShooterSetpoint = 1000.0;
     public double mHoodSetpoint = 20.0; // TODO: arbitrary value, change4
@@ -111,16 +122,19 @@ public class Superstructure extends Subsystem {
         enabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
-                startLogging();
             }
 
             @Override
             public void onLoop(double timestamp) {
                 final double start = Timer.getFPGATimestamp();
 
+                updateBallCounter();
                 updateShootingParams();
                 setGoals();
                 outputTelemetry();
+                        
+                // send log data
+                SendLog();
 
                 final double end = Timer.getFPGATimestamp();
                 mPeriodicIO.dt = end - start;
@@ -129,7 +143,6 @@ public class Superstructure extends Subsystem {
             @Override
             public void onStop(double timestamp) {
                 stop();
-                stopLogging();
             }
         });
     }
@@ -425,11 +438,11 @@ public class Superstructure extends Subsystem {
             }
             // control options to filter cargo and eject
             // don't eject if we want it disabled or if we lock the intake because we have two correct cargo
-            if (mDisableEjecting || mLockIntake) {
-                mPeriodicIO.EJECT = false;
-            } else if (mControlBoard.operator.getButton(Button.LB)) {
+            if (mControlBoard.operator.getButton(Button.LB)) {
                 mPeriodicIO.EJECT = true;
                 mForceEject = true;
+            } else if (mDisableEjecting || mLockIntake) {
+                mPeriodicIO.EJECT = false;
             } else {
                 mForceEject = false;
                 // when not forcing an eject, passively check whether want to passively eject using color sensor logic
@@ -472,6 +485,35 @@ public class Superstructure extends Subsystem {
             if (mControlBoard.operator.getButton(CustomXboxController.Button.START)) {
                 mResetHoodAngleAdjustment = true;
             }
+        }
+    }
+
+    /*** UPDATE BALL COUNTER FOR INDEXING STATUS ***/
+    public void updateBallCounter() {
+        // will always have the top ball if the top beam break is triggering
+        if (mIndexer.getTopBeamBreak()) {
+            mHasTopBall = true;
+        } else {
+            mHasTopBall = false;
+        }
+
+        // we have our bottom ball if:
+        // - we are triggering the bottom beam break
+        // - we don't want to eject the ball we currently see
+        // - we already have our top ball
+        if (mIndexer.getBottomBeamBreak() && !mPeriodicIO.EJECT) {
+            mHasBottomBall = true;
+        } else {
+            mHasBottomBall = false;
+        }
+
+        // update ball counter based off of whether we have our first and second cargo
+        if (mHasTopBall && mHasBottomBall) {
+            mBallCount = 2;
+        } else if (mHasTopBall || mHasBottomBall) {
+            mBallCount = 1;
+        } else {
+            mBallCount = 0;
         }
     }
 
@@ -524,21 +566,30 @@ public class Superstructure extends Subsystem {
             // only feed cargo to shoot when spun up and aimed
             if (isSpunUp() /*&& isAimed()*/) {
                 mPeriodicIO.real_indexer = Indexer.WantedAction.FEED;
+                if (mPeriodicIO.FENDER) {
+                    mPeriodicIO.real_trigger = Trigger.WantedAction.SLOW_FEED;
+                } else {
+                    mPeriodicIO.real_trigger = Trigger.WantedAction.FEED;
+                }
             } else {
+                mPeriodicIO.real_trigger = Trigger.WantedAction.NONE;
                 mPeriodicIO.real_indexer = Indexer.WantedAction.NONE;
             }
         } else {
             // force eject
             if (mPeriodicIO.EJECT && mForceEject) {
                 mPeriodicIO.real_indexer = Indexer.WantedAction.EJECT;
+                mPeriodicIO.real_trigger = Trigger.WantedAction.PASSIVE_REVERSE;
             // only do any indexing action if we detect a ball
             } else if (mColorSensor.hasBall()) {
+                mPeriodicIO.real_trigger = Trigger.WantedAction.PASSIVE_REVERSE;
                 if (mPeriodicIO.EJECT) {
                     mPeriodicIO.real_indexer = Indexer.WantedAction.EJECT;
                 } else {
                     mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX;
                 }
             } else {
+                mPeriodicIO.real_trigger = Trigger.WantedAction.NONE;
                 mPeriodicIO.real_indexer = Indexer.WantedAction.NONE;
             }
 
@@ -562,16 +613,18 @@ public class Superstructure extends Subsystem {
 
         // set shooter subsystem setpoint
         if (Math.abs(mPeriodicIO.real_shooter) < Util.kEpsilon) {
-            mShooter.setOpenLoop(0, 0); // open loop if rpm goal is 0, to smooth spin down and stop belt skipping
+            mShooter.setOpenLoop(0.0); // open loop if rpm goal is 0, to smooth spin down and stop belt skipping
         } else {
             mShooter.setVelocity(mShooterSetpoint, mShooterSetpoint * Constants.ShooterConstants.kAcceleratorMultiplier);
         }
+        mTrigger.setState(mPeriodicIO.real_trigger);
 
         // set hood subsystem setpoint
         // safety clamp the hood goal between min and max hard stops for hood angle
         mPeriodicIO.real_hood = Util.clamp(mPeriodicIO.real_hood,
                 Constants.HoodConstants.kHoodServoConstants.kMinUnitsLimit,
                 Constants.HoodConstants.kHoodServoConstants.kMaxUnitsLimit); 
+        
         if (mHood.mControlState != ServoMotorSubsystem.ControlState.OPEN_LOOP) {
             mHood.setSetpointMotionMagic(mPeriodicIO.real_hood);
         }
@@ -612,6 +665,10 @@ public class Superstructure extends Subsystem {
     // stop intaking if we have two of the correct cargo
     public boolean stopIntaking() {
         return (mIndexer.getTopBeamBreak() && mColorSensor.seesBall() && mColorSensor.hasCorrectColor());
+    }
+    // get number of correct cargo in indexer
+    public double getBallCount() {
+        return mBallCount;
     }
     // ball at back beam break and top beam break
     public boolean indexerFull() {
@@ -735,25 +792,53 @@ public class Superstructure extends Subsystem {
     @Override
     public void readPeriodicInputs() {
         mPeriodicIO.timestamp = Timer.getFPGATimestamp();
-        // write inputs and ouputs from PeriodicIO to csv 
-        if (mCSVWriter != null) {
-            mCSVWriter.add(mPeriodicIO);
-        }
     }
 
-    // instantiate csv writer
-    public synchronized void startLogging() {
-        if (mCSVWriter == null) {
-            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/SUPERSTRUCTURE-LOGS.csv", PeriodicIO.class);
-        }
+    // logger
+    @Override
+    public void registerLogger(LoggingSystem LS) {
+        SetupLog();
+        LS.register(mStorage, "SUPERSTRUCTURE_LOGS.csv");
     }
 
-    // send written csv data to file and end log
-    public synchronized void stopLogging() {
-        if (mCSVWriter != null) {
-            mCSVWriter.flush();
-            mCSVWriter = null;
-        }
+    public void SetupLog() {
+        mStorage = new LogStorage<PeriodicIO>();
+
+        ArrayList<String> headers = new ArrayList<String>();
+        headers.add("timestamp");
+        headers.add("dt");
+        headers.add("INTAKE");
+        headers.add("REVERSE");
+        headers.add("REJECT");
+        headers.add("EJECT");
+        headers.add("PREP");
+        headers.add("SHOOT");
+        headers.add("FENDER");
+        headers.add("SPIT");
+        headers.add("real_shooter");
+        headers.add("real_hood");
+
+        mStorage.setHeaders(headers);
+    }
+
+    public void SendLog() {
+        ArrayList<Number> items = new ArrayList<Number>();
+        items.add(Timer.getFPGATimestamp());
+        items.add(mPeriodicIO.timestamp);
+        items.add(mPeriodicIO.dt);
+        items.add(mPeriodicIO.SPIT ? 1.0 : 0.0);
+        items.add(mPeriodicIO.REJECT ? 1.0 : 0.0);
+        items.add(mPeriodicIO.EJECT ? 1.0 : 0.0);
+        items.add(mPeriodicIO.REVERSE ? 1.0 : 0.0);
+        items.add(mPeriodicIO.PREP ? 1.0 : 0.0);
+        items.add(mPeriodicIO.SHOOT ? 1.0 : 0.0);
+        items.add(mPeriodicIO.INTAKE ? 1.0 : 0.0);
+        items.add(mPeriodicIO.FENDER ? 1.0 : 0.0);
+        items.add(mPeriodicIO.real_shooter);
+        items.add(mPeriodicIO.real_hood);
+
+        // send data to logging storage
+        mStorage.addData(items);
     }
     
 }

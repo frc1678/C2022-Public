@@ -1,10 +1,15 @@
 package com.team1678.frc2022.subsystems;
 
+import java.util.ArrayList;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.team1678.frc2022.Constants;
+import com.team1678.frc2022.logger.LogStorage;
+import com.team1678.frc2022.logger.LoggingSystem;
 import com.team254.lib.util.Util;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Hood extends ServoMotorSubsystem {
@@ -12,6 +17,9 @@ public class Hood extends ServoMotorSubsystem {
     private static Hood mInstance;
 
     private boolean mHomed = false;
+
+    // logger
+    LogStorage<PeriodicIO> mStorage = null;
 
     public static Hood getInstance() {
         if (mInstance == null) {
@@ -54,6 +62,9 @@ public class Hood extends ServoMotorSubsystem {
         } else {
             super.writePeriodicOutputs();
         }
+
+        // send log data
+        SendLog();
     }
 
     @Override
@@ -98,6 +109,38 @@ public class Hood extends ServoMotorSubsystem {
     @Override
     public boolean checkSystem() {
         return true;
+    }
+
+    // logger
+    @Override
+    public void registerLogger(LoggingSystem LS) {
+        SetupLog();
+        LS.register(mStorage, "HOOD_LOGS.csv");
+    }
+
+    public void SetupLog() {
+        mStorage = new LogStorage<PeriodicIO>();
+
+        ArrayList<String> headers = new ArrayList<String>();
+        headers.add("timestamp");
+        headers.add("homed");
+        headers.add("hood_demand");
+        headers.add("hood_angle");
+        headers.add("hood_current");
+
+        mStorage.setHeaders(headers);
+    }
+
+    public void SendLog() {
+        ArrayList<Number> items = new ArrayList<Number>();
+        items.add(Timer.getFPGATimestamp());
+        items.add(mHomed ? 1.0 : 0.0);
+        items.add(mPeriodicIO.demand);
+        items.add(getHoodAngle());
+        items.add(mPeriodicIO.master_stator_current);
+
+        // send data to logging storage
+        mStorage.addData(items);
     }
 
 }

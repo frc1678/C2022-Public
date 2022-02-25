@@ -6,11 +6,9 @@ import com.team1678.frc2022.subsystems.Limelight.LimelightConstants;
 import com.team1678.frc2022.subsystems.ServoMotorSubsystem.ServoMotorSubsystemConstants;
 import com.team254.lib.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.util.Color;
 
 public class Constants {
 
@@ -279,11 +277,20 @@ public class Constants {
         public static final double kShooterD = 0.0;
         public static final double kShooterF = 0.0545;
         public static final double kClosedLoopRamp = 0.1;
+    }
 
-        public static final double kAcceleratorP = 0.05;
-        public static final double kAcceleratorI = 0.0;
-        public static final double kAcceleratorD = 0.0;
-        public static final double kAcceleratorF = 0.045;
+    public static final class TriggerConstants {
+        public static final double kTriggerPassiveVelocity = 0;
+        public static final double kTriggerFeedingVelocity = 1700;
+        public static final double kTriggerSlowFeedVelocity = 1000;
+        public static final double kTriggerReverseVelocity = -1700;
+
+        public static final double kTriggerVelocityConversion = 600.0 / 2048.0 * (1.0 / 3.5); // 3.5 to 1
+
+        public static final double kTriggerP = 0.05;
+        public static final double kTriggerI = 0.0;
+        public static final double kTriggerD = 0.0;
+        public static final double kTriggerF = 0.05;
     }
 
     public static final class HoodConstants {
@@ -349,11 +356,13 @@ public class Constants {
         public static final int kIndexerMaxAcceleration = 40000;
 
         public static final double kIdleVoltage = 0.0;
-        public static final double kTunnelVoltage = 6.0;
+
+        public static final double kTunnelIndexingVoltage = 6.0;
+        public static final double kTunnelFeedingVoltage = 4.0;
+
         public static final double kEjectorVoltage = 12.0;
-        public static final double kTriggerVoltage = 5.0;
         public static final double kEjectorFeedingVoltage = 8.0;
-        public static final double kFeedingVoltage = 4.0;
+
         public static final double kReversingVoltage = -5.0;
         
         public static final int kBottomBeamBreak = 1;
