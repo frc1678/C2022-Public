@@ -342,20 +342,20 @@ public class Swerve extends Subsystem {
     @Override
     public void registerLogger(LoggingSystem LS) {
         SetupLog();
-        LS.register(mStorage, "CLIMBER_LOGS.csv");
+        LS.register(mStorage, "SWERVE_LOGS.csv");
     }
     
     public void SetupLog() {
         mStorage = new LogStorage<PeriodicIO>();
 
         ArrayList<String> headers = new ArrayList<String>();
-        headers.add("Odometry Pose X");
-        headers.add("Odometry Pose Y");
-        headers.add("Odometry Pose Rot");
-        headers.add("Pigeon Heading");
-        headers.add("Robot Pitch");
-        headers.add("Robot Roll");
-        headers.add("Snap Target");
+        headers.add("odometry_pose_x");
+        headers.add("odometry_pose_y");
+        headers.add("odometry_pose_rot");
+        headers.add("pigeon_heading");
+        headers.add("robot_pitch");
+        headers.add("robot_roll");
+        headers.add("snap_target");
 
         mStorage.setHeaders(headers);
     }
