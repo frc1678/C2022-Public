@@ -50,7 +50,7 @@ public class TwoBallLeftMode extends AutoModeBase {
                                                             mSwerve::getWantAutoVisionAim,
                                                             mSwerve::setModuleStates);
 
-        Trajectory traj_path_b = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_a, Constants.AutoConstants.zeroToDefaultSpeedConfig);
+        Trajectory traj_path_b = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_b, Constants.AutoConstants.zeroToDefaultSpeedConfig);
         driveToShotPose = new SwerveTrajectoryAction(traj_path_b,
                                                             mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
                                                             new PIDController(Constants.AutoConstants.kPXController, 0, 0),

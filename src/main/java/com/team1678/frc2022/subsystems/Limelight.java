@@ -1,13 +1,14 @@
 package com.team1678.frc2022.subsystems;
 
 import com.team1678.frc2022.Constants;
+import com.team1678.frc2022.logger.LogStorage;
+import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.loops.Loop;
 import com.team1678.frc2022.loops.ILooper;  
 
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
-import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.util.Util;
 import com.team254.lib.vision.TargetInfo;
 
@@ -30,8 +31,9 @@ public class Limelight extends Subsystem {
     public final static int kZoomedInPipeline = 1;
 
     private static Limelight mInstance = null;
-
-    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
+    
+    // logger
+    LogStorage<PeriodicIO> mStorage = null;
 
     private int mLatencyCounter = 0;
 
@@ -40,7 +42,7 @@ public class Limelight extends Subsystem {
 
     public static class LimelightConstants {
         public String kName = "";
-        public String kTableName = "";
+        public String kTableName = "limelight";
         public double kHeight = 0.0;
         public Pose2d kTurretToLens = Pose2d.identity();
         public Rotation2d kHorizontalPlaneToLens = Rotation2d.identity();
@@ -80,8 +82,10 @@ public class Limelight extends Subsystem {
                     }
 
                     // outputTelemetry();
-                    startLogging();
                 }
+                
+                // send log data
+                SendLog();
 
                 setLed(LedMode.ON);
 
@@ -92,7 +96,6 @@ public class Limelight extends Subsystem {
             @Override
             public void onStop(double timestamp) {
                 stop();
-                stopLogging();
                 setLed(LedMode.OFF);
             }
         };
@@ -168,9 +171,6 @@ public class Limelight extends Subsystem {
         mPeriodicIO.has_comms = mLatencyCounter < 10;
 
         mSeesTarget = mNetworkTable.getEntry("tv").getDouble(0) == 1.0;
-        if (mCSVWriter != null) {
-            mCSVWriter.add(mPeriodicIO);
-        }
     }
 
     @Override
@@ -200,19 +200,6 @@ public class Limelight extends Subsystem {
         return true;
     }
 
-    public synchronized void startLogging() {
-        if (mCSVWriter == null) {
-            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/LIMELIGHT-LOGS.csv", PeriodicIO.class);
-        }
-    }
-
-    public synchronized void stopLogging() {
-        if (mCSVWriter != null) {
-            mCSVWriter.flush();
-            mCSVWriter = null;
-        }
-    }
-
     public synchronized void outputTelemetry() {
         SmartDashboard.putBoolean("Limelight Ok", mPeriodicIO.has_comms);
         SmartDashboard.putNumber(mConstants.kName + ": Pipeline Latency (ms)", mPeriodicIO.latency);
@@ -223,10 +210,6 @@ public class Limelight extends Subsystem {
         SmartDashboard.putNumber("Limelight Ty: ", mPeriodicIO.yOffset);
 
         SmartDashboard.putNumber("Distance To Target", mDistanceToTarget.isPresent() ? mDistanceToTarget.get() : 0.0);
-
-        if (mCSVWriter != null) {
-            mCSVWriter.write();
-        }
     }
 
     public enum LedMode {
@@ -390,5 +373,43 @@ public class Limelight extends Subsystem {
 
     public double[] getOffset() {
         return new double[] {mPeriodicIO.xOffset, mPeriodicIO.yOffset};
+    }
+
+    // logger
+    
+    @Override
+    public void registerLogger(LoggingSystem LS) {
+        SetupLog();
+        LS.register(mStorage, "LIMELIGHT_LOGS.csv");
+    }
+
+    
+    public void SetupLog() {
+        mStorage = new LogStorage<PeriodicIO>();
+
+        ArrayList<String> headers = new ArrayList<String>();
+        headers.add("timestamp");
+        headers.add("latency");
+        headers.add("yOffset");
+        headers.add("dt");
+        headers.add("area");
+        headers.add("xOffset");
+        headers.add("has_comms");
+        
+        mStorage.setHeaders(headers);
+    }
+
+    public void SendLog() {
+        ArrayList<Number> items = new ArrayList<Number>();
+        items.add(Timer.getFPGATimestamp());
+        items.add(mPeriodicIO.latency);
+        items.add(mPeriodicIO.yOffset);
+        items.add(mPeriodicIO.dt);
+        items.add(mPeriodicIO.area);
+        items.add(mPeriodicIO.xOffset);
+        items.add(mPeriodicIO.has_comms ? 1.0 : 0.0);
+        
+        // send data to logging storage
+        mStorage.addData(items);
     }
 }

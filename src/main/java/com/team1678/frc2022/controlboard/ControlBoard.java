@@ -27,10 +27,10 @@ public class ControlBoard {
 
     public enum SwerveCardinal {
         NONE(0),
-        FRONT(0),
-        LEFT(90),
-        RIGHT(-90),
-        BACk(180);
+        FRONT(143),
+        LEFT(233),
+        RIGHT(53),
+        BACK(323);
 
         public final double degrees;
 
@@ -98,7 +98,7 @@ public class ControlBoard {
 
     public SwerveCardinal getSwerveSnap() {
         if (driver.getButton(Button.A)) {
-            return SwerveCardinal.BACk;
+            return SwerveCardinal.BACK;
         }
         if (driver.getButton(Button.B)) {
             return SwerveCardinal.RIGHT;
@@ -163,5 +163,51 @@ public class ControlBoard {
     public boolean getReversing() {
         return operator.getButton(Button.A);
     }
+
+    // Climber Controls
+    public boolean getClimbMode() {
+        return operator.getButton(Button.LB) && operator.getButton(Button.RB) && operator.getTrigger(Side.LEFT) && operator.getTrigger(Side.RIGHT);
+    }
+
+    public boolean getExitClimbMode() {
+        return operator.getButton(Button.BACK) && operator.getButton(Button.START);
+    }
+    
+    public boolean getTraversalClimb() {
+        return operator.getButton(Button.LB) && operator.getController().getYButtonPressed();
+    }
+
+    public boolean getSwitchClimbControlMode() {
+        return operator.getController().getLeftStickButtonPressed();
+    }
+
+    public boolean getResetClimberPosition() {
+        return operator.getController().getRightStickButtonPressed();
+    }
+
+    public int getClimberJogRight() {
+        int povread = operator.getController().getPOV();
+        switch (povread) {
+            case 0:
+                return 1;
+            case 180:
+                return -1;
+            default:
+                return 0;
+        }
+    }
+
+    public int getClimberJogLeft() {
+        int povread = operator.getController().getPOV();
+        switch (povread) {
+            case 90:
+                return 1;
+            case 360:
+                return -1;
+            default:
+                return 0;
+        }
+    }
+    
 }
 
