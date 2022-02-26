@@ -253,6 +253,17 @@ public class Climber extends Subsystem {
 
     }
 
+    // hold current position on arm
+    public void holdCurrentPosition() {
+        if (mPeriodicIO.climber_stator_current_left > Constants.ClimberConstants.kStatorCurrentLimit) {
+            setLeftClimberPosition(mPeriodicIO.climber_motor_position_left);
+        }
+
+        if (mPeriodicIO.climber_stator_current_right > Constants.ClimberConstants.kStatorCurrentLimit) {
+            setRightClimberPosition(mPeriodicIO.climber_motor_position_right);
+        }
+    }
+
     public enum RightControlState {
         HOMING,
         OPEN_LOOP,
