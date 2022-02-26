@@ -11,6 +11,15 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class PicoColorSensor implements AutoCloseable {
 
+  private static PicoColorSensor mInstance;
+  
+  public static synchronized PicoColorSensor getInstance() {
+      if (mInstance == null) {
+          mInstance = new PicoColorSensor();
+      }
+      return mInstance;
+  }
+
     public static class RawColor {
       public RawColor(int r, int g, int b, int _ir) {
         red = r;
@@ -20,7 +29,7 @@ public class PicoColorSensor implements AutoCloseable {
       }
   
       public RawColor() {
-      }
+        }
   
       public int red;
       public int green;
@@ -78,8 +87,8 @@ public class PicoColorSensor implements AutoCloseable {
     }
   
     private final AtomicBoolean debugPrints = new AtomicBoolean();
-    private boolean hasColor0;
-    private boolean hasColor1;
+    public boolean hasColor0;
+    public boolean hasColor1;
     private int prox0;
     private int prox1;
     private final RawColor color0 = new RawColor();
@@ -286,3 +295,6 @@ public class PicoColorSensor implements AutoCloseable {
       readThread.join();
     }
   }
+
+
+
