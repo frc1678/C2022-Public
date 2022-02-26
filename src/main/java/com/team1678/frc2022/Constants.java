@@ -370,23 +370,33 @@ public class Constants {
         public static final double kClimbingVoltageLeft =  8.0;
         
         public static final int kLeftMinHeight = 0; // ticks
-        public static final int kLeftMaxHeight = 250584; // ticks
+        public static final int kLeftMaxHeight = 242808; // ticks
         public static final int kLeftTravelDistance = kLeftMaxHeight - kLeftMinHeight + 500; // ticks
-        public static final int kLeftPartialTravelDistance = 187938; // kLeftTravelDistance * 0.80
+        public static final int kLeftPartialTravelDistance = 182106; // kLeftTravelDistance * 0.80
         
         public static final int kRightMinHeight = 0; // ticks
-        public static final int kRightMaxHeight = 248631; // ticks
+        public static final int kRightMaxHeight = 240582; // ticks
         public static final int kRightTravelDistance = kRightMaxHeight - kRightMinHeight + 500; // ticks
-        public static final int kRightPartialTravelDistance = 186473; // kRightTravelDistance * 0.80
+        public static final int kRightPartialTravelDistance = 180437; // kRightTravelDistance * 0.80
 
-        public static final int kSafetyMinimum = -500; // minimum outside 0 ticks
+        // public static final int kEpsilonLeftMinHeight = 0; // ticks
+        // public static final int kEpsilonLeftMaxHeight = 250584; // ticks
+        // public static final int kEpsilonLeftTravelDistance = kLeftMaxHeight - kLeftMinHeight + 500; // ticks
+        // public static final int kEpsilonLeftPartialTravelDistance = 187938; // kLeftTravelDistance * 0.80
+        
+        // public static final int kEpsilonRightMinHeight = 0; // ticks
+        // public static final int kEpsilonRightMaxHeight = 248631; // ticks
+        // public static final int kEpsilonRightTravelDistance = kRightMaxHeight - kRightMinHeight + 500; // ticks
+        // public static final int kEpsilonRightPartialTravelDistance = 186473; // kRightTravelDistance * 0.80
 
-        public static final double kTravelDistanceEpsilon = 2000;
+        public static final int kSafetyMinimum = -2000; // minimum outside 0 ticks
 
-        public static final double kHighBarExtendAngle = -35.0;
-        public static final double kHighBarContactAngle = -28.0;
-        public static final double kTraversalBarExtendAngle = -18.0;
-        public static final double kTraversalBarContactAngle = -34.0;
+        public static final double kTravelDistanceEpsilon = 3000;
+
+        public static final double kHighBarExtendAngle = -38.0;
+        public static final double kHighBarContactAngle = -32.0;
+        public static final double kTraversalBarExtendAngle = -19.0;
+        public static final double kTraversalBarContactAngle = -29.0;
         public static final double kBarContactAngleEpsilon = 2.0;
     }
 
