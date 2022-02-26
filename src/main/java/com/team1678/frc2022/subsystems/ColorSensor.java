@@ -37,13 +37,6 @@ public class ColorSensor extends Subsystem {
     }
 
     private ColorSensor() {
-        if (edu.wpi.first.wpilibj.DriverStation.getAlliance() == Alliance.Red) {
-            mAllianceColor = ColorChoices.RED;
-        } else if (edu.wpi.first.wpilibj.DriverStation.getAlliance() == Alliance.Blue){
-            mAllianceColor = ColorChoices.BLUE;
-        } else {
-            DriverStation.reportError("No Alliance Color Detected", true);
-        }
         mMatchedColor = ColorChoices.NONE;
         mColorSensor = new REVColorSensorV3Wrapper(I2C.Port.kOnboard);
 
@@ -118,6 +111,18 @@ public class ColorSensor extends Subsystem {
         }
     }
 
+    // update our alliance color
+    // only should be updated in disabled periodic
+    public void updateAllianceColor() {
+        if (edu.wpi.first.wpilibj.DriverStation.getAlliance() == Alliance.Red) {
+            mAllianceColor = ColorChoices.RED;
+        } else if (edu.wpi.first.wpilibj.DriverStation.getAlliance() == Alliance.Blue){
+            mAllianceColor = ColorChoices.BLUE;
+        } else {
+            DriverStation.reportError("No Alliance Color Detected", true);
+        }
+    }
+
     // update the color of the cargo we see
     public void updateMatchedColor() {
         if (mPeriodicIO.distance < Constants.ColorSensorConstants.kColorSensorThreshold) { 
@@ -166,8 +171,6 @@ public class ColorSensor extends Subsystem {
         updateHasBall();
         updateMatchedColor();
         updateWantsEject();
-
-        SmartDashboard.putString("Alliance Color", mAllianceColor.toString());
     }
 
     @Override 
@@ -191,6 +194,9 @@ public class ColorSensor extends Subsystem {
             return 0;
         }
         return mPeriodicIO.raw_color.blue;
+    }
+    public String getAllianceColor() {
+        return mAllianceColor.toString();
     }
     public String getMatchedColor() {
         return mMatchedColor.toString();

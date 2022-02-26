@@ -17,9 +17,11 @@ import com.team1678.frc2022.subsystems.Limelight;
 import com.team1678.frc2022.subsystems.Shooter;
 import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
+import com.team1678.frc2022.subsystems.Trigger;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.CAN;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -47,6 +49,7 @@ public class ShuffleBoardInteractions {
     private final Intake mIntake;
     private final LEDs mLEDs;
     private final Shooter mShooter;
+    private final Trigger mTrigger;
     private final Indexer mIndexer;
     private final Climber mClimber;
     private final Superstructure mSuperstructure;
@@ -56,6 +59,7 @@ public class ShuffleBoardInteractions {
     private double lastCancoderUpdate = 0.0;
 
     /* Tabs */
+    private ShuffleboardTab OPERATOR_TAB;
     private ShuffleboardTab VISION_TAB;
     private ShuffleboardTab SWERVE_TAB;
     private ShuffleboardTab PID_TAB;
@@ -118,6 +122,10 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mShooterOpenLoop;
     private final NetworkTableEntry mFlywheelDemand;
 
+    private final NetworkTableEntry mTriggerVelocity;
+    private final NetworkTableEntry mTriggerCurrent;
+    private final NetworkTableEntry mTriggerDemand;
+    private final NetworkTableEntry mTriggerVoltage;
     /* VISION */
     private final NetworkTableEntry mSeesTarget;
     private final NetworkTableEntry mLimelightOk;
@@ -135,9 +143,7 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mTunnelDemand;
     private final NetworkTableEntry mTunnelVoltage;
 
-    private final NetworkTableEntry mTriggerCurrent;
-    private final NetworkTableEntry mTriggerDemand;
-    private final NetworkTableEntry mTriggerVoltage;
+
 
     private final NetworkTableEntry mIndexerState;
 
@@ -198,11 +204,21 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mRValue;
     private final NetworkTableEntry mGValue;
     private final NetworkTableEntry mBValue;
+    private final NetworkTableEntry mAllianceColor;
     private final NetworkTableEntry mMatchedColor;
     private final NetworkTableEntry mReadDistance;
 
     private final NetworkTableEntry mHasBall;
     private final NetworkTableEntry mEject;
+
+    /* Operator */
+    private final NetworkTableEntry mOperatorShooting;
+    private final NetworkTableEntry mOperatorSpunup;
+    private final NetworkTableEntry mOperatorFender;
+    private final NetworkTableEntry mOperatorSpit;
+    private final NetworkTableEntry mOperatorVisionAimed;
+    private final NetworkTableEntry mOperatorClimbMode;
+    private final NetworkTableEntry mOperatorAutoClimb;
 
     // instantiate subsystems, tabs, and widgets
     public ShuffleBoardInteractions() {
@@ -214,11 +230,13 @@ public class ShuffleBoardInteractions {
         mLEDs = LEDs.getInstance();
         mClimber = Climber.getInstance();
         mShooter = Shooter.getInstance();
+        mTrigger = Trigger.getInstance();
         mLimelight = Limelight.getInstance();
         mSuperstructure = Superstructure.getInstance();
         mColorSensor = ColorSensor.getInstance();
 
         /* Get Tabs */
+        OPERATOR_TAB = Shuffleboard.getTab("OPERATOR");
         SWERVE_TAB = Shuffleboard.getTab("Swerve");
         PID_TAB = Shuffleboard.getTab("Module PID");
         CANDLE_TAB = Shuffleboard.getTab("Candle");
@@ -383,15 +401,6 @@ public class ShuffleBoardInteractions {
         mTunnelVoltage = INDEXER_TAB
             .add("Indexer Voltage", 0.0)
             .getEntry();
-        mTriggerCurrent = INDEXER_TAB
-            .add("Trigger Current", 0.0)
-            .getEntry();
-        mTriggerDemand = INDEXER_TAB
-            .add("Trigger Demand", 0.0)
-            .getEntry();
-        mTriggerVoltage = INDEXER_TAB
-            .add("Trigger Voltage", 0.0)
-            .getEntry();
         mTopBeamBreak = INDEXER_TAB
             .add("Top Beam Break Triggered", false)
             .getEntry();
@@ -452,6 +461,22 @@ public class ShuffleBoardInteractions {
                 .add("Shooter Demand", 0.0)
                 .withSize(2, 1)
                 .getEntry();
+        mTriggerCurrent = INDEXER_TAB
+                .add("Trigger Current", 0.0)
+                .withSize(2, 1)
+                .getEntry();
+        mTriggerDemand = INDEXER_TAB
+                .add("Trigger Demand", 0.0)
+                .withSize(2, 1)
+                .getEntry();
+        mTriggerVoltage = INDEXER_TAB
+                .add("Trigger Voltage", 0.0)
+                .withSize(2, 1)
+                .getEntry();
+        mTriggerVelocity = INDEXER_TAB
+                .add("Trigger Velocity", 0.0)
+                .withSize(2, 1)
+                .getEntry();
         mShooterOpenLoop = SHOOTER_TAB
                 .add("Shooter Open Loop", false)
                 .withSize(2, 1)
@@ -466,6 +491,9 @@ public class ShuffleBoardInteractions {
             .getEntry();
         mBValue = COLOR_SENSOR
             .add("Detected B Value", 0.0)
+            .getEntry();
+        mAllianceColor = COLOR_SENSOR
+            .add("Alliance Color", "N/A")
             .getEntry();
         mMatchedColor = COLOR_SENSOR
             .add("Matched Color", "N/A")
@@ -597,13 +625,59 @@ public class ShuffleBoardInteractions {
             .withWidget(BuiltInWidgets.kToggleButton)
             .withSize(2, 1)
             .getEntry();
+
+        /* Operator */
+        mOperatorShooting = OPERATOR_TAB
+                .add("Shooting", false)
+                .withSize(3, 2)
+                .withPosition(2, 1)
+                .getEntry();
+        mOperatorSpunup = OPERATOR_TAB
+                .add("Spun Up", false)
+                .withSize(3,2)
+                .withPosition(5, 1)
+                .getEntry();
+        mOperatorSpit = OPERATOR_TAB
+                .add("Spitting", false)
+                .withSize(3, 1)
+                .withPosition(2, 0)
+                .getEntry();
+        mOperatorFender = OPERATOR_TAB
+                .add("Fender", false)
+                .withSize(3, 1)
+                .withPosition(5, 0)
+                .getEntry();
+        mOperatorVisionAimed = OPERATOR_TAB
+                .add("Vision Aimed", false)
+                .withSize(6, 2)
+                .withPosition(2, 3)
+                .getEntry();
+        mOperatorClimbMode = OPERATOR_TAB
+                .add("Climb Mode", false)
+                .withSize(2, 2)
+                .withPosition(8, 0)
+                .getEntry();
+        mOperatorAutoClimb = OPERATOR_TAB
+                .add("Auto Climbing", false)
+                .withSize(2, 2)
+                .withPosition(8, 2)
+                .getEntry();
     }
 
     public void update() {
 
+        /* OPERATOR */
+        mOperatorShooting.setBoolean(mSuperstructure.getShooting());
+        mOperatorSpunup.setBoolean(mSuperstructure.isSpunUp());
+        mOperatorSpit.setBoolean(mSuperstructure.getWantsSpit());
+        mOperatorFender.setBoolean(mSuperstructure.getWantsFender());
+        mOperatorVisionAimed.setBoolean(mLimelight.isAimed());
+        mOperatorClimbMode.setBoolean(mSuperstructure.getInClimbMode());
+        mOperatorAutoClimb.setBoolean(mSuperstructure.isAutoClimb());
+
         /* SWERVE */
 
-        /*
+        
         //  Only uncomment cancoder update when redoing cancoder offsets for modules
         // Update cancoders at a slower period to avoid stale can frames
         double dt = Timer.getFPGATimestamp();
@@ -613,7 +687,7 @@ public class ShuffleBoardInteractions {
             }
             lastCancoderUpdate = dt;
         }
-        */
+        
         
         for (int i = 0; i < mSwerveCancoders.length; i++) {
             mSwerveIntegrated[i].setDouble(truncate(MathUtil.inputModulus(mSwerveModules[i].getState().angle.getDegrees(), 0, 360)));
@@ -666,6 +740,11 @@ public class ShuffleBoardInteractions {
         mFlywheelRPM.setDouble(truncate(mShooter.getFlywheelRPM()));
         mShooterOpenLoop.setBoolean(mShooter.getIsOpenLoop());
         mFlywheelDemand.setDouble(truncate(mShooter.getFlywheelDemand()));
+
+        mTriggerCurrent.setDouble(mTrigger.getTriggerCurrent());
+        mTriggerDemand.setDouble(mTrigger.getTriggerDemand());
+        mTriggerVoltage.setDouble(mTrigger.getTriggerVoltage());
+        mTriggerVelocity.setDouble(mTrigger.getTriggerVelocity());
         
         /* VISION */
         mSeesTarget.setBoolean(mLimelight.hasTarget());
@@ -684,10 +763,6 @@ public class ShuffleBoardInteractions {
         mTunnelDemand.setDouble(mIndexer.getTunnelDemand());
         mTunnelVoltage.setDouble(mIndexer.getTunnelVoltage());
 
-        mTriggerCurrent.setDouble(mIndexer.getTriggerCurrent());
-        mTriggerDemand.setDouble(mIndexer.getTriggerDemand());
-        mTriggerVoltage.setDouble(mIndexer.getTriggerVoltage());
-
         mIndexerState.setString(mIndexer.getState().toString());
         mBallCount.setDouble(mSuperstructure.getBallCount());
 
@@ -698,6 +773,7 @@ public class ShuffleBoardInteractions {
         mRValue.setDouble(mColorSensor.getDetectedRValue());
         mGValue.setDouble(mColorSensor.getDetectedGValue());
         mBValue.setDouble(mColorSensor.getDetectedBValue());
+        mAllianceColor.setString(mColorSensor.getAllianceColor().toString());
         mMatchedColor.setString(mColorSensor.getMatchedColor().toString());
         mReadDistance.setDouble(mColorSensor.getDistance());
 

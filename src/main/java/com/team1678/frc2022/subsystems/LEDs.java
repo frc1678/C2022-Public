@@ -14,21 +14,28 @@ import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 
 public class LEDs extends Subsystem {
 
-    public CANdle mCandle = new CANdle(Ports.CANDLE);
+    public CANdle mCandle = new CANdle(Ports.CANDLE, "canivore1");
     
-    public State mBottomState = State.RAINBOW;
-    public State mTopState = State.RAINBOW;
-    public LEDSector mTopSector = new LEDSector(0, 32, 1);
-    public LEDSector mBottomSector = new LEDSector(32, 512, 1);
+    public State mBottomState = State.POLICE_BLUE;
+    public State mTopState = State.POLICE_RED;
+
+    public StateStatus topStatus = new StateStatus();
+    public StateStatus bottomStatus = new StateStatus();
+
+    public LEDSector mLeftTopSector = new LEDSector(8, 6, 1);
+    public LEDSector mLeftBottomSector = new LEDSector(14, 7, 1);
+    public LEDSector mRightTopSector = new LEDSector(21, 7, 1);
+    public LEDSector mRightBottomSector = new LEDSector(28, 6, 1);
+
     public static LEDs mInstance;
     public double mLastTimestamp = Timer.getFPGATimestamp();
 
-    public static boolean alt = false;
-    
+    public int sector = 0;
 
     public final Superstructure mSuperstructure = Superstructure.getInstance();
     public final Indexer mIndexer = Indexer.getInstance();
@@ -56,12 +63,13 @@ public class LEDs extends Subsystem {
         MAGENTA(255, 0, 255, Double.POSITIVE_INFINITY, 0.0, false), // MAGENTA
 
         // Strip States
-        ONE_BALL(0.2, 0.0, false, new Color(0.5, 0.1, 0.1), new Color(0.1, 0.1, 0.5)), // Alternating Yellow Blue
+        ONE_BALL(0.5, 0.2, false, new Color(0.5, 0.1, 0.1), new Color(0.1, 0.1, 0.5)), // Alternating Yellow Blue
         TWO_BALL(Double.POSITIVE_INFINITY, 0.05, false, new Color(0.5, 0.1, 0.1)), // Fast Alternating Yellow Red
 
         // Regular States
         TARGET_VISIBLE(255, 255, 0, Double.POSITIVE_INFINITY, 0.0, false), // Slow Yellow
-        SHOT_READY(255, 255, 0, 0.05, 0.05, false), // FAST Yellow
+        LOCKED_ON(0, 255, 0, Double.POSITIVE_INFINITY, 0.0, false), // Solid Gren
+        SHOT_READY(0, 255, 0, 0.05, 0.05, false), // FAST Green
 
         // Super States
         CLIMB_MODE(255, 0, 255, Double.POSITIVE_INFINITY, 0.0, false),
@@ -115,16 +123,25 @@ public class LEDs extends Subsystem {
         }
     }
 
+    private class StateStatus {
+        public int colorPhase = 0;
+        public double phase = 0;
+        public boolean rising = false;
+
+        public StateStatus() {
+            colorPhase = 0;
+            phase = 0;
+            rising = false;
+        }
+    }
+
     /**
      * This class holds information about the led sectors and their current status
      */
     private class LEDSector {
-        public int colorPhase = 0;
-        public double phase = 0;
-        public boolean rising = false;
         public int startLed = 0;
         public int ledCount = 0;
-        public int brightness = 1;
+        public double brightness = 1;
 
         /**
          * Create a new instance of LEDSector
@@ -132,14 +149,7 @@ public class LEDs extends Subsystem {
          * @param ledCount
          * @param brightness
          */
-        public LEDSector(int startLed, int ledCount, int brightness) {
-            if (startLed < 0 || startLed + ledCount > 512) {
-                throw new IllegalArgumentException("LED Count out of range (0-512)");
-            }
-            if (brightness < 0 || brightness > 1) {
-                throw new IllegalArgumentException("Brightness out of range (0.0-1.0)");
-            }
-
+        public LEDSector(int startLed, int ledCount, double brightness) {
             this.startLed = startLed;
             this.ledCount = ledCount;
             this.brightness = brightness;
@@ -150,7 +160,7 @@ public class LEDs extends Subsystem {
         CANdleConfiguration config = new CANdleConfiguration();
         config.disableWhenLOS = true;
         config.stripType = LEDStripType.RGB; // set the strip type to RGB
-        config.brightnessScalar = 0.3; // global brightness scale
+        config.brightnessScalar = 1.0; // global brightness scale
         mCandle.configAllSettings(config, Constants.kLongCANTimeoutMs);
         mCandle.setStatusFramePeriod(CANdleStatusFrame.CANdleStatusFrame_Status_1_General, 255);
         mCandle.setControlFramePeriod(CANdleControlFrame.CANdle_Control_1_General, 10);
@@ -183,7 +193,9 @@ public class LEDs extends Subsystem {
 
         if (Limelight.getInstance().hasTarget()) {
             setBottomState(State.TARGET_VISIBLE);
-        } else if (mSuperstructure.isSpunUp() && mSuperstructure.isAimed()) {
+        } else if (mSuperstructure.isAimed()) {
+            setBottomState(State.LOCKED_ON);
+        } else if (mSuperstructure.isSpunUp()) {
             setBottomState(State.SHOT_READY);
         } else {
             setBottomState(State.IDLE);
@@ -205,16 +217,31 @@ public class LEDs extends Subsystem {
         mLastTimestamp = timestamp;
 
         // For some reason we need to alternate setting states
-        if (alt) {
-            updateLEDsFromState(mBottomState, this.mBottomSector, deltaTime * 2, timestamp);
-        } else {
-            updateLEDsFromState(mTopState, this.mTopSector, deltaTime * 2, timestamp);
+        
+        switch (sector) {
+            case 0:
+                updateLEDsFromState(mBottomState, this.mLeftBottomSector, bottomStatus, deltaTime * 2, timestamp);
+                break;
+            case 1:
+                updateLEDsFromState(mTopState, this.mRightBottomSector, topStatus, deltaTime * 2, timestamp);
+                break;
+            case 2:
+                updateLEDsFromState(mTopState, this.mLeftTopSector, topStatus, deltaTime * 2, timestamp);
+                break;
+            case 3:
+                updateLEDsFromState(mBottomState, this.mRightTopSector, bottomStatus, deltaTime * 2, timestamp);
+                break;
         }
-        alt = !alt;
+        SmartDashboard.putNumber("LED Deltatime", deltaTime);
+        
+        sector++;
+        if (sector > 3) {
+            sector = 0;
+        }
 
     }
 
-    public void updateLEDsFromState(State state, LEDSector sector, double deltaTime, double timestamp) {
+    public void updateLEDsFromState(State state, LEDSector sector, StateStatus stateStatus, double deltaTime, double timestamp) {
         
         if (state.onTime == Double.POSITIVE_INFINITY) {
             // Positive indicates no animaiton
@@ -224,21 +251,21 @@ public class LEDs extends Subsystem {
         }
 
         // Basic oscillation between 0 and onTime then 0 offTime
-        if (sector.rising) {
-            sector.phase = sector.phase + deltaTime;
-            if (sector.phase > state.onTime) {
-                sector.rising = false;
-                sector.phase = 0;
+        if (stateStatus.rising) {
+            stateStatus.phase = stateStatus.phase + deltaTime;
+            if (stateStatus.phase > state.onTime) {
+                stateStatus.rising = false;
+                stateStatus.phase = 0;
             }
         } else {
-            sector.phase = sector.phase + deltaTime;
-            if (sector.phase > state.offTime) {
-                sector.rising = true;
-                sector.phase = 0;
-                if (sector.colorPhase == (state.colors.size() - 1)) {
-                    sector.colorPhase = 0;
+            stateStatus.phase = stateStatus.phase + deltaTime;
+            if (stateStatus.phase > state.offTime) {
+                stateStatus.rising = true;
+                stateStatus.phase = 0;
+                if (stateStatus.colorPhase == (state.colors.size() - 1)) {
+                    stateStatus.colorPhase = 0;
                 } else {
-                    sector.colorPhase++;
+                    stateStatus.colorPhase++;
                 }
             }
         }
@@ -246,13 +273,13 @@ public class LEDs extends Subsystem {
         // Calculate the proper brightness values
         double percentBrightness = 0;
         if (state.breathing) {
-            if (sector.rising) {
-                percentBrightness = (sector.phase / state.onTime);
+            if (stateStatus.rising) {
+                percentBrightness = (stateStatus.phase / state.onTime);
             } else {
-                percentBrightness = 1 - (sector.phase / state.offTime);
+                percentBrightness = 1 - (stateStatus.phase / state.offTime);
             }
         } else {
-            percentBrightness = sector.rising ? 1 : 0;
+            percentBrightness = stateStatus.rising ? 1 : 0;
         }
         percentBrightness = percentBrightness * sector.brightness;
 
@@ -267,7 +294,7 @@ public class LEDs extends Subsystem {
             green = (int)(Math.sin(5*timestamp + 0) * 127 + 128);
             blue  = (int)(Math.sin(5*timestamp + 4) * 127 + 128);
         } else {
-            Color color = state.colors.get(sector.colorPhase);
+            Color color = state.colors.get(stateStatus.colorPhase);
             red = (int)(color.red * percentBrightness * 255);
             green = (int)(color.green * percentBrightness * 255);
             blue = (int)(color.blue * percentBrightness * 255);
@@ -287,12 +314,12 @@ public class LEDs extends Subsystem {
     }
 
     public void setBottomState(State state) {
-        mBottomSector.colorPhase = 0;
+        bottomStatus.colorPhase = 0;
         mBottomState = state;
     }
 
     public void setTopState(State state) {
-        mTopSector.colorPhase = 0;
+        topStatus.colorPhase = 0;
         mTopState = state;
     }
 
