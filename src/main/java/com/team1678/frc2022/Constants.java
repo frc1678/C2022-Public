@@ -13,7 +13,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 public class Constants {
 
     // toggle constants for comp robot
-    public static final boolean isComp = false;
+    public static final boolean isComp = true;
 	
 	// robot loop time
 	public static final double kLooperDt = 0.02;
@@ -104,7 +104,7 @@ public class Constants {
         /* Front Left Module - Module 0 */
         public static final class Mod0 {
             public static final double epsilonAngleOffset = 55.28;
-            public static final double compAngleOffset = 123; // TODO: Check value
+            public static final double compAngleOffset = 239; // TODO: Check value
 
             public static SwerveModuleConstants SwerveModuleConstants() {
                 return new SwerveModuleConstants(Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER,
@@ -114,7 +114,7 @@ public class Constants {
         /* Front Right Module - Module 1 */
         public static final class Mod1 {
             public static final double epsilonAngleOffset = 164.09;
-            public static final double compAngleOffset = 138; // TODO: Check value
+            public static final double compAngleOffset = 77; // TODO: Check value
             
             public static SwerveModuleConstants SwerveModuleConstants() {
                 return new SwerveModuleConstants(Ports.FR_DRIVE, Ports.FR_ROTATION, Ports.FR_CANCODER,
@@ -124,7 +124,7 @@ public class Constants {
         /* Back Left Module - Module 2 */
         public static final class Mod2 {
             public static final double epsilonAngleOffset = 345.41;
-            public static final double compAngleOffset = 100;   // TODO: Check value
+            public static final double compAngleOffset = 319;   // TODO: Check value
 
             public static SwerveModuleConstants SwerveModuleConstants() {
                 return new SwerveModuleConstants(Ports.BL_DRIVE, Ports.BL_ROTATION, Ports.BL_CANCODER,
@@ -134,7 +134,7 @@ public class Constants {
         /* Back Right Module - Module 3 */
         public static final class Mod3 {
             public static final double epsilonAngleOffset = 73.12;
-            public static final double compAngleOffset = 134;   // TODO: Check value
+            public static final double compAngleOffset = 311;   // TODO: Check value
 
             public static SwerveModuleConstants SwerveModuleConstants() {
                 return new SwerveModuleConstants(Ports.BR_DRIVE, Ports.BR_ROTATION, Ports.BR_CANCODER,
