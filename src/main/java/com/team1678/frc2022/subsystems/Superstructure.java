@@ -6,6 +6,7 @@ import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.CustomXboxController;
 import com.team1678.frc2022.controlboard.CustomXboxController.Button;
+import com.team1678.frc2022.lib.drivers.PicoColorSensor;
 import com.team1678.frc2022.logger.LogStorage;
 import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.regressions.ShooterRegression;
@@ -38,7 +39,6 @@ public class Superstructure extends Subsystem {
     private final Swerve mSwerve = Swerve.getInstance();
     private final Intake mIntake = Intake.getInstance();
     private final Indexer mIndexer = Indexer.getInstance();
-    private final PicoColorSensor mPicoColorSensor = PicoColorSensor.getInstance();
     private final ColorSensor mColorSensor = ColorSensor.getInstance();
     private final Shooter mShooter = Shooter.getInstance();
     private final Trigger mTrigger = Trigger.getInstance();
@@ -403,7 +403,7 @@ public class Superstructure extends Subsystem {
                     // - we don't have a ball at either fully indexed position
                     // - we don't want to stop intaking
                     // then unlock the intake
-                    if(!(mIndexer.getTopBeamBreak() && mPicoColorSensor.hasColor0 && mPicoColorSensor.hasColor1) 
+                    if(!(mIndexer.getTopBeamBreak() /*&& mPicoColorSensor.hasColor0 && mPicoColorSensor.hasColor1*/) 
                             && !indexerFull()
                             && !stopIntaking()) {
                                 
