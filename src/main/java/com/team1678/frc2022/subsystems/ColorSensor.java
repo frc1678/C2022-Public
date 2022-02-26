@@ -166,8 +166,6 @@ public class ColorSensor extends Subsystem {
         updateHasBall();
         updateMatchedColor();
         updateWantsEject();
-
-        SmartDashboard.putString("Alliance Color", mAllianceColor.toString());
     }
 
     @Override 
