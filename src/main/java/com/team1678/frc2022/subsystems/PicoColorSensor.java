@@ -11,15 +11,6 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class PicoColorSensor implements AutoCloseable {
 
-  private static PicoColorSensor mInstance;
-  
-  public static synchronized PicoColorSensor getInstance() {
-      if (mInstance == null) {
-          mInstance = new PicoColorSensor();
-      }
-      return mInstance;
-  }
-
     public static class RawColor {
       public RawColor(int r, int g, int b, int _ir) {
         red = r;

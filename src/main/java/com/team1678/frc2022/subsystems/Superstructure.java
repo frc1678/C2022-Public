@@ -38,7 +38,6 @@ public class Superstructure extends Subsystem {
     private final Swerve mSwerve = Swerve.getInstance();
     private final Intake mIntake = Intake.getInstance();
     private final Indexer mIndexer = Indexer.getInstance();
-    private final PicoColorSensor mPicoColorSensor = PicoColorSensor.getInstance();
     private final ColorSensor mColorSensor = ColorSensor.getInstance();
     private final Shooter mShooter = Shooter.getInstance();
     private final Trigger mTrigger = Trigger.getInstance();
@@ -402,17 +401,17 @@ public class Superstructure extends Subsystem {
                     // - we don't have a ball indexed and a ball in our system
                     // - we don't have a ball at either fully indexed position
                     // - we don't want to stop intaking
-                    // then unlock the intake
-                    if(!(mIndexer.getTopBeamBreak() && mPicoColorSensor.hasColor0 && mPicoColorSensor.hasColor1) 
+                    // then unlock the intake       
+                    if (!(mIndexer.getTopBeamBreak() && mColorSensor.hasBall())
                             && !indexerFull()
                             && !stopIntaking()) {
-                                
-                                mLockIntake = false;
-                        }
-                    } else {
-                        normalIntakeControls();
+                        
+                        mLockIntake = false;
                     }
-                }           
+                } else {
+                    normalIntakeControls();
+                }
+            }            
 
             // toggle ejecting to disable if necessary
             if (mControlBoard.operator.getController().getPOV() == 90) {
