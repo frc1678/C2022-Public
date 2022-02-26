@@ -82,9 +82,9 @@ public class PicoColorSensor implements AutoCloseable {
     private boolean hasColor0;
     private boolean hasColor1;
     public int prox0;
-    private int prox1;
+    public int prox1;
     public final RawColor color0 = new RawColor();
-    private final RawColor color1 = new RawColor();
+    public final RawColor color1 = new RawColor();
     private double lastReadTime;
     private final ReentrantLock threadLock = new ReentrantLock();
     private final Thread readThread;
@@ -92,7 +92,7 @@ public class PicoColorSensor implements AutoCloseable {
   
     private void threadMain() {
       // Using JNI for a non allocating read
-      int port = SerialPortJNI.serialInitializePort((byte)0); //TODO: change port based on what electrical says
+      int port = SerialPortJNI.serialInitializePort((byte)1); //TODO: change port based on what electrical says
       SerialPortJNI.serialSetBaudRate(port, 115200);
       SerialPortJNI.serialSetDataBits(port, (byte)8);
       SerialPortJNI.serialSetParity(port, (byte)0);

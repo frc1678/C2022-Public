@@ -154,11 +154,11 @@ public class ColorSensor extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        mPeriodicIO.rawColorSensorData = mColorSensor.getRawColor0();
+        mPeriodicIO.rawColorSensorData = mColorSensor.getRawColor1();
 
         if (mPeriodicIO.rawColorSensorData != null) {
-            mPeriodicIO.raw_color = mColorSensor.color0;
-            mPeriodicIO.distance = mColorSensor.prox0;
+            mPeriodicIO.raw_color = mColorSensor.color1;
+            mPeriodicIO.distance = mColorSensor.prox1;
         } 
 
         updateHasBall();
