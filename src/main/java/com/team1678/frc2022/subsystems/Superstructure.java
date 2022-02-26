@@ -634,8 +634,11 @@ public class Superstructure extends Subsystem {
                 } else {
                     bottomState = State.SOLID_ORANGE;
                 }
-
-                if (mPeriodicIO.SHOOT) {
+                if (getWantsSpit()) {
+                    topState = State.SOLID_ORANGE;
+                } else if (getWantsFender()) {
+                    topState = State.SOLID_CYAN;
+                } else if (mPeriodicIO.SHOOT) {
                     topState = State.FLASHING_PINK;
                 } else if (isAimed()) {
                     topState = State.FLASHING_GREEN;
