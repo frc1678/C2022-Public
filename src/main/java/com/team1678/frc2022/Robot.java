@@ -277,6 +277,9 @@ public class Robot extends TimedRobot {
 			mAutoModeSelector.updateModeCreator();
 			// mSwerve.resetAnglesToAbsolute();
 
+			// update alliance color from driver station while disabled
+			mColorSensor.updateAllianceColor();
+
 			mLimelight.setLed(Limelight.LedMode.PIPELINE);
 			mLimelight.writePeriodicOutputs();
 			mLimelight.outputTelemetry();
