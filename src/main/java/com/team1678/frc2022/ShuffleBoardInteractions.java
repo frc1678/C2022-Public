@@ -181,6 +181,7 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mShootingSetpointsEnableToggle;
 
     /* COLOR SENSOR */
+    private final NetworkTableEntry mSensor0;
     private final NetworkTableEntry mRValue;
     private final NetworkTableEntry mGValue;
     private final NetworkTableEntry mBValue;
@@ -437,6 +438,9 @@ public class ShuffleBoardInteractions {
                 .getEntry();
         
         /* COLOR SENSOR */
+        mSensor0 = COLOR_SENSOR
+            .add("Is Sensor 0 Connected", false)
+            .getEntry();
         mRValue = COLOR_SENSOR
             .add("Detected R Value", 0.0)
             .getEntry();
@@ -660,6 +664,7 @@ public class ShuffleBoardInteractions {
         mBottomBeamBreak.setBoolean(mIndexer.getBottomBeamBreak());
 
         /* COLOR SENSOR */
+        mSensor0.setBoolean(mColorSensor.getSensor0());
         mRValue.setDouble(mColorSensor.getDetectedRValue());
         mGValue.setDouble(mColorSensor.getDetectedGValue());
         mBValue.setDouble(mColorSensor.getDetectedBValue());

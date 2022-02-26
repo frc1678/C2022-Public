@@ -22,7 +22,7 @@ public class ColorSensor extends Subsystem {
     }
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
-    private PicoColorSensor mColorSensor;
+    private PicoColorSensor mColorSensorThread;
 
     private Timer mHasBallTimer = new Timer();
     private Timer mEjectorTimer = new Timer();
@@ -43,7 +43,7 @@ public class ColorSensor extends Subsystem {
             DriverStation.reportError("No Alliance Color Detected", true);
         }
         mMatchedColor = ColorChoices.NONE;
-        mColorSensor = new PicoColorSensor();
+        mColorSensorThread = new PicoColorSensor();
         
     }
 
@@ -52,7 +52,7 @@ public class ColorSensor extends Subsystem {
         enabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
-                mColorSensor.start();
+                mColorSensorThread.start();
             }
  
             @Override
@@ -154,11 +154,12 @@ public class ColorSensor extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        mPeriodicIO.rawColorSensorData = mColorSensor.getRawColor1();
+        mPeriodicIO.sensor0Connected = mColorSensorThread.isSensor0Connected();
+        mPeriodicIO.rawColorSensorData = mColorSensorThread.getRawColor0();
 
         if (mPeriodicIO.rawColorSensorData != null) {
-            mPeriodicIO.raw_color = mColorSensor.color1;
-            mPeriodicIO.distance = mColorSensor.prox1;
+            mPeriodicIO.raw_color = mColorSensorThread.getRawColor0();
+            mPeriodicIO.distance = mColorSensorThread.getProximity0();
         } 
 
         updateHasBall();
@@ -202,6 +203,7 @@ public class ColorSensor extends Subsystem {
         public RawColor rawColorSensorData;
         public RawColor raw_color;
         public int distance;
+        public boolean sensor0Connected;
 
         // OUTPUTS
         public boolean has_ball;
