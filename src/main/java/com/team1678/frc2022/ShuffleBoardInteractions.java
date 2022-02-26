@@ -194,6 +194,7 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mRValue;
     private final NetworkTableEntry mGValue;
     private final NetworkTableEntry mBValue;
+    private final NetworkTableEntry mAllianceColor;
     private final NetworkTableEntry mMatchedColor;
     private final NetworkTableEntry mReadDistance;
 
@@ -479,6 +480,9 @@ public class ShuffleBoardInteractions {
         mBValue = COLOR_SENSOR
             .add("Detected B Value", 0.0)
             .getEntry();
+        mAllianceColor = COLOR_SENSOR
+            .add("Alliance Color", "N/A")
+            .getEntry();
         mMatchedColor = COLOR_SENSOR
             .add("Matched Color", "N/A")
             .getEntry();
@@ -742,6 +746,7 @@ public class ShuffleBoardInteractions {
         mRValue.setDouble(mColorSensor.getDetectedRValue());
         mGValue.setDouble(mColorSensor.getDetectedGValue());
         mBValue.setDouble(mColorSensor.getDetectedBValue());
+        mAllianceColor.setString(mColorSensor.getAllianceColor().toString());
         mMatchedColor.setString(mColorSensor.getMatchedColor().toString());
         mReadDistance.setDouble(mColorSensor.getDistance());
 
