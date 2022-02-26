@@ -1,6 +1,8 @@
 package com.team1678.frc2022.subsystems;
 
 import com.team1678.frc2022.Constants;
+import com.team1678.frc2022.lib.drivers.PicoColorSensor;
+import com.team1678.frc2022.lib.drivers.PicoColorSensor.RawColor;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
 import com.team1678.lib.drivers.REVColorSensorV3Wrapper;
@@ -24,7 +26,7 @@ public class ColorSensor extends Subsystem {
     }
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
-    private REVColorSensorV3Wrapper mColorSensor;
+    private PicoColorSensor mColorSensor;
 
     private Timer mHasBallTimer = new Timer();
     private Timer mEjectorTimer = new Timer();
@@ -45,9 +47,8 @@ public class ColorSensor extends Subsystem {
             DriverStation.reportError("No Alliance Color Detected", true);
         }
         mMatchedColor = ColorChoices.NONE;
-        mColorSensor = new REVColorSensorV3Wrapper(I2C.Port.kOnboard);
-
-        mColorSensor.start();
+        mColorSensor = new PicoColorSensor();
+        
     }
 
     @Override
@@ -55,6 +56,7 @@ public class ColorSensor extends Subsystem {
         enabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
+                mColorSensor.start();
             }
  
             @Override
@@ -156,11 +158,11 @@ public class ColorSensor extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        mPeriodicIO.rawColorSensorData = mColorSensor.getLatestReading();
+        mPeriodicIO.rawColorSensorData = mColorSensor.getRawColor0();
 
         if (mPeriodicIO.rawColorSensorData != null) {
-            mPeriodicIO.raw_color = mPeriodicIO.rawColorSensorData.color;
-            mPeriodicIO.distance = mPeriodicIO.rawColorSensorData.distance;
+            mPeriodicIO.raw_color = mColorSensor.color0;
+            mPeriodicIO.distance = mColorSensor.prox0;
         } 
 
         updateHasBall();
@@ -201,9 +203,9 @@ public class ColorSensor extends Subsystem {
 
     public static class PeriodicIO {
         // INPUTS
-        public ColorSensorData rawColorSensorData;
-        public Color raw_color;
-        public double distance;
+        public RawColor rawColorSensorData;
+        public RawColor raw_color;
+        public int distance;
 
         // OUTPUTS
         public boolean has_ball;

@@ -403,7 +403,7 @@ public class Superstructure extends Subsystem {
                     // - we don't have a ball at either fully indexed position
                     // - we don't want to stop intaking
                     // then unlock the intake
-                    if(!(mIndexer.getTopBeamBreak() /*&& mPicoColorSensor.hasColor0 && mPicoColorSensor.hasColor1*/) 
+                    if(!(mIndexer.getTopBeamBreak() && mColorSensor.hasBall()) 
                             && !indexerFull()
                             && !stopIntaking()) {
                         

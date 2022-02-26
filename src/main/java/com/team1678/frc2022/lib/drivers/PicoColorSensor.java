@@ -26,6 +26,7 @@ public class PicoColorSensor implements AutoCloseable {
       public int green;
       public int blue;
       public int ir;
+
     }
   
     private static class SingleCharSequence implements CharSequence {
@@ -78,11 +79,11 @@ public class PicoColorSensor implements AutoCloseable {
     }
   
     private final AtomicBoolean debugPrints = new AtomicBoolean();
-    public boolean hasColor0;
-    public boolean hasColor1;
-    private int prox0;
+    private boolean hasColor0;
+    private boolean hasColor1;
+    public int prox0;
     private int prox1;
-    private final RawColor color0 = new RawColor();
+    public final RawColor color0 = new RawColor();
     private final RawColor color1 = new RawColor();
     private double lastReadTime;
     private final ReentrantLock threadLock = new ReentrantLock();
@@ -91,13 +92,13 @@ public class PicoColorSensor implements AutoCloseable {
   
     private void threadMain() {
       // Using JNI for a non allocating read
-      int port = SerialPortJNI.serialInitializePort((byte)1);
+      int port = SerialPortJNI.serialInitializePort((byte)0); //TODO: change port based on what electrical says
       SerialPortJNI.serialSetBaudRate(port, 115200);
       SerialPortJNI.serialSetDataBits(port, (byte)8);
       SerialPortJNI.serialSetParity(port, (byte)0);
       SerialPortJNI.serialSetStopBits(port, (byte)10);
   
-      SerialPortJNI.serialSetTimeout(port, 1);
+      SerialPortJNI.serialSetTimeout(port, 1); 
       SerialPortJNI.serialEnableTermination(port, '\n');
   
       HAL.report(tResourceType.kResourceType_SerialPort, 2);
@@ -284,6 +285,9 @@ public class PicoColorSensor implements AutoCloseable {
     public void close() throws Exception {
       threadRunning.set(false);
       readThread.join();
+    }
+
+    public void start() {
     }
   }
 
