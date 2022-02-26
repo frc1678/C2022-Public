@@ -160,12 +160,20 @@ public class LEDs extends Subsystem {
                 mLeftBottomStatus.lastSwitchTime = timestamp;
             }
         }
+
         Color bottomColor = mLeftBottomStatus.getWantedColor();
-        mCandle.setLEDs(bottomColor.r, bottomColor.g, bottomColor.b, 0, mLeftBottomStatus.startIDx,
-                mLeftBottomStatus.LEDCount);
-        mCandle.setLEDs(bottomColor.r,
-                bottomColor.g, bottomColor.b, 0, mRightBottomStatus.startIDx, mRightBottomStatus.LEDCount);
-    
+
+        if (mLeftBottomStatus.getLastSetColor() != bottomColor) {
+            mCandle.setLEDs(bottomColor.r, bottomColor.g, bottomColor.b, 0, mLeftBottomStatus.startIDx,
+                    mLeftBottomStatus.LEDCount);
+            mLeftBottomStatus.setLastColor(bottomColor);
+
+        } else if (mRightBottomStatus.getLastSetColor() != bottomColor) {
+            mCandle.setLEDs(bottomColor.r,
+                    bottomColor.g, bottomColor.b, 0, mRightBottomStatus.startIDx, mRightBottomStatus.LEDCount);
+            mRightBottomStatus.setLastColor(bottomColor);
+        }
+       
     }
 
     private void updateTopLeds() {
@@ -176,7 +184,9 @@ public class LEDs extends Subsystem {
                 mTopStatus.lastSwitchTime = timestamp;
             }
         }
+
         Color topColor = mTopStatus.getWantedColor();
+
         if (mTopStatus.getLastSetColor() != topColor) {
             mCandle.setLEDs(topColor.r, topColor.g, topColor.b, 0, mTopStatus.startIDx, mTopStatus.LEDCount);
             mTopStatus.setLastColor(topColor);
@@ -203,7 +213,7 @@ public class LEDs extends Subsystem {
         configAll.statusLedOffWhenActive = true;
         configAll.disableWhenLOS = false;
         configAll.stripType = LEDStripType.RGB;
-        configAll.brightnessScalar = 0.05;
+        configAll.brightnessScalar = 1.0;
         configAll.vBatOutputMode = VBatOutputMode.Modulated;
         mCandle.configAllSettings(configAll, Constants.kLongCANTimeoutMs);
         mCandle.setStatusFramePeriod(CANdleStatusFrame.CANdleStatusFrame_Status_1_General, 255);
