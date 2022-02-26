@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class LEDs extends Subsystem {
 
-    private final CANdle mCandle = new CANdle(Ports.CANDLE);
+    private final CANdle mCandle = new CANdle(Ports.CANDLE, "canivore1");
 
     private static LEDs mInstance;
 
@@ -38,16 +38,16 @@ public class LEDs extends Subsystem {
     private boolean mIdle = true; // run animation if disabled
 
     // led sections
-    private LEDStatus mTopStatus = new LEDStatus(15, 14);  
-    private LEDStatus mLeftBottomStatus = new LEDStatus(22, 7);
-    private LEDStatus mRightBottomStatus = new LEDStatus(0, 15);
+    private LEDStatus mTopStatus = new LEDStatus(14, 28);  
+    private LEDStatus mLeftBottomStatus = new LEDStatus(28, 40);
+    private LEDStatus mRightBottomStatus = new LEDStatus(0, 14);
 
     // shuffleboard selectors
     private SendableChooser<State> mTopStateChooser;
     private SendableChooser<State> mBottomStateChooser;
 
     // animation to run when disabled
-    private Animation mDisableAnimation = new ColorFlowAnimation(255, 18, 143, 0, 0.7, 68, Direction.Forward);
+    private Animation mDisableAnimation = new ColorFlowAnimation(255, 20, 30, 0, 0.7, 68, Direction.Forward);
 
     // led states
     public enum State{
@@ -165,6 +165,7 @@ public class LEDs extends Subsystem {
                 mLeftBottomStatus.LEDCount);
         mCandle.setLEDs(bottomColor.r,
                 bottomColor.g, bottomColor.b, 0, mRightBottomStatus.startIDx, mRightBottomStatus.LEDCount);
+    
     }
 
     private void updateTopLeds() {
@@ -176,7 +177,10 @@ public class LEDs extends Subsystem {
             }
         }
         Color topColor = mTopStatus.getWantedColor();
-        mCandle.setLEDs(topColor.r, topColor.g, topColor.b, 0, mTopStatus.startIDx, mTopStatus.LEDCount);
+        if (mTopStatus.getLastSetColor() != topColor) {
+            mCandle.setLEDs(topColor.r, topColor.g, topColor.b, 0, mTopStatus.startIDx, mTopStatus.LEDCount);
+            mTopStatus.setLastColor(topColor);
+        }
     }
 
     // setter functions
@@ -230,6 +234,10 @@ public class LEDs extends Subsystem {
         mIdle = isIdle;
     }
 
+    public boolean getUsingSmartdash() {
+        return mUseSmartdash;
+    }
+
     private void outputTelemtry() {
         SmartDashboard.putString("Top LED Status", getTopState().name);
         SmartDashboard.putString("Bottom LED Status", getBottomState().name);
@@ -247,6 +255,8 @@ public class LEDs extends Subsystem {
         private int colorIndex = 0; // tracks current color in array
         private int startIDx, LEDCount; // start and end of section
 
+        private Color lastSetColor = Color.off();
+
         public LEDStatus(int startIndex, int endIndex) {
             startIDx = startIndex;
             LEDCount = endIndex - startIndex;
@@ -262,6 +272,14 @@ public class LEDs extends Subsystem {
 
         public Color getWantedColor() {
             return state.colors[colorIndex];
+        }
+
+        public Color getLastSetColor() {
+            return lastSetColor;
+        }
+
+        public void setLastColor(Color color) {
+            lastSetColor = color;
         }
 
         // cycle to next color in array

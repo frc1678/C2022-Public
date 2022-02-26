@@ -615,6 +615,10 @@ public class Superstructure extends Subsystem {
     }
 
     private void updateLEDs() {
+        if (mLEDs.getUsingSmartdash()) {
+            return;
+        }
+
         State topState = State.OFF;
         State bottomState = State.OFF;
 
@@ -622,14 +626,32 @@ public class Superstructure extends Subsystem {
             topState = State.EMERGENCY;
             bottomState = State.EMERGENCY;
         } else {
-            if (mPeriodicIO.SHOOT) {
-                topState = State.FLASHING_ORANGE;
-            } else if (isAimed()) {
-                topState = State.FLASHING_PURPLE;
-            } else if (hasTarget()) {
-                topState = State.SOLID_PURPLE;
+            if (!mClimbMode) {
+                if (getBallCount() == 2) {
+                    bottomState = State.SOLID_GREEN;
+                } else if (getBallCount() == 1) {
+                    bottomState = State.SOLID_CYAN;
+                } else {
+                    bottomState = State.SOLID_ORANGE;
+                }
+
+                if (mPeriodicIO.SHOOT) {
+                    topState = State.FLASHING_PINK;
+                } else if (isAimed()) {
+                    topState = State.FLASHING_GREEN;
+                } else if (hasTarget()) {
+                    topState = State.SOLID_PURPLE;
+                } else {
+                    topState = State.SOLID_ORANGE;
+                }
             } else {
-                topState = State.SOLID_YELLOW;
+                if (mAutoTraversalClimb) {
+                    topState = State.FLASHING_ORANGE;
+                    bottomState = State.FLASHING_ORANGE;
+                } else {
+                    topState = State.SOLID_PINK;
+                    bottomState = State.SOLID_PINK;
+                }
             }
         }
 
