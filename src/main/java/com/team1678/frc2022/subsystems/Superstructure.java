@@ -406,13 +406,13 @@ public class Superstructure extends Subsystem {
                     if(!(mIndexer.getTopBeamBreak() /*&& mPicoColorSensor.hasColor0 && mPicoColorSensor.hasColor1*/) 
                             && !indexerFull()
                             && !stopIntaking()) {
-                                
-                                mLockIntake = false;
-                        }
-                    } else {
-                        normalIntakeControls();
+                        
+                        mLockIntake = false;
                     }
-                }           
+                } else {
+                    normalIntakeControls();
+                }
+            }            
 
             // toggle ejecting to disable if necessary
             if (mControlBoard.operator.getController().getPOV() == 90) {
