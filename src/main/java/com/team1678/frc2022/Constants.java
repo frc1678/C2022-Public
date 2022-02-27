@@ -144,7 +144,7 @@ public class Constants {
     }
 	
 	public static final class SnapConstants {
-        public static final double kP = 7.0; // TODO: tune value
+        public static final double kP = 5.0; // TODO: tune value
         public static final double kI = 0; // TODO: tune value
         public static final double kD = 0.0; // TODO: tune value
         public static final double snapTimeout = 0.25;
@@ -272,9 +272,9 @@ public class Constants {
 
     public static final class TriggerConstants {
         public static final double kTriggerPassiveVelocity = 0;
-        public static final double kTriggerFeedingVelocity = 1700;
+        public static final double kTriggerFeedingVelocity = 500;
         public static final double kTriggerSlowFeedVelocity = 1000;
-        public static final double kTriggerReverseVelocity = -1700;
+        public static final double kTriggerReverseVelocity = -500;
 
         public static final double kTriggerVelocityConversion = 600.0 / 2048.0 * (1.0 / 3.5); // 3.5 to 1
 

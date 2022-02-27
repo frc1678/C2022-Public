@@ -59,7 +59,7 @@ public class Superstructure extends Subsystem {
         private boolean INTAKE = false; // run the intake to pick up cargo
         private boolean REVERSE = false; // reverse the intake and singulator
         private boolean REJECT = false; // have the intake reject cargo
-        private boolean EJECT = false; // run pooper
+        private boolean EJECT = false; // run ejector to eject balls
         private boolean PREP = false; // spin up and aim with shooting setpoints
         private boolean SHOOT = false; // shoot cargo
         private boolean FENDER = false; // shoot cargo from up against the hub
@@ -721,8 +721,13 @@ public class Superstructure extends Subsystem {
     public boolean getInClimbMode() {
         return mClimbMode;
     }
+
     public boolean isOpenLoopClimbControl() {
         return mOpenLoopClimbControlMode;
+    }
+
+    public boolean isAutoClimb() {
+        return mAutoTraversalClimb;
     }
 
     // get goals

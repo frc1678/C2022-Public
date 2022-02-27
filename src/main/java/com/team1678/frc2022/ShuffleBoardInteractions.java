@@ -13,6 +13,7 @@ import com.team1678.frc2022.subsystems.Swerve;
 import com.team1678.frc2022.subsystems.Trigger;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -48,6 +49,7 @@ public class ShuffleBoardInteractions {
     private double lastCancoderUpdate = 0.0;
 
     /* Tabs */
+    private ShuffleboardTab OPERATOR_TAB;
     private ShuffleboardTab VISION_TAB;
     private ShuffleboardTab SWERVE_TAB;
     private ShuffleboardTab PID_TAB;
@@ -185,6 +187,7 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mRValue;
     private final NetworkTableEntry mGValue;
     private final NetworkTableEntry mBValue;
+    private final NetworkTableEntry mAllianceColor;
     private final NetworkTableEntry mMatchedColor;
     private final NetworkTableEntry mReadDistance;
 
@@ -192,6 +195,15 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mEject;
 
     private final NetworkTableEntry mTimestamp;
+  
+    /* Operator */
+    private final NetworkTableEntry mOperatorShooting;
+    private final NetworkTableEntry mOperatorSpunup;
+    private final NetworkTableEntry mOperatorFender;
+    private final NetworkTableEntry mOperatorSpit;
+    private final NetworkTableEntry mOperatorVisionAimed;
+    private final NetworkTableEntry mOperatorClimbMode;
+    private final NetworkTableEntry mOperatorAutoClimb;
 
     // instantiate subsystems, tabs, and widgets
     public ShuffleBoardInteractions() {
@@ -208,6 +220,7 @@ public class ShuffleBoardInteractions {
         mColorSensor = ColorSensor.getInstance();
 
         /* Get Tabs */
+        OPERATOR_TAB = Shuffleboard.getTab("OPERATOR");
         SWERVE_TAB = Shuffleboard.getTab("Swerve");
         PID_TAB = Shuffleboard.getTab("Module PID");
         INTAKE_TAB = Shuffleboard.getTab("Intake");
@@ -452,6 +465,9 @@ public class ShuffleBoardInteractions {
         mBValue = COLOR_SENSOR
             .add("Detected B Value", 0.0)
             .getEntry();
+        mAllianceColor = COLOR_SENSOR
+            .add("Alliance Color", "N/A")
+            .getEntry();
         mMatchedColor = COLOR_SENSOR
             .add("Matched Color", "N/A")
             .getEntry();
@@ -586,9 +602,55 @@ public class ShuffleBoardInteractions {
             .withWidget(BuiltInWidgets.kToggleButton)
             .withSize(2, 1)
             .getEntry();
+
+        /* Operator */
+        mOperatorShooting = OPERATOR_TAB
+                .add("Shooting", false)
+                .withSize(3, 2)
+                .withPosition(2, 1)
+                .getEntry();
+        mOperatorSpunup = OPERATOR_TAB
+                .add("Spun Up", false)
+                .withSize(3,2)
+                .withPosition(5, 1)
+                .getEntry();
+        mOperatorSpit = OPERATOR_TAB
+                .add("Spitting", false)
+                .withSize(3, 1)
+                .withPosition(2, 0)
+                .getEntry();
+        mOperatorFender = OPERATOR_TAB
+                .add("Fender", false)
+                .withSize(3, 1)
+                .withPosition(5, 0)
+                .getEntry();
+        mOperatorVisionAimed = OPERATOR_TAB
+                .add("Vision Aimed", false)
+                .withSize(6, 2)
+                .withPosition(2, 3)
+                .getEntry();
+        mOperatorClimbMode = OPERATOR_TAB
+                .add("Climb Mode", false)
+                .withSize(2, 2)
+                .withPosition(8, 0)
+                .getEntry();
+        mOperatorAutoClimb = OPERATOR_TAB
+                .add("Auto Climbing", false)
+                .withSize(2, 2)
+                .withPosition(8, 2)
+                .getEntry();
     }
 
     public void update() {
+
+        /* OPERATOR */
+        mOperatorShooting.setBoolean(mSuperstructure.getShooting());
+        mOperatorSpunup.setBoolean(mSuperstructure.isSpunUp());
+        mOperatorSpit.setBoolean(mSuperstructure.getWantsSpit());
+        mOperatorFender.setBoolean(mSuperstructure.getWantsFender());
+        mOperatorVisionAimed.setBoolean(mLimelight.isAimed());
+        mOperatorClimbMode.setBoolean(mSuperstructure.getInClimbMode());
+        mOperatorAutoClimb.setBoolean(mSuperstructure.isAutoClimb());
 
         /* SWERVE */
 
@@ -674,6 +736,7 @@ public class ShuffleBoardInteractions {
         mRValue.setDouble(mColorSensor.getDetectedRValue());
         mGValue.setDouble(mColorSensor.getDetectedGValue());
         mBValue.setDouble(mColorSensor.getDetectedBValue());
+        mAllianceColor.setString(mColorSensor.getAllianceColor().toString());
         mMatchedColor.setString(mColorSensor.getMatchedColor().toString());
         mReadDistance.setDouble(mColorSensor.getDistance());
 
