@@ -363,7 +363,7 @@ public class Constants {
     
     public static final class ClimberConstants {
         public static final double kCalibratingVoltage = 5.0;
-        public static final double kStatorCurrentLimit = 8.0;
+        public static final double kStatorCurrentLimit = 150.0;
         public static final double kCalibrationTimeoutSeconds = 10.0;
         
         public static final double kClimbingVoltageRight = 8.0;
@@ -389,12 +389,12 @@ public class Constants {
         // public static final int kEpsilonRightTravelDistance = kRightMaxHeight - kRightMinHeight + 500; // ticks
         // public static final int kEpsilonRightPartialTravelDistance = 186473; // kRightTravelDistance * 0.80
 
-        public static final int kSafetyMinimum = -2000; // minimum outside 0 ticks
+        public static final int kSafetyMinimum = -15000; // minimum outside 0 ticks
 
-        public static final double kTravelDistanceEpsilon = 3000;
+        public static final double kTravelDistanceEpsilon = 20000;
 
         public static final double kHighBarExtendAngle = -38.0;
-        public static final double kHighBarContactAngle = -32.0;
+        public static final double kHighBarContactAngle = -31.0;
         public static final double kTraversalBarExtendAngle = -19.0;
         public static final double kTraversalBarContactAngle = -29.0;
         public static final double kBarContactAngleEpsilon = 2.0;
