@@ -96,23 +96,20 @@ public class TwobyTwoMode extends AutoModeBase {
                                                                       driveToIntakeSecondShotCargo.getInitialPose().getY(),
                                                                       Rotation2d.fromDegrees(135)))));
 
-    // start spinning up for shot
-    runAction(new LambdaAction(() -> mSuperstructure.setWantPrep(true)));
-
     // start intaking
     runAction(new LambdaAction(() -> mSuperstructure.setWantIntake(true)));
-
-    // start vision aiming to align drivetrain to target
-    runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));
 
     // drive to intake our second alliance cargo
     runAction(driveToIntakeSecondShotCargo);
 
+    // start spinning up for shot
+    runAction(new LambdaAction(() -> mSuperstructure.setWantPrep(true)));
+    
+    // start vision aiming to align drivetrain to target
+    runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));
+
     // drive to closer shot pose
     runAction(driveToShotPose);
-
-    // wait to settle
-    runAction(new WaitAction(1.0));
 
     // shoot preloaded and first cargo
     runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
@@ -129,13 +126,13 @@ public class TwobyTwoMode extends AutoModeBase {
     runAction(driveToIntakeSecondEjectCargo);
     
     // wait to outtake second cargo    
-    runAction(new WaitAction(1.5));
+    runAction(new WaitAction(0.75));
 
     // run trajectory to drive to third cargo
     runAction(driveToIntakeThirdEjectCargo);
 
     // wait to outtake third cargo
-    runAction(new WaitAction(1.5));
+    runAction(new WaitAction(0.75));
 
     // stop ejecting cargo
     runAction(new LambdaAction(() -> mSuperstructure.setWantEject(false, false)));
