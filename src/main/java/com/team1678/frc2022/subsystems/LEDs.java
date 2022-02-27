@@ -191,12 +191,12 @@ public class LEDs extends Subsystem {
             setTopState(State.IDLE);
         }
 
-        if (Limelight.getInstance().hasTarget()) {
-            setBottomState(State.TARGET_VISIBLE);
+        if (mSuperstructure.isSpunUp()) {
+            setBottomState(State.SHOT_READY);
         } else if (mSuperstructure.isAimed()) {
             setBottomState(State.LOCKED_ON);
-        } else if (mSuperstructure.isSpunUp()) {
-            setBottomState(State.SHOT_READY);
+        } else if (Limelight.getInstance().hasTarget()) {
+            setBottomState(State.TARGET_VISIBLE);
         } else {
             setBottomState(State.IDLE);
         }
@@ -340,6 +340,8 @@ public class LEDs extends Subsystem {
         mEnabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
+                setBottomState(State.DISABLED);
+                setTopState(State.DISABLED);
             }
 
             @Override
