@@ -240,11 +240,13 @@ public class Superstructure extends Subsystem {
 
             if (mControlBoard.getExitClimbMode()) {
                 mClimbMode = false;
+                mAutoTraversalClimb = false;
             }
 
             if (mControlBoard.operator.getController().getLeftStickButtonPressed()) {
                 mOpenLoopClimbControlMode = !mOpenLoopClimbControlMode;
                 mClimber.setClimberNone();
+                mAutoTraversalClimb = false;
             }
 
             if (mControlBoard.operator.getController().getRightStickButtonPressed()) {
@@ -261,28 +263,35 @@ public class Superstructure extends Subsystem {
                 if (mControlBoard.operator.getController().getXButtonPressed()) {
                     mClimber.setClimberNone();
                     mClimbStep = 0;
+                    mAutoTraversalClimb = false;
                     
                 } else if (mControlBoard.operator.getController().getAButtonPressed()) {
                     mClimber.setExtendForClimb();
-
+                    mAutoTraversalClimb = false;
                 } else if (mControlBoard.operator.getController().getBButtonPressed()) {
                     mClimber.setClimbMidBar();
+                    mAutoTraversalClimb = false;
 
                 } else if (mControlBoard.operator.getController().getPOV() == 180) {
                     mClimber.setClimbMidBarAndExtend();
+                    mAutoTraversalClimb = false;
 
                 } else if (mControlBoard.operator.getController().getPOV() == 90) {
                     mClimber.setClimbHighBarAndExtend();
+                    mAutoTraversalClimb = false;
 
                 } else if (mControlBoard.operator.getController().getPOV() == 0) {
                     mClimber.setTraversalBarExtend();
-                
+                    mAutoTraversalClimb = false;
+
                 } else if (mControlBoard.operator.getController().getPOV() == 270) {
                     mClimber.setClimbTraversalBar();
+                    mAutoTraversalClimb = false;
 
                 } else if (mControlBoard.getTraversalClimb()) {
-                    mAutoTraversalClimb = !mAutoTraversalClimb;
-                }
+                    mAutoTraversalClimb = true;
+                    mClimbStep = 0;
+                }             
                 
                 if (mAutoTraversalClimb) {
 
