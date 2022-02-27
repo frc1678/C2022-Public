@@ -197,6 +197,10 @@ public class ColorSensor extends Subsystem {
         return mPeriodicIO.distance;
     }
 
+    public double getProximity() {
+        return mColorSensor.getProximity0();
+    }
+
     public static class PeriodicIO {
         // INPUTS
         public RawColor rawColorSensorData;
