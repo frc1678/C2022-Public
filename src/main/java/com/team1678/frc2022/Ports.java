@@ -10,7 +10,7 @@ public class Ports {
         3 4
     */
 
-    public static final int FL_DRIVE = 0; 
+    public static final int FL_DRIVE = 0;
     public static final int FL_ROTATION = 1;
     public static final int FL_CANCODER = 0; 
 
@@ -50,6 +50,9 @@ public class Ports {
 
     // Infrastucture
     public static final int PCM = 21;
+
+    // Candle
+    public static final int CANDLE = 22; // TODO: Update ID
 
 
 }

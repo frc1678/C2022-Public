@@ -13,11 +13,13 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 public class Constants {
 
     // toggle constants for comp robot
-    public static final boolean isComp = false;
+    public static final boolean isComp = true;
 	
 	// robot loop time
 	public static final double kLooperDt = 0.02;
 
+    // robot toggle
+    public static final boolean isAlpha = false;
     // alliance color
     public static final boolean isRedAlliance = true;
 
@@ -104,7 +106,7 @@ public class Constants {
         /* Front Left Module - Module 0 */
         public static final class Mod0 {
             public static final double epsilonAngleOffset = 55.28;
-            public static final double compAngleOffset = 123; // TODO: Check value
+            public static final double compAngleOffset = 239; // TODO: Check value
 
             public static SwerveModuleConstants SwerveModuleConstants() {
                 return new SwerveModuleConstants(Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER,
@@ -114,7 +116,7 @@ public class Constants {
         /* Front Right Module - Module 1 */
         public static final class Mod1 {
             public static final double epsilonAngleOffset = 164.09;
-            public static final double compAngleOffset = 138; // TODO: Check value
+            public static final double compAngleOffset = 77; // TODO: Check value
             
             public static SwerveModuleConstants SwerveModuleConstants() {
                 return new SwerveModuleConstants(Ports.FR_DRIVE, Ports.FR_ROTATION, Ports.FR_CANCODER,
@@ -124,7 +126,7 @@ public class Constants {
         /* Back Left Module - Module 2 */
         public static final class Mod2 {
             public static final double epsilonAngleOffset = 345.41;
-            public static final double compAngleOffset = 100;   // TODO: Check value
+            public static final double compAngleOffset = 319;   // TODO: Check value
 
             public static SwerveModuleConstants SwerveModuleConstants() {
                 return new SwerveModuleConstants(Ports.BL_DRIVE, Ports.BL_ROTATION, Ports.BL_CANCODER,
@@ -134,7 +136,7 @@ public class Constants {
         /* Back Right Module - Module 3 */
         public static final class Mod3 {
             public static final double epsilonAngleOffset = 73.12;
-            public static final double compAngleOffset = 134;   // TODO: Check value
+            public static final double compAngleOffset = 311;   // TODO: Check value
 
             public static SwerveModuleConstants SwerveModuleConstants() {
                 return new SwerveModuleConstants(Ports.BR_DRIVE, Ports.BR_ROTATION, Ports.BR_CANCODER,
@@ -371,23 +373,33 @@ public class Constants {
         public static final double kClimbingVoltageLeft =  8.0;
         
         public static final int kLeftMinHeight = 0; // ticks
-        public static final int kLeftMaxHeight = 250584; // ticks
+        public static final int kLeftMaxHeight = 242808; // ticks
         public static final int kLeftTravelDistance = kLeftMaxHeight - kLeftMinHeight + 500; // ticks
-        public static final int kLeftPartialTravelDistance = 187938; // kLeftTravelDistance * 0.80
+        public static final int kLeftPartialTravelDistance = 182106; // kLeftTravelDistance * 0.80
         
         public static final int kRightMinHeight = 0; // ticks
-        public static final int kRightMaxHeight = 248631; // ticks
+        public static final int kRightMaxHeight = 240582; // ticks
         public static final int kRightTravelDistance = kRightMaxHeight - kRightMinHeight + 500; // ticks
-        public static final int kRightPartialTravelDistance = 186473; // kRightTravelDistance * 0.80
+        public static final int kRightPartialTravelDistance = 180437; // kRightTravelDistance * 0.80
 
-        public static final int kSafetyMinimum = -500; // minimum outside 0 ticks
+        // public static final int kEpsilonLeftMinHeight = 0; // ticks
+        // public static final int kEpsilonLeftMaxHeight = 250584; // ticks
+        // public static final int kEpsilonLeftTravelDistance = kLeftMaxHeight - kLeftMinHeight + 500; // ticks
+        // public static final int kEpsilonLeftPartialTravelDistance = 187938; // kLeftTravelDistance * 0.80
+        
+        // public static final int kEpsilonRightMinHeight = 0; // ticks
+        // public static final int kEpsilonRightMaxHeight = 248631; // ticks
+        // public static final int kEpsilonRightTravelDistance = kRightMaxHeight - kRightMinHeight + 500; // ticks
+        // public static final int kEpsilonRightPartialTravelDistance = 186473; // kRightTravelDistance * 0.80
 
-        public static final double kTravelDistanceEpsilon = 2000;
+        public static final int kSafetyMinimum = -2000; // minimum outside 0 ticks
 
-        public static final double kHighBarExtendAngle = -35.0;
-        public static final double kHighBarContactAngle = -28.0;
-        public static final double kTraversalBarExtendAngle = -18.0;
-        public static final double kTraversalBarContactAngle = -34.0;
+        public static final double kTravelDistanceEpsilon = 3000;
+
+        public static final double kHighBarExtendAngle = -38.0;
+        public static final double kHighBarContactAngle = -32.0;
+        public static final double kTraversalBarExtendAngle = -19.0;
+        public static final double kTraversalBarContactAngle = -29.0;
         public static final double kBarContactAngleEpsilon = 2.0;
     }
 
