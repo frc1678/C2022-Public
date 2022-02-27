@@ -253,13 +253,13 @@ public class Superstructure extends Subsystem {
 
             if (mResetClimberPosition) {
                 mClimber.resetClimberPosition();
+                mClimber.setClimberNone();
                 mResetClimberPosition = false;
             }
 
             if (!mOpenLoopClimbControlMode) {
 
                 if (mControlBoard.operator.getController().getXButtonPressed()) {
-                    mClimber.setClimberNone();
                     mClimbStep = 0;
                     
                 } else if (mControlBoard.operator.getController().getAButtonPressed()) {
@@ -309,10 +309,6 @@ public class Superstructure extends Subsystem {
                         &&
                         Util.epsilonEquals(mClimber.getClimberPositionLeft(), // don't climb unless left arm is fully extended
                                             Constants.ClimberConstants.kLeftTravelDistance,
-                                            Constants.ClimberConstants.kTravelDistanceEpsilon)
-                        &&
-                        Util.epsilonEquals(mClimber.getClimberPositionRight(), // don't climb unless left arm is fully extended
-                                            Constants.ClimberConstants.kSafetyMinimum,
                                             Constants.ClimberConstants.kTravelDistanceEpsilon)
                         && (mClimbStep == 2)) {
 

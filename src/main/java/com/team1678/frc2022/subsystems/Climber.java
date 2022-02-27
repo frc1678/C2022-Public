@@ -112,7 +112,7 @@ public class Climber extends Subsystem {
 
     @Override
     public void writePeriodicOutputs() {
-        maybeHoldCurrentPosition();
+        // maybeHoldCurrentPosition();
 
         switch (mRightControlState) {
             case OPEN_LOOP:
