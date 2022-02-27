@@ -173,6 +173,8 @@ public class ColorSensor extends Subsystem {
     public synchronized void writePeriodicOutputs() {
         
     }
+
+    //subystem getters
     public double getDetectedRValue() {
         if (mPeriodicIO.raw_color == null) {
             return 0;
@@ -196,6 +198,10 @@ public class ColorSensor extends Subsystem {
     }    
     public double getDistance() {
         return mPeriodicIO.distance;
+    }
+
+    public boolean getSensor0() {
+        return mPeriodicIO.sensor0Connected;
     }
 
     public static class PeriodicIO {
