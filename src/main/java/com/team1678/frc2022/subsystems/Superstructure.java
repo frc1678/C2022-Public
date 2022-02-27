@@ -94,6 +94,7 @@ public class Superstructure extends Subsystem {
     private boolean mForceIntake = false;
     private boolean mForceEject = false;
     private boolean mDisableEjecting = false;
+    private boolean mSlowEject = false;
 
     // climb mode tracker variables
     private boolean mClimbMode = false;
@@ -172,8 +173,9 @@ public class Superstructure extends Subsystem {
         mPeriodicIO.REVERSE = false;
         mPeriodicIO.REJECT = false;
     }
-    public void setWantEject(boolean eject) {
+    public void setWantEject(boolean eject, boolean slow_eject) {
         mPeriodicIO.EJECT = eject;
+        mSlowEject = slow_eject;
     }
     public void setWantPrep(boolean wants_prep) {
         mPeriodicIO.PREP = wants_prep;
@@ -575,7 +577,11 @@ public class Superstructure extends Subsystem {
             } else if (mColorSensor.hasBall()) {
                 mPeriodicIO.real_trigger = Trigger.WantedAction.PASSIVE_REVERSE;
                 if (mPeriodicIO.EJECT) {
-                    mPeriodicIO.real_indexer = Indexer.WantedAction.EJECT;
+                    if (mSlowEject) {
+                        mPeriodicIO.real_indexer = Indexer.WantedAction.SLOW_EJECT;
+                    } else {
+                        mPeriodicIO.real_indexer = Indexer.WantedAction.EJECT;
+                    }
                 } else {
                     mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX;
                 }

@@ -350,6 +350,7 @@ public class Constants {
         public static final double kTunnelFeedingVoltage = 4.0;
 
         public static final double kEjectorVoltage = 12.0;
+        public static final double kSlowEjectorVoltage = 4.0;
         public static final double kEjectorFeedingVoltage = 8.0;
 
         public static final double kReversingVoltage = -5.0;
@@ -391,7 +392,7 @@ public class Constants {
     }
 
     public static final class ColorSensorConstants {
-        public static final double kColorSensorThreshold = 160;
+        public static final double kColorSensorThreshold = 200;
 
         public static final double kTimeWithBall = 1.2;
     }
