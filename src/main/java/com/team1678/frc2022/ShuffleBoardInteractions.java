@@ -191,6 +191,8 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mHasBall;
     private final NetworkTableEntry mEject;
 
+    private final NetworkTableEntry mTimestamp;
+
     // instantiate subsystems, tabs, and widgets
     public ShuffleBoardInteractions() {
         /* Get Subsystems */
@@ -464,6 +466,10 @@ public class ShuffleBoardInteractions {
             .add("Eject", false)
             .getEntry();
 
+        mTimestamp = COLOR_SENSOR
+            .add("Timestamp", 0.0)
+            .getEntry();
+
 
         /* VISION */
         mLimelightOk = VISION_TAB
@@ -673,6 +679,8 @@ public class ShuffleBoardInteractions {
 
         mHasBall.setBoolean(mColorSensor.hasBall());
         mEject.setBoolean(mColorSensor.wantsEject());
+
+        mTimestamp.setDouble(mColorSensor.getTimestamp());
 
         /* CLIMBER */
         mInClimbMode.setBoolean(mSuperstructure.getInClimbMode());

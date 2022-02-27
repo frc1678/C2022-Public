@@ -156,6 +156,7 @@ public class ColorSensor extends Subsystem {
     public synchronized void readPeriodicInputs() {
         mPeriodicIO.sensor0Connected = mColorSensorThread.isSensor0Connected();
         mPeriodicIO.rawColorSensorData = mColorSensorThread.getRawColor0();
+        mPeriodicIO.timestamp = mColorSensorThread.getLastReadTimestampSeconds();
 
         if (mPeriodicIO.rawColorSensorData != null) {
             mPeriodicIO.raw_color = mColorSensorThread.getRawColor0();
@@ -204,6 +205,10 @@ public class ColorSensor extends Subsystem {
         return mPeriodicIO.sensor0Connected;
     }
 
+    public double getTimestamp() {
+        return mPeriodicIO.timestamp;
+    }
+
     public static class PeriodicIO {
         // INPUTS
         public RawColor rawColorSensorData;
@@ -214,6 +219,7 @@ public class ColorSensor extends Subsystem {
         // OUTPUTS
         public boolean has_ball;
         public boolean eject;
+        public double timestamp;
     }
     
 }
