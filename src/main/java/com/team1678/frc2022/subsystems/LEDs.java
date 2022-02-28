@@ -63,16 +63,22 @@ public class LEDs extends Subsystem {
         MAGENTA(255, 0, 255, Double.POSITIVE_INFINITY, 0.0, false), // MAGENTA
 
         // Strip States
-        ONE_BALL(0.5, 0.2, false, new Color(0.5, 0.1, 0.1), new Color(0.1, 0.1, 0.5)), // Alternating Yellow Blue
-        TWO_BALL(Double.POSITIVE_INFINITY, 0.05, false, new Color(0.5, 0.1, 0.1)), // Fast Alternating Yellow Red
+        NO_BALLS(255, 53, 13, Double.POSITIVE_INFINITY, 0.0, false), // SOLID ORANGE
+        ONE_BALL(18, 239, 255, Double.POSITIVE_INFINITY, 0.0, false), // SOLID CYAN
+        TWO_BALL(0, 255, 8, Double.POSITIVE_INFINITY, 0.0, false), // SOLID GREEN
 
         // Regular States
-        TARGET_VISIBLE(255, 255, 0, Double.POSITIVE_INFINITY, 0.0, false), // Slow Yellow
-        LOCKED_ON(0, 255, 0, Double.POSITIVE_INFINITY, 0.0, false), // Solid Gren
-        SHOT_READY(0, 255, 0, 0.05, 0.05, false), // FAST Green
+        NONE(255, 53, 13, Double.POSITIVE_INFINITY, 0.0, false), // SOLID ORANGE
+        SPIT(255, 53, 13, Double.POSITIVE_INFINITY, 0.0, false), // SOLID ORANGE
+        FENDER(18, 239, 255, Double.POSITIVE_INFINITY, 0.0, false), // SOLID CYAN
+        SHOOT(255, 20, 0, 0.05, 0.05, false), // FLASHING PINK
+        HAS_TARGET(255, 0, 255, Double.POSITIVE_INFINITY, 0.0, false), // SOLID PURPLE
+        AIMED(0, 255, 0, Double.POSITIVE_INFINITY, 0.0, false), // SOLID GREEN
+        SHOT_READY(0, 255, 0, 0.05, 0.05, false), // FLASHING GREEN
 
         // Super States
-        CLIMB_MODE(255, 0, 255, Double.POSITIVE_INFINITY, 0.0, false),
+        CLIMB_MODE(255, 18, 143, Double.POSITIVE_INFINITY, 0.0, false), // SOLID PINK
+        AUTO_TRAVERSE(255, 53, 0, 0.05, 0.05, false), // FLASHING ORANGE
 
         // Fun Colors!
         MERICA(0.3, 0, false, new Color(1, 1, 1), new Color(1, 0, 0), new Color(0, 0, 1)), // Unused
@@ -182,28 +188,39 @@ public class LEDs extends Subsystem {
             setTopState(State.EMERGENCY);
             return;
         }
+        
+        if(!mSuperstructure.getInClimbMode()) {
 
-        if (mSuperstructure.getBallCount() == 1) {
-            setTopState(State.ONE_BALL);
-        } else if (mSuperstructure.getBallCount() == 2) {
-            setTopState(State.TWO_BALL);
+            if (mSuperstructure.getBallCount() == 1) {
+                setBottomState(State.ONE_BALL);
+            } else if (mSuperstructure.getBallCount() == 2) {
+                setBottomState(State.TWO_BALL);
+            } else {
+                setBottomState(State.NO_BALLS);
+            }
+    
+            if (mSuperstructure.getWantsSpit()) {
+                setTopState(State.SPIT);
+            } else if (mSuperstructure.getWantsFender()) {
+                setTopState(State.FENDER);
+            } else if (mSuperstructure.getShooting()) {
+                setTopState(State.SHOOT);
+            } else if (mSuperstructure.isAimed()) {
+                setTopState(State.AIMED);
+            } else if (mSuperstructure.hasTarget()) {
+                setTopState(State.HAS_TARGET);
+            } else {
+                setTopState(State.NONE);
+            }
+
         } else {
-            setTopState(State.IDLE);
-        }
-
-        if (mSuperstructure.isSpunUp()) {
-            setBottomState(State.SHOT_READY);
-        } else if (mSuperstructure.isAimed()) {
-            setBottomState(State.LOCKED_ON);
-        } else if (Limelight.getInstance().hasTarget()) {
-            setBottomState(State.TARGET_VISIBLE);
-        } else {
-            setBottomState(State.IDLE);
-        }
-
-        if (mSuperstructure.getInClimbMode()) {
-            setTopState(State.CLIMB_MODE);
-            setBottomState(State.CLIMB_MODE);
+            if (mSuperstructure.isAutoClimb()) {
+                setTopState(State.AUTO_TRAVERSE);
+                setBottomState(State.AUTO_TRAVERSE);
+            } else {
+                setTopState(State.CLIMB_MODE);
+                setBottomState(State.CLIMB_MODE);
+            }
         }
     }
 
