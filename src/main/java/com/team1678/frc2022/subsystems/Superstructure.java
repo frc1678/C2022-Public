@@ -18,6 +18,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import javax.management.remote.SubjectDelegationPermission;
+
 public class Superstructure extends Subsystem {
 
     // superstructure instance
@@ -264,18 +266,20 @@ public class Superstructure extends Subsystem {
             if (!mOpenLoopClimbControlMode) {
 
                 if (mControlBoard.operator.getController().getXButtonPressed()) {
+                    mClimber.setClimberNone();
                     mClimbStep = 0;
                     mAutoTraversalClimb = false;
-                    
+
                 } else if (mControlBoard.operator.getController().getAButtonPressed()) {
                     mClimber.setExtendForClimb();
                     mAutoTraversalClimb = false;
+
                 } else if (mControlBoard.operator.getController().getBButtonPressed()) {
-                    mClimber.setClimbMidBar();
+                    mClimber.setClimbMidBarAndExtend();
                     mAutoTraversalClimb = false;
 
                 } else if (mControlBoard.operator.getController().getPOV() == 180) {
-                    mClimber.setClimbMidBarAndExtend();
+                    mClimber.setHighBarExtend();
                     mAutoTraversalClimb = false;
 
                 } else if (mControlBoard.operator.getController().getPOV() == 90) {
@@ -793,6 +797,8 @@ public class Superstructure extends Subsystem {
 
         SmartDashboard.putBoolean("Auto Traversal Climb", mAutoTraversalClimb);
         SmartDashboard.putNumber("Climb Step Number", mClimbStep);
+
+        SmartDashboard.putNumber("Robot Roll", mSwerve.getRoll().getDegrees());
     }
 
     // included to continue logging while disabled

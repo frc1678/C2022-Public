@@ -11,6 +11,7 @@ import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.logger.LogStorage;
 import com.team1678.frc2022.logger.LoggingSystem;
 import com.team254.lib.drivers.TalonFXFactory;
+import com.team254.lib.util.Util;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -112,7 +113,7 @@ public class Climber extends Subsystem {
 
     @Override
     public void writePeriodicOutputs() {
-        // maybeHoldCurrentPosition();
+        maybeHoldCurrentPosition();
 
         switch (mRightControlState) {
             case OPEN_LOOP:
@@ -256,13 +257,15 @@ public class Climber extends Subsystem {
     }
 
     // hold current position on arm
-    public void holdCurrentPosition() {
-        if (mPeriodicIO.climber_stator_current_left > Constants.ClimberConstants.kStatorCurrentLimit) {
-            setLeftClimberPosition(mPeriodicIO.climber_motor_position_left);
+    public void maybeHoldCurrentPosition() {
+        if ((mPeriodicIO.climber_stator_current_left > Constants.ClimberConstants.kStatorCurrentLimit)
+                && Util.epsilonEquals(mPeriodicIO.climber_motor_velocity_left, 0, 0.5)) {
+            setLeftClimberPosition(0);
         }
 
-        if (mPeriodicIO.climber_stator_current_right > Constants.ClimberConstants.kStatorCurrentLimit) {
-            setRightClimberPosition(mPeriodicIO.climber_motor_position_right);
+        if ((mPeriodicIO.climber_stator_current_right > Constants.ClimberConstants.kStatorCurrentLimit)
+                && Util.epsilonEquals(mPeriodicIO.climber_motor_velocity_right, 0, 0.5)) {
+            setRightClimberPosition(0);
         }
     }
 
@@ -385,17 +388,6 @@ public class Climber extends Subsystem {
         SmartDashboard.putNumber("Climber Current Left", mPeriodicIO.climber_stator_current_left);
         SmartDashboard.putBoolean("Extend Left Climber", getExtendLeftArm());
         SmartDashboard.putBoolean("Partial Extend Left Climber", getPartialExtendLeftArm());
-    }
-
-    // hold current position on arm
-    public void maybeHoldCurrentPosition() {
-        if (mPeriodicIO.climber_stator_current_left > Constants.ClimberConstants.kStatorCurrentLimit) {
-            setLeftClimberPosition(mPeriodicIO.climber_motor_position_left);
-        }
-
-        if (mPeriodicIO.climber_stator_current_right > Constants.ClimberConstants.kStatorCurrentLimit) {
-            setRightClimberPosition(mPeriodicIO.climber_motor_position_right);
-        }
     }
 
     public static class PeriodicIO {
