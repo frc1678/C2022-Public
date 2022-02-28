@@ -112,6 +112,8 @@ public class Climber extends Subsystem {
 
     @Override
     public void writePeriodicOutputs() {
+        // maybeHoldCurrentPosition();
+
         switch (mRightControlState) {
             case OPEN_LOOP:
                 mClimberRight.set(ControlMode.PercentOutput, mPeriodicIO.climber_demand_right / 12.0);
@@ -383,6 +385,17 @@ public class Climber extends Subsystem {
         SmartDashboard.putNumber("Climber Current Left", mPeriodicIO.climber_stator_current_left);
         SmartDashboard.putBoolean("Extend Left Climber", getExtendLeftArm());
         SmartDashboard.putBoolean("Partial Extend Left Climber", getPartialExtendLeftArm());
+    }
+
+    // hold current position on arm
+    public void maybeHoldCurrentPosition() {
+        if (mPeriodicIO.climber_stator_current_left > Constants.ClimberConstants.kStatorCurrentLimit) {
+            setLeftClimberPosition(mPeriodicIO.climber_motor_position_left);
+        }
+
+        if (mPeriodicIO.climber_stator_current_right > Constants.ClimberConstants.kStatorCurrentLimit) {
+            setRightClimberPosition(mPeriodicIO.climber_motor_position_right);
+        }
     }
 
     public static class PeriodicIO {

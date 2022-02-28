@@ -13,6 +13,11 @@ import com.team1678.frc2022.subsystems.Swerve;
 import com.team1678.frc2022.subsystems.Trigger;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
+<<<<<<< HEAD
+=======
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Timer;
+>>>>>>> 26c6aa851f3b244e438872cb7322155e45ba9a8b
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -643,7 +648,7 @@ public class ShuffleBoardInteractions {
 
         /* SWERVE */
 
-        /*
+        
         //  Only uncomment cancoder update when redoing cancoder offsets for modules
         // Update cancoders at a slower period to avoid stale can frames
         double dt = Timer.getFPGATimestamp();
@@ -653,7 +658,7 @@ public class ShuffleBoardInteractions {
             }
             lastCancoderUpdate = dt;
         }
-        */
+        
         
         for (int i = 0; i < mSwerveCancoders.length; i++) {
             mSwerveIntegrated[i].setDouble(truncate(MathUtil.inputModulus(mSwerveModules[i].getState().angle.getDegrees(), 0, 360)));

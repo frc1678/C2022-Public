@@ -26,6 +26,10 @@ import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
 import com.team1678.frc2022.subsystems.Trigger;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.MjpegServer;
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.cscore.VideoMode;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -89,6 +93,12 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void robotInit() {
+		UsbCamera camera = CameraServer.startAutomaticCapture();
+		camera.setVideoMode(VideoMode.PixelFormat.kMJPEG, 320, 240, 15);
+		MjpegServer cameraServer = new MjpegServer("serve_USB Camera 0", 5810);
+		cameraServer.setSource(camera);
+		cameraServer.setCompression(10);
+		
 		ctreConfigs = new CTREConfigs();
 		mShuffleBoardInteractions = ShuffleBoardInteractions.getInstance();
 

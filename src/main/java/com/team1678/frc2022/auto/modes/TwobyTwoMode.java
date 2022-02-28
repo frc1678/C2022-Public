@@ -26,9 +26,11 @@ public class TwobyTwoMode extends AutoModeBase {
    String file_path_a = "paths/TwoBallPaths/2 by 2 A.path";
    String file_path_b = "paths/TwoBallPaths/2 by 2 B.path";
    String file_path_c = "paths/TwoBallPaths/2 by 2 C.path";
+   String file_path_d = "paths/TwoBallPaths/2 by 2 D.path";
 
    //trajectory actions
-   SwerveTrajectoryAction driveToIntakeFirstShootCargo;
+   SwerveTrajectoryAction driveToIntakeSecondShotCargo;
+   SwerveTrajectoryAction driveToShotPose;
    SwerveTrajectoryAction driveToIntakeSecondEjectCargo;
    SwerveTrajectoryAction driveToIntakeThirdEjectCargo;
    
@@ -43,7 +45,7 @@ public class TwobyTwoMode extends AutoModeBase {
        
        // read trajectories from PathWeaver and generate trajectory actions
        Trajectory traj_path_a = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_a, Constants.AutoConstants.defaultSpeedConfig);
-       driveToIntakeFirstShootCargo = new SwerveTrajectoryAction(traj_path_a,
+       driveToIntakeSecondShotCargo = new SwerveTrajectoryAction(traj_path_a,
                                                            mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
                                                            new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                            new PIDController(Constants.AutoConstants.kPYController, 0, 0),
@@ -52,8 +54,19 @@ public class TwobyTwoMode extends AutoModeBase {
                                                            mSwerve::getWantAutoVisionAim,
                                                            mSwerve::setModuleStates);
 
+        // read trajectories from PathWeaver and generate trajectory actions
        Trajectory traj_path_b = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_b, Constants.AutoConstants.defaultSpeedConfig);
-       driveToIntakeSecondEjectCargo = new SwerveTrajectoryAction(traj_path_b,
+       driveToShotPose = new SwerveTrajectoryAction(traj_path_b,
+                                                           mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
+                                                           new PIDController(Constants.AutoConstants.kPXController, 0, 0),
+                                                           new PIDController(Constants.AutoConstants.kPYController, 0, 0),
+                                                           thetaController,
+                                                           () -> Rotation2d.fromDegrees(135.0),
+                                                           mSwerve::getWantAutoVisionAim,
+                                                           mSwerve::setModuleStates);
+
+       Trajectory traj_path_c = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_c, Constants.AutoConstants.defaultSpeedConfig);
+       driveToIntakeSecondEjectCargo = new SwerveTrajectoryAction(traj_path_c,
                                                            mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
                                                            new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                            new PIDController(Constants.AutoConstants.kPYController, 0, 0),
@@ -62,8 +75,8 @@ public class TwobyTwoMode extends AutoModeBase {
                                                            mSwerve::getWantAutoVisionAim,
                                                            mSwerve::setModuleStates);
 
-       Trajectory traj_path_c = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_c, Constants.AutoConstants.defaultSpeedConfig);
-       driveToIntakeThirdEjectCargo = new SwerveTrajectoryAction(traj_path_c,
+       Trajectory traj_path_d = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_d, Constants.AutoConstants.defaultSpeedConfig);
+       driveToIntakeThirdEjectCargo = new SwerveTrajectoryAction(traj_path_d,
                                                            mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
                                                            new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                            new PIDController(Constants.AutoConstants.kPYController, 0, 0),
@@ -79,50 +92,50 @@ public class TwobyTwoMode extends AutoModeBase {
         SmartDashboard.putBoolean("Auto Finished", false);
 
     // reset odometry at the start of the trajectory
-    runAction(new LambdaAction(() -> mSwerve.resetOdometry(new Pose2d(driveToIntakeFirstShootCargo.getInitialPose().getX(),
-                                                                      driveToIntakeFirstShootCargo.getInitialPose().getY(),
+    runAction(new LambdaAction(() -> mSwerve.resetOdometry(new Pose2d(driveToIntakeSecondShotCargo.getInitialPose().getX(),
+                                                                      driveToIntakeSecondShotCargo.getInitialPose().getY(),
                                                                       Rotation2d.fromDegrees(135)))));
 
-        // start spinning up for shot
-        runAction(new LambdaAction(() -> mSuperstructure.setWantPrep(true)));
-   
-        // start intaking
-        runAction(new LambdaAction(() -> mSuperstructure.setWantIntake(true)));
+    // start intaking
+    runAction(new LambdaAction(() -> mSuperstructure.setWantIntake(true)));
 
-        // start vision aiming to align drivetrain to target
-        runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));
+    // drive to intake our second alliance cargo
+    runAction(driveToIntakeSecondShotCargo);
 
-        // drive to intake our alliance cargo for shot
-        runAction(driveToIntakeFirstShootCargo);
+    // start spinning up for shot
+    runAction(new LambdaAction(() -> mSuperstructure.setWantPrep(true)));
+    
+    // start vision aiming to align drivetrain to target
+    runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));
 
-        // wait to settle
-        runAction(new WaitAction(1.0));
+    // drive to closer shot pose
+    runAction(driveToShotPose);
 
-        // shoot preloaded and first cargo
-        runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
-        runAction(new WaitAction(1.0));
-        runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
+    // shoot preloaded and first cargo
+    runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
+    runAction(new WaitAction(1.0));
+    runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
 
-        // stop vision aiming to control robot heading
-        runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(false)));
+    // stop vision aiming to control robot heading
+    runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(false)));
 
     // start ejecting cargo
-    runAction(new LambdaAction(() -> mSuperstructure.setWantEject(true)));
+    runAction(new LambdaAction(() -> mSuperstructure.setWantEject(true, true)));
 
     // run trajectory to drive to second cargo
     runAction(driveToIntakeSecondEjectCargo);
     
     // wait to outtake second cargo    
-    runAction(new WaitAction(1.5));
+    runAction(new WaitAction(0.75));
 
     // run trajectory to drive to third cargo
     runAction(driveToIntakeThirdEjectCargo);
 
     // wait to outtake third cargo
-    runAction(new WaitAction(1.5));
+    runAction(new WaitAction(0.75));
 
     // stop ejecting cargo
-    runAction(new LambdaAction(() -> mSuperstructure.setWantEject(false)));
+    runAction(new LambdaAction(() -> mSuperstructure.setWantEject(false, false)));
 
         System.out.println("Finished auto!");
             SmartDashboard.putBoolean("Auto Finished", true);
