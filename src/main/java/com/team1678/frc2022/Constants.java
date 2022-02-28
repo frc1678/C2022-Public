@@ -244,7 +244,7 @@ public class Constants {
         public static final double kIntakingVoltage = 10;
         public static final double kSpittingVoltage = -8;
         public static final double kRejectingVoltage = -5;
-        public static final double kSingulatorVoltage = 5.0;
+        public static final double kSingulatorVoltage = 7.0;
         public static final double kDeployVoltage = 3.0;
         public static final double kInHoldingVoltage = 0.75;
         public static final double kOutHoldingVoltage = 1.0;
@@ -408,7 +408,7 @@ public class Constants {
     }
 
     public static final class ColorSensorConstants {
-        public static final double kColorSensorThreshold = 180;
+        public static final double kColorSensorThreshold = 300;
 
         public static final double kTimeWithBall = 1.2;
     }
