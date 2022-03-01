@@ -80,7 +80,7 @@ public class Robot extends TimedRobot {
 	private final ColorSensor mColorSensor = ColorSensor.getInstance();
 	private final Climber mClimber = Climber.getInstance();
 	private final Limelight mLimelight = Limelight.getInstance();
-	private LEDs mLEDs = LEDs.getInstance();
+	private final LEDs mLEDs = LEDs.getInstance();
 
 	// logging system
 	private LoggingSystem mLogger = LoggingSystem.getInstance();
@@ -112,6 +112,7 @@ public class Robot extends TimedRobot {
 					mSuperstructure,
 					mInfrastructure,
 					mIntake,
+					mLEDs,
 					mIndexer,
 					mShooter,
 					mTrigger,

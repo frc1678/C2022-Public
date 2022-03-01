@@ -1,5 +1,11 @@
 package com.team1678.frc2022;
 
+import com.ctre.phoenix.led.CANdle;
+import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
+import java.security.Principal;
+
+import javax.security.auth.login.FailedLoginException;
+
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.team1678.frc2022.subsystems.LEDs;
 import com.team1678.frc2022.subsystems.ColorSensor;
@@ -7,6 +13,7 @@ import com.team1678.frc2022.subsystems.ColorSensor;
 import com.team1678.frc2022.subsystems.Climber;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Intake;
+import com.team1678.frc2022.subsystems.LEDs;
 import com.team1678.frc2022.subsystems.Limelight;
 import com.team1678.frc2022.subsystems.Shooter;
 import com.team1678.frc2022.subsystems.Superstructure;
@@ -15,6 +22,7 @@ import com.team1678.frc2022.subsystems.Swerve;
 import com.team1678.frc2022.subsystems.Trigger;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.wpilibj.CAN;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
@@ -41,7 +49,7 @@ public class ShuffleBoardInteractions {
     private final Swerve mSwerve;
     private final SwerveModule[] mSwerveModules;
     private final Intake mIntake;
-    private final LEDs mLights;
+    private final LEDs mLEDs;
     private final Shooter mShooter;
     private final Trigger mTrigger;
     private final Indexer mIndexer;
@@ -218,7 +226,7 @@ public class ShuffleBoardInteractions {
         mSwerveModules = Swerve.getInstance().mSwerveMods;
         mIntake = Intake.getInstance();
         mIndexer = Indexer.getInstance();
-        mLights = LEDs.getInstance();
+        mLEDs = LEDs.getInstance();
         mClimber = Climber.getInstance();
         mShooter = Shooter.getInstance();
         mTrigger = Trigger.getInstance();
@@ -802,8 +810,8 @@ public class ShuffleBoardInteractions {
         }
 
         // Lights
-        mTopLEDState.setString(mLights.getTopState().getName());
-        mBottomLEDState.setString(mLights.getBottomState().getName());
+        mTopLEDState.setString(mLEDs.getTopState().getName());
+        mBottomLEDState.setString(mLEDs.getBottomState().getName());
     }
 
     /* Truncates number to 2 decimal places for cleaner numbers */
