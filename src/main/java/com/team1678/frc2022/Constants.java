@@ -364,7 +364,7 @@ public class Constants {
     
     public static final class ClimberConstants {
         public static final double kCalibratingVoltage = 5.0;
-        public static final double kStatorCurrentLimit = 80.0;
+        public static final double kStatorCurrentLimit = 110.0;
         public static final double kCalibrationTimeoutSeconds = 10.0;
         
         public static final double kClimbingVoltageRight = 8.0;

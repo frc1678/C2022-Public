@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
@@ -37,6 +38,8 @@ public class Climber extends Subsystem {
     private boolean mPartialExtendLeftArm = false;
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
+
+    public StatorCurrentLimitConfiguration STATOR_CURRENT_LIMIT = new StatorCurrentLimitConfiguration(true, 60, 60, .2);
 
     private Climber() {
         mClimberRight = TalonFXFactory.createDefaultTalon(Ports.CLIMBER_RIGHT_ID);
@@ -80,6 +83,9 @@ public class Climber extends Subsystem {
         mClimberLeft.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
         mClimberLeft.enableVoltageCompensation(true);
 
+        // set current limits on motor
+        mClimberRight.configStatorCurrentLimit(STATOR_CURRENT_LIMIT);
+        mClimberLeft.configStatorCurrentLimit(STATOR_CURRENT_LIMIT);
     }
 
     public static synchronized Climber getInstance() {
@@ -258,13 +264,15 @@ public class Climber extends Subsystem {
 
     // hold current position on arm
     public void maybeHoldCurrentPosition() {
-        if ((mPeriodicIO.climber_stator_current_left > Constants.ClimberConstants.kStatorCurrentLimit)
-                && Util.epsilonEquals(mPeriodicIO.climber_motor_velocity_left, 0, 0.5)) {
+        if ((mPeriodicIO.climber_motor_velocity_left < 0)
+                && Util.epsilonEquals(mPeriodicIO.climber_motor_velocity_left, 0, 5000.0)
+                && (mPeriodicIO.climber_motor_position_left < 20000)) {
             setLeftClimberPosition(0);
         }
 
-        if ((mPeriodicIO.climber_stator_current_right > Constants.ClimberConstants.kStatorCurrentLimit)
-                && Util.epsilonEquals(mPeriodicIO.climber_motor_velocity_right, 0, 0.5)) {
+        if ((mPeriodicIO.climber_motor_velocity_right < 0)
+                && Util.epsilonEquals(mPeriodicIO.climber_motor_velocity_right, 0, 0.5)
+                && (mPeriodicIO.climber_motor_position_right < 20000)) {
             setRightClimberPosition(0);
         }
     }
