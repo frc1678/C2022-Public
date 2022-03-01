@@ -10,7 +10,7 @@ public class Ports {
         3 4
     */
 
-    public static final int FL_DRIVE = 0; 
+    public static final int FL_DRIVE = 0;
     public static final int FL_ROTATION = 1;
     public static final int FL_CANCODER = 0; 
 
@@ -36,7 +36,7 @@ public class Ports {
     public static final int SINGULATOR_ID = 10;
     public static final int TUNNEL_ID = 11;
     public static final int TRIGGER_ID = 12;
-    public static final int BOTTOM_BEAM_BREAK = 1;
+    public static final int BOTTOM_BEAM_BREAK = 3;
     public static final int TOP_BEAM_BREAK = 2;
 
     public static final int FLYWHEEL_MASTER_ID = 13;
@@ -50,6 +50,9 @@ public class Ports {
 
     // Infrastucture
     public static final int PCM = 21;
+
+    // Candle
+    public static final int CANDLE = 22;
 
 
 }
