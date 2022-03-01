@@ -1,11 +1,18 @@
 package com.team1678.frc2022;
 
+import com.ctre.phoenix.led.CANdle;
+import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
+import java.security.Principal;
+
+import javax.security.auth.login.FailedLoginException;
+
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.team1678.frc2022.subsystems.ColorSensor;
 
 import com.team1678.frc2022.subsystems.Climber;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Intake;
+import com.team1678.frc2022.subsystems.LEDs;
 import com.team1678.frc2022.subsystems.Limelight;
 import com.team1678.frc2022.subsystems.Shooter;
 import com.team1678.frc2022.subsystems.Superstructure;
@@ -13,6 +20,7 @@ import com.team1678.frc2022.subsystems.Swerve;
 import com.team1678.frc2022.subsystems.Trigger;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.wpilibj.CAN;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
@@ -39,6 +47,7 @@ public class ShuffleBoardInteractions {
     private final Swerve mSwerve;
     private final SwerveModule[] mSwerveModules;
     private final Intake mIntake;
+    private final LEDs mLEDs;
     private final Shooter mShooter;
     private final Trigger mTrigger;
     private final Indexer mIndexer;
@@ -54,6 +63,7 @@ public class ShuffleBoardInteractions {
     private ShuffleboardTab VISION_TAB;
     private ShuffleboardTab SWERVE_TAB;
     private ShuffleboardTab PID_TAB;
+    private ShuffleboardTab CANDLE_TAB;
     private ShuffleboardTab INTAKE_TAB;
     private ShuffleboardTab SHOOTER_TAB;
     private ShuffleboardTab INDEXER_TAB;
@@ -63,6 +73,13 @@ public class ShuffleBoardInteractions {
     private ShuffleboardTab COLOR_SENSOR;   
 
     /*** ENTRIES ***/
+    
+    /* CANdle */
+    private final NetworkTableEntry mLedTemperature;
+    private final NetworkTableEntry mLedCurrent;
+    private final NetworkTableEntry mLedState;
+    private final NetworkTableEntry mLedStripState;
+    private final NetworkTableEntry mLedApply;
     
     /* SWERVE MODULES */
     private final String[] kSwervePlacements = {"Front Left", "Front Right", "Back Left", "Back Right"};
@@ -210,6 +227,7 @@ public class ShuffleBoardInteractions {
         mSwerveModules = Swerve.getInstance().mSwerveMods;
         mIntake = Intake.getInstance();
         mIndexer = Indexer.getInstance();
+        mLEDs = LEDs.getInstance();
         mClimber = Climber.getInstance();
         mShooter = Shooter.getInstance();
         mTrigger = Trigger.getInstance();
@@ -221,6 +239,7 @@ public class ShuffleBoardInteractions {
         OPERATOR_TAB = Shuffleboard.getTab("OPERATOR");
         SWERVE_TAB = Shuffleboard.getTab("Swerve");
         PID_TAB = Shuffleboard.getTab("Module PID");
+        CANDLE_TAB = Shuffleboard.getTab("Candle");
         INTAKE_TAB = Shuffleboard.getTab("Intake");
         INDEXER_TAB = Shuffleboard.getTab("Indexer");
         CLIMBER_TAB = Shuffleboard.getTab("Climber");
@@ -323,6 +342,19 @@ public class ShuffleBoardInteractions {
             .withSize(1, 1)
             .getEntry();
 
+        /* CANdle */
+        mLedCurrent = CANDLE_TAB.add("Current (Amps)", 0).getEntry();
+        mLedTemperature = CANDLE_TAB.add("Temperature (Celcius)", 0).getEntry();
+        mLedState = CANDLE_TAB.add("State", "Nothing yet :/").getEntry();
+        mLedStripState = CANDLE_TAB.add("Strip State", "Nothing yet :\\").getEntry();
+        mLedApply = CANDLE_TAB
+            .add("Apply State", false)
+            .withWidget(BuiltInWidgets.kToggleSwitch)
+            .withPosition(3, 0)
+            .withSize(2, 1)
+            .getEntry();
+
+        
         /* INTAKE */
         mIntakeState = INTAKE_TAB
             .add("Intake State", "N/A")
@@ -678,6 +710,21 @@ public class ShuffleBoardInteractions {
         mCurrentAngleI.setDouble(currentPIDVals[1]);
         mCurrentAngleD.setDouble(currentPIDVals[2]);
 
+        /* CANDLE */
+        mLedCurrent.setDouble(mLEDs.getCurrentDraw());
+        mLedTemperature.setDouble(mLEDs.getTemperature());
+
+        if (mLedApply.getValue().getBoolean()) {
+            if (LEDs.State.valueOf(mLedState.getValue().getString()) != null) {
+                LEDs.getInstance().setBottomState(LEDs.State.valueOf(mLedState.getValue().getString()));
+            }
+            if (LEDs.State.valueOf(mLedStripState.getValue().getString()) != null) {
+                LEDs.getInstance().setTopState(LEDs.State.valueOf(mLedStripState.getValue().getString()));
+            }
+        } else {
+            //mLedState.setString(mLEDs.getState().toString());
+        }
+        
         /* INTAKE */
         mIntakeState.setString(mIntake.getState().toString());
 

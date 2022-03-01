@@ -20,6 +20,7 @@ import com.team1678.frc2022.subsystems.Hood;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Infrastructure;
 import com.team1678.frc2022.subsystems.Intake;
+import com.team1678.frc2022.subsystems.LEDs;
 import com.team1678.frc2022.subsystems.Limelight;
 import com.team1678.frc2022.subsystems.Shooter;
 import com.team1678.frc2022.subsystems.Superstructure;
@@ -79,6 +80,7 @@ public class Robot extends TimedRobot {
 	private final ColorSensor mColorSensor = ColorSensor.getInstance();
 	private final Climber mClimber = Climber.getInstance();
 	private final Limelight mLimelight = Limelight.getInstance();
+	private final LEDs mLEDs = LEDs.getInstance();
 
 	// logging system
 	private LoggingSystem mLogger = LoggingSystem.getInstance();
@@ -110,6 +112,7 @@ public class Robot extends TimedRobot {
 					mSuperstructure,
 					mInfrastructure,
 					mIntake,
+					mLEDs,
 					mIndexer,
 					mShooter,
 					mTrigger,
@@ -137,6 +140,7 @@ public class Robot extends TimedRobot {
 	public void robotPeriodic() {
 		mShuffleBoardInteractions.update();
 		mSwerve.outputTelemetry();
+		mLEDs.updateLights();
 		mClimber.outputTelemetry();
 	}
 
