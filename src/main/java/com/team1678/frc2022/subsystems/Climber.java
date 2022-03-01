@@ -24,6 +24,8 @@ public class Climber extends Subsystem {
 
     public boolean mHomed;
 
+    public boolean mCorrectedDemand = false;
+
     private static Climber mInstance;
 
     // logger
@@ -39,7 +41,7 @@ public class Climber extends Subsystem {
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
 
-    public StatorCurrentLimitConfiguration STATOR_CURRENT_LIMIT = new StatorCurrentLimitConfiguration(true, 60, 60, .2);
+    public StatorCurrentLimitConfiguration STATOR_CURRENT_LIMIT = new StatorCurrentLimitConfiguration(true, 80, 80, .2);
 
     private Climber() {
         mClimberRight = TalonFXFactory.createDefaultTalon(Ports.CLIMBER_RIGHT_ID);
@@ -113,14 +115,15 @@ public class Climber extends Subsystem {
         mPeriodicIO.climber_motor_velocity_left = mClimberLeft.getSelectedSensorVelocity();
         mPeriodicIO.climber_motor_position_left = mClimberLeft.getSelectedSensorPosition();
 
+        // curr check for holding
+        maybeHoldCurrentPosition();
+
         // send log data
         SendLog();
     }
 
     @Override
     public void writePeriodicOutputs() {
-        maybeHoldCurrentPosition();
-
         switch (mRightControlState) {
             case OPEN_LOOP:
                 mClimberRight.set(ControlMode.PercentOutput, mPeriodicIO.climber_demand_right / 12.0);
@@ -264,6 +267,7 @@ public class Climber extends Subsystem {
 
     // hold current position on arm
     public void maybeHoldCurrentPosition() {
+        /*
         if ((mPeriodicIO.climber_motor_velocity_left < 0)
                 && Util.epsilonEquals(mPeriodicIO.climber_motor_velocity_left, 0, 5000.0)
                 && (mPeriodicIO.climber_motor_position_left < 20000)) {
@@ -271,10 +275,23 @@ public class Climber extends Subsystem {
         }
 
         if ((mPeriodicIO.climber_motor_velocity_right < 0)
-                && Util.epsilonEquals(mPeriodicIO.climber_motor_velocity_right, 0, 0.5)
+                && Util.epsilonEquals(mPeriodicIO.climber_motor_velocity_right, 0, 5000.0)
                 && (mPeriodicIO.climber_motor_position_right < 20000)) {
             setRightClimberPosition(0);
         }
+        */
+
+        
+        if (Util.epsilonEquals(mPeriodicIO.climber_motor_velocity_left, 0, 5000.0)
+                && (mPeriodicIO.climber_stator_current_left > Constants.ClimberConstants.kStatorCurrentLimit)) {
+            setLeftClimberPosition(0);
+        }
+
+        if (Util.epsilonEquals(mPeriodicIO.climber_motor_velocity_right, 0, 5000.0)
+                && (mPeriodicIO.climber_stator_current_right > Constants.ClimberConstants.kStatorCurrentLimit)) {
+            setLeftClimberPosition(0);
+        }
+        
     }
 
     public enum RightControlState {
@@ -396,6 +413,8 @@ public class Climber extends Subsystem {
         SmartDashboard.putNumber("Climber Current Left", mPeriodicIO.climber_stator_current_left);
         SmartDashboard.putBoolean("Extend Left Climber", getExtendLeftArm());
         SmartDashboard.putBoolean("Partial Extend Left Climber", getPartialExtendLeftArm());
+
+        SmartDashboard.putBoolean("Corrected Demand", mCorrectedDemand);
     }
 
     public static class PeriodicIO {
