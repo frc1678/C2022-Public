@@ -56,11 +56,11 @@ public class Indexer extends Subsystem {
     private State mState = State.IDLE;
 
     public enum WantedAction {
-        NONE, INDEX, EJECT, FEED, REVERSE, 
+        NONE, INDEX, EJECT, SLOW_EJECT, FEED, REVERSE, 
     }
 
     public enum State{
-        IDLE, INDEXING, EJECTING, FEEDING, REVERSING,
+        IDLE, INDEXING, EJECTING, SLOW_EJECTING, FEEDING, REVERSING,
     }
 
     private Indexer() {
@@ -83,6 +83,9 @@ public class Indexer extends Subsystem {
                 break;
             case EJECT:
                 mState = State.EJECTING;
+                break;
+            case SLOW_EJECT:
+                mState = State.SLOW_EJECTING;
                 break;
             case FEED:
                 mState = State.FEEDING;
@@ -112,6 +115,10 @@ public class Indexer extends Subsystem {
             case EJECTING:
                 mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVoltage;
                 mPeriodicIO.ejector_demand = -Constants.IndexerConstants.kEjectorVoltage;
+                break;
+            case SLOW_EJECTING:
+                mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVoltage;
+                mPeriodicIO.ejector_demand = -Constants.IndexerConstants.kSlowEjectorVoltage;
                 break;
             case FEEDING:
                 mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelFeedingVoltage;

@@ -94,6 +94,7 @@ public class Superstructure extends Subsystem {
     private boolean mForceIntake = false;
     private boolean mForceEject = false;
     private boolean mDisableEjecting = false;
+    private boolean mSlowEject = false;
 
     // climb mode tracker variables
     private boolean mClimbMode = false;
@@ -172,8 +173,9 @@ public class Superstructure extends Subsystem {
         mPeriodicIO.REVERSE = false;
         mPeriodicIO.REJECT = false;
     }
-    public void setWantEject(boolean eject) {
+    public void setWantEject(boolean eject, boolean slow_eject) {
         mPeriodicIO.EJECT = eject;
+        mSlowEject = slow_eject;
     }
     public void setWantPrep(boolean wants_prep) {
         mPeriodicIO.PREP = wants_prep;
@@ -240,11 +242,13 @@ public class Superstructure extends Subsystem {
 
             if (mControlBoard.getExitClimbMode()) {
                 mClimbMode = false;
+                mAutoTraversalClimb = false;
             }
 
             if (mControlBoard.operator.getController().getLeftStickButtonPressed()) {
                 mOpenLoopClimbControlMode = !mOpenLoopClimbControlMode;
                 mClimber.setClimberNone();
+                mAutoTraversalClimb = false;
             }
 
             if (mControlBoard.operator.getController().getRightStickButtonPressed()) {
@@ -253,36 +257,43 @@ public class Superstructure extends Subsystem {
 
             if (mResetClimberPosition) {
                 mClimber.resetClimberPosition();
+                mClimber.setClimberNone();
                 mResetClimberPosition = false;
             }
 
             if (!mOpenLoopClimbControlMode) {
 
                 if (mControlBoard.operator.getController().getXButtonPressed()) {
-                    mClimber.setClimberNone();
                     mClimbStep = 0;
+                    mAutoTraversalClimb = false;
                     
                 } else if (mControlBoard.operator.getController().getAButtonPressed()) {
                     mClimber.setExtendForClimb();
-
+                    mAutoTraversalClimb = false;
                 } else if (mControlBoard.operator.getController().getBButtonPressed()) {
                     mClimber.setClimbMidBar();
+                    mAutoTraversalClimb = false;
 
                 } else if (mControlBoard.operator.getController().getPOV() == 180) {
                     mClimber.setClimbMidBarAndExtend();
+                    mAutoTraversalClimb = false;
 
                 } else if (mControlBoard.operator.getController().getPOV() == 90) {
                     mClimber.setClimbHighBarAndExtend();
+                    mAutoTraversalClimb = false;
 
                 } else if (mControlBoard.operator.getController().getPOV() == 0) {
                     mClimber.setTraversalBarExtend();
-                
+                    mAutoTraversalClimb = false;
+
                 } else if (mControlBoard.operator.getController().getPOV() == 270) {
                     mClimber.setClimbTraversalBar();
+                    mAutoTraversalClimb = false;
 
                 } else if (mControlBoard.getTraversalClimb()) {
-                    mAutoTraversalClimb = !mAutoTraversalClimb;
-                }
+                    mAutoTraversalClimb = true;
+                    mClimbStep = 0;
+                }             
                 
                 if (mAutoTraversalClimb) {
 
@@ -309,10 +320,6 @@ public class Superstructure extends Subsystem {
                         &&
                         Util.epsilonEquals(mClimber.getClimberPositionLeft(), // don't climb unless left arm is fully extended
                                             Constants.ClimberConstants.kLeftTravelDistance,
-                                            Constants.ClimberConstants.kTravelDistanceEpsilon)
-                        &&
-                        Util.epsilonEquals(mClimber.getClimberPositionRight(), // don't climb unless left arm is fully extended
-                                            Constants.ClimberConstants.kSafetyMinimum,
                                             Constants.ClimberConstants.kTravelDistanceEpsilon)
                         && (mClimbStep == 2)) {
 
@@ -449,6 +456,10 @@ public class Superstructure extends Subsystem {
             if (mControlBoard.operator.getController().getXButtonPressed()) {
                 mPeriodicIO.SPIT = !mPeriodicIO.SPIT;
             }
+            
+            if (!mIndexer.getTopBeamBreak()) {
+                mPeriodicIO.SPIT = false;
+            }
 
             // control for adding manual hood adjustment
             switch(mControlBoard.getHoodManualAdjustment()) {
@@ -500,10 +511,7 @@ public class Superstructure extends Subsystem {
 
     /*** UPDATE SHOOTER AND HOOD SETPOINTS WHEN VISION AIMING ***/
     public synchronized void updateShootingParams() {
-        if (mPeriodicIO.SPIT) {
-            mShooterSetpoint = kSpitVelocity;
-            mHoodSetpoint = kSpitAngle;
-        } else if (mPeriodicIO.FENDER) {
+        if (mPeriodicIO.FENDER) {
             mShooterSetpoint = kFenderVelocity;
             mHoodSetpoint = kFenderAngle;
         } else if (hasTarget()) {
@@ -530,14 +538,20 @@ public class Superstructure extends Subsystem {
             mHoodAngleAdjustment = 0.0;
             mResetHoodAngleAdjustment = false;
         }
-        // update hood setpoint
-        mPeriodicIO.real_hood = mHoodSetpoint + mHoodAngleAdjustment;
 
-        // update shooter setpoint
-        if (mPeriodicIO.PREP) {
-            mPeriodicIO.real_shooter = mShooterSetpoint;
+        // update shooter & hood setpoint
+        if (mPeriodicIO.SPIT){
+            mPeriodicIO.real_shooter = kSpitVelocity;
+            mPeriodicIO.real_hood = kSpitAngle;
         } else {
-            mPeriodicIO.real_shooter = 0.0;
+            mPeriodicIO.real_hood = mHoodSetpoint + mHoodAngleAdjustment;
+
+            if (mPeriodicIO.PREP) {
+                mPeriodicIO.real_shooter = mShooterSetpoint;
+            } else {
+                mPeriodicIO.real_shooter = 0.0;
+            }
+                
         }
 
         // update intake and indexer actions
@@ -556,6 +570,9 @@ public class Superstructure extends Subsystem {
                 mPeriodicIO.real_trigger = Trigger.WantedAction.NONE;
                 mPeriodicIO.real_indexer = Indexer.WantedAction.NONE;
             }
+        } else if (mPeriodicIO.SPIT) {
+            mPeriodicIO.real_indexer = Indexer.WantedAction.FEED;
+            mPeriodicIO.real_trigger = Trigger.WantedAction.FEED;
         } else {
             // force eject
             if (mPeriodicIO.EJECT && mForceEject) {
@@ -565,7 +582,11 @@ public class Superstructure extends Subsystem {
             } else if (mColorSensor.hasBall()) {
                 mPeriodicIO.real_trigger = Trigger.WantedAction.PASSIVE_REVERSE;
                 if (mPeriodicIO.EJECT) {
-                    mPeriodicIO.real_indexer = Indexer.WantedAction.EJECT;
+                    if (mSlowEject) {
+                        mPeriodicIO.real_indexer = Indexer.WantedAction.SLOW_EJECT;
+                    } else {
+                        mPeriodicIO.real_indexer = Indexer.WantedAction.EJECT;
+                    }
                 } else {
                     mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX;
                 }
