@@ -117,6 +117,9 @@ public class Robot extends TimedRobot {
 					mShooter,
 					mTrigger,
 					mHood,
+					mSuperstructure,
+					mLimelight,
+					mLEDs,
 					mColorSensor,
 					mClimber,
 					mLimelight
@@ -139,8 +142,8 @@ public class Robot extends TimedRobot {
 	@Override
 	public void robotPeriodic() {
 		mShuffleBoardInteractions.update();
+		mLEDs.updateState();
 		mSwerve.outputTelemetry();
-		mLEDs.updateLights();
 		mClimber.outputTelemetry();
 	}
 

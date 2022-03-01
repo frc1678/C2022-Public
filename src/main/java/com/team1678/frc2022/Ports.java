@@ -52,7 +52,7 @@ public class Ports {
     public static final int PCM = 21;
 
     // Candle
-    public static final int CANDLE = 22; // TODO: Update ID
+    public static final int CANDLE = 22;
 
 
 }

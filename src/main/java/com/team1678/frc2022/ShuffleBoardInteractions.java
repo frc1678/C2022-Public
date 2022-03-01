@@ -7,6 +7,7 @@ import java.security.Principal;
 import javax.security.auth.login.FailedLoginException;
 
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
+import com.team1678.frc2022.subsystems.LEDs;
 import com.team1678.frc2022.subsystems.ColorSensor;
 
 import com.team1678.frc2022.subsystems.Climber;
@@ -17,6 +18,7 @@ import com.team1678.frc2022.subsystems.Limelight;
 import com.team1678.frc2022.subsystems.Shooter;
 import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
+
 import com.team1678.frc2022.subsystems.Trigger;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -63,7 +65,7 @@ public class ShuffleBoardInteractions {
     private ShuffleboardTab VISION_TAB;
     private ShuffleboardTab SWERVE_TAB;
     private ShuffleboardTab PID_TAB;
-    private ShuffleboardTab CANDLE_TAB;
+    private ShuffleboardTab LED_TAB;
     private ShuffleboardTab INTAKE_TAB;
     private ShuffleboardTab SHOOTER_TAB;
     private ShuffleboardTab INDEXER_TAB;
@@ -75,11 +77,8 @@ public class ShuffleBoardInteractions {
     /*** ENTRIES ***/
     
     /* CANdle */
-    private final NetworkTableEntry mLedTemperature;
-    private final NetworkTableEntry mLedCurrent;
-    private final NetworkTableEntry mLedState;
-    private final NetworkTableEntry mLedStripState;
-    private final NetworkTableEntry mLedApply;
+    private final NetworkTableEntry mTopLEDState;
+    private final NetworkTableEntry mBottomLEDState;
     
     /* SWERVE MODULES */
     private final String[] kSwervePlacements = {"Front Left", "Front Right", "Back Left", "Back Right"};
@@ -239,7 +238,7 @@ public class ShuffleBoardInteractions {
         OPERATOR_TAB = Shuffleboard.getTab("OPERATOR");
         SWERVE_TAB = Shuffleboard.getTab("Swerve");
         PID_TAB = Shuffleboard.getTab("Module PID");
-        CANDLE_TAB = Shuffleboard.getTab("Candle");
+        LED_TAB = Shuffleboard.getTab("LEDs");
         INTAKE_TAB = Shuffleboard.getTab("Intake");
         INDEXER_TAB = Shuffleboard.getTab("Indexer");
         CLIMBER_TAB = Shuffleboard.getTab("Climber");
@@ -343,17 +342,15 @@ public class ShuffleBoardInteractions {
             .getEntry();
 
         /* CANdle */
-        mLedCurrent = CANDLE_TAB.add("Current (Amps)", 0).getEntry();
-        mLedTemperature = CANDLE_TAB.add("Temperature (Celcius)", 0).getEntry();
-        mLedState = CANDLE_TAB.add("State", "Nothing yet :/").getEntry();
-        mLedStripState = CANDLE_TAB.add("Strip State", "Nothing yet :\\").getEntry();
-        mLedApply = CANDLE_TAB
-            .add("Apply State", false)
-            .withWidget(BuiltInWidgets.kToggleSwitch)
-            .withPosition(3, 0)
+        mTopLEDState = LED_TAB
+            .add("Top LEDs State", "N/A")
             .withSize(2, 1)
             .getEntry();
 
+        mBottomLEDState = LED_TAB
+            .add("Bottom LEDs State", "N/A")
+            .withSize(2, 1)
+            .getEntry();
         
         /* INTAKE */
         mIntakeState = INTAKE_TAB
@@ -710,21 +707,6 @@ public class ShuffleBoardInteractions {
         mCurrentAngleI.setDouble(currentPIDVals[1]);
         mCurrentAngleD.setDouble(currentPIDVals[2]);
 
-        /* CANDLE */
-        mLedCurrent.setDouble(mLEDs.getCurrentDraw());
-        mLedTemperature.setDouble(mLEDs.getTemperature());
-
-        if (mLedApply.getValue().getBoolean()) {
-            if (LEDs.State.valueOf(mLedState.getValue().getString()) != null) {
-                LEDs.getInstance().setBottomState(LEDs.State.valueOf(mLedState.getValue().getString()));
-            }
-            if (LEDs.State.valueOf(mLedStripState.getValue().getString()) != null) {
-                LEDs.getInstance().setTopState(LEDs.State.valueOf(mLedStripState.getValue().getString()));
-            }
-        } else {
-            //mLedState.setString(mLEDs.getState().toString());
-        }
-        
         /* INTAKE */
         mIntakeState.setString(mIntake.getState().toString());
 
@@ -826,6 +808,10 @@ public class ShuffleBoardInteractions {
         if(mShootingSetpointsEnableToggle.getValue().getBoolean()) {
             mSuperstructure.setShootingParameters(mManualShooterRPM.getDouble(0.0), mManualHoodAngle.getDouble(0.0));
         }
+
+        // Lights
+        mTopLEDState.setString(mLEDs.getTopState().getName());
+        mBottomLEDState.setString(mLEDs.getBottomState().getName());
     }
 
     /* Truncates number to 2 decimal places for cleaner numbers */
