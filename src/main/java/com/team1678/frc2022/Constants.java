@@ -13,7 +13,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 public class Constants {
 
     // toggle constants for comp robot
-    public static final boolean isComp = true;
+    public static final boolean isComp = false;
 	
 	// robot loop time
 	public static final double kLooperDt = 0.02;
@@ -246,7 +246,7 @@ public class Constants {
         public static final double kIntakingVoltage = 10;
         public static final double kSpittingVoltage = -8;
         public static final double kRejectingVoltage = -5;
-        public static final double kSingulatorVoltage = 5.0;
+        public static final double kSingulatorVoltage = 7.0;
         public static final double kDeployVoltage = 3.0;
         public static final double kInHoldingVoltage = 0.75;
         public static final double kOutHoldingVoltage = 1.0;
@@ -366,45 +366,52 @@ public class Constants {
     
     public static final class ClimberConstants {
         public static final double kCalibratingVoltage = 5.0;
-        public static final double kStatorCurrentLimit = 8.0;
+        public static final double kStatorCurrentLimit = 150.0;
         public static final double kCalibrationTimeoutSeconds = 10.0;
         
         public static final double kClimbingVoltageRight = 8.0;
         public static final double kClimbingVoltageLeft =  8.0;
         
-        public static final int kLeftMinHeight = 0; // ticks
-        public static final int kLeftMaxHeight = 242808; // ticks
-        public static final int kLeftTravelDistance = kLeftMaxHeight - kLeftMinHeight + 500; // ticks
-        public static final int kLeftPartialTravelDistance = 182106; // kLeftTravelDistance * 0.80
+        // comp-specific climber constants
+        public static final int kCompLeftMinHeight = 0; // ticks
+        public static final int kCompLeftMaxHeight = 242808; // ticks
+        public static final int kCompLeftTravelDistance = kCompLeftMaxHeight - kCompLeftMinHeight + 500; // ticks
+        public static final int kCompLeftPartialTravelDistance = 182106; // kLeftTravelDistance * 0.75
         
-        public static final int kRightMinHeight = 0; // ticks
-        public static final int kRightMaxHeight = 240582; // ticks
-        public static final int kRightTravelDistance = kRightMaxHeight - kRightMinHeight + 500; // ticks
-        public static final int kRightPartialTravelDistance = 180437; // kRightTravelDistance * 0.80
+        public static final int kCompRightMinHeight = 0; // ticks
+        public static final int kCompRightMaxHeight = 240582; // ticks
+        public static final int kCompRightTravelDistance = kCompRightMaxHeight - kCompRightMinHeight + 500; // ticks
+        public static final int kCompRightPartialTravelDistance = 180437; // kRightTravelDistance * 0.75
 
-        // public static final int kEpsilonLeftMinHeight = 0; // ticks
-        // public static final int kEpsilonLeftMaxHeight = 250584; // ticks
-        // public static final int kEpsilonLeftTravelDistance = kLeftMaxHeight - kLeftMinHeight + 500; // ticks
-        // public static final int kEpsilonLeftPartialTravelDistance = 187938; // kLeftTravelDistance * 0.80
+        // epsilon-specific climber constants
+        public static final int kEpsilonLeftMinHeight = 0; // ticks
+        public static final int kEpsilonLeftMaxHeight = 250584; // ticks
+        public static final int kEpsilonLeftTravelDistance = kEpsilonLeftMaxHeight - kEpsilonLeftMinHeight + 500; // ticks
+        public static final int kEpsilonLeftPartialTravelDistance = 187938; // kLeftTravelDistance * 0.75
         
-        // public static final int kEpsilonRightMinHeight = 0; // ticks
-        // public static final int kEpsilonRightMaxHeight = 248631; // ticks
-        // public static final int kEpsilonRightTravelDistance = kRightMaxHeight - kRightMinHeight + 500; // ticks
-        // public static final int kEpsilonRightPartialTravelDistance = 186473; // kRightTravelDistance * 0.80
+        public static final int kEpsilonRightMinHeight = 0; // ticks
+        public static final int kEpsilonRightMaxHeight = 248631; // ticks
+        public static final int kEpsilonRightTravelDistance = kEpsilonRightMaxHeight - kEpsilonRightMinHeight + 500; // ticks
+        public static final int kEpsilonRightPartialTravelDistance = 186473; // kRightTravelDistance * 0.75
 
-        public static final int kSafetyMinimum = -2000; // minimum outside 0 ticks
+        public static final int kLeftTravelDistance = isComp ? kCompLeftTravelDistance : kEpsilonLeftTravelDistance;
+        public static final int kLeftPartialTravelDistance = isComp ? kCompLeftPartialTravelDistance : kEpsilonLeftPartialTravelDistance;
+        public static final int kRightTravelDistance = isComp ? kCompRightTravelDistance : kEpsilonRightTravelDistance;
+        public static final int kRightPartialTravelDistance = isComp ? kCompRightPartialTravelDistance : kEpsilonRightPartialTravelDistance;
 
-        public static final double kTravelDistanceEpsilon = 3000;
+        public static final int kSafetyMinimum = -15000; // minimum outside 0 ticks
+
+        public static final double kTravelDistanceEpsilon = 20000;
 
         public static final double kHighBarExtendAngle = -38.0;
-        public static final double kHighBarContactAngle = -32.0;
+        public static final double kHighBarContactAngle = -31.0;
         public static final double kTraversalBarExtendAngle = -19.0;
         public static final double kTraversalBarContactAngle = -29.0;
         public static final double kBarContactAngleEpsilon = 2.0;
     }
 
     public static final class ColorSensorConstants {
-        public static final double kColorSensorThreshold = 200;
+        public static final double kColorSensorThreshold = 300;
 
         public static final double kTimeWithBall = 1.2;
     }
