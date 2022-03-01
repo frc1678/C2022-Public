@@ -17,9 +17,7 @@ public class Constants {
 	
 	// robot loop time
 	public static final double kLooperDt = 0.02;
-
-    // robot toggle
-    public static final boolean isAlpha = false;
+    
     // alliance color
     public static final boolean isRedAlliance = true;
 
