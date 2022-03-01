@@ -63,7 +63,7 @@ public class FiveBallMode extends AutoModeBase {
                                                             new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                             new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                             thetaController,
-                                                            () -> Rotation2d.fromDegrees(160.0),
+                                                            () -> Rotation2d.fromDegrees(170.0),
                                                             mSwerve::getWantAutoVisionAim,
                                                             mSwerve::setModuleStates);
 
@@ -93,7 +93,7 @@ public class FiveBallMode extends AutoModeBase {
                                                             new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                             new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                             thetaController,
-                                                            () -> Rotation2d.fromDegrees(230.0),
+                                                            () -> Rotation2d.fromDegrees(235.0),
                                                             mSwerve::getWantAutoVisionAim,
                                                             mSwerve::setModuleStates);
         
@@ -138,9 +138,6 @@ public class FiveBallMode extends AutoModeBase {
         // run trajectory to drive to first shot pose
         runAction(driveToFirstShot);
 
-        // wait for 0.5 seconds before the shot
-        runAction(new WaitAction(0.5));
-
         // shoot second and third cargo
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
         runAction(new WaitAction(1.0));
@@ -160,7 +157,6 @@ public class FiveBallMode extends AutoModeBase {
         runAction(driveToShootFromTerminal);
         
         // shoot fourth and fifth cargo 
-        runAction(new WaitAction(0.5));
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
 
         System.out.println("Finished auto!");
