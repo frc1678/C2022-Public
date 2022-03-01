@@ -4,7 +4,10 @@ import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.auto.AutoModeEndedException;
 import com.team1678.frc2022.auto.AutoTrajectoryReader;
 import com.team1678.frc2022.auto.actions.LambdaAction;
+import com.team1678.frc2022.auto.actions.RaceAction;
+import com.team1678.frc2022.auto.actions.SeriesAction;
 import com.team1678.frc2022.auto.actions.SwerveTrajectoryAction;
+import com.team1678.frc2022.auto.actions.VisionAlignAction;
 import com.team1678.frc2022.auto.actions.WaitAction;
 import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
@@ -17,8 +20,8 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class FiveBallMode extends AutoModeBase {
-    
-    // Swerve instance 
+
+    // Swerve instance
     private final Swerve mSwerve = Swerve.getInstance();
     private final Superstructure mSuperstructure = Superstructure.getInstance();
 
@@ -28,77 +31,79 @@ public class FiveBallMode extends AutoModeBase {
     String file_path_c = "paths/FiveBallPaths/5 Ball C.path";
     String file_path_d = "paths/FiveBallPaths/5 Ball D.path";
     String file_path_e = "paths/FiveBallPaths/5 Ball E.path";
-    
-	// trajectory actions
-	SwerveTrajectoryAction driveToIntakeFirstCargo;
+
+    // trajectory actions
+    SwerveTrajectoryAction driveToIntakeFirstCargo;
     SwerveTrajectoryAction driveToIntakeSecondCargo;
     SwerveTrajectoryAction driveToFirstShot;
-	SwerveTrajectoryAction driveToIntakeAtTerminal;
-	SwerveTrajectoryAction driveToShootFromTerminal;
+    SwerveTrajectoryAction driveToIntakeAtTerminal;
+    SwerveTrajectoryAction driveToShootFromTerminal;
 
     public FiveBallMode() {
 
         SmartDashboard.putBoolean("Auto Finished", false);
 
-
         // define theta controller for robot heading
         var thetaController = new ProfiledPIDController(Constants.AutoConstants.kPThetaController, 0, 0,
-                                                        Constants.AutoConstants.kThetaControllerConstraints);
+                Constants.AutoConstants.kThetaControllerConstraints);
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
-    
+
         // read trajectories from PathWeaver and generate trajectory actions
-        Trajectory traj_path_a = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_a, Constants.AutoConstants.zeroToDefaultSpeedConfig);
+        Trajectory traj_path_a = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_a,
+                Constants.AutoConstants.zeroToDefaultSpeedConfig);
         driveToIntakeFirstCargo = new SwerveTrajectoryAction(traj_path_a,
-                                                            mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
-                                                            new PIDController(Constants.AutoConstants.kPXController, 0, 0),
-                                                            new PIDController(Constants.AutoConstants.kPYController, 0, 0),
-                                                            thetaController,
-                                                            () -> Rotation2d.fromDegrees(225.0),
-                                                            mSwerve::getWantAutoVisionAim,
-                                                            mSwerve::setModuleStates);
+                mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
+                new PIDController(Constants.AutoConstants.kPXController, 0, 0),
+                new PIDController(Constants.AutoConstants.kPYController, 0, 0),
+                thetaController,
+                () -> Rotation2d.fromDegrees(225.0),
+                mSwerve::getWantAutoVisionAim,
+                mSwerve::setModuleStates);
 
-        Trajectory traj_path_b = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_b, Constants.AutoConstants.constantSpeedConfig);
+        Trajectory traj_path_b = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_b,
+                Constants.AutoConstants.constantSpeedConfig);
         driveToIntakeSecondCargo = new SwerveTrajectoryAction(traj_path_b,
-                                                            mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
-                                                            new PIDController(Constants.AutoConstants.kPXController, 0, 0),
-                                                            new PIDController(Constants.AutoConstants.kPYController, 0, 0),
-                                                            thetaController,
-                                                            () -> Rotation2d.fromDegrees(125.0),
-                                                            mSwerve::getWantAutoVisionAim,
-                                                            mSwerve::setModuleStates);
+                mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
+                new PIDController(Constants.AutoConstants.kPXController, 0, 0),
+                new PIDController(Constants.AutoConstants.kPYController, 0, 0),
+                thetaController,
+                () -> Rotation2d.fromDegrees(125.0),
+                mSwerve::getWantAutoVisionAim,
+                mSwerve::setModuleStates);
 
-        Trajectory traj_path_c = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_c, Constants.AutoConstants.constantSpeedConfig);
+        Trajectory traj_path_c = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_c,
+                Constants.AutoConstants.constantSpeedConfig);
         driveToFirstShot = new SwerveTrajectoryAction(traj_path_c,
-                                                            mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
-                                                            new PIDController(Constants.AutoConstants.kPXController, 0, 0),
-                                                            new PIDController(Constants.AutoConstants.kPYController, 0, 0),
-                                                            thetaController,
-                                                            () -> Rotation2d.fromDegrees(200.0),
-                                                            mSwerve::getWantAutoVisionAim,
-                                                            mSwerve::setModuleStates);
-                                                        
-        Trajectory traj_path_d = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_d, Constants.AutoConstants.constantSpeedConfig);
-        driveToIntakeAtTerminal = new SwerveTrajectoryAction(traj_path_d,
-                                                            mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
-                                                            new PIDController(Constants.AutoConstants.kPXController, 0, 0),
-                                                            new PIDController(Constants.AutoConstants.kPYController, 0, 0),
-                                                            thetaController,
-                                                            () -> Rotation2d.fromDegrees(235.0),
-                                                            mSwerve::getWantAutoVisionAim,
-                                                            mSwerve::setModuleStates);
+                mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
+                new PIDController(Constants.AutoConstants.kPXController, 0, 0),
+                new PIDController(Constants.AutoConstants.kPYController, 0, 0),
+                thetaController,
+                () -> Rotation2d.fromDegrees(200.0),
+                mSwerve::getWantAutoVisionAim,
+                mSwerve::setModuleStates);
 
-        Trajectory traj_path_e = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_e, Constants.AutoConstants.defaultToZeroSpeedConfig);
+        Trajectory traj_path_d = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_d,
+                Constants.AutoConstants.constantSpeedConfig);
+        driveToIntakeAtTerminal = new SwerveTrajectoryAction(traj_path_d,
+                mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
+                new PIDController(Constants.AutoConstants.kPXController, 0, 0),
+                new PIDController(Constants.AutoConstants.kPYController, 0, 0),
+                thetaController,
+                () -> Rotation2d.fromDegrees(235.0),
+                mSwerve::getWantAutoVisionAim,
+                mSwerve::setModuleStates);
+
+        Trajectory traj_path_e = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_e,
+                Constants.AutoConstants.defaultToZeroSpeedConfig);
         driveToShootFromTerminal = new SwerveTrajectoryAction(traj_path_e,
-                                                            mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
-                                                            new PIDController(Constants.AutoConstants.kPXController, 0, 0),
-                                                            new PIDController(Constants.AutoConstants.kPYController, 0, 0),
-                                                            thetaController,
-                                                            () -> Rotation2d.fromDegrees(230.0),
-                                                            mSwerve::getWantAutoVisionAim,
-                                                            mSwerve::setModuleStates);
-        
-                                                        
-    
+                mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
+                new PIDController(Constants.AutoConstants.kPXController, 0, 0),
+                new PIDController(Constants.AutoConstants.kPYController, 0, 0),
+                thetaController,
+                () -> Rotation2d.fromDegrees(200.0),
+                mSwerve::getWantAutoVisionAim,
+                mSwerve::setModuleStates);
+
     }
 
     @Override
@@ -108,10 +113,10 @@ public class FiveBallMode extends AutoModeBase {
 
         // reset odometry at the start of the trajectory
         runAction(new LambdaAction(() -> mSwerve.resetOdometry(new Pose2d(
-            driveToIntakeFirstCargo.getInitialPose().getX(),
-            driveToIntakeFirstCargo.getInitialPose().getY(),
-            Rotation2d.fromDegrees(270)))));
-        
+                driveToIntakeFirstCargo.getInitialPose().getX(),
+                driveToIntakeFirstCargo.getInitialPose().getY(),
+                Rotation2d.fromDegrees(270)))));
+
         // start spinning up for shot
         runAction(new LambdaAction(() -> mSuperstructure.setWantPrep(true)));
 
@@ -132,17 +137,17 @@ public class FiveBallMode extends AutoModeBase {
 
         // start vision aiming to align drivetrain to target
         runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));
-        
+
         // run trajectory to drive to first shot pose
         runAction(driveToFirstShot);
 
-        // wait for 0.5 seconds before the shot
-        runAction(new WaitAction(0.5));
-
-        // shoot second and third cargo
-        runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
-        runAction(new WaitAction(1.0));
-        runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
+        runAction(new RaceAction(
+                new SeriesAction(
+                        new WaitAction(0.5),
+                        new LambdaAction(() -> mSuperstructure.setWantShoot(true)),
+                        new WaitAction(1.0),
+                        new LambdaAction(() -> mSuperstructure.setWantShoot(false))),
+                new VisionAlignAction()));
 
         // stop vision aiming to control robot heading
         runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(false)));
@@ -156,10 +161,12 @@ public class FiveBallMode extends AutoModeBase {
 
         // run trajectory to drive to second shot pose
         runAction(driveToShootFromTerminal);
-        
-        // shoot fourth and fifth cargo 
-        runAction(new WaitAction(0.5));
-        runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
+
+        runAction(new RaceAction(
+                new SeriesAction(
+                        new WaitAction(0.5),
+                        new LambdaAction(() -> mSuperstructure.setWantShoot(true))),
+                new VisionAlignAction()));
 
         System.out.println("Finished auto!");
         SmartDashboard.putBoolean("Auto Finished", true);
