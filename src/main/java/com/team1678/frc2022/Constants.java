@@ -13,7 +13,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 public class Constants {
 
     // toggle constants for comp robot
-    public static final boolean isComp = false;
+    public static final boolean isComp = true;
 	
 	// robot loop time
 	public static final double kLooperDt = 0.02;
@@ -159,7 +159,7 @@ public class Constants {
     }
 
     public static final class VisionAlignConstants {
-        public static final double kP = 10.0;
+        public static final double kP = 11.0;
         public static final double kI = 0.0;
         public static final double kD = 0.5;
         public static final double kTimeout = 0.25;

@@ -18,6 +18,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -48,7 +49,7 @@ public class Swerve extends Subsystem {
     private double mVisionAlignGoal;
 
     public ProfiledPIDController snapPIDController;
-    public ProfiledPIDController visionPIDController;
+    public PIDController visionPIDController;
 
     
     // Private boolean to lock Swerve wheels
@@ -81,11 +82,11 @@ public class Swerve extends Subsystem {
                                                       Constants.SnapConstants.kThetaControllerConstraints);
         snapPIDController.enableContinuousInput(-Math.PI, Math.PI);
 
-        visionPIDController = new ProfiledPIDController(Constants.VisionAlignConstants.kP,
+        visionPIDController = new PIDController(Constants.VisionAlignConstants.kP,
                                                         Constants.VisionAlignConstants.kI,
-                                                        Constants.VisionAlignConstants.kD,
-                                                        Constants.VisionAlignConstants.kThetaControllerConstraints);
+                                                        Constants.VisionAlignConstants.kD);
         visionPIDController.enableContinuousInput(-Math.PI, Math.PI);
+        visionPIDController.setTolerance(0.0);
 
         zeroGyro();
 
@@ -198,7 +199,7 @@ public class Swerve extends Subsystem {
 
         mVisionAlignGoal = MathUtil.inputModulus(currentAngle - targetOffset, 0.0, 2 * Math.PI);
 
-        visionPIDController.setGoal(new TrapezoidProfile.State(mVisionAlignGoal, 0.0));
+        visionPIDController.setSetpoint(mVisionAlignGoal);
         mVisionAlignAdjustment = visionPIDController.calculate(currentAngle);
     }
 
@@ -292,7 +293,7 @@ public class Swerve extends Subsystem {
 
     public void zeroGyro(double reset){
         gyro.setYaw(reset);
-        visionPIDController.reset(reset);
+        visionPIDController.reset();
     }
 
     public Rotation2d getYaw() {
