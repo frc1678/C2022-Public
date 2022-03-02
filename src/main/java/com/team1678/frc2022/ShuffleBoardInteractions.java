@@ -811,5 +811,9 @@ public class ShuffleBoardInteractions {
     private double truncate(double number) {
         return Math.floor(number * 100) / 100;
     }
+
+    public ShuffleboardTab getOperatorTab() {
+        return OPERATOR_TAB;
+    }
 }
  
