@@ -9,6 +9,7 @@ import com.team1678.frc2022.controlboard.CustomXboxController.Button;
 import com.team1678.frc2022.logger.LogStorage;
 import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.regressions.ShooterRegression;
+import com.team1678.frc2022.subsystems.LEDs.State;
 import com.team254.lib.util.Util;
 import com.team254.lib.util.InterpolatingDouble;
 
@@ -46,6 +47,7 @@ public class Superstructure extends Subsystem {
     private final Hood mHood = Hood.getInstance();
     private final Climber mClimber = Climber.getInstance();
     private final Limelight mLimelight = Limelight.getInstance();
+    private final LEDs mLEDs = LEDs.getInstance();
 
     // timer for reversing the intake and then stopping it once we have two correct cargo
     Timer mIntakeRejectTimer = new Timer();
@@ -126,6 +128,7 @@ public class Superstructure extends Subsystem {
                 updateBallCounter();
                 updateShootingParams();
                 setGoals();
+                updateLEDs();
                 outputTelemetry();
                         
                 // send log data
@@ -634,6 +637,53 @@ public class Superstructure extends Subsystem {
         if (mHood.mControlState != ServoMotorSubsystem.ControlState.OPEN_LOOP) {
             mHood.setSetpointMotionMagic(mPeriodicIO.real_hood);
         }
+    }
+
+    private void updateLEDs() {
+        if (mLEDs.getUsingSmartdash()) {
+            return;
+        }
+
+        State topState = State.OFF;
+        State bottomState = State.OFF;
+
+        if (hasEmergency) {
+            topState = State.EMERGENCY;
+            bottomState = State.EMERGENCY;
+        } else {
+            if (!mClimbMode) {
+                if (getBallCount() == 2) {
+                    bottomState = State.SOLID_GREEN;
+                } else if (getBallCount() == 1) {
+                    bottomState = State.SOLID_CYAN;
+                } else {
+                    bottomState = State.SOLID_ORANGE;
+                }
+                if (getWantsSpit()) {
+                    topState = State.SOLID_ORANGE;
+                } else if (getWantsFender()) {
+                    topState = State.SOLID_CYAN;
+                } else if (mPeriodicIO.SHOOT) {
+                    topState = State.FLASHING_PINK;
+                } else if (isAimed()) {
+                    topState = State.FLASHING_GREEN;
+                } else if (hasTarget()) {
+                    topState = State.SOLID_PURPLE;
+                } else {
+                    topState = State.SOLID_ORANGE;
+                }
+            } else {
+                if (mAutoTraversalClimb) {
+                    topState = State.FLASHING_ORANGE;
+                    bottomState = State.FLASHING_ORANGE;
+                } else {
+                    topState = State.SOLID_PINK;
+                    bottomState = State.SOLID_PINK;
+                }
+            }
+        }
+
+        mLEDs.applyStates(topState, bottomState);
     }
 
     /*** GET SHOOTER AND HOOD SETPOINTS FROM SUPERSTRUCTURE CONSTANTS REGRESSION ***/

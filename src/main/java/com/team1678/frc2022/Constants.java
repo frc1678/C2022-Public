@@ -17,7 +17,7 @@ public class Constants {
 	
 	// robot loop time
 	public static final double kLooperDt = 0.02;
-
+    
     // alliance color
     public static final boolean isRedAlliance = true;
 
@@ -134,7 +134,7 @@ public class Constants {
         /* Back Right Module - Module 3 */
         public static final class Mod3 {
             public static final double epsilonAngleOffset = 73.12;
-            public static final double compAngleOffset = 311;   // TODO: Check value
+            public static final double compAngleOffset = 310;   // TODO: Check value
 
             public static SwerveModuleConstants SwerveModuleConstants() {
                 return new SwerveModuleConstants(Ports.BR_DRIVE, Ports.BR_ROTATION, Ports.BR_CANCODER,
@@ -163,7 +163,7 @@ public class Constants {
         public static final double kI = 0.001;
         public static final double kD = 0.0;
         public static final double kTimeout = 0.25;
-        public static final double kEpsilon = 3.0;
+        public static final double kEpsilon = 5.0;
 
         // Constraints for the profiled angle controller
         public static final double kMaxAngularSpeedRadiansPerSecond = 2.0 * Math.PI;
@@ -272,7 +272,7 @@ public class Constants {
 
     public static final class TriggerConstants {
         public static final double kTriggerPassiveVelocity = 0;
-        public static final double kTriggerFeedingVelocity = 500;
+        public static final double kTriggerFeedingVelocity = 450;
         public static final double kTriggerSlowFeedVelocity = 1000;
         public static final double kTriggerReverseVelocity = -500;
 
