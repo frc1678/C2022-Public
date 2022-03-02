@@ -73,7 +73,7 @@ public class FiveBallMode extends AutoModeBase {
                                                             new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                             new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                             thetaController,
-                                                            () -> Rotation2d.fromDegrees(230.0),
+                                                            () -> Rotation2d.fromDegrees(235.0),
                                                             mSwerve::getWantAutoVisionAim,
                                                             mSwerve::setModuleStates);
                                                         
@@ -148,7 +148,7 @@ public class FiveBallMode extends AutoModeBase {
 
         // run trajectory to drive to intake at terminal
         runAction(driveToIntakeAtTerminal);
-        runAction(new WaitAction(0.5));
+        runAction(new WaitAction(1.0));
 
         // start vision aiming to align to target for second shot
         runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));
