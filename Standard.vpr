@@ -61,7 +61,7 @@ solve3d_precies:1
 solve3d_precise:0
 solve3d_zoffset:0.000000
 val_max:218
-val_min:17
+val_min:28
 x_outlier_miqr:1.5
 y_max:1.000000
 y_min:-1.000000
