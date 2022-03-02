@@ -2,12 +2,7 @@ package com.team1678.frc2022;
 
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
-import java.security.Principal;
 
-import javax.security.auth.login.FailedLoginException;
-
-import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
-import com.team1678.frc2022.subsystems.LEDs;
 import com.team1678.frc2022.subsystems.ColorSensor;
 
 import com.team1678.frc2022.subsystems.Climber;
@@ -22,8 +17,6 @@ import com.team1678.frc2022.subsystems.Swerve;
 import com.team1678.frc2022.subsystems.Trigger;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.wpilibj.CAN;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -772,7 +765,7 @@ public class ShuffleBoardInteractions {
         mClimberVelocityLeft.setDouble(mClimber.getClimberVelocityLeft());
         
         mClimberDemandRight.setDouble(mClimber.getClimberDemandRight());
-        mClimberDemandLeft.setDouble(mClimber.getClimberPositionLeft());
+        mClimberDemandLeft.setDouble(mClimber.getClimberDemandLeft());
 
         mClimberPositionRight.setDouble(mClimber.getClimberPositionRight());
         mClimberPositionLeft.setDouble(mClimber.getClimberPositionLeft());

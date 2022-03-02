@@ -364,7 +364,7 @@ public class Constants {
     
     public static final class ClimberConstants {
         public static final double kCalibratingVoltage = 5.0;
-        public static final double kStatorCurrentLimit = 150.0;
+        public static final double kStatorCurrentLimit = 80.0;
         public static final double kCalibrationTimeoutSeconds = 10.0;
         
         public static final double kClimbingVoltageRight = 8.0;
@@ -372,14 +372,19 @@ public class Constants {
         
         // comp-specific climber constants
         public static final int kCompLeftMinHeight = 0; // ticks
-        public static final int kCompLeftMaxHeight = 242808; // ticks
+        public static final int kCompLeftMaxHeight = 244984; // ticks
         public static final int kCompLeftTravelDistance = kCompLeftMaxHeight - kCompLeftMinHeight + 500; // ticks
         public static final int kCompLeftPartialTravelDistance = 182106; // kLeftTravelDistance * 0.75
         
         public static final int kCompRightMinHeight = 0; // ticks
-        public static final int kCompRightMaxHeight = 240582; // ticks
+        public static final int kCompRightMaxHeight = 261898; // ticks
         public static final int kCompRightTravelDistance = kCompRightMaxHeight - kCompRightMinHeight + 500; // ticks
         public static final int kCompRightPartialTravelDistance = 180437; // kRightTravelDistance * 0.75
+        
+        public static final double kCompHighBarExtendAngle = -38.0;
+        public static final double kCompHighBarContactAngle = -31.0;
+        public static final double kCompTraversalBarExtendAngle = -19.0;
+        public static final double kCompTraversalBarContactAngle = -29.0;
 
         // epsilon-specific climber constants
         public static final int kEpsilonLeftMinHeight = 0; // ticks
@@ -392,20 +397,28 @@ public class Constants {
         public static final int kEpsilonRightTravelDistance = kEpsilonRightMaxHeight - kEpsilonRightMinHeight + 500; // ticks
         public static final int kEpsilonRightPartialTravelDistance = 186473; // kRightTravelDistance * 0.75
 
+        public static final double kEpsilonHighBarExtendAngle = -35.0;
+        public static final double kEpsilonHighBarContactAngle = -28.0;
+        public static final double kEpsilonTraversalBarExtendAngle = -18.0;
+        public static final double kEpsilonTraversalBarContactAngle = -34.0;
+
+        /* GENERAL CLIMBER CONSTANTS USED */
+
         public static final int kLeftTravelDistance = isComp ? kCompLeftTravelDistance : kEpsilonLeftTravelDistance;
         public static final int kLeftPartialTravelDistance = isComp ? kCompLeftPartialTravelDistance : kEpsilonLeftPartialTravelDistance;
         public static final int kRightTravelDistance = isComp ? kCompRightTravelDistance : kEpsilonRightTravelDistance;
         public static final int kRightPartialTravelDistance = isComp ? kCompRightPartialTravelDistance : kEpsilonRightPartialTravelDistance;
 
-        public static final int kSafetyMinimum = -15000; // minimum outside 0 ticks
+        public static final double kHighBarExtendAngle = isComp ? kCompHighBarExtendAngle : kEpsilonHighBarExtendAngle;
+        public static final double kHighBarContactAngle = isComp ? kCompHighBarContactAngle : kEpsilonHighBarContactAngle;
+        public static final double kTraversalBarExtendAngle = isComp ? kCompTraversalBarExtendAngle : kEpsilonTraversalBarExtendAngle;
+        public static final double kTraversalBarContactAngle = isComp ? kCompTraversalBarContactAngle : kEpsilonTraversalBarContactAngle;
+        public static final double kBarContactAngleEpsilon = 2.0;
+
+        public static final int kSafetyMinimum = -7000; // minimum outside 0 ticks
 
         public static final double kTravelDistanceEpsilon = 20000;
 
-        public static final double kHighBarExtendAngle = -38.0;
-        public static final double kHighBarContactAngle = -31.0;
-        public static final double kTraversalBarExtendAngle = -19.0;
-        public static final double kTraversalBarContactAngle = -29.0;
-        public static final double kBarContactAngleEpsilon = 2.0;
     }
 
     public static final class ColorSensorConstants {
