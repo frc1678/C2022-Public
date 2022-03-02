@@ -75,7 +75,7 @@ public class ColorSensor extends Subsystem {
 
     // check if we see a ball
     public boolean seesBall() {
-        return mPeriodicIO.distance > Constants.ColorSensorConstants.kColorSensorThreshold;
+        return mPeriodicIO.proximity > Constants.ColorSensorConstants.kColorSensorThreshold;
     }
 
     // check if we have the right color
@@ -123,7 +123,7 @@ public class ColorSensor extends Subsystem {
 
     // update the color of the cargo we see
     public void updateMatchedColor() {
-        if (mPeriodicIO.distance < Constants.ColorSensorConstants.kColorSensorThreshold) { 
+        if (mPeriodicIO.proximity < Constants.ColorSensorConstants.kColorSensorThreshold) { 
             mMatchedColor = ColorChoices.NONE;
         } else {
             if (mPeriodicIO.raw_color.red > mPeriodicIO.raw_color.blue) {
@@ -160,13 +160,9 @@ public class ColorSensor extends Subsystem {
     @Override
     public synchronized void readPeriodicInputs() {
         mPeriodicIO.sensor0Connected = mColorSensorThread.isSensor0Connected();
-        mPeriodicIO.rawColorSensorData = mColorSensorThread.getRawColor0();
+        mPeriodicIO.raw_color = mColorSensorThread.getRawColor0();
         mPeriodicIO.timestamp = mColorSensorThread.getLastReadTimestampSeconds();
-
-        if (mPeriodicIO.rawColorSensorData != null) {
-            mPeriodicIO.raw_color = mColorSensorThread.getRawColor0();
-            mPeriodicIO.distance = mColorSensorThread.getProximity0();
-        } 
+        mPeriodicIO.proximity = mColorSensorThread.getProximity0();
 
         updateHasBall();
         updateMatchedColor();
@@ -204,7 +200,7 @@ public class ColorSensor extends Subsystem {
         return mMatchedColor.toString();
     }    
     public double getDistance() {
-        return mPeriodicIO.distance;
+        return mPeriodicIO.proximity;
     }
 
     public boolean getSensor0() {
@@ -217,9 +213,8 @@ public class ColorSensor extends Subsystem {
 
     public static class PeriodicIO {
         // INPUTS
-        public RawColor rawColorSensorData;
         public RawColor raw_color;
-        public int distance;
+        public int proximity;
         public boolean sensor0Connected;
 
         // OUTPUTS
