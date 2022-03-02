@@ -8,7 +8,6 @@ import com.team1678.frc2022.loops.Loop;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DriverStation;
 
 public class ColorSensor extends Subsystem {
@@ -22,7 +21,7 @@ public class ColorSensor extends Subsystem {
     }
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
-    private PicoColorSensor mColorSensorThread;
+    private PicoColorSensor mPico;
 
     private Timer mHasBallTimer = new Timer();
     private Timer mEjectorTimer = new Timer();
@@ -36,7 +35,7 @@ public class ColorSensor extends Subsystem {
 
     private ColorSensor() {
         mMatchedColor = ColorChoices.NONE;
-        mColorSensorThread = new PicoColorSensor();
+        mPico = new PicoColorSensor();
         
     }
 
@@ -45,7 +44,7 @@ public class ColorSensor extends Subsystem {
         enabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
-                mColorSensorThread.start();
+                mPico.start();
             }
  
             @Override
@@ -159,10 +158,11 @@ public class ColorSensor extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        mPeriodicIO.sensor0Connected = mColorSensorThread.isSensor0Connected();
-        mPeriodicIO.raw_color = mColorSensorThread.getRawColor0();
-        mPeriodicIO.timestamp = mColorSensorThread.getLastReadTimestampSeconds();
-        mPeriodicIO.proximity = mColorSensorThread.getProximity0();
+        mPeriodicIO.sensor0Connected = mPico.isSensor0Connected();
+        mPeriodicIO.raw_color = mPico.getRawColor0();
+        mPeriodicIO.proximity = mPico.getProximity0();
+
+        mPeriodicIO.timestamp = mPico.getLastReadTimestampSeconds();
 
         updateHasBall();
         updateMatchedColor();
