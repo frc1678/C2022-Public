@@ -765,7 +765,7 @@ public class ShuffleBoardInteractions {
         mClimberVelocityLeft.setDouble(mClimber.getClimberVelocityLeft());
         
         mClimberDemandRight.setDouble(mClimber.getClimberDemandRight());
-        mClimberDemandLeft.setDouble(mClimber.getClimberPositionLeft());
+        mClimberDemandLeft.setDouble(mClimber.getClimberDemandLeft());
 
         mClimberPositionRight.setDouble(mClimber.getClimberPositionRight());
         mClimberPositionLeft.setDouble(mClimber.getClimberPositionLeft());

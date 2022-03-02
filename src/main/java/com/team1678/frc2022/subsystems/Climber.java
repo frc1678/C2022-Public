@@ -41,7 +41,7 @@ public class Climber extends Subsystem {
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
 
-    public StatorCurrentLimitConfiguration STATOR_CURRENT_LIMIT = new StatorCurrentLimitConfiguration(true, 80, 80, .2);
+    public StatorCurrentLimitConfiguration STATOR_CURRENT_LIMIT = new StatorCurrentLimitConfiguration(true, 60, 60, .2);
 
     private Climber() {
         mClimberRight = TalonFXFactory.createDefaultTalon(Ports.CLIMBER_RIGHT_ID);
@@ -105,6 +105,10 @@ public class Climber extends Subsystem {
 
     @Override
     public void readPeriodicInputs() {
+        
+        // curr check for holding
+        maybeHoldCurrentPosition();
+
         mPeriodicIO.climber_voltage_right = mClimberRight.getMotorOutputVoltage();
         mPeriodicIO.climber_stator_current_right = mClimberRight.getStatorCurrent();
         mPeriodicIO.climber_motor_velocity_right = mClimberRight.getSelectedSensorVelocity();
@@ -115,15 +119,13 @@ public class Climber extends Subsystem {
         mPeriodicIO.climber_motor_velocity_left = mClimberLeft.getSelectedSensorVelocity();
         mPeriodicIO.climber_motor_position_left = mClimberLeft.getSelectedSensorPosition();
 
-        // curr check for holding
-        maybeHoldCurrentPosition();
-
         // send log data
         SendLog();
     }
 
     @Override
     public void writePeriodicOutputs() {
+
         switch (mRightControlState) {
             case OPEN_LOOP:
                 mClimberRight.set(ControlMode.PercentOutput, mPeriodicIO.climber_demand_right / 12.0);
@@ -256,6 +258,7 @@ public class Climber extends Subsystem {
     }
     // final step for traversal
     public void setClimbTraversalBar() {
+        setLeftClimberPosition(0);
         setRightClimberPosition(Constants.ClimberConstants.kRightPartialTravelDistance);
     }
 
@@ -267,29 +270,17 @@ public class Climber extends Subsystem {
 
     // hold current position on arm
     public void maybeHoldCurrentPosition() {
-        /*
-        if ((mPeriodicIO.climber_motor_velocity_left < 0)
-                && Util.epsilonEquals(mPeriodicIO.climber_motor_velocity_left, 0, 5000.0)
-                && (mPeriodicIO.climber_motor_position_left < 20000)) {
-            setLeftClimberPosition(0);
-        }
-
-        if ((mPeriodicIO.climber_motor_velocity_right < 0)
-                && Util.epsilonEquals(mPeriodicIO.climber_motor_velocity_right, 0, 5000.0)
-                && (mPeriodicIO.climber_motor_position_right < 20000)) {
-            setRightClimberPosition(0);
-        }
-        */
-
         
-        if (Util.epsilonEquals(mPeriodicIO.climber_motor_velocity_left, 0, 5000.0)
+        if (Util.epsilonEquals(mPeriodicIO.climber_motor_velocity_left, 0, 0.5)
                 && (mPeriodicIO.climber_stator_current_left > Constants.ClimberConstants.kStatorCurrentLimit)) {
-            setLeftClimberPosition(0);
+            setLeftClimberPosition(mPeriodicIO.climber_motor_position_left + 2000);
+            System.out.println("triggered left");
         }
 
-        if (Util.epsilonEquals(mPeriodicIO.climber_motor_velocity_right, 0, 5000.0)
+        if (Util.epsilonEquals(mPeriodicIO.climber_motor_velocity_right, 0, 0.5)
                 && (mPeriodicIO.climber_stator_current_right > Constants.ClimberConstants.kStatorCurrentLimit)) {
-            setLeftClimberPosition(0);
+            setRightClimberPosition(mPeriodicIO.climber_motor_position_right + 2000);
+            System.out.println("triggered right");
         }
         
     }

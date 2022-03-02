@@ -364,7 +364,7 @@ public class Constants {
     
     public static final class ClimberConstants {
         public static final double kCalibratingVoltage = 5.0;
-        public static final double kStatorCurrentLimit = 90.0;
+        public static final double kStatorCurrentLimit = 80.0;
         public static final double kCalibrationTimeoutSeconds = 10.0;
         
         public static final double kClimbingVoltageRight = 8.0;
@@ -372,12 +372,12 @@ public class Constants {
         
         // comp-specific climber constants
         public static final int kCompLeftMinHeight = 0; // ticks
-        public static final int kCompLeftMaxHeight = 242808; // ticks
+        public static final int kCompLeftMaxHeight = 244984; // ticks
         public static final int kCompLeftTravelDistance = kCompLeftMaxHeight - kCompLeftMinHeight + 500; // ticks
         public static final int kCompLeftPartialTravelDistance = 182106; // kLeftTravelDistance * 0.75
         
         public static final int kCompRightMinHeight = 0; // ticks
-        public static final int kCompRightMaxHeight = 240582; // ticks
+        public static final int kCompRightMaxHeight = 261898; // ticks
         public static final int kCompRightTravelDistance = kCompRightMaxHeight - kCompRightMinHeight + 500; // ticks
         public static final int kCompRightPartialTravelDistance = 180437; // kRightTravelDistance * 0.75
         
@@ -415,7 +415,7 @@ public class Constants {
         public static final double kTraversalBarContactAngle = isComp ? kCompTraversalBarContactAngle : kEpsilonTraversalBarContactAngle;
         public static final double kBarContactAngleEpsilon = 2.0;
 
-        public static final int kSafetyMinimum = -15000; // minimum outside 0 ticks
+        public static final int kSafetyMinimum = -7000; // minimum outside 0 ticks
 
         public static final double kTravelDistanceEpsilon = 20000;
 
