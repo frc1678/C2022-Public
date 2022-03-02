@@ -19,14 +19,23 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Climber extends Subsystem {
 
+    private static Climber mInstance;
+    public static synchronized Climber getInstance() {
+        if (mInstance == null) {
+            mInstance = new Climber();
+        } 
+        return mInstance;
+    }
+
     private final TalonFX mClimberRight;
     private final TalonFX mClimberLeft;
 
+    public enum ClimberChecks {
+        
+    }
+
     public boolean mHomed;
 
-    public boolean mCorrectedDemand = false;
-
-    private static Climber mInstance;
 
     // logger
     LogStorage<PeriodicIO> mStorage = null;
@@ -88,13 +97,6 @@ public class Climber extends Subsystem {
         // set current limits on motor
         mClimberRight.configStatorCurrentLimit(STATOR_CURRENT_LIMIT);
         mClimberLeft.configStatorCurrentLimit(STATOR_CURRENT_LIMIT);
-    }
-
-    public static synchronized Climber getInstance() {
-        if (mInstance == null) {
-            mInstance = new Climber();
-        } 
-        return mInstance;
     }
 
     private void zeroEncoders() {
@@ -404,8 +406,6 @@ public class Climber extends Subsystem {
         SmartDashboard.putNumber("Climber Current Left", mPeriodicIO.climber_stator_current_left);
         SmartDashboard.putBoolean("Extend Left Climber", getExtendLeftArm());
         SmartDashboard.putBoolean("Partial Extend Left Climber", getPartialExtendLeftArm());
-
-        SmartDashboard.putBoolean("Corrected Demand", mCorrectedDemand);
     }
 
     public static class PeriodicIO {
