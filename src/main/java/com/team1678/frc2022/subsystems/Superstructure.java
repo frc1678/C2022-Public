@@ -19,8 +19,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.ArrayList;
 import java.util.Optional;
 
-import javax.management.remote.SubjectDelegationPermission;
-
 public class Superstructure extends Subsystem {
 
     // superstructure instance
@@ -106,6 +104,8 @@ public class Superstructure extends Subsystem {
 	private boolean mResetClimberPosition = false;
     private boolean mAutoTraversalClimb = false;
     private int mClimbStep = 0;
+    private double mStartingGyroPosition = 0.0;
+    private double mGyroOffset = 0.0;
 
     // fender shot constants
     private final double kFenderVelocity = 2300;
@@ -125,8 +125,10 @@ public class Superstructure extends Subsystem {
             public void onLoop(double timestamp) {
                 final double start = Timer.getFPGATimestamp();
 
-                updateBallCounter();
-                updateShootingParams();
+                if (!mClimbMode) {
+                    updateBallCounter();
+                    updateShootingParams();
+                }
                 setGoals();
                 updateLEDs();
                 outputTelemetry();
@@ -232,6 +234,11 @@ public class Superstructure extends Subsystem {
      * 
      * */
     public void updateOperatorCommands() {
+
+        // update starting gyro position
+        if (mClimbStep == 0) {
+            mStartingGyroPosition = mSwerve.getRoll().getDegrees();
+        }
           
         // get whether we want to enter climb mode
         if (mControlBoard.getClimbMode()) {
@@ -239,6 +246,9 @@ public class Superstructure extends Subsystem {
         }
 
         if (mClimbMode) {
+
+            // update gyro offset
+            mGyroOffset = mSwerve.getRoll().getDegrees();
 
             /*** CLIMB MODE CONTROLS ***/
 
@@ -274,8 +284,10 @@ public class Superstructure extends Subsystem {
                     mAutoTraversalClimb = false;
 
                 } else if (mControlBoard.operator.getController().getAButtonPressed()) {
+                    // climb step 1
                     mClimber.setExtendForClimb();
                     mAutoTraversalClimb = false;
+                    mClimbStep = 1;
 
                 } else if (mControlBoard.operator.getController().getBButtonPressed()) {
                     mClimber.setClimbMidBarAndExtend();
@@ -299,65 +311,64 @@ public class Superstructure extends Subsystem {
 
                 } else if (mControlBoard.getTraversalClimb()) {
                     mAutoTraversalClimb = true;
-                    mClimbStep = 0;
                 }             
                 
                 if (mAutoTraversalClimb) {
 
                     // climb mid bar and extend to high bar
-                    if (mClimbStep == 0) {
+                    if (mClimbStep == 1) {
                         mClimber.setClimbMidBarAndExtend();
-                        mClimbStep++; // climb step 1
+                        mClimbStep++; // climb step 2
                     }
 
                     // set left arm to full extension from partial height to make contact on high bar
-                    if (mSwerve.getRoll().getDegrees() < Constants.ClimberConstants.kHighBarExtendAngle // check if dt roll is past high bar while swinging to extend
+                    if (mGyroOffset < Constants.ClimberConstants.kHighBarExtendAngle // check if dt roll is past high bar while swinging to extend
                         &&
                         Util.epsilonEquals(mClimber.getClimberPositionLeft(), // don't extend unless left arm is at partial height
                                             Constants.ClimberConstants.kLeftPartialTravelDistance,
                                             Constants.ClimberConstants.kTravelDistanceEpsilon)
-                        && (mClimbStep == 1)) {
+                        && (mClimbStep == 2)) {
 
                         mClimber.setHighBarExtend();
-                        mClimbStep++; // climb step 2
+                        mClimbStep++; // climb step 3
                     }
 
                     // pull up with left arm on upper bar while extending right arm to traversal bar
-                    if ((mSwerve.getRoll().getDegrees() > Constants.ClimberConstants.kHighBarContactAngle) // check if dt roll is at bar contact angle before climbing to next bar
+                    if ((mGyroOffset > Constants.ClimberConstants.kHighBarContactAngle) // check if dt roll is at bar contact angle before climbing to next bar
                         &&
                         Util.epsilonEquals(mClimber.getClimberPositionLeft(), // don't climb unless left arm is fully extended
                                             Constants.ClimberConstants.kLeftTravelDistance,
                                             Constants.ClimberConstants.kTravelDistanceEpsilon)
-                        && (mClimbStep == 2)) {
+                        && (mClimbStep == 3)) {
 
                         mClimber.setClimbHighBarAndExtend();
-                        mClimbStep++; // climb step 3
+                        mClimbStep++; // climb step 4
                     }
 
                     // set right arm to full extension from partial height to make contact on traversal bar
-                    if (mSwerve.getRoll().getDegrees() > Constants.ClimberConstants.kTraversalBarExtendAngle // check if dt roll is past traversal bar while swinging to extend
+                    if (mGyroOffset > Constants.ClimberConstants.kTraversalBarExtendAngle // check if dt roll is past traversal bar while swinging to extend
                         &&
                         Util.epsilonEquals(mClimber.getClimberPositionRight(), // don't extend unless right arm is at partial height
                                             Constants.ClimberConstants.kRightPartialTravelDistance,
                                             Constants.ClimberConstants.kTravelDistanceEpsilon)
-                        && (mClimbStep == 3)) {
+                        && (mClimbStep == 4)) {
 
                         mClimber.setTraversalBarExtend();
-                        mClimbStep++; // climb step 4
+                        mClimbStep++; // climb step 5
                     }
 
                     // climb on the right arm after we are fully extended on traversal bar
-                    if (Util.epsilonEquals(mSwerve.getRoll().getDegrees(), // check if dt roll is at the angle necessary 
+                    if (Util.epsilonEquals(mGyroOffset, // check if dt roll is at the angle necessary 
                                             Constants.ClimberConstants.kTraversalBarContactAngle,
                                             2.0)
                         &&
                         Util.epsilonEquals(mClimber.getClimberPositionRight(), // don't extend unless right arm is at full height
                                             Constants.ClimberConstants.kRightTravelDistance,
                                             Constants.ClimberConstants.kTravelDistanceEpsilon)
-                        && (mClimbStep == 4)) {
+                        && (mClimbStep == 5)) {
 
                         mClimber.setClimbTraversalBar();
-                        mClimbStep++; // climb step 5
+                        mClimbStep++; // climb step 6
                     }
                 }
 
@@ -849,6 +860,8 @@ public class Superstructure extends Subsystem {
         SmartDashboard.putNumber("Climb Step Number", mClimbStep);
 
         SmartDashboard.putNumber("Robot Roll", mSwerve.getRoll().getDegrees());
+        SmartDashboard.putNumber("Gyro Start", mStartingGyroPosition);
+        SmartDashboard.putNumber("Gyro Offset", mGyroOffset);
     }
 
     // included to continue logging while disabled
@@ -880,6 +893,7 @@ public class Superstructure extends Subsystem {
         headers.add("SPIT");
         headers.add("real_shooter");
         headers.add("real_hood");
+        headers.add("gyro roll");
 
         mStorage.setHeaders(headers);
     }
@@ -899,6 +913,7 @@ public class Superstructure extends Subsystem {
         items.add(mPeriodicIO.FENDER ? 1.0 : 0.0);
         items.add(mPeriodicIO.real_shooter);
         items.add(mPeriodicIO.real_hood);
+        items.add(mSwerve.getRoll().getDegrees());
 
         // send data to logging storage
         mStorage.addData(items);

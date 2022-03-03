@@ -383,7 +383,7 @@ public class Constants {
         
         public static final double kCompHighBarExtendAngle = -38.0;
         public static final double kCompHighBarContactAngle = -31.0;
-        public static final double kCompTraversalBarExtendAngle = -19.0;
+        public static final double kCompTraversalBarExtendAngle = -20.0;
         public static final double kCompTraversalBarContactAngle = -29.0;
 
         // epsilon-specific climber constants
