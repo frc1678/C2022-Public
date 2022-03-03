@@ -1,17 +1,14 @@
 package com.team1678.frc2022.subsystems;
 
 import com.team1678.frc2022.Constants;
+import com.team1678.frc2022.lib.drivers.PicoColorSensor;
+import com.team1678.frc2022.lib.drivers.PicoColorSensor.RawColor;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
-import com.team1678.lib.drivers.REVColorSensorV3Wrapper;
-import com.team1678.lib.drivers.REVColorSensorV3Wrapper.ColorSensorData;
 
-import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.util.Color;
 
 public class ColorSensor extends Subsystem {
 
@@ -24,7 +21,7 @@ public class ColorSensor extends Subsystem {
     }
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
-    private REVColorSensorV3Wrapper mColorSensor;
+    private PicoColorSensor mPico;
 
     private Timer mHasBallTimer = new Timer();
     private Timer mEjectorTimer = new Timer();
@@ -38,9 +35,8 @@ public class ColorSensor extends Subsystem {
 
     private ColorSensor() {
         mMatchedColor = ColorChoices.NONE;
-        mColorSensor = new REVColorSensorV3Wrapper(I2C.Port.kOnboard);
-
-        mColorSensor.start();
+        mPico = new PicoColorSensor();
+        
     }
 
     @Override
@@ -48,6 +44,7 @@ public class ColorSensor extends Subsystem {
         enabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
+                mPico.start();
             }
  
             @Override
@@ -77,7 +74,7 @@ public class ColorSensor extends Subsystem {
 
     // check if we see a ball
     public boolean seesBall() {
-        return mPeriodicIO.distance > Constants.ColorSensorConstants.kColorSensorThreshold;
+        return mPeriodicIO.proximity > Constants.ColorSensorConstants.kColorSensorThreshold;
     }
 
     // check if we have the right color
@@ -125,7 +122,7 @@ public class ColorSensor extends Subsystem {
 
     // update the color of the cargo we see
     public void updateMatchedColor() {
-        if (mPeriodicIO.distance < Constants.ColorSensorConstants.kColorSensorThreshold) { 
+        if (mPeriodicIO.proximity < Constants.ColorSensorConstants.kColorSensorThreshold) { 
             mMatchedColor = ColorChoices.NONE;
         } else {
             if (mPeriodicIO.raw_color.red > mPeriodicIO.raw_color.blue) {
@@ -161,12 +158,11 @@ public class ColorSensor extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        mPeriodicIO.rawColorSensorData = mColorSensor.getLatestReading();
+        mPeriodicIO.sensor0Connected = mPico.isSensor0Connected();
+        mPeriodicIO.raw_color = mPico.getRawColor0();
+        mPeriodicIO.proximity = mPico.getProximity0();
 
-        if (mPeriodicIO.rawColorSensorData != null) {
-            mPeriodicIO.raw_color = mPeriodicIO.rawColorSensorData.color;
-            mPeriodicIO.distance = mPeriodicIO.rawColorSensorData.distance;
-        } 
+        mPeriodicIO.timestamp = mPico.getLastReadTimestampSeconds();
 
         updateHasBall();
         updateMatchedColor();
@@ -177,6 +173,8 @@ public class ColorSensor extends Subsystem {
     public synchronized void writePeriodicOutputs() {
         
     }
+
+    //subystem getters
     public double getDetectedRValue() {
         if (mPeriodicIO.raw_color == null) {
             return 0;
@@ -202,18 +200,27 @@ public class ColorSensor extends Subsystem {
         return mMatchedColor.toString();
     }    
     public double getDistance() {
-        return mPeriodicIO.distance;
+        return mPeriodicIO.proximity;
+    }
+
+    public boolean getSensor0() {
+        return mPeriodicIO.sensor0Connected;
+    }
+
+    public double getTimestamp() {
+        return mPeriodicIO.timestamp;
     }
 
     public static class PeriodicIO {
         // INPUTS
-        public ColorSensorData rawColorSensorData;
-        public Color raw_color;
-        public double distance;
+        public RawColor raw_color;
+        public int proximity;
+        public boolean sensor0Connected;
 
         // OUTPUTS
         public boolean has_ball;
         public boolean eject;
+        public double timestamp;
     }
     
 }
