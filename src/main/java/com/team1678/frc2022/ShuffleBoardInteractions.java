@@ -193,6 +193,7 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mShootingSetpointsEnableToggle;
 
     /* COLOR SENSOR */
+    private final NetworkTableEntry mSensor0;
     private final NetworkTableEntry mRValue;
     private final NetworkTableEntry mGValue;
     private final NetworkTableEntry mBValue;
@@ -203,6 +204,8 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mHasBall;
     private final NetworkTableEntry mEject;
 
+    private final NetworkTableEntry mTimestamp;
+  
     /* Operator */
     private final NetworkTableEntry mOperatorShooting;
     private final NetworkTableEntry mOperatorSpunup;
@@ -473,6 +476,9 @@ public class ShuffleBoardInteractions {
                 .getEntry();
         
         /* COLOR SENSOR */
+        mSensor0 = COLOR_SENSOR
+            .add("Is Sensor 0 Connected", false)
+            .getEntry();
         mRValue = COLOR_SENSOR
             .add("Detected R Value", 0.0)
             .getEntry();
@@ -497,6 +503,10 @@ public class ShuffleBoardInteractions {
             .getEntry();
         mEject = COLOR_SENSOR
             .add("Eject", false)
+            .getEntry();
+
+        mTimestamp = COLOR_SENSOR
+            .add("Timestamp", 0.0)
             .getEntry();
 
 
@@ -745,6 +755,7 @@ public class ShuffleBoardInteractions {
         mBottomBeamBreak.setBoolean(mIndexer.getBottomBeamBreak());
 
         /* COLOR SENSOR */
+        mSensor0.setBoolean(mColorSensor.getSensor0());
         mRValue.setDouble(mColorSensor.getDetectedRValue());
         mGValue.setDouble(mColorSensor.getDetectedGValue());
         mBValue.setDouble(mColorSensor.getDetectedBValue());
@@ -754,6 +765,8 @@ public class ShuffleBoardInteractions {
 
         mHasBall.setBoolean(mColorSensor.hasBall());
         mEject.setBoolean(mColorSensor.wantsEject());
+
+        mTimestamp.setDouble(mColorSensor.getTimestamp());
 
         /* CLIMBER */
         mInClimbMode.setBoolean(mSuperstructure.getInClimbMode());

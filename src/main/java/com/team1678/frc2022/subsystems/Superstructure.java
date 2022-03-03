@@ -6,6 +6,7 @@ import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.CustomXboxController;
 import com.team1678.frc2022.controlboard.CustomXboxController.Button;
+import com.team1678.frc2022.lib.drivers.PicoColorSensor;
 import com.team1678.frc2022.logger.LogStorage;
 import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.regressions.ShooterRegression;
@@ -427,7 +428,7 @@ public class Superstructure extends Subsystem {
                     // - we don't have a ball at either fully indexed position
                     // - we don't want to stop intaking
                     // then unlock the intake
-                    if (!(mIndexer.getTopBeamBreak() && mColorSensor.hasBall())
+                    if(!(mIndexer.getTopBeamBreak() && mColorSensor.hasBall()) 
                             && !indexerFull()
                             && !stopIntaking()) {
                         
