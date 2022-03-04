@@ -118,7 +118,6 @@ public class Robot extends TimedRobot {
 					mTrigger,
 					mHood,
 					mSuperstructure,
-					mLimelight,
 					mLEDs,
 					mColorSensor,
 					mClimber,
@@ -263,7 +262,7 @@ public class Robot extends TimedRobot {
 
 			mLoggingLooper.stop();
 
-			mLimelight.setLed(Limelight.LedMode.PIPELINE);
+			mLimelight.setLed(Limelight.LedMode.ON);
             mLimelight.triggerOutputs();
 
 			mSwerve.setModuleStates(
@@ -297,7 +296,7 @@ public class Robot extends TimedRobot {
 			// update alliance color from driver station while disabled
 			mColorSensor.updateAllianceColor();
 
-			mLimelight.setLed(Limelight.LedMode.PIPELINE);
+			mLimelight.setLed(Limelight.LedMode.ON);
 			mLimelight.writePeriodicOutputs();
 			mLimelight.outputTelemetry();
 

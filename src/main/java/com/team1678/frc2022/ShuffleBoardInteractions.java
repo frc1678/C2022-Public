@@ -677,7 +677,7 @@ public class ShuffleBoardInteractions {
 
         /* SWERVE */
 
-        
+        /*
         //  Only uncomment cancoder update when redoing cancoder offsets for modules
         // Update cancoders at a slower period to avoid stale can frames
         double dt = Timer.getFPGATimestamp();
@@ -697,6 +697,7 @@ public class ShuffleBoardInteractions {
             mModuleAngleGoals[i].setDouble(truncate(MathUtil.inputModulus(mSwerveModules[i].getTargetAngle(), 0, 360)));
 
         }
+        */
 
         mSwerveOdometryX.setDouble(truncate(mSwerve.getPose().getX()));
         mSwerveOdometryY.setDouble(truncate(mSwerve.getPose().getY()));
