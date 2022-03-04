@@ -114,7 +114,7 @@ public class Constants {
         /* Front Right Module - Module 1 */
         public static final class Mod1 {
             public static final double epsilonAngleOffset = 164.09;
-            public static final double compAngleOffset = 77; // TODO: Check value
+            public static final double compAngleOffset = 76; // TODO: Check value
             
             public static SwerveModuleConstants SwerveModuleConstants() {
                 return new SwerveModuleConstants(Ports.FR_DRIVE, Ports.FR_ROTATION, Ports.FR_CANCODER,
@@ -134,7 +134,7 @@ public class Constants {
         /* Back Right Module - Module 3 */
         public static final class Mod3 {
             public static final double epsilonAngleOffset = 73.12;
-            public static final double compAngleOffset = 310;   // TODO: Check value
+            public static final double compAngleOffset = 256;   // TODO: Check value
 
             public static SwerveModuleConstants SwerveModuleConstants() {
                 return new SwerveModuleConstants(Ports.BR_DRIVE, Ports.BR_ROTATION, Ports.BR_CANCODER,
