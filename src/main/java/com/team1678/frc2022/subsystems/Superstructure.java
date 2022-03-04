@@ -475,10 +475,6 @@ public class Superstructure extends Subsystem {
             if (mControlBoard.operator.getController().getXButtonPressed()) {
                 mPeriodicIO.SPIT = !mPeriodicIO.SPIT;
             }
-            
-            if (!mIndexer.getTopBeamBreak()) {
-                mPeriodicIO.SPIT = false;
-            }
 
             // control for adding manual hood adjustment
             switch(mControlBoard.getHoodManualAdjustment()) {
@@ -530,7 +526,10 @@ public class Superstructure extends Subsystem {
 
     /*** UPDATE SHOOTER AND HOOD SETPOINTS WHEN VISION AIMING ***/
     public synchronized void updateShootingParams() {
-        if (mPeriodicIO.FENDER) {
+        if (mPeriodicIO.SPIT) {
+            mShooterSetpoint = kSpitVelocity;
+            mHoodSetpoint = kSpitAngle;
+        } else if (mPeriodicIO.FENDER) {
             mShooterSetpoint = kFenderVelocity;
             mHoodSetpoint = kFenderAngle;
         } else if (hasTarget()) {
@@ -557,20 +556,14 @@ public class Superstructure extends Subsystem {
             mHoodAngleAdjustment = 0.0;
             mResetHoodAngleAdjustment = false;
         }
+        // update hood setpoint
+        mPeriodicIO.real_hood = mHoodSetpoint + mHoodAngleAdjustment;
 
-        // update shooter & hood setpoint
-        if (mPeriodicIO.SPIT){
-            mPeriodicIO.real_shooter = kSpitVelocity;
-            mPeriodicIO.real_hood = kSpitAngle;
+        // update shooter setpoint
+        if (mPeriodicIO.PREP) {
+            mPeriodicIO.real_shooter = mShooterSetpoint;
         } else {
-            mPeriodicIO.real_hood = mHoodSetpoint + mHoodAngleAdjustment;
-
-            if (mPeriodicIO.PREP) {
-                mPeriodicIO.real_shooter = mShooterSetpoint;
-            } else {
-                mPeriodicIO.real_shooter = 0.0;
-            }
-                
+            mPeriodicIO.real_shooter = 0.0;
         }
 
         // update intake and indexer actions
@@ -589,9 +582,6 @@ public class Superstructure extends Subsystem {
                 mPeriodicIO.real_trigger = Trigger.WantedAction.NONE;
                 mPeriodicIO.real_indexer = Indexer.WantedAction.NONE;
             }
-        } else if (mPeriodicIO.SPIT) {
-            mPeriodicIO.real_indexer = Indexer.WantedAction.FEED;
-            mPeriodicIO.real_trigger = Trigger.WantedAction.FEED;
         } else {
             // force eject
             if (mPeriodicIO.EJECT && mForceEject) {
