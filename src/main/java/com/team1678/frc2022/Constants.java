@@ -244,10 +244,12 @@ public class Constants {
         public static final double kIntakingVoltage = 10;
         public static final double kSpittingVoltage = -8;
         public static final double kRejectingVoltage = -5;
-        public static final double kSingulatorVoltage = 7.0;
-        public static final double kDeployVoltage = 3.0;
-        public static final double kInHoldingVoltage = 0.75;
-        public static final double kOutHoldingVoltage = 1.0;
+
+        public static final double kSingulatorVoltage = 9.0;
+
+        public static final double kDeployVoltage = 4.0;
+        public static final double kInHoldingVoltage = 1.2;
+        public static final double kOutHoldingVoltage = 1.5;
 
         public static final double kDeployCurrentLimit = 60; // amps
 
@@ -400,7 +402,7 @@ public class Constants {
         public static final double kEpsilonHighBarExtendAngle = -35.0;
         public static final double kEpsilonHighBarContactAngle = -28.0;
         public static final double kEpsilonTraversalBarExtendAngle = -18.0;
-        public static final double kEpsilonTraversalBarContactAngle = -34.0;
+        public static final double kEpsilonTraversalBarContactAngle = -35.0;
 
         /* GENERAL CLIMBER CONSTANTS USED */
 
