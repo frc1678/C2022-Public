@@ -174,7 +174,7 @@ public class Constants {
     }
 
     public static final class AutoConstants {
-        public static final double kSlowSpeedMetersPerSecond = 1.9; // TODO: Revise this
+        public static final double kSlowSpeedMetersPerSecond = 1.7; // TODO: Revise this
         public static final double kSlowAccelerationMetersPerSecondSquared = 2.0; // TODO: Revise this
 
         public static final double kMaxSpeedMetersPerSecond = 2.2; // TODO: Revise this
