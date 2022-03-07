@@ -140,8 +140,8 @@ public class TwobyTwoMode extends AutoModeBase {
     // stop ejecting cargo
     runAction(new LambdaAction(() -> mSuperstructure.setWantEject(false, false)));
 
-        System.out.println("Finished auto!");
-            SmartDashboard.putBoolean("Auto Finished", true);
+    System.out.println("Finished auto!");
+    SmartDashboard.putBoolean("Auto Finished", true);
 
     }
 
