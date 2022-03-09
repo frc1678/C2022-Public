@@ -174,6 +174,9 @@ public class Constants {
     }
 
     public static final class AutoConstants {
+        public static final double kSlowSpeedMetersPerSecond = 1.7; // TODO: Revise this
+        public static final double kSlowAccelerationMetersPerSecondSquared = 2.0; // TODO: Revise this
+
         public static final double kMaxSpeedMetersPerSecond = 2.2; // TODO: Revise this
         public static final double kMaxAccelerationMetersPerSecondSquared = 2.3; // TODO: Revise this
         public static final double kMaxAngularSpeedRadiansPerSecond = 2.0*Math.PI; // TODO: Revise this
@@ -194,6 +197,11 @@ public class Constants {
                         kMaxSpeedMetersPerSecond,
                         kMaxAccelerationMetersPerSecondSquared)
                         .setKinematics(Constants.SwerveConstants.swerveKinematics);
+        public static final TrajectoryConfig slowSpeedConfig =
+                new TrajectoryConfig(
+                        kSlowSpeedMetersPerSecond,
+                        kSlowAccelerationMetersPerSecondSquared)
+                        .setKinematics(Constants.SwerveConstants.swerveKinematics);
         public static final TrajectoryConfig zeroToDefaultSpeedConfig =
                 new TrajectoryConfig(
                         kMaxSpeedMetersPerSecond,
@@ -206,8 +214,15 @@ public class Constants {
                         kMaxSpeedMetersPerSecond,
                         kMaxAccelerationMetersPerSecondSquared)
                         .setKinematics(Constants.SwerveConstants.swerveKinematics)
-                        .setStartVelocity(0)
-                        .setEndVelocity(kMaxSpeedMetersPerSecond);
+                        .setStartVelocity(kMaxSpeedMetersPerSecond)
+                        .setEndVelocity(0);
+        public static final TrajectoryConfig slowToZeroSpeedConfig =
+                new TrajectoryConfig(
+                        kSlowSpeedMetersPerSecond,
+                        kSlowAccelerationMetersPerSecondSquared)
+                        .setKinematics(Constants.SwerveConstants.swerveKinematics)
+                        .setStartVelocity(kSlowSpeedMetersPerSecond)
+                        .setEndVelocity(0);
         public static final TrajectoryConfig constantSpeedConfig =
                 new TrajectoryConfig(
                         kMaxSpeedMetersPerSecond,
@@ -244,10 +259,12 @@ public class Constants {
         public static final double kIntakingVoltage = 10;
         public static final double kSpittingVoltage = -8;
         public static final double kRejectingVoltage = -5;
-        public static final double kSingulatorVoltage = 7.0;
-        public static final double kDeployVoltage = 3.0;
-        public static final double kInHoldingVoltage = 0.75;
-        public static final double kOutHoldingVoltage = 1.0;
+
+        public static final double kSingulatorVoltage = 9.0;
+
+        public static final double kDeployVoltage = 4.0;
+        public static final double kInHoldingVoltage = 1.2;
+        public static final double kOutHoldingVoltage = 1.5;
 
         public static final double kDeployCurrentLimit = 60; // amps
 
@@ -273,7 +290,7 @@ public class Constants {
     public static final class TriggerConstants {
         public static final double kTriggerPassiveVelocity = 0;
         public static final double kTriggerFeedingVelocity = 450;
-        public static final double kTriggerSlowFeedVelocity = 1000;
+        public static final double kTriggerSlowFeedVelocity = 350;
         public static final double kTriggerReverseVelocity = -500;
 
         public static final double kTriggerVelocityConversion = 600.0 / 2048.0 * (1.0 / 3.5); // 3.5 to 1
@@ -400,7 +417,7 @@ public class Constants {
         public static final double kEpsilonHighBarExtendAngle = -35.0;
         public static final double kEpsilonHighBarContactAngle = -28.0;
         public static final double kEpsilonTraversalBarExtendAngle = -18.0;
-        public static final double kEpsilonTraversalBarContactAngle = -34.0;
+        public static final double kEpsilonTraversalBarContactAngle = -35.0;
 
         /* GENERAL CLIMBER CONSTANTS USED */
 

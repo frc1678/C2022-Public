@@ -67,7 +67,7 @@ public class FiveBallMode extends AutoModeBase {
                                                             mSwerve::getWantAutoVisionAim,
                                                             mSwerve::setModuleStates);
 
-        Trajectory traj_path_c = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_c, Constants.AutoConstants.constantSpeedConfig);
+        Trajectory traj_path_c = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_c, Constants.AutoConstants.defaultToZeroSpeedConfig);
         driveToFirstShot = new SwerveTrajectoryAction(traj_path_c,
                                                             mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
                                                             new PIDController(Constants.AutoConstants.kPXController, 0, 0),
@@ -77,7 +77,7 @@ public class FiveBallMode extends AutoModeBase {
                                                             mSwerve::getWantAutoVisionAim,
                                                             mSwerve::setModuleStates);
                                                         
-        Trajectory traj_path_d = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_d, Constants.AutoConstants.constantSpeedConfig);
+        Trajectory traj_path_d = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_d, Constants.AutoConstants.slowSpeedConfig);
         driveToIntakeAtTerminal = new SwerveTrajectoryAction(traj_path_d,
                                                             mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
                                                             new PIDController(Constants.AutoConstants.kPXController, 0, 0),
@@ -87,7 +87,7 @@ public class FiveBallMode extends AutoModeBase {
                                                             mSwerve::getWantAutoVisionAim,
                                                             mSwerve::setModuleStates);
 
-        Trajectory traj_path_e = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_e, Constants.AutoConstants.defaultToZeroSpeedConfig);
+        Trajectory traj_path_e = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_e, Constants.AutoConstants.slowSpeedConfig);
         driveToShootFromTerminal = new SwerveTrajectoryAction(traj_path_e,
                                                             mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
                                                             new PIDController(Constants.AutoConstants.kPXController, 0, 0),
@@ -148,7 +148,7 @@ public class FiveBallMode extends AutoModeBase {
 
         // run trajectory to drive to intake at terminal
         runAction(driveToIntakeAtTerminal);
-        runAction(new WaitAction(1.0));
+        // runAction(new WaitAction(1.0));
 
         // start vision aiming to align to target for second shot
         runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));

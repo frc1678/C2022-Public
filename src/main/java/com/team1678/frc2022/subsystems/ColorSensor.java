@@ -26,7 +26,7 @@ public class ColorSensor extends Subsystem {
     private Timer mHasBallTimer = new Timer();
     private Timer mEjectorTimer = new Timer();
 
-    public ColorChoices mAllianceColor;
+    public ColorChoices mAllianceColor = ColorChoices.NONE;
     public ColorChoices mMatchedColor;
 
     public enum ColorChoices {
@@ -111,10 +111,12 @@ public class ColorSensor extends Subsystem {
     // update our alliance color
     // only should be updated in disabled periodic
     public void updateAllianceColor() {
-        if (edu.wpi.first.wpilibj.DriverStation.getAlliance() == Alliance.Red) {
-            mAllianceColor = ColorChoices.RED;
-        } else if (edu.wpi.first.wpilibj.DriverStation.getAlliance() == Alliance.Blue){
-            mAllianceColor = ColorChoices.BLUE;
+        if (DriverStation.isDSAttached()) {
+            if (edu.wpi.first.wpilibj.DriverStation.getAlliance() == Alliance.Red) {
+                mAllianceColor = ColorChoices.RED;
+            } else if (edu.wpi.first.wpilibj.DriverStation.getAlliance() == Alliance.Blue){
+                mAllianceColor = ColorChoices.BLUE;
+            }
         } else {
             DriverStation.reportError("No Alliance Color Detected", true);
         }

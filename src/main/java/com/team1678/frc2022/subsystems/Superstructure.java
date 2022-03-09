@@ -109,8 +109,8 @@ public class Superstructure extends Subsystem {
     private double mGyroOffset = 0.0;
 
     // fender shot constants
-    private final double kFenderVelocity = 2300;
-    private final double kFenderAngle = 12.0;
+    private final double kFenderVelocity = 2200;
+    private final double kFenderAngle = 14.0;
 
     private final double kSpitVelocity = 1000;
     private final double kSpitAngle = 20.0;
@@ -244,6 +244,7 @@ public class Superstructure extends Subsystem {
         // get whether we want to enter climb mode
         if (mControlBoard.getClimbMode()) {
             mClimbMode = true;
+            mOpenLoopClimbControlMode = false;
         }
 
         if (mClimbMode) {
@@ -621,7 +622,6 @@ public class Superstructure extends Subsystem {
         // set intake and indexer states
         mIntake.setState(mPeriodicIO.real_intake);
         mIndexer.setState(mPeriodicIO.real_indexer);
-
         // set shooter subsystem setpoint
         if (Math.abs(mPeriodicIO.real_shooter) < Util.kEpsilon) {
             mShooter.setOpenLoop(0.0); // open loop if rpm goal is 0, to smooth spin down and stop belt skipping
@@ -653,7 +653,7 @@ public class Superstructure extends Subsystem {
             topState = State.EMERGENCY;
             bottomState = State.EMERGENCY;
         } else {
-            if (!mClimbMode) {
+           if (!mClimbMode) {
                 if (getBallCount() == 2) {
                     bottomState = State.SOLID_GREEN;
                 } else if (getBallCount() == 1) {
