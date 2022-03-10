@@ -1,27 +1,16 @@
 package com.team1678.frc2022.controlboard;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.controlboard.CustomXboxController.Axis;
 import com.team1678.frc2022.controlboard.CustomXboxController.Button;
 import com.team1678.frc2022.controlboard.CustomXboxController.Side;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
-import com.team254.lib.util.DelayedBoolean;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class ControlBoard {
     private final double kSwerveDeadband = Constants.stickDeadband;
-    private final double kOperatorDeadband = 0.15;
-
-    private int mDPadUp = -1;
-    private int mDPadDown = -1;
-    private int mDPadRight = -1;
-    private int mDPadLeft = -1;
-
-    private final double kDPadDelay = 0.02;
-    private DelayedBoolean mDPadValid;
 
     private static ControlBoard mInstance = null;
 
@@ -134,36 +123,6 @@ public class ControlBoard {
         return driver.getButton(Button.LB);
     }
 
-    //Intake Controls
-    public boolean getIntake() {
-        return operator.getTrigger(Side.RIGHT);
-    }
-
-    public boolean getOuttake() {
-        return operator.getTrigger(Side.LEFT);
-    }
-
-    public boolean getSpitting() {
-        return operator.getController().getRightBumper();
-    }
-
-    //Indexer Controls
-    public boolean getElevating() {
-        return operator.getButton(Button.B);
-    }
-
-    public boolean getIndexing() {
-        return operator.getButton(Button.Y);
-    }
-
-    public boolean getHopping() {
-        return operator.getButton(Button.X);
-    }
-
-    public boolean getReversing() {
-        return operator.getButton(Button.A);
-    }
-
     // Climber Controls
     public boolean getClimbMode() {
         return operator.getButton(Button.LB) && operator.getButton(Button.RB) && operator.getTrigger(Side.LEFT) && operator.getTrigger(Side.RIGHT);
@@ -175,38 +134,6 @@ public class ControlBoard {
     
     public boolean getTraversalClimb() {
         return operator.getButton(Button.LB) && operator.getController().getYButtonPressed();
-    }
-
-    public boolean getSwitchClimbControlMode() {
-        return operator.getController().getLeftStickButtonPressed();
-    }
-
-    public boolean getResetClimberPosition() {
-        return operator.getController().getRightStickButtonPressed();
-    }
-
-    public int getClimberJogRight() {
-        int povread = operator.getController().getPOV();
-        switch (povread) {
-            case 0:
-                return 1;
-            case 180:
-                return -1;
-            default:
-                return 0;
-        }
-    }
-
-    public int getClimberJogLeft() {
-        int povread = operator.getController().getPOV();
-        switch (povread) {
-            case 90:
-                return 1;
-            case 360:
-                return -1;
-            default:
-                return 0;
-        }
     }
     
 }
