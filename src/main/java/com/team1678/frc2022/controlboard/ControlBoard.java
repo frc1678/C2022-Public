@@ -14,19 +14,25 @@ public class ControlBoard {
 
     private int mLastDpad = -1;
 
-    private int kDpadUp = 0;
-    private int kDpadRight = 90;
-    private int kDpadDown = 180;
-    private int kDpadLeft = 270;
+    private final int kDpadUp = 0;
+    private final int kDpadRight = 90;
+    private final int kDpadDown = 180;
+    private final int kDpadLeft = 270;
 
     private static ControlBoard mInstance = null;
 
     public enum SwerveCardinal {
         NONE(0),
-        FRONT(143),
-        LEFT(233),
-        RIGHT(53),
-        BACK(323);
+
+        FORWARDS(0),
+        LEFT(270),
+        RIGHT(90),
+        BACKWARDS(180),
+
+        FAR_FENDER(143),
+        RIGHT_FENDER(233),
+        LEFT_FENDER(53),
+        CLOSE_FENDER(323);
 
         public final double degrees;
 
@@ -93,19 +99,37 @@ public class ControlBoard {
     }
 
     public SwerveCardinal getSwerveSnap() {
+
+        // FENDER SNAPS
         if (driver.getButton(Button.A)) {
-            return SwerveCardinal.BACK;
+            return SwerveCardinal.CLOSE_FENDER;
         }
         if (driver.getButton(Button.B)) {
-            return SwerveCardinal.RIGHT;
+            return SwerveCardinal.LEFT_FENDER;
         }
         if (driver.getButton(Button.X)) {
-            return SwerveCardinal.LEFT;
+            return SwerveCardinal.RIGHT_FENDER;
         }
         if (driver.getButton(Button.Y)) {
-            return SwerveCardinal.FRONT;
+            return SwerveCardinal.FAR_FENDER;
         }
-        return SwerveCardinal.NONE;
+
+        // CARDINAL SNAPS
+
+        switch (driver.getController().getPOV()) {
+            case kDpadUp:
+                return SwerveCardinal.FORWARDS;
+            case kDpadLeft:
+                return SwerveCardinal.LEFT;
+            case kDpadRight:
+                return SwerveCardinal.RIGHT;
+            case kDpadDown:
+                return SwerveCardinal.BACKWARDS;
+            default:
+                return SwerveCardinal.NONE;
+        }
+            
+        
     }
 
     public int getHoodManualAdjustment() {
