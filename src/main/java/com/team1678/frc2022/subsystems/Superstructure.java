@@ -462,6 +462,11 @@ public class Superstructure extends Subsystem {
                 mPeriodicIO.SHOOT = !mPeriodicIO.SHOOT;
             }
 
+            // spin up if we aren't already
+            if (mPeriodicIO.SHOOT && !mPeriodicIO.PREP) {
+                mPeriodicIO.PREP = true;
+            }
+
             // control prepping
             if (mControlBoard.operator.getController().getAButtonPressed()) {
                 mPeriodicIO.PREP = !mPeriodicIO.PREP;
