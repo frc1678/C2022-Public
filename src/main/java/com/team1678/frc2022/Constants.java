@@ -13,11 +13,11 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 public class Constants {
 
     // toggle constants for comp robot
-    public static final boolean isComp = false;
+    public static final boolean isComp = true;
 	
 	// robot loop time
 	public static final double kLooperDt = 0.02;
-
+    
     // alliance color
     public static final boolean isRedAlliance = true;
 
@@ -104,7 +104,7 @@ public class Constants {
         /* Front Left Module - Module 0 */
         public static final class Mod0 {
             public static final double epsilonAngleOffset = 55.28;
-            public static final double compAngleOffset = 123; // TODO: Check value
+            public static final double compAngleOffset = 239; // TODO: Check value
 
             public static SwerveModuleConstants SwerveModuleConstants() {
                 return new SwerveModuleConstants(Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER,
@@ -114,7 +114,7 @@ public class Constants {
         /* Front Right Module - Module 1 */
         public static final class Mod1 {
             public static final double epsilonAngleOffset = 164.09;
-            public static final double compAngleOffset = 138; // TODO: Check value
+            public static final double compAngleOffset = 76; // TODO: Check value
             
             public static SwerveModuleConstants SwerveModuleConstants() {
                 return new SwerveModuleConstants(Ports.FR_DRIVE, Ports.FR_ROTATION, Ports.FR_CANCODER,
@@ -124,7 +124,7 @@ public class Constants {
         /* Back Left Module - Module 2 */
         public static final class Mod2 {
             public static final double epsilonAngleOffset = 345.41;
-            public static final double compAngleOffset = 100;   // TODO: Check value
+            public static final double compAngleOffset = 319;   // TODO: Check value
 
             public static SwerveModuleConstants SwerveModuleConstants() {
                 return new SwerveModuleConstants(Ports.BL_DRIVE, Ports.BL_ROTATION, Ports.BL_CANCODER,
@@ -134,7 +134,7 @@ public class Constants {
         /* Back Right Module - Module 3 */
         public static final class Mod3 {
             public static final double epsilonAngleOffset = 73.12;
-            public static final double compAngleOffset = 134;   // TODO: Check value
+            public static final double compAngleOffset = 256;   // TODO: Check value
 
             public static SwerveModuleConstants SwerveModuleConstants() {
                 return new SwerveModuleConstants(Ports.BR_DRIVE, Ports.BR_ROTATION, Ports.BR_CANCODER,
@@ -144,7 +144,7 @@ public class Constants {
     }
 	
 	public static final class SnapConstants {
-        public static final double kP = 7.0; // TODO: tune value
+        public static final double kP = 5.0; // TODO: tune value
         public static final double kI = 0; // TODO: tune value
         public static final double kD = 0.0; // TODO: tune value
         public static final double snapTimeout = 0.25;
@@ -159,11 +159,11 @@ public class Constants {
     }
 
     public static final class VisionAlignConstants {
-        public static final double kP = 9.0;
-        public static final double kI = 0.001;
-        public static final double kD = 0.0;
+        public static final double kP = 11.0;
+        public static final double kI = 0.0;
+        public static final double kD = 0.5;
         public static final double kTimeout = 0.25;
-        public static final double kEpsilon = 3.0;
+        public static final double kEpsilon = 5.0;
 
         // Constraints for the profiled angle controller
         public static final double kMaxAngularSpeedRadiansPerSecond = 2.0 * Math.PI;
@@ -174,6 +174,9 @@ public class Constants {
     }
 
     public static final class AutoConstants {
+        public static final double kSlowSpeedMetersPerSecond = 1.7; // TODO: Revise this
+        public static final double kSlowAccelerationMetersPerSecondSquared = 2.0; // TODO: Revise this
+
         public static final double kMaxSpeedMetersPerSecond = 2.2; // TODO: Revise this
         public static final double kMaxAccelerationMetersPerSecondSquared = 2.3; // TODO: Revise this
         public static final double kMaxAngularSpeedRadiansPerSecond = 2.0*Math.PI; // TODO: Revise this
@@ -194,6 +197,11 @@ public class Constants {
                         kMaxSpeedMetersPerSecond,
                         kMaxAccelerationMetersPerSecondSquared)
                         .setKinematics(Constants.SwerveConstants.swerveKinematics);
+        public static final TrajectoryConfig slowSpeedConfig =
+                new TrajectoryConfig(
+                        kSlowSpeedMetersPerSecond,
+                        kSlowAccelerationMetersPerSecondSquared)
+                        .setKinematics(Constants.SwerveConstants.swerveKinematics);
         public static final TrajectoryConfig zeroToDefaultSpeedConfig =
                 new TrajectoryConfig(
                         kMaxSpeedMetersPerSecond,
@@ -206,8 +214,15 @@ public class Constants {
                         kMaxSpeedMetersPerSecond,
                         kMaxAccelerationMetersPerSecondSquared)
                         .setKinematics(Constants.SwerveConstants.swerveKinematics)
-                        .setStartVelocity(0)
-                        .setEndVelocity(kMaxSpeedMetersPerSecond);
+                        .setStartVelocity(kMaxSpeedMetersPerSecond)
+                        .setEndVelocity(0);
+        public static final TrajectoryConfig slowToZeroSpeedConfig =
+                new TrajectoryConfig(
+                        kSlowSpeedMetersPerSecond,
+                        kSlowAccelerationMetersPerSecondSquared)
+                        .setKinematics(Constants.SwerveConstants.swerveKinematics)
+                        .setStartVelocity(kSlowSpeedMetersPerSecond)
+                        .setEndVelocity(0);
         public static final TrajectoryConfig constantSpeedConfig =
                 new TrajectoryConfig(
                         kMaxSpeedMetersPerSecond,
@@ -253,10 +268,12 @@ public class Constants {
         public static final double kIntakingVoltage = 10;
         public static final double kSpittingVoltage = -8;
         public static final double kRejectingVoltage = -5;
-        public static final double kSingulatorVoltage = 5.0;
-        public static final double kDeployVoltage = 3.0;
-        public static final double kInHoldingVoltage = 0.75;
-        public static final double kOutHoldingVoltage = 1.0;
+
+        public static final double kSingulatorVoltage = 9.0;
+
+        public static final double kDeployVoltage = 4.0;
+        public static final double kInHoldingVoltage = 1.2;
+        public static final double kOutHoldingVoltage = 1.5;
 
         public static final double kDeployCurrentLimit = 60; // amps
 
@@ -281,9 +298,9 @@ public class Constants {
 
     public static final class TriggerConstants {
         public static final double kTriggerPassiveVelocity = 0;
-        public static final double kTriggerFeedingVelocity = 1700;
-        public static final double kTriggerSlowFeedVelocity = 1000;
-        public static final double kTriggerReverseVelocity = -1700;
+        public static final double kTriggerFeedingVelocity = 450;
+        public static final double kTriggerSlowFeedVelocity = 350;
+        public static final double kTriggerReverseVelocity = -500;
 
         public static final double kTriggerVelocityConversion = 600.0 / 2048.0 * (1.0 / 3.5); // 3.5 to 1
 
@@ -361,6 +378,7 @@ public class Constants {
         public static final double kTunnelFeedingVoltage = 4.0;
 
         public static final double kEjectorVoltage = 12.0;
+        public static final double kSlowEjectorVoltage = 4.0;
         public static final double kEjectorFeedingVoltage = 8.0;
 
         public static final double kReversingVoltage = -5.0;
@@ -374,35 +392,65 @@ public class Constants {
     
     public static final class ClimberConstants {
         public static final double kCalibratingVoltage = 5.0;
-        public static final double kStatorCurrentLimit = 8.0;
+        public static final double kStatorCurrentLimit = 80.0;
         public static final double kCalibrationTimeoutSeconds = 10.0;
         
         public static final double kClimbingVoltageRight = 8.0;
         public static final double kClimbingVoltageLeft =  8.0;
         
-        public static final int kLeftMinHeight = 0; // ticks
-        public static final int kLeftMaxHeight = 250584; // ticks
-        public static final int kLeftTravelDistance = kLeftMaxHeight - kLeftMinHeight + 500; // ticks
-        public static final int kLeftPartialTravelDistance = 187938; // kLeftTravelDistance * 0.80
+        // comp-specific climber constants
+        public static final int kCompLeftMinHeight = 0; // ticks
+        public static final int kCompLeftMaxHeight = 244984; // ticks
+        public static final int kCompLeftTravelDistance = kCompLeftMaxHeight - kCompLeftMinHeight + 500; // ticks
+        public static final int kCompLeftPartialTravelDistance = 182106; // kLeftTravelDistance * 0.75
         
-        public static final int kRightMinHeight = 0; // ticks
-        public static final int kRightMaxHeight = 248631; // ticks
-        public static final int kRightTravelDistance = kRightMaxHeight - kRightMinHeight + 500; // ticks
-        public static final int kRightPartialTravelDistance = 186473; // kRightTravelDistance * 0.80
+        public static final int kCompRightMinHeight = 0; // ticks
+        public static final int kCompRightMaxHeight = 261898; // ticks
+        public static final int kCompRightTravelDistance = kCompRightMaxHeight - kCompRightMinHeight + 500; // ticks
+        public static final int kCompRightPartialTravelDistance = 180437; // kRightTravelDistance * 0.75
+        
+        public static final double kCompHighBarExtendAngle = -38.0;
+        public static final double kCompHighBarContactAngle = -31.0;
+        public static final double kCompTraversalBarExtendAngle = -20.0;
+        public static final double kCompTraversalBarContactAngle = -29.0;
 
-        public static final int kSafetyMinimum = -500; // minimum outside 0 ticks
+        // epsilon-specific climber constants
+        public static final int kEpsilonLeftMinHeight = 0; // ticks
+        public static final int kEpsilonLeftMaxHeight = 250584; // ticks
+        public static final int kEpsilonLeftTravelDistance = kEpsilonLeftMaxHeight - kEpsilonLeftMinHeight + 500; // ticks
+        public static final int kEpsilonLeftPartialTravelDistance = 187938; // kLeftTravelDistance * 0.75
+        
+        public static final int kEpsilonRightMinHeight = 0; // ticks
+        public static final int kEpsilonRightMaxHeight = 248631; // ticks
+        public static final int kEpsilonRightTravelDistance = kEpsilonRightMaxHeight - kEpsilonRightMinHeight + 500; // ticks
+        public static final int kEpsilonRightPartialTravelDistance = 186473; // kRightTravelDistance * 0.75
 
-        public static final double kTravelDistanceEpsilon = 2000;
+        public static final double kEpsilonHighBarExtendAngle = -35.0;
+        public static final double kEpsilonHighBarContactAngle = -28.0;
+        public static final double kEpsilonTraversalBarExtendAngle = -18.0;
+        public static final double kEpsilonTraversalBarContactAngle = -35.0;
 
-        public static final double kHighBarExtendAngle = -35.0;
-        public static final double kHighBarContactAngle = -28.0;
-        public static final double kTraversalBarExtendAngle = -18.0;
-        public static final double kTraversalBarContactAngle = -34.0;
+        /* GENERAL CLIMBER CONSTANTS USED */
+
+        public static final int kLeftTravelDistance = isComp ? kCompLeftTravelDistance : kEpsilonLeftTravelDistance;
+        public static final int kLeftPartialTravelDistance = isComp ? kCompLeftPartialTravelDistance : kEpsilonLeftPartialTravelDistance;
+        public static final int kRightTravelDistance = isComp ? kCompRightTravelDistance : kEpsilonRightTravelDistance;
+        public static final int kRightPartialTravelDistance = isComp ? kCompRightPartialTravelDistance : kEpsilonRightPartialTravelDistance;
+
+        public static final double kHighBarExtendAngle = isComp ? kCompHighBarExtendAngle : kEpsilonHighBarExtendAngle;
+        public static final double kHighBarContactAngle = isComp ? kCompHighBarContactAngle : kEpsilonHighBarContactAngle;
+        public static final double kTraversalBarExtendAngle = isComp ? kCompTraversalBarExtendAngle : kEpsilonTraversalBarExtendAngle;
+        public static final double kTraversalBarContactAngle = isComp ? kCompTraversalBarContactAngle : kEpsilonTraversalBarContactAngle;
         public static final double kBarContactAngleEpsilon = 2.0;
+
+        public static final int kSafetyMinimum = -7000; // minimum outside 0 ticks
+
+        public static final double kTravelDistanceEpsilon = 20000;
+
     }
 
     public static final class ColorSensorConstants {
-        public static final double kColorSensorThreshold = 160;
+        public static final double kColorSensorThreshold = 170;
 
         public static final double kTimeWithBall = 1.2;
     }

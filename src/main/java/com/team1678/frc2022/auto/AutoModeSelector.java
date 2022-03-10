@@ -1,5 +1,6 @@
 package com.team1678.frc2022.auto;
 
+import com.team1678.frc2022.ShuffleBoardInteractions;
 import com.team1678.frc2022.auto.modes.*;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -13,9 +14,9 @@ public class AutoModeSelector {
         TEST_PATH_AUTO,
         TWO_BALL_LEFT_AUTO,
         TWO_BALL_RIGHT_AUTO,
+        TWO_BY_TWO_AUTO,
         FIVE_BALL_AUTO,
-        SIX_BALL_AUTO
-    }
+        SIX_BALL_AUTO,    }
 
     private DesiredMode mCachedDesiredMode = DesiredMode.DO_NOTHING;
 
@@ -29,9 +30,10 @@ public class AutoModeSelector {
         mModeChooser.addOption("Test Path Mode", DesiredMode.TEST_PATH_AUTO);
         mModeChooser.addOption("Two Ball Left Mode", DesiredMode.TWO_BALL_LEFT_AUTO);
         mModeChooser.addOption("Two Ball Right Mode", DesiredMode.TWO_BALL_RIGHT_AUTO);
+        mModeChooser.addOption("Two by Two Mode", DesiredMode.TWO_BY_TWO_AUTO);
         mModeChooser.addOption("Five Ball Mode", DesiredMode.FIVE_BALL_AUTO);
         mModeChooser.addOption("Six Ball Mode", DesiredMode.SIX_BALL_AUTO);
-        SmartDashboard.putData("Auto Mode", mModeChooser);
+        ShuffleBoardInteractions.getInstance().getOperatorTab().add("Auto Mode", mModeChooser).withSize(2, 1);
     }
 
     public void updateModeCreator() {
@@ -59,6 +61,9 @@ public class AutoModeSelector {
 
         case TWO_BALL_RIGHT_AUTO:
             return Optional.of(new TwoBallRightMode());
+
+        case TWO_BY_TWO_AUTO:
+            return Optional.of(new TwobyTwoMode());
 
         case FIVE_BALL_AUTO:
             return Optional.of(new FiveBallMode());

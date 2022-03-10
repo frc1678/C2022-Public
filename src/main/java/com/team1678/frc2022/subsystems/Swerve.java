@@ -1,10 +1,13 @@
 package com.team1678.frc2022.subsystems;
 
+import java.util.ArrayList;
+
 import com.ctre.phoenix.sensors.Pigeon2;
-import com.ctre.phoenix.sensors.PigeonIMU;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.SwerveModule;
+import com.team1678.frc2022.logger.LogStorage;
+import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
 import com.team254.lib.util.TimeDelayedBoolean;
@@ -15,6 +18,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -24,6 +28,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Swerve extends Subsystem {
 
     private static Swerve mInstance;
+
+    public PeriodicIO mPeriodicIO = new PeriodicIO();
+
+    //logger
+    LogStorage<PeriodicIO> mStorage = null;
 
     // required instance for vision align
     public Limelight mLimelight = Limelight.getInstance();
@@ -37,9 +46,10 @@ public class Swerve extends Subsystem {
 
     public boolean isSnapping;
     private double mVisionAlignAdjustment;
+    private double mVisionAlignGoal;
 
     public ProfiledPIDController snapPIDController;
-    public ProfiledPIDController visionPIDController;
+    public PIDController visionPIDController;
 
     
     // Private boolean to lock Swerve wheels
@@ -72,11 +82,11 @@ public class Swerve extends Subsystem {
                                                       Constants.SnapConstants.kThetaControllerConstraints);
         snapPIDController.enableContinuousInput(-Math.PI, Math.PI);
 
-        visionPIDController = new ProfiledPIDController(Constants.VisionAlignConstants.kP,
+        visionPIDController = new PIDController(Constants.VisionAlignConstants.kP,
                                                         Constants.VisionAlignConstants.kI,
-                                                        Constants.VisionAlignConstants.kD,
-                                                        Constants.VisionAlignConstants.kThetaControllerConstraints);
+                                                        Constants.VisionAlignConstants.kD);
         visionPIDController.enableContinuousInput(-Math.PI, Math.PI);
+        visionPIDController.setTolerance(0.0);
 
         zeroGyro();
 
@@ -110,14 +120,7 @@ public class Swerve extends Subsystem {
     }
     
     public void outputTelemetry() {
-        SmartDashboard.putNumber("Odometry Pose X", swerveOdometry.getPoseMeters().getX());
-        SmartDashboard.putNumber("Odometry Pose Y", swerveOdometry.getPoseMeters().getY());
-        SmartDashboard.putNumber("Odometry Pose Rot", swerveOdometry.getPoseMeters().getRotation().getDegrees());
         SmartDashboard.putBoolean("Is Snapping", isSnapping);
-        SmartDashboard.putNumber("Pigeon Heading", getYaw().getDegrees());
-        SmartDashboard.putNumber("Robot Pitch", getPitch().getDegrees());
-        SmartDashboard.putNumber("Robot Roll", getRoll().getDegrees());
-        SmartDashboard.putNumber("Snap Target", Math.toDegrees(snapPIDController.getGoal().position));
         for(SwerveModule mod : mSwerveMods){
             //SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Cancoder", MathUtil.inputModulus(mod.getCanCoder().getDegrees() - mod.angleOffset, 0, 360));
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Integrated", mod.getState().angle.getDegrees());
@@ -125,6 +128,8 @@ public class Swerve extends Subsystem {
         }
 
         SmartDashboard.putBoolean("Wants Auto Vision Aim", mWantsAutoVisionAim);
+        SmartDashboard.putNumber("Vision Align Target Angle", Math.toDegrees(mVisionAlignGoal));
+        SmartDashboard.putNumber("Swerve Heading", MathUtil.inputModulus(getYaw().getDegrees(), 0, 360));
     }
 
     public void setWantAutoVisionAim(boolean aim) {
@@ -187,10 +192,14 @@ public class Swerve extends Subsystem {
     public void updateVisionAlignGoal() {
         double currentAngle = getYaw().getRadians();
         double targetOffset = 0.0;
+        
         if (mLimelight.hasTarget()) {
             targetOffset = Math.toRadians(mLimelight.getOffset()[0]);
         } 
-        visionPIDController.setGoal(new TrapezoidProfile.State(MathUtil.inputModulus(currentAngle - targetOffset, 0.0, 2 * Math.PI), 0.0));
+
+        mVisionAlignGoal = MathUtil.inputModulus(currentAngle - targetOffset, 0.0, 2 * Math.PI);
+
+        visionPIDController.setSetpoint(mVisionAlignGoal);
         mVisionAlignAdjustment = visionPIDController.calculate(currentAngle);
     }
 
@@ -265,6 +274,14 @@ public class Swerve extends Subsystem {
         return mSwerveMods[index].getAnglePIDValues();
     }
 
+    public void setVisionAlignPIDValues(double kP, double kI, double kD) {
+        visionPIDController.setPID(kP, kI, kD);
+    }
+
+    public double[] getVisionAlignPIDValues() {
+        return  new double[] {visionPIDController.getP(), visionPIDController.getI(), visionPIDController.getD()};
+    }
+
     @Override
     public void zeroSensors(){
         zeroGyro();
@@ -276,7 +293,7 @@ public class Swerve extends Subsystem {
 
     public void zeroGyro(double reset){
         gyro.setYaw(reset);
-        visionPIDController.reset(reset);
+        visionPIDController.reset();
     }
 
     public Rotation2d getYaw() {
@@ -311,4 +328,66 @@ public class Swerve extends Subsystem {
     public boolean checkSystem() {
         return true;
     }
+
+    @Override
+    public void readPeriodicInputs() {
+        mPeriodicIO.odometry_pose_x = swerveOdometry.getPoseMeters().getX();
+        mPeriodicIO.odometry_pose_y = swerveOdometry.getPoseMeters().getY();
+        mPeriodicIO.odometry_pose_rot = swerveOdometry.getPoseMeters().getRotation().getDegrees();
+        mPeriodicIO.pigeon_heading = getYaw().getDegrees();
+        mPeriodicIO.robot_pitch = getPitch().getDegrees();
+        mPeriodicIO.robot_roll = getRoll().getDegrees();
+        mPeriodicIO.snap_target = Math.toDegrees(snapPIDController.getGoal().position);
+
+        SendLog();
+    }
+
+    public static class PeriodicIO {
+
+        public double odometry_pose_x;
+        public double odometry_pose_y;
+        public double odometry_pose_rot;
+        public double pigeon_heading;
+        public double robot_pitch;
+        public double robot_roll;
+        public double snap_target;
+
+    }
+
+    //logger
+    @Override
+    public void registerLogger(LoggingSystem LS) {
+        SetupLog();
+        LS.register(mStorage, "SWERVE_LOGS.csv");
+    }
+    
+    public void SetupLog() {
+        mStorage = new LogStorage<PeriodicIO>();
+
+        ArrayList<String> headers = new ArrayList<String>();
+        headers.add("odometry_pose_x");
+        headers.add("odometry_pose_y");
+        headers.add("odometry_pose_rot");
+        headers.add("pigeon_heading");
+        headers.add("robot_pitch");
+        headers.add("robot_roll");
+        headers.add("snap_target");
+
+        mStorage.setHeaders(headers);
+    }
+
+    public void SendLog() {
+        ArrayList<Number> items = new ArrayList<Number>();
+        items.add(mPeriodicIO.odometry_pose_x);
+        items.add(mPeriodicIO.odometry_pose_y);
+        items.add(mPeriodicIO.odometry_pose_rot);
+        items.add(mPeriodicIO.pigeon_heading);
+        items.add(mPeriodicIO.robot_pitch);
+        items.add(mPeriodicIO.robot_roll);
+        items.add(mPeriodicIO.snap_target);
+
+        // send data to logging storage
+        mStorage.addData(items);
+    }
+
 }

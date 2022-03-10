@@ -20,6 +20,7 @@ import com.team1678.frc2022.subsystems.Hood;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Infrastructure;
 import com.team1678.frc2022.subsystems.Intake;
+import com.team1678.frc2022.subsystems.LEDs;
 import com.team1678.frc2022.subsystems.Limelight;
 import com.team1678.frc2022.subsystems.RobotStateEstimator;
 import com.team1678.frc2022.subsystems.Shooter;
@@ -27,6 +28,10 @@ import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
 import com.team1678.frc2022.subsystems.Trigger;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.MjpegServer;
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.cscore.VideoMode;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -77,6 +82,7 @@ public class Robot extends TimedRobot {
 	private final ColorSensor mColorSensor = ColorSensor.getInstance();
 	private final Climber mClimber = Climber.getInstance();
 	private final Limelight mLimelight = Limelight.getInstance();
+	private final LEDs mLEDs = LEDs.getInstance();
 
 	// robot state
 	private final RobotState mRobotState = RobotState.getInstance();
@@ -95,6 +101,12 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void robotInit() {
+		UsbCamera camera = CameraServer.startAutomaticCapture();
+		camera.setVideoMode(VideoMode.PixelFormat.kMJPEG, 320, 240, 15);
+		MjpegServer cameraServer = new MjpegServer("serve_USB Camera 0", 5810);
+		cameraServer.setSource(camera);
+		cameraServer.setCompression(10);
+		
 		ctreConfigs = new CTREConfigs();
 		mShuffleBoardInteractions = ShuffleBoardInteractions.getInstance();
 
@@ -107,10 +119,13 @@ public class Robot extends TimedRobot {
 					mSuperstructure,
 					mInfrastructure,
 					mIntake,
+					mLEDs,
 					mIndexer,
 					mShooter,
 					mTrigger,
 					mHood,
+					mSuperstructure,
+					mLEDs,
 					mColorSensor,
 					mClimber,
 					mLimelight
@@ -135,6 +150,7 @@ public class Robot extends TimedRobot {
 		mEnabledLooper.outputToSmartDashboard();
 		mShuffleBoardInteractions.update();
 		mRobotState.outputToSmartDashboard();
+		mLEDs.updateState();
 		mSwerve.outputTelemetry();
 		mClimber.outputTelemetry();
 	}
@@ -256,7 +272,7 @@ public class Robot extends TimedRobot {
 
 			mLoggingLooper.stop();
 
-			mLimelight.setLed(Limelight.LedMode.PIPELINE);
+			mLimelight.setLed(Limelight.LedMode.ON);
             mLimelight.triggerOutputs();
 
 			mSwerve.setModuleStates(
@@ -289,7 +305,10 @@ public class Robot extends TimedRobot {
 			mAutoModeSelector.updateModeCreator();
 			// mSwerve.resetAnglesToAbsolute();
 
-			mLimelight.setLed(Limelight.LedMode.PIPELINE);
+			// update alliance color from driver station while disabled
+			mColorSensor.updateAllianceColor();
+
+			mLimelight.setLed(Limelight.LedMode.ON);
 			mLimelight.writePeriodicOutputs();
 			mLimelight.outputTelemetry();
 

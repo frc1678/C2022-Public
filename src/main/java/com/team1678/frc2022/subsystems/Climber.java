@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2022.Constants;
@@ -11,18 +12,30 @@ import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.logger.LogStorage;
 import com.team1678.frc2022.logger.LoggingSystem;
 import com.team254.lib.drivers.TalonFXFactory;
+import com.team254.lib.util.Util;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Climber extends Subsystem {
 
+    private static Climber mInstance;
+    public static synchronized Climber getInstance() {
+        if (mInstance == null) {
+            mInstance = new Climber();
+        } 
+        return mInstance;
+    }
+
     private final TalonFX mClimberRight;
     private final TalonFX mClimberLeft;
 
+    public enum ClimberChecks {
+        
+    }
+
     public boolean mHomed;
 
-    private static Climber mInstance;
 
     // logger
     LogStorage<PeriodicIO> mStorage = null;
@@ -36,6 +49,8 @@ public class Climber extends Subsystem {
     private boolean mPartialExtendLeftArm = false;
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
+
+    public StatorCurrentLimitConfiguration STATOR_CURRENT_LIMIT = new StatorCurrentLimitConfiguration(true, 60, 60, .2);
 
     private Climber() {
         mClimberRight = TalonFXFactory.createDefaultTalon(Ports.CLIMBER_RIGHT_ID);
@@ -79,13 +94,9 @@ public class Climber extends Subsystem {
         mClimberLeft.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
         mClimberLeft.enableVoltageCompensation(true);
 
-    }
-
-    public static synchronized Climber getInstance() {
-        if (mInstance == null) {
-            mInstance = new Climber();
-        } 
-        return mInstance;
+        // set current limits on motor
+        mClimberRight.configStatorCurrentLimit(STATOR_CURRENT_LIMIT);
+        mClimberLeft.configStatorCurrentLimit(STATOR_CURRENT_LIMIT);
     }
 
     private void zeroEncoders() {
@@ -96,6 +107,10 @@ public class Climber extends Subsystem {
 
     @Override
     public void readPeriodicInputs() {
+        
+        // curr check for holding
+        maybeHoldCurrentPosition();
+
         mPeriodicIO.climber_voltage_right = mClimberRight.getMotorOutputVoltage();
         mPeriodicIO.climber_stator_current_right = mClimberRight.getStatorCurrent();
         mPeriodicIO.climber_motor_velocity_right = mClimberRight.getSelectedSensorVelocity();
@@ -112,6 +127,7 @@ public class Climber extends Subsystem {
 
     @Override
     public void writePeriodicOutputs() {
+
         switch (mRightControlState) {
             case OPEN_LOOP:
                 mClimberRight.set(ControlMode.PercentOutput, mPeriodicIO.climber_demand_right / 12.0);
@@ -244,6 +260,7 @@ public class Climber extends Subsystem {
     }
     // final step for traversal
     public void setClimbTraversalBar() {
+        setLeftClimberPosition(0);
         setRightClimberPosition(Constants.ClimberConstants.kRightPartialTravelDistance);
     }
 
@@ -251,6 +268,23 @@ public class Climber extends Subsystem {
         setRightClimberPosition(10); // ticks
         setLeftClimberPosition(10); // ticks
 
+    }
+
+    // hold current position on arm
+    public void maybeHoldCurrentPosition() {
+        
+        if (Util.epsilonEquals(mPeriodicIO.climber_motor_velocity_left, 0, 0.5)
+                && (mPeriodicIO.climber_stator_current_left > Constants.ClimberConstants.kStatorCurrentLimit)) {
+            setLeftClimberPosition(mPeriodicIO.climber_motor_position_left + 2000);
+            System.out.println("triggered left");
+        }
+
+        if (Util.epsilonEquals(mPeriodicIO.climber_motor_velocity_right, 0, 0.5)
+                && (mPeriodicIO.climber_stator_current_right > Constants.ClimberConstants.kStatorCurrentLimit)) {
+            setRightClimberPosition(mPeriodicIO.climber_motor_position_right + 2000);
+            System.out.println("triggered right");
+        }
+        
     }
 
     public enum RightControlState {
