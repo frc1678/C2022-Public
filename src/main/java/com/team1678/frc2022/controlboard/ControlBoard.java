@@ -12,6 +12,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class ControlBoard {
     private final double kSwerveDeadband = Constants.stickDeadband;
 
+    private int mLastDpad = -1;
+
+    private int kDpadUp = 0;
+    private int kDpadRight = 90;
+    private int kDpadDown = 180;
+    private int kDpadLeft = 270;
+
     private static ControlBoard mInstance = null;
 
     public enum SwerveCardinal {
@@ -121,6 +128,18 @@ public class ControlBoard {
     //Locks wheels in X formation
     public boolean getBrake() {
         return driver.getButton(Button.LB);
+    }
+
+    public boolean getDisableColorLogic() {
+        boolean wasPressed = operator.getController().getPOV() == kDpadRight && mLastDpad != kDpadRight;
+        mLastDpad = operator.getController().getPOV();
+        return wasPressed;
+    }
+
+    public boolean getDisableIntakeLogic() {
+        boolean wasPressed = operator.getController().getPOV() == kDpadRight && mLastDpad != kDpadLeft;
+        mLastDpad = operator.getController().getPOV();
+        return wasPressed;
     }
 
     // Climber Controls
