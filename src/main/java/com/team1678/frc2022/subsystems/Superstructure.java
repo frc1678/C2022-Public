@@ -463,7 +463,7 @@ public class Superstructure extends Subsystem {
             }
             // control options to filter cargo and eject
             // don't eject if we want it disabled or if we lock the intake because we have two correct cargo
-            if (mControlBoard.operator.getButton(Button.LB)) {
+            if (mControlBoard.getHoldIntake()) {
                 mPeriodicIO.EJECT = true;
                 mForceEject = true;
             } else if (mDisableEjecting || mLockIntake) {
