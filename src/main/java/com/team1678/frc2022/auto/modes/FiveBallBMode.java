@@ -16,18 +16,18 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class FiveBallMode extends AutoModeBase {
+public class FiveBallBMode extends AutoModeBase {
     
     // Swerve instance 
     private final Swerve mSwerve = Swerve.getInstance();
     private final Superstructure mSuperstructure = Superstructure.getInstance();
 
     // required PathWeaver file paths
-    String file_path_a = "paths/FiveBallPaths/5 Ball A.path";
-    String file_path_b = "paths/FiveBallPaths/5 Ball B.path";
-    String file_path_c = "paths/FiveBallPaths/5 Ball C.path";
-    String file_path_d = "paths/FiveBallPaths/5 Ball D.path";
-    String file_path_e = "paths/FiveBallPaths/5 Ball E.path";
+    String file_path_a = "paths/FiveBallPaths/5 Ball b A.path";
+    String file_path_b = "paths/FiveBallPaths/5 Ball b B.path";
+    String file_path_c = "paths/FiveBallPaths/5 Ball b C.path";
+    String file_path_d = "paths/FiveBallPaths/5 Ball b D.path";
+    String file_path_e = "paths/FiveBallPaths/5 Ball b E.path";
     
 	// trajectory actions
 	SwerveTrajectoryAction driveToIntakeFirstCargo;
@@ -36,7 +36,7 @@ public class FiveBallMode extends AutoModeBase {
 	SwerveTrajectoryAction driveToIntakeAtTerminal;
 	SwerveTrajectoryAction driveToShootFromTerminal;
 
-    public FiveBallMode() {
+    public FiveBallBMode() {
 
         SmartDashboard.putBoolean("Auto Finished", false);
 
