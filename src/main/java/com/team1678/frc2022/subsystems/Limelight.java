@@ -75,20 +75,21 @@ public class Limelight extends Subsystem {
             @Override
             public void onLoop(double timestamp) {
                 final double start = Timer.getFPGATimestamp();
-                
-                synchronized (this) {
-                    if (mPeriodicIO.has_comms /*&& !Superstructure.getInstance().getDisableLimelight()*/) {
-                        RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), getTarget());
-                    } else {
-                        RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), null);
-                    }
 
-                    if (mSeesTarget) {
-                        updateDistanceToTarget();
-                    }
-
-                    // outputTelemetry();
+                /*
+                if (mPeriodicIO.has_comms) {
+                    RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), getTarget());
+                } else {
+                    RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), null);
                 }
+                */
+
+                if (mSeesTarget) {
+                    RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), getTarget());
+                    updateDistanceToTarget();
+                }
+
+                // outputTelemetry();
                 
                 // send log data
                 SendLog();

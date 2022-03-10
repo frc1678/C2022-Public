@@ -176,7 +176,7 @@ public class RobotState {
         mCameraToVisionTargetPoses.clear();
 
         if (observations == null || observations.isEmpty()) {
-            vision_target_.update(timestamp, new ArrayList<>());
+            vision_target_.maybePruneTracks();
             return;
         }
 
@@ -255,7 +255,7 @@ public class RobotState {
             return Optional.empty();
         }
 
-        Pose2d vehicleToGoal = getFieldToVehicle(timestamp).inverse().transformBy(report.field_to_target);
+        Pose2d vehicleToGoal = getLatestFieldToVehicle().getValue().inverse().transformBy(report.field_to_target);
 
         AimingParameters params = new AimingParameters(vehicleToGoal, report.field_to_target,
                 report.field_to_target.getRotation(), report.latest_timestamp, report.stability, report.id);
