@@ -1,7 +1,6 @@
 package com.team1678.frc2022;
 
 import com.team1678.frc2022.subsystems.Limelight;
-import com.team1678.frc2022.subsystems.Superstructure;
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
@@ -20,7 +19,6 @@ import java.util.*;
 
 public class RobotState {
     private static RobotState mInstance;
-
     public static RobotState getInstance() {
         if (mInstance == null) {
             mInstance = new RobotState();
@@ -257,7 +255,7 @@ public class RobotState {
             return Optional.empty();
         }
 
-        Pose2d vehicleToGoal = report.field_to_target.transformBy(getFieldToVehicle(timestamp).inverse());
+        Pose2d vehicleToGoal = getFieldToVehicle(timestamp).inverse().transformBy(report.field_to_target);
 
         AimingParameters params = new AimingParameters(vehicleToGoal, report.field_to_target,
                 report.field_to_target.getRotation(), report.latest_timestamp, report.stability, report.id);
@@ -278,5 +276,13 @@ public class RobotState {
         SmartDashboard.putNumber("Robot X", getLatestFieldToVehicle().getValue().getTranslation().x());
         SmartDashboard.putNumber("Robot Y", getLatestFieldToVehicle().getValue().getTranslation().y());
         SmartDashboard.putNumber("Robot Theta", getLatestFieldToVehicle().getValue().getRotation().getDegrees());
+
+        Optional<AimingParameters> params = getAimingParameters(-1, Constants.VisionConstants.kMaxGoalTrackAge);
+        SmartDashboard.putBoolean("Has Aiming Parameters", params.isPresent());
+        if (params.isPresent()) {
+            SmartDashboard.putNumber("Vehicle to Target", params.get().getRange());
+            SmartDashboard.putNumber("Vehicle to Target Angle", params.get().getVehicleToGoalRotation().getDegrees());
+
+        }
     }
 }

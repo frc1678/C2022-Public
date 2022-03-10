@@ -99,7 +99,7 @@ public class GoalTrack {
                 removePoint(entry.getKey(), entry.getValue());
             }
         }
-        //mObservedPositions.entrySet().removeIf(entry -> entry.getKey() < delete_before);
+        mObservedPositions.entrySet().removeIf(entry -> entry.getKey() < delete_before);
         if (mObservedPositions.isEmpty()) {
             mSmoothedPosition = null;
         } else {

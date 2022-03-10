@@ -50,8 +50,6 @@ public class RobotStateEstimator extends Subsystem {
         @Override
         public synchronized void onLoop(double timestamp) {
 
-            // mRobotState.outputToSmartDashboard();
-
             if (prev_swerve_pose_ == null) {
                 prev_swerve_pose_ = mRobotState.getLatestFieldToVehicle().getValue();
             }
@@ -91,17 +89,22 @@ public class RobotStateEstimator extends Subsystem {
 
             SmartDashboard.putNumber("Robot State Estimator dt", loop_dt);
 
-            /*
+            
             // Shuffleboard outputs for logic checks
             SmartDashboard.putNumber("Odometry Delta X", odometry_delta.getTranslation().x());
             SmartDashboard.putNumber("Odometry Delta Y", odometry_delta.getTranslation().y());
             SmartDashboard.putNumber("Odometry Delta Theta", odometry_delta.getRotation().getDegrees());
-            */
+            
         }
 
         @Override
         public void onStop(double timestamp) {
         }
+    }
+
+    @Override
+    public void readPeriodicInputs() {
+        mRobotState.outputToSmartDashboard();
     }
 
     @Override
