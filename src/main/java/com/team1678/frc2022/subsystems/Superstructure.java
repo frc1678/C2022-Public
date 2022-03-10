@@ -12,15 +12,12 @@ import com.team1678.frc2022.regressions.ShooterRegression;
 import com.team1678.frc2022.subsystems.LEDs.State;
 import com.team254.lib.util.Util;
 import com.team254.lib.util.InterpolatingDouble;
-import com.team254.lib.vision.AimingParameters;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.ArrayList;
 import java.util.Optional;
-
-import com.team1678.frc2022.RobotState;
 
 public class Superstructure extends Subsystem {
 
@@ -48,7 +45,6 @@ public class Superstructure extends Subsystem {
     private final Hood mHood = Hood.getInstance();
     private final Climber mClimber = Climber.getInstance();
     private final Limelight mLimelight = Limelight.getInstance();
-    private final RobotState mRobotState = RobotState.getInstance();
     private final LEDs mLEDs = LEDs.getInstance();
 
     // timer for reversing the intake and then stopping it once we have two correct cargo
@@ -117,10 +113,6 @@ public class Superstructure extends Subsystem {
 
     private final double kSpitVelocity = 1000;
     private final double kSpitAngle = 20.0;
-
-    // Aiming Parameters
-    public Optional<AimingParameters> mLatestAimingParameters = Optional.empty();
-    public int mTrackId = -1;
 
     @Override
     public void registerEnabledLoops(ILooper enabledLooper) {
@@ -201,17 +193,6 @@ public class Superstructure extends Subsystem {
     public void setShootingParameters(double flywheel, double hood) {
         mShooterSetpoint = flywheel;
         mHoodSetpoint = hood;
-    }
-
-    public Optional<AimingParameters> getLatestAimingParameters() {
-        return mLatestAimingParameters;
-    }
-
-    public void updateAimingParameters() {
-        mLatestAimingParameters = mRobotState.getAimingParameters(mTrackId, Constants.VisionConstants.kMaxGoalTrackAge);
-        if (mLatestAimingParameters.isPresent()) {
-            mTrackId = mLatestAimingParameters.get().getTrackId();
-        }
     }
 
     /*** CONTAINER FOR OPERATOR COMMANDS CALLING SUPERSTRUCTURE ACTIONS
