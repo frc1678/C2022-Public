@@ -147,6 +147,10 @@ public class ControlBoard {
         return operator.getController().getRightBumper();
     }
 
+    public boolean getHoldIntake() {
+        return operator.getButton(Button.LB);
+    }
+
     //Indexer Controls
     public boolean getElevating() {
         return operator.getButton(Button.B);

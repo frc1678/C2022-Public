@@ -20,6 +20,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import javax.lang.model.util.ElementScanner6;
+
 public class Superstructure extends Subsystem {
 
     // superstructure instance
@@ -66,6 +68,7 @@ public class Superstructure extends Subsystem {
         private boolean SHOOT = false; // shoot cargo
         private boolean FENDER = false; // shoot cargo from up against the hub
         private boolean SPIT = false; // spit cargo from shooter at low velocity
+        private boolean HOLD = false; //don't eject until another ball intook
 
         // time measurements
         public double timestamp;
@@ -156,6 +159,17 @@ public class Superstructure extends Subsystem {
         if (mPeriodicIO.INTAKE) {
             mPeriodicIO.REVERSE = false;
             mPeriodicIO.REJECT = false;
+            mPeriodicIO.HOLD = false;
+        }
+    }
+    public void setWantHold(boolean hold) {
+        mPeriodicIO.HOLD = hold;
+
+        //set other intake actions to false when true
+        if (mPeriodicIO.HOLD) {
+            mPeriodicIO.REVERSE = false;
+            mPeriodicIO.REJECT = false;
+            mPeriodicIO.INTAKE = false;
         }
     }
     public void setWantReverse(boolean reverse) {
@@ -165,6 +179,7 @@ public class Superstructure extends Subsystem {
         if (mPeriodicIO.REVERSE) {
             mPeriodicIO.INTAKE = false;
             mPeriodicIO.REJECT = false;
+            mPeriodicIO.HOLD = false;
         }
     }
     public void setWantReject(boolean reject) {
@@ -174,12 +189,14 @@ public class Superstructure extends Subsystem {
         if (mPeriodicIO.REJECT) {
             mPeriodicIO.INTAKE = false;
             mPeriodicIO.REVERSE = false;
+            mPeriodicIO.HOLD = false;
         }
     }
     public void setWantIntakeNone() {
         mPeriodicIO.INTAKE = false;
         mPeriodicIO.REVERSE = false;
         mPeriodicIO.REJECT = false;
+        mPeriodicIO.HOLD = false;
     }
     public void setWantEject(boolean eject, boolean slow_eject) {
         mPeriodicIO.EJECT = eject;
@@ -612,6 +629,8 @@ public class Superstructure extends Subsystem {
                 mPeriodicIO.real_intake = Intake.WantedAction.REVERSE;
             } else if (mPeriodicIO.REJECT) {
                 mPeriodicIO.real_intake = Intake.WantedAction.REJECT;
+            } else if (mPeriodicIO.HOLD) {
+                mPeriodicIO.real_intake = Intake.WantedAction.HOLD;
             } else {
                 mPeriodicIO.real_intake = Intake.WantedAction.NONE;
             }
@@ -756,6 +775,7 @@ public class Superstructure extends Subsystem {
         mPeriodicIO.INTAKE = false;
         mPeriodicIO.REVERSE = false;
         mPeriodicIO.REJECT = false;
+        mPeriodicIO.HOLD = false;
         mPeriodicIO.EJECT = false;
         mPeriodicIO.PREP = false;
         mPeriodicIO.SHOOT = false;
@@ -776,6 +796,9 @@ public class Superstructure extends Subsystem {
     }
     public boolean getRejecting() {
         return mPeriodicIO.REJECT;
+    }
+    public boolean getHolding() {
+        return mPeriodicIO.HOLD;
     }
     public boolean getEjecting() {
         return mPeriodicIO.EJECT;
@@ -877,6 +900,7 @@ public class Superstructure extends Subsystem {
         headers.add("INTAKE");
         headers.add("REVERSE");
         headers.add("REJECT");
+        headers.add("HOLD");
         headers.add("EJECT");
         headers.add("PREP");
         headers.add("SHOOT");
@@ -896,6 +920,7 @@ public class Superstructure extends Subsystem {
         items.add(mPeriodicIO.dt);
         items.add(mPeriodicIO.SPIT ? 1.0 : 0.0);
         items.add(mPeriodicIO.REJECT ? 1.0 : 0.0);
+        items.add(mPeriodicIO.HOLD ? 1.0 : 0.0);
         items.add(mPeriodicIO.EJECT ? 1.0 : 0.0);
         items.add(mPeriodicIO.REVERSE ? 1.0 : 0.0);
         items.add(mPeriodicIO.PREP ? 1.0 : 0.0);

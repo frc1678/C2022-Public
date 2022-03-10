@@ -22,11 +22,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Intake extends Subsystem {
 
     public enum WantedAction {
-        NONE, INTAKE, REVERSE, REJECT
+        NONE, INTAKE, REVERSE, REJECT, HOLD
     }
 
     public enum State {
-        IDLE, INTAKING, REVERSING, REJECTING
+        IDLE, INTAKING, REVERSING, REJECTING, HOLDING
     }
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -156,6 +156,12 @@ public class Intake extends Subsystem {
                     mState = State.REJECTING;
                 }
                 break;
+            case HOLD:
+                if (mState != State.HOLDING) {
+                    mPeriodicIO.hold_intake = false;
+                    mState = State.HOLDING;
+                }
+                break;
         }
     }
 
@@ -206,6 +212,15 @@ public class Intake extends Subsystem {
                 } else {
                     mPeriodicIO.deploy_demand = Constants.IntakeConstants.kDeployVoltage;
                 }
+                break;
+            case HOLDING:
+                if (mPeriodicIO.hold_intake) {
+                    mPeriodicIO.deploy_demand = Constants.IntakeConstants.kInHoldingVoltage;
+                } else {
+                    mPeriodicIO.deploy_demand = Constants.IntakeConstants.kDeployVoltage;
+                }
+
+                mPeriodicIO.intake_demand =  Constants.IntakeConstants.kIntakingVoltage;
                 break;
         }
     }
