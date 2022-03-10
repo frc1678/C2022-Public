@@ -1,16 +1,19 @@
 package com.team1678.frc2022.subsystems;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 import com.ctre.phoenix.sensors.Pigeon2;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
+import com.team1678.frc2022.RobotState;
 import com.team1678.frc2022.SwerveModule;
 import com.team1678.frc2022.logger.LogStorage;
 import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
 import com.team254.lib.util.TimeDelayedBoolean;
+import com.team254.lib.vision.AimingParameters;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -31,11 +34,15 @@ public class Swerve extends Subsystem {
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
 
-    //logger
+    // logger
     LogStorage<PeriodicIO> mStorage = null;
 
     // required instance for vision align
+    public RobotState mRobotState = RobotState.getInstance();
     public Limelight mLimelight = Limelight.getInstance();
+
+    // track id
+    private int mTrackId = -1;
 
     // wants vision aim during auto
     public boolean mWantsAutoVisionAim = false;
@@ -108,6 +115,8 @@ public class Swerve extends Subsystem {
 
             @Override
             public void onLoop(double timestamp) {
+                updateSwerveOdometry();
+
                 updateVisionAlignGoal();
                 outputTelemetry();
             }
@@ -142,11 +151,14 @@ public class Swerve extends Subsystem {
 
     public void visionAlignDrive(Translation2d translation2d, double rotation, boolean fieldRelative, boolean isOpenLoop) {
         double adjustedRotation;
+        /*
         if (mLimelight.hasTarget()) {
             adjustedRotation = mVisionAlignAdjustment;
         } else {
             adjustedRotation = rotation;
         }
+        */
+        adjustedRotation = mVisionAlignAdjustment;
         drive(translation2d, adjustedRotation, fieldRelative, isOpenLoop);
     }
 
@@ -192,12 +204,20 @@ public class Swerve extends Subsystem {
     public void updateVisionAlignGoal() {
         double currentAngle = getYaw().getRadians();
         double targetOffset = 0.0;
+
+        Optional<AimingParameters> aiming_params_ = mRobotState.getAimingParameters(mTrackId, Constants.VisionConstants.kMaxGoalTrackAge);
+        if (aiming_params_.isPresent()) {
+            mTrackId = aiming_params_.get().getTrackId();
+            targetOffset = aiming_params_.get().getVehicleToGoalRotation().getRadians();
+        }
         
+        /*
         if (mLimelight.hasTarget()) {
             targetOffset = Math.toRadians(mLimelight.getOffset()[0]);
         } 
+        */
 
-        mVisionAlignGoal = MathUtil.inputModulus(currentAngle - targetOffset, 0.0, 2 * Math.PI);
+        mVisionAlignGoal = MathUtil.inputModulus(currentAngle + targetOffset, 0.0, 2 * Math.PI);
 
         visionPIDController.setSetpoint(mVisionAlignGoal);
         mVisionAlignAdjustment = visionPIDController.calculate(currentAngle);

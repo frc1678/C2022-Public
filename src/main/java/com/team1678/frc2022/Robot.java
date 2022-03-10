@@ -149,7 +149,7 @@ public class Robot extends TimedRobot {
 	public void robotPeriodic() {
 		mEnabledLooper.outputToSmartDashboard();
 		mShuffleBoardInteractions.update();
-		mRobotState.outputToSmartDashboard();
+		// mRobotState.outputToSmartDashboard();
 		mLEDs.updateState();
 		mSwerve.outputTelemetry();
 		mClimber.outputTelemetry();
@@ -179,7 +179,6 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void autonomousPeriodic() {
-		mSwerve.updateSwerveOdometry();
 		mLimelight.setLed(Limelight.LedMode.ON);
 	}
 
