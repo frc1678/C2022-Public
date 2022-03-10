@@ -6,9 +6,11 @@ import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.CustomXboxController;
 import com.team1678.frc2022.controlboard.CustomXboxController.Button;
+import com.team1678.frc2022.lib.drivers.PicoColorSensor;
 import com.team1678.frc2022.logger.LogStorage;
 import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.regressions.ShooterRegression;
+import com.team1678.frc2022.subsystems.LEDs.State;
 import com.team254.lib.util.Util;
 import com.team254.lib.util.InterpolatingDouble;
 
@@ -44,6 +46,7 @@ public class Superstructure extends Subsystem {
     private final Hood mHood = Hood.getInstance();
     private final Climber mClimber = Climber.getInstance();
     private final Limelight mLimelight = Limelight.getInstance();
+    private final LEDs mLEDs = LEDs.getInstance();
 
     // timer for reversing the intake and then stopping it once we have two correct cargo
     Timer mIntakeRejectTimer = new Timer();
@@ -102,10 +105,12 @@ public class Superstructure extends Subsystem {
 	private boolean mResetClimberPosition = false;
     private boolean mAutoTraversalClimb = false;
     private int mClimbStep = 0;
+    private double mStartingGyroPosition = 0.0;
+    private double mGyroOffset = 0.0;
 
     // fender shot constants
-    private final double kFenderVelocity = 2300;
-    private final double kFenderAngle = 12.0;
+    private final double kFenderVelocity = 2200;
+    private final double kFenderAngle = 14.0;
 
     private final double kSpitVelocity = 1000;
     private final double kSpitAngle = 20.0;
@@ -121,9 +126,12 @@ public class Superstructure extends Subsystem {
             public void onLoop(double timestamp) {
                 final double start = Timer.getFPGATimestamp();
 
-                updateBallCounter();
-                updateShootingParams();
+                if (!mClimbMode) {
+                    updateBallCounter();
+                    updateShootingParams();
+                }
                 setGoals();
+                updateLEDs();
                 outputTelemetry();
                         
                 // send log data
@@ -227,13 +235,22 @@ public class Superstructure extends Subsystem {
      * 
      * */
     public void updateOperatorCommands() {
+
+        // update starting gyro position
+        if (mClimbStep == 0) {
+            mStartingGyroPosition = mSwerve.getRoll().getDegrees();
+        }
           
         // get whether we want to enter climb mode
         if (mControlBoard.getClimbMode()) {
             mClimbMode = true;
+            mOpenLoopClimbControlMode = false;
         }
 
         if (mClimbMode) {
+
+            // update gyro offset
+            mGyroOffset = mSwerve.getRoll().getDegrees();
 
             /*** CLIMB MODE CONTROLS ***/
 
@@ -264,18 +281,22 @@ public class Superstructure extends Subsystem {
             if (!mOpenLoopClimbControlMode) {
 
                 if (mControlBoard.operator.getController().getXButtonPressed()) {
+                    mClimber.setClimberNone();
                     mClimbStep = 0;
                     mAutoTraversalClimb = false;
-                    
+
                 } else if (mControlBoard.operator.getController().getAButtonPressed()) {
+                    // climb step 1
                     mClimber.setExtendForClimb();
                     mAutoTraversalClimb = false;
+                    mClimbStep = 1;
+
                 } else if (mControlBoard.operator.getController().getBButtonPressed()) {
-                    mClimber.setClimbMidBar();
+                    mClimber.setClimbMidBarAndExtend();
                     mAutoTraversalClimb = false;
 
                 } else if (mControlBoard.operator.getController().getPOV() == 180) {
-                    mClimber.setClimbMidBarAndExtend();
+                    mClimber.setHighBarExtend();
                     mAutoTraversalClimb = false;
 
                 } else if (mControlBoard.operator.getController().getPOV() == 90) {
@@ -292,65 +313,64 @@ public class Superstructure extends Subsystem {
 
                 } else if (mControlBoard.getTraversalClimb()) {
                     mAutoTraversalClimb = true;
-                    mClimbStep = 0;
                 }             
                 
                 if (mAutoTraversalClimb) {
 
                     // climb mid bar and extend to high bar
-                    if (mClimbStep == 0) {
+                    if (mClimbStep == 1) {
                         mClimber.setClimbMidBarAndExtend();
-                        mClimbStep++; // climb step 1
+                        mClimbStep++; // climb step 2
                     }
 
                     // set left arm to full extension from partial height to make contact on high bar
-                    if (mSwerve.getRoll().getDegrees() < Constants.ClimberConstants.kHighBarExtendAngle // check if dt roll is past high bar while swinging to extend
+                    if (mGyroOffset < Constants.ClimberConstants.kHighBarExtendAngle // check if dt roll is past high bar while swinging to extend
                         &&
                         Util.epsilonEquals(mClimber.getClimberPositionLeft(), // don't extend unless left arm is at partial height
                                             Constants.ClimberConstants.kLeftPartialTravelDistance,
                                             Constants.ClimberConstants.kTravelDistanceEpsilon)
-                        && (mClimbStep == 1)) {
+                        && (mClimbStep == 2)) {
 
                         mClimber.setHighBarExtend();
-                        mClimbStep++; // climb step 2
+                        mClimbStep++; // climb step 3
                     }
 
                     // pull up with left arm on upper bar while extending right arm to traversal bar
-                    if ((mSwerve.getRoll().getDegrees() > Constants.ClimberConstants.kHighBarContactAngle) // check if dt roll is at bar contact angle before climbing to next bar
+                    if ((mGyroOffset > Constants.ClimberConstants.kHighBarContactAngle) // check if dt roll is at bar contact angle before climbing to next bar
                         &&
                         Util.epsilonEquals(mClimber.getClimberPositionLeft(), // don't climb unless left arm is fully extended
                                             Constants.ClimberConstants.kLeftTravelDistance,
                                             Constants.ClimberConstants.kTravelDistanceEpsilon)
-                        && (mClimbStep == 2)) {
+                        && (mClimbStep == 3)) {
 
                         mClimber.setClimbHighBarAndExtend();
-                        mClimbStep++; // climb step 3
+                        mClimbStep++; // climb step 4
                     }
 
                     // set right arm to full extension from partial height to make contact on traversal bar
-                    if (mSwerve.getRoll().getDegrees() > Constants.ClimberConstants.kTraversalBarExtendAngle // check if dt roll is past traversal bar while swinging to extend
+                    if (mGyroOffset > Constants.ClimberConstants.kTraversalBarExtendAngle // check if dt roll is past traversal bar while swinging to extend
                         &&
                         Util.epsilonEquals(mClimber.getClimberPositionRight(), // don't extend unless right arm is at partial height
                                             Constants.ClimberConstants.kRightPartialTravelDistance,
                                             Constants.ClimberConstants.kTravelDistanceEpsilon)
-                        && (mClimbStep == 3)) {
+                        && (mClimbStep == 4)) {
 
                         mClimber.setTraversalBarExtend();
-                        mClimbStep++; // climb step 4
+                        mClimbStep++; // climb step 5
                     }
 
                     // climb on the right arm after we are fully extended on traversal bar
-                    if (Util.epsilonEquals(mSwerve.getRoll().getDegrees(), // check if dt roll is at the angle necessary 
+                    if (Util.epsilonEquals(mGyroOffset, // check if dt roll is at the angle necessary 
                                             Constants.ClimberConstants.kTraversalBarContactAngle,
                                             2.0)
                         &&
                         Util.epsilonEquals(mClimber.getClimberPositionRight(), // don't extend unless right arm is at full height
                                             Constants.ClimberConstants.kRightTravelDistance,
                                             Constants.ClimberConstants.kTravelDistanceEpsilon)
-                        && (mClimbStep == 4)) {
+                        && (mClimbStep == 5)) {
 
                         mClimber.setClimbTraversalBar();
-                        mClimbStep++; // climb step 5
+                        mClimbStep++; // climb step 6
                     }
                 }
 
@@ -409,7 +429,7 @@ public class Superstructure extends Subsystem {
                     // - we don't have a ball at either fully indexed position
                     // - we don't want to stop intaking
                     // then unlock the intake
-                    if (!(mIndexer.getTopBeamBreak() && mColorSensor.hasBall())
+                    if(!(mIndexer.getTopBeamBreak() && mColorSensor.hasBall()) 
                             && !indexerFull()
                             && !stopIntaking()) {
                         
@@ -455,10 +475,6 @@ public class Superstructure extends Subsystem {
             // control spit shot
             if (mControlBoard.operator.getController().getXButtonPressed()) {
                 mPeriodicIO.SPIT = !mPeriodicIO.SPIT;
-            }
-            
-            if (!mIndexer.getTopBeamBreak()) {
-                mPeriodicIO.SPIT = false;
             }
 
             // control for adding manual hood adjustment
@@ -511,7 +527,10 @@ public class Superstructure extends Subsystem {
 
     /*** UPDATE SHOOTER AND HOOD SETPOINTS WHEN VISION AIMING ***/
     public synchronized void updateShootingParams() {
-        if (mPeriodicIO.FENDER) {
+        if (mPeriodicIO.SPIT) {
+            mShooterSetpoint = kSpitVelocity;
+            mHoodSetpoint = kSpitAngle;
+        } else if (mPeriodicIO.FENDER) {
             mShooterSetpoint = kFenderVelocity;
             mHoodSetpoint = kFenderAngle;
         } else if (hasTarget()) {
@@ -538,20 +557,14 @@ public class Superstructure extends Subsystem {
             mHoodAngleAdjustment = 0.0;
             mResetHoodAngleAdjustment = false;
         }
+        // update hood setpoint
+        mPeriodicIO.real_hood = mHoodSetpoint + mHoodAngleAdjustment;
 
-        // update shooter & hood setpoint
-        if (mPeriodicIO.SPIT){
-            mPeriodicIO.real_shooter = kSpitVelocity;
-            mPeriodicIO.real_hood = kSpitAngle;
+        // update shooter setpoint
+        if (mPeriodicIO.PREP) {
+            mPeriodicIO.real_shooter = mShooterSetpoint;
         } else {
-            mPeriodicIO.real_hood = mHoodSetpoint + mHoodAngleAdjustment;
-
-            if (mPeriodicIO.PREP) {
-                mPeriodicIO.real_shooter = mShooterSetpoint;
-            } else {
-                mPeriodicIO.real_shooter = 0.0;
-            }
-                
+            mPeriodicIO.real_shooter = 0.0;
         }
 
         // update intake and indexer actions
@@ -570,9 +583,6 @@ public class Superstructure extends Subsystem {
                 mPeriodicIO.real_trigger = Trigger.WantedAction.NONE;
                 mPeriodicIO.real_indexer = Indexer.WantedAction.NONE;
             }
-        } else if (mPeriodicIO.SPIT) {
-            mPeriodicIO.real_indexer = Indexer.WantedAction.FEED;
-            mPeriodicIO.real_trigger = Trigger.WantedAction.FEED;
         } else {
             // force eject
             if (mPeriodicIO.EJECT && mForceEject) {
@@ -612,7 +622,6 @@ public class Superstructure extends Subsystem {
         // set intake and indexer states
         mIntake.setState(mPeriodicIO.real_intake);
         mIndexer.setState(mPeriodicIO.real_indexer);
-
         // set shooter subsystem setpoint
         if (Math.abs(mPeriodicIO.real_shooter) < Util.kEpsilon) {
             mShooter.setOpenLoop(0.0); // open loop if rpm goal is 0, to smooth spin down and stop belt skipping
@@ -630,6 +639,53 @@ public class Superstructure extends Subsystem {
         if (mHood.mControlState != ServoMotorSubsystem.ControlState.OPEN_LOOP) {
             mHood.setSetpointMotionMagic(mPeriodicIO.real_hood);
         }
+    }
+
+    private void updateLEDs() {
+        if (mLEDs.getUsingSmartdash()) {
+            return;
+        }
+
+        State topState = State.OFF;
+        State bottomState = State.OFF;
+
+        if (hasEmergency) {
+            topState = State.EMERGENCY;
+            bottomState = State.EMERGENCY;
+        } else {
+           if (!mClimbMode) {
+                if (getBallCount() == 2) {
+                    bottomState = State.SOLID_GREEN;
+                } else if (getBallCount() == 1) {
+                    bottomState = State.SOLID_CYAN;
+                } else {
+                    bottomState = State.SOLID_ORANGE;
+                }
+                if (getWantsSpit()) {
+                    topState = State.SOLID_ORANGE;
+                } else if (getWantsFender()) {
+                    topState = State.SOLID_CYAN;
+                } else if (mPeriodicIO.SHOOT) {
+                    topState = State.FLASHING_PINK;
+                } else if (isAimed()) {
+                    topState = State.FLASHING_GREEN;
+                } else if (hasTarget()) {
+                    topState = State.SOLID_PURPLE;
+                } else {
+                    topState = State.SOLID_ORANGE;
+                }
+            } else {
+                if (mAutoTraversalClimb) {
+                    topState = State.FLASHING_ORANGE;
+                    bottomState = State.FLASHING_ORANGE;
+                } else {
+                    topState = State.SOLID_PINK;
+                    bottomState = State.SOLID_PINK;
+                }
+            }
+        }
+
+        mLEDs.applyStates(topState, bottomState);
     }
 
     /*** GET SHOOTER AND HOOD SETPOINTS FROM SUPERSTRUCTURE CONSTANTS REGRESSION ***/
@@ -793,6 +849,10 @@ public class Superstructure extends Subsystem {
 
         SmartDashboard.putBoolean("Auto Traversal Climb", mAutoTraversalClimb);
         SmartDashboard.putNumber("Climb Step Number", mClimbStep);
+
+        SmartDashboard.putNumber("Robot Roll", mSwerve.getRoll().getDegrees());
+        SmartDashboard.putNumber("Gyro Start", mStartingGyroPosition);
+        SmartDashboard.putNumber("Gyro Offset", mGyroOffset);
     }
 
     // included to continue logging while disabled
@@ -824,6 +884,7 @@ public class Superstructure extends Subsystem {
         headers.add("SPIT");
         headers.add("real_shooter");
         headers.add("real_hood");
+        headers.add("gyro roll");
 
         mStorage.setHeaders(headers);
     }
@@ -843,6 +904,7 @@ public class Superstructure extends Subsystem {
         items.add(mPeriodicIO.FENDER ? 1.0 : 0.0);
         items.add(mPeriodicIO.real_shooter);
         items.add(mPeriodicIO.real_hood);
+        items.add(mSwerve.getRoll().getDegrees());
 
         // send data to logging storage
         mStorage.addData(items);

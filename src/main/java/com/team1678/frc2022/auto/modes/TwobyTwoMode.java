@@ -99,6 +99,9 @@ public class TwobyTwoMode extends AutoModeBase {
     // start intaking
     runAction(new LambdaAction(() -> mSuperstructure.setWantIntake(true)));
 
+    // wait for modules to align
+    runAction(new WaitAction(0.5));
+
     // drive to intake our second alliance cargo
     runAction(driveToIntakeSecondShotCargo);
 
@@ -137,8 +140,8 @@ public class TwobyTwoMode extends AutoModeBase {
     // stop ejecting cargo
     runAction(new LambdaAction(() -> mSuperstructure.setWantEject(false, false)));
 
-        System.out.println("Finished auto!");
-            SmartDashboard.putBoolean("Auto Finished", true);
+    System.out.println("Finished auto!");
+    SmartDashboard.putBoolean("Auto Finished", true);
 
     }
 
