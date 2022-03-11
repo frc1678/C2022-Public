@@ -38,7 +38,6 @@ public class Swerve extends Subsystem {
     LogStorage<PeriodicIO> mStorage = null;
 
     // required instance for vision align
-    public RobotState mRobotState = RobotState.getInstance();
     public Limelight mLimelight = Limelight.getInstance();
 
     // track id
@@ -54,6 +53,7 @@ public class Swerve extends Subsystem {
     public boolean isSnapping;
     private double mVisionAlignAdjustment;
     private double mVisionAlignGoal;
+    private double mCorrectedDistanceToTarget;
 
     public ProfiledPIDController snapPIDController;
     public PIDController visionPIDController;
@@ -116,8 +116,7 @@ public class Swerve extends Subsystem {
             @Override
             public void onLoop(double timestamp) {
                 updateSwerveOdometry();
-
-                updateVisionAlignGoal();
+                updateVisionAimingSetpoints();
                 outputTelemetry();
             }
 
@@ -201,21 +200,16 @@ public class Swerve extends Subsystem {
         }
     }    
     
-    public void updateVisionAlignGoal() {
+    public void updateVisionAimingSetpoints() {
         double currentAngle = getYaw().getRadians();
         double targetOffset = 0.0;
 
-        Optional<AimingParameters> aiming_params_ = mRobotState.getAimingParameters(mTrackId, Constants.VisionConstants.kMaxGoalTrackAge);
+        Optional<AimingParameters> aiming_params_ = RobotState.getInstance().getAimingParameters(mTrackId, Constants.VisionConstants.kMaxGoalTrackAge);
         if (aiming_params_.isPresent()) {
             mTrackId = aiming_params_.get().getTrackId();
             targetOffset = aiming_params_.get().getVehicleToGoalRotation().getRadians();
+            mCorrectedDistanceToTarget = aiming_params_.get().getVehicleToGoal()
         }
-        
-        /*
-        if (mLimelight.hasTarget()) {
-            targetOffset = Math.toRadians(mLimelight.getOffset()[0]);
-        } 
-        */
 
         mVisionAlignGoal = MathUtil.inputModulus(currentAngle + targetOffset, 0.0, 2 * Math.PI);
 

@@ -84,8 +84,7 @@ public class Robot extends TimedRobot {
 	private final Limelight mLimelight = Limelight.getInstance();
 	private final LEDs mLEDs = LEDs.getInstance();
 
-	// robot state
-	private final RobotState mRobotState = RobotState.getInstance();
+	// robot state estimator
 	private final RobotStateEstimator mRobotStateEstimator = RobotStateEstimator.getInstance();
 
 	// logging system
@@ -113,22 +112,20 @@ public class Robot extends TimedRobot {
 		try {
 			CrashTracker.logRobotInit();
 
-			mSubsystemManager.setSubsystems(
+			mSubsystemManager.setSubsystems(			
 					mRobotStateEstimator,
 					mSwerve,
 					mSuperstructure,
 					mInfrastructure,
 					mIntake,
-					mLEDs,
 					mIndexer,
 					mShooter,
 					mTrigger,
 					mHood,
-					mSuperstructure,
-					mLEDs,
 					mColorSensor,
 					mClimber,
-					mLimelight
+					mLimelight,
+					mLEDs
 			);
 
 			mSubsystemManager.registerEnabledLoops(mEnabledLooper);
@@ -139,6 +136,7 @@ public class Robot extends TimedRobot {
 
 			mSwerve.resetOdometry(new Pose2d());
 			mSwerve.resetAnglesToAbsolute();
+
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
 			throw t;
@@ -149,7 +147,6 @@ public class Robot extends TimedRobot {
 	public void robotPeriodic() {
 		mEnabledLooper.outputToSmartDashboard();
 		mShuffleBoardInteractions.update();
-		// mRobotState.outputToSmartDashboard();
 		mLEDs.updateState();
 		mSwerve.outputTelemetry();
 		mClimber.outputTelemetry();
@@ -302,7 +299,8 @@ public class Robot extends TimedRobot {
 			mDisabledLooper.outputToSmartDashboard();
 
 			mAutoModeSelector.updateModeCreator();
-			// mSwerve.resetAnglesToAbsolute();
+			
+			mSwerve.resetAnglesToAbsolute();
 
 			// update alliance color from driver station while disabled
 			mColorSensor.updateAllianceColor();

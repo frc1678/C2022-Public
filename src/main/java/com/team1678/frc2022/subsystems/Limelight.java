@@ -75,18 +75,12 @@ public class Limelight extends Subsystem {
             @Override
             public void onLoop(double timestamp) {
                 final double start = Timer.getFPGATimestamp();
-
-                /*
-                if (mPeriodicIO.has_comms) {
-                    RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), getTarget());
-                } else {
-                    RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), null);
-                }
-                */
-
-                if (mSeesTarget) {
-                    RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), getTarget());
-                    updateDistanceToTarget();
+                
+                synchronized (Limelight.this) {
+                    if (mPeriodicIO.sees_target) {
+                        RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), getTarget(), Limelight.this);
+                        updateDistanceToTarget();
+                    }
                 }
 
                 // outputTelemetry();
@@ -120,6 +114,7 @@ public class Limelight extends Subsystem {
         public double yOffset;
         public double area;
         public boolean has_comms;
+        public boolean sees_target;
 
         public double dt;
 
@@ -136,7 +131,6 @@ public class Limelight extends Subsystem {
     private boolean mOutputsHaveChanged = true;
     private double[] mZeroArray = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     private List<TargetInfo> mTargets = new ArrayList<>();
-    private boolean mSeesTarget = false;
 
     public synchronized List<TargetInfo> getTarget() {
         List<TargetInfo> targets = new ArrayList<TargetInfo>(); //getRawTargetInfos();
@@ -185,7 +179,7 @@ public class Limelight extends Subsystem {
         mPeriodicIO.latency = latency;
         mPeriodicIO.has_comms = mLatencyCounter < 10;
 
-        mSeesTarget = mNetworkTable.getEntry("tv").getDouble(0) == 1.0;
+        mPeriodicIO.sees_target = mNetworkTable.getEntry("tv").getDouble(0) == 1.0;
     }
 
     @Override
@@ -220,7 +214,7 @@ public class Limelight extends Subsystem {
         SmartDashboard.putNumber(mConstants.kName + ": Pipeline Latency (ms)", mPeriodicIO.latency);
         SmartDashboard.putNumber("Limelight dt", mPeriodicIO.dt);
 
-        SmartDashboard.putBoolean(mConstants.kName + ": Has Target", mSeesTarget);
+        SmartDashboard.putBoolean(mConstants.kName + ": Has Target", mPeriodicIO.sees_target);
         SmartDashboard.putNumber("Limelight Tx: ", mPeriodicIO.xOffset);
         SmartDashboard.putNumber("Limelight Ty: ", mPeriodicIO.yOffset);
 
@@ -257,7 +251,7 @@ public class Limelight extends Subsystem {
     }
 
     public synchronized boolean hasTarget() {
-        return mSeesTarget;
+        return mPeriodicIO.sees_target;
     }
 
     public synchronized boolean isOK() {
@@ -322,14 +316,14 @@ public class Limelight extends Subsystem {
             }
         }
 
-        mSeesTarget = mNetworkTable.getEntry("tv").getDouble(0) == 1.0;
+        mPeriodicIO.sees_target = mNetworkTable.getEntry("tv").getDouble(0) == 1.0;
 
         double[] xCornersArray = xCorners.stream().mapToDouble(Double::doubleValue).toArray();
         double[] yCornersArray = yCorners.stream().mapToDouble(Double::doubleValue).toArray();
 
         // something went wrong
 
-        if (!mSeesTarget || Arrays.equals(xCornersArray, mZeroArray) || Arrays.equals(yCornersArray, mZeroArray)
+        if (!mPeriodicIO.sees_target || Arrays.equals(xCornersArray, mZeroArray) || Arrays.equals(yCornersArray, mZeroArray)
                 || xCornersArray.length < 4 || xCornersArray.length != yCornersArray.length) {
             return null;
         }
