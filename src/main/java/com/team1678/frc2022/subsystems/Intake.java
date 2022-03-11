@@ -217,16 +217,15 @@ public class Intake extends Subsystem {
                 }
                 break;
             case FORCE_HOLDING:
-                if (mPeriodicIO.force_hold_intake) {
-                    mPeriodicIO.deploy_demand = -Constants.IntakeConstants.kDeployVoltage;
-                } else if (mPeriodicIO.hold_intake) {
+                if (mPeriodicIO.hold_intake) {
                     mPeriodicIO.deploy_demand = -Constants.IntakeConstants.kInHoldingVoltage;
-                } else {
+                } else if (mPeriodicIO.force_hold_intake) {
                     mPeriodicIO.deploy_demand = -Constants.IntakeConstants.kDeployVoltage;
+                } else {
+                    setState(WantedAction.NONE);
                 }
-                break;
-        }
-    }
+            }
+       }
 
     public void setForceHold(boolean force_hold) {
         mPeriodicIO.force_hold_intake = force_hold;

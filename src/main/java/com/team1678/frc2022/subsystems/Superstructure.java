@@ -474,7 +474,7 @@ public class Superstructure extends Subsystem {
                 mPeriodicIO.EJECT = mColorSensor.wantsEject();
             }
 
-            //force holding button
+            //force holding button: keep intake retracted when button is pressed
             if (mControlBoard.getForceHoldIntake()) {
                 mPeriodicIO.FORCE_HOLD = true;
             }
@@ -632,10 +632,10 @@ public class Superstructure extends Subsystem {
                 mPeriodicIO.real_intake = Intake.WantedAction.INTAKE;
             } else if (mPeriodicIO.REVERSE) {
                 mPeriodicIO.real_intake = Intake.WantedAction.REVERSE;
-            } else if (mPeriodicIO.REJECT) {
-                mPeriodicIO.real_intake = Intake.WantedAction.REJECT;
             } else if (mPeriodicIO.FORCE_HOLD) {
                 mPeriodicIO.real_intake = Intake.WantedAction.FORCE_HOLD;
+            } else if (mPeriodicIO.REJECT) {
+                mPeriodicIO.real_intake = Intake.WantedAction.REJECT;
             } else {
                 mPeriodicIO.real_intake = Intake.WantedAction.NONE;
             }

@@ -171,6 +171,7 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mReversing;
     private final NetworkTableEntry mRejecting;
     private final NetworkTableEntry mEjecting;
+    private final NetworkTableEntry mForceHolding;
     private final NetworkTableEntry mPrepping;
     private final NetworkTableEntry mShooting;
     private final NetworkTableEntry mFenderShot;
@@ -558,6 +559,10 @@ public class ShuffleBoardInteractions {
             .add("Rejecting", false)
             .withSize(1, 1)
             .getEntry();
+        mForceHolding = SUPERSTRUCTURE_TAB
+            .add("Force Holding", false)
+            .withSize(1, 1)
+            .getEntry();
         mEjecting = SUPERSTRUCTURE_TAB
             .add("Ejecting", false)
             .withSize(1, 1)
@@ -794,6 +799,7 @@ public class ShuffleBoardInteractions {
         mIntaking.setBoolean(mSuperstructure.getIntaking());
         mReversing.setBoolean(mSuperstructure.getReversing());
         mRejecting.setBoolean(mSuperstructure.getRejecting());
+        mForceHolding.setBoolean(mSuperstructure.getForceHolding());
         mEjecting.setBoolean(mSuperstructure.getEjecting());
         mPrepping.setBoolean(mSuperstructure.getPrepping());
         mShooting.setBoolean(mSuperstructure.getShooting());
