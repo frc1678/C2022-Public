@@ -72,7 +72,7 @@ public class FiveBallAMode extends AutoModeBase {
                                                         new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                         new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                         thetaController,
-                                                        () -> Rotation2d.fromDegrees(195.0),
+                                                        () -> Rotation2d.fromDegrees(205.0),
                                                         mSwerve::getWantAutoVisionAim,
                                                         mSwerve::setModuleStates);
                                                     
@@ -82,7 +82,7 @@ public class FiveBallAMode extends AutoModeBase {
                                                         new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                         new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                         thetaController,
-                                                        () -> Rotation2d.fromDegrees(205.0),
+                                                        () -> Rotation2d.fromDegrees(345.0),
                                                         mSwerve::getWantAutoVisionAim,
                                                         mSwerve::setModuleStates);
 
@@ -92,7 +92,7 @@ public class FiveBallAMode extends AutoModeBase {
                                                         new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                         new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                         thetaController,
-                                                        () -> Rotation2d.fromDegrees(350.0),
+                                                        () -> Rotation2d.fromDegrees(200.0),
                                                         mSwerve::getWantAutoVisionAim,
                                                         mSwerve::setModuleStates);
     }
