@@ -248,15 +248,15 @@ public class Constants {
 		public static final double kImageCaptureLatency = 11.0 / 1000.0; // seconds
 
         /* Goal Tracker Constants */
-
-        public static final double kMaxTrackerDistance = 15.0;
-        public static final double kMaxGoalTrackAge = 30.0;
+        public static final double kMaxTrackerDistance = 9.0;
+        public static final double kMaxGoalTrackAge = 2.5;
         public static final double kMaxGoalTrackSmoothingTime = 1.5;
+        public static final double kCameraFrameRate = 90.0;
+
         public static final double kTrackStabilityWeight = 0.0;
         public static final double kTrackAgeWeight = 10.0;
         public static final double kTrackSwitchingWeight = 100.0;
 
-        public static final double kCameraFrameRate = 90.0;
         public static final int kDefaultPipeline = 0;
         public static final double kGoalHeight = 2.63; // meters
         public static final double kGoalRadius = 0.678; // meters
