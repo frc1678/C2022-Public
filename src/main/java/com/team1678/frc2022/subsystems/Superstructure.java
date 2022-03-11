@@ -162,8 +162,8 @@ public class Superstructure extends Subsystem {
             mPeriodicIO.FORCE_HOLD = false;
         }
     }
-    public void setWantHold(boolean hold) {
-        mPeriodicIO.FORCE_HOLD = hold;
+    public void setWantHold(boolean force_hold) {
+        mPeriodicIO.FORCE_HOLD = force_hold;
 
         //set other intake actions to false when true
         if (mPeriodicIO.FORCE_HOLD) {
@@ -472,6 +472,11 @@ public class Superstructure extends Subsystem {
                 mForceEject = false;
                 // when not forcing an eject, passively check whether want to passively eject using color sensor logic
                 mPeriodicIO.EJECT = mColorSensor.wantsEject();
+            }
+
+            //force holding button
+            if (mControlBoard.getForceHoldIntake()) {
+                mPeriodicIO.FORCE_HOLD = true;
             }
 
             // control shooting
@@ -900,7 +905,7 @@ public class Superstructure extends Subsystem {
         headers.add("INTAKE");
         headers.add("REVERSE");
         headers.add("REJECT");
-        headers.add("HOLD");
+        headers.add("FORCE HOLD");
         headers.add("EJECT");
         headers.add("PREP");
         headers.add("SHOOT");

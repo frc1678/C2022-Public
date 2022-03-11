@@ -151,6 +151,10 @@ public class ControlBoard {
         return operator.getButton(Button.LB);
     }
 
+    public boolean getForceHoldIntake() {
+        return operator.getButton(Button.RB);
+    }
+
     //Indexer Controls
     public boolean getElevating() {
         return operator.getButton(Button.B);
