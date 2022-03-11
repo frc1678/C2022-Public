@@ -103,7 +103,7 @@ public class FiveBallBMode extends AutoModeBase {
 
     @Override
     protected void routine() throws AutoModeEndedException {
-        System.out.println("Running five ball mode auto!");
+        System.out.println("Running five ball mode b auto!");
         SmartDashboard.putBoolean("Auto Finished", false);
 
         // reset odometry at the start of the trajectory

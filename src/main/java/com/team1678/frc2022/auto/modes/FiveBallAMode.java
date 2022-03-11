@@ -28,12 +28,10 @@ public class FiveBallAMode extends AutoModeBase {
     String file_path_c = "paths/FiveBallPaths/5 Ball a C.path";
     String file_path_d = "paths/FiveBallPaths/5 Ball a D.path";
     String file_path_e = "paths/FiveBallPaths/5 Ball a E.path";
-    String file_path_f = "paths/FiveBallPaths/5 Ball a F.path";
     
 	// trajectory actions
 	SwerveTrajectoryAction driveToIntakeSecondShotCargo;
-    SwerveTrajectoryAction driveToThirdCargo;
-    SwerveTrajectoryAction driveToIntakeThirdShotCargo;
+    SwerveTrajectoryAction driveToThirdShotCargo;
 	SwerveTrajectoryAction driveToIntakeAtTerminal;
 	SwerveTrajectoryAction driveToFourthShotPose;
     SwerveTrajectoryAction driveToEjectCargo;
@@ -54,70 +52,61 @@ public class FiveBallAMode extends AutoModeBase {
                                                         new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                         new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                         thetaController,
-                                                        () -> Rotation2d.fromDegrees(225.0),
+                                                        () -> Rotation2d.fromDegrees(230.0),
                                                         mSwerve::getWantAutoVisionAim,
                                                         mSwerve::setModuleStates);
 
     Trajectory traj_path_b = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_b, Constants.AutoConstants.constantSpeedConfig);
-    driveToThirdCargo = new SwerveTrajectoryAction(traj_path_b,
+    driveToThirdShotCargo = new SwerveTrajectoryAction(traj_path_b,
                                                         mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
                                                         new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                         new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                         thetaController,
-                                                        () -> Rotation2d.fromDegrees(170.0),
+                                                        () -> Rotation2d.fromDegrees(195.0),
                                                         mSwerve::getWantAutoVisionAim,
                                                         mSwerve::setModuleStates);
 
     Trajectory traj_path_c = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_c, Constants.AutoConstants.defaultToZeroSpeedConfig);
-    driveToIntakeThirdShotCargo = new SwerveTrajectoryAction(traj_path_c,
+    driveToIntakeAtTerminal = new SwerveTrajectoryAction(traj_path_c,
                                                         mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
                                                         new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                         new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                         thetaController,
-                                                        () -> Rotation2d.fromDegrees(235.0),
+                                                        () -> Rotation2d.fromDegrees(195.0),
                                                         mSwerve::getWantAutoVisionAim,
                                                         mSwerve::setModuleStates);
                                                     
     Trajectory traj_path_d = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_d, Constants.AutoConstants.slowSpeedConfig);
-    driveToIntakeAtTerminal = new SwerveTrajectoryAction(traj_path_d,
+    driveToFourthShotPose = new SwerveTrajectoryAction(traj_path_d,
                                                         mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
                                                         new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                         new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                         thetaController,
-                                                        () -> Rotation2d.fromDegrees(235.0),
+                                                        () -> Rotation2d.fromDegrees(205.0),
                                                         mSwerve::getWantAutoVisionAim,
                                                         mSwerve::setModuleStates);
 
     Trajectory traj_path_e = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_e, Constants.AutoConstants.slowSpeedConfig);
-    driveToFourthShotPose = new SwerveTrajectoryAction(traj_path_e,
+    driveToEjectCargo = new SwerveTrajectoryAction(traj_path_e,
                                                         mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
                                                         new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                         new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                         thetaController,
-                                                        () -> Rotation2d.fromDegrees(235.0),
+                                                        () -> Rotation2d.fromDegrees(350.0),
                                                         mSwerve::getWantAutoVisionAim,
                                                         mSwerve::setModuleStates);
-    Trajectory traj_path_f = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_f, Constants.AutoConstants.zeroToDefaultSpeedConfig);
-    driveToEjectCargo = new SwerveTrajectoryAction(traj_path_f,
-                                                        mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
-                                                        new PIDController(Constants.AutoConstants.kPXController, 0, 0),
-                                                        new PIDController(Constants.AutoConstants.kPYController, 0, 0),
-                                                        thetaController,
-                                                        () -> Rotation2d.fromDegrees(225.0),
-                                                        mSwerve::getWantAutoVisionAim,
-                                                        mSwerve::setModuleStates);
-}
+    }
 
 @Override
     protected void routine() throws AutoModeEndedException {
-        System.out.println("Running five ball mode auto!");
+        System.out.println("Running five ball mode a auto!");
         SmartDashboard.putBoolean("Auto Finished", false);
 
     // reset odometry at the start of the trajectory
     runAction(new LambdaAction(() -> mSwerve.resetOdometry(new Pose2d(
     driveToIntakeSecondShotCargo.getInitialPose().getX(),
     driveToIntakeSecondShotCargo.getInitialPose().getY(),
-    Rotation2d.fromDegrees(270)))));
+    Rotation2d.fromDegrees(230)))));
    
     // start spinning up for shot
     runAction(new LambdaAction(() -> mSuperstructure.setWantPrep(true)));
@@ -143,10 +132,10 @@ public class FiveBallAMode extends AutoModeBase {
     runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(false)));
     
     // run trajectory for third cargo
-    runAction(driveToThirdCargo);
+    runAction(driveToThirdShotCargo);
 
     //run trajectory to intake third shot cargo
-    runAction(driveToIntakeThirdShotCargo);
+    runAction(driveToThirdShotCargo);
 
     //start intaking 
     runAction(new LambdaAction(() -> mSuperstructure.setWantIntake(true)));
@@ -200,7 +189,7 @@ public class FiveBallAMode extends AutoModeBase {
     // start ejecting fifth cargo
     runAction(new LambdaAction(() -> mSuperstructure.setWantEject(true, true)));
 
-    // wait to outtake fifth cargo
+    // wait to finish ejecting cargo
     runAction(new WaitAction(0.5));
 
     // stop ejecting cargo
