@@ -158,7 +158,7 @@ public class Intake extends Subsystem {
                 break;
             case HOLD:
                 if (mState != State.HOLDING) {
-                    mPeriodicIO.hold_intake = false;
+                    mPeriodicIO.hold_intake = true;
                     mState = State.HOLDING;
                 }
                 break;
@@ -215,12 +215,11 @@ public class Intake extends Subsystem {
                 break;
             case HOLDING:
                 if (mPeriodicIO.hold_intake) {
-                    mPeriodicIO.deploy_demand = Constants.IntakeConstants.kInHoldingVoltage;
+                    mPeriodicIO.deploy_demand = -Constants.IntakeConstants.kDeployVoltage;
                 } else {
-                    mPeriodicIO.deploy_demand = Constants.IntakeConstants.kDeployVoltage;
+                    mPeriodicIO.deploy_demand = Constants.IntakeConstants.kIntakingVoltage;
                 }
-
-                mPeriodicIO.intake_demand =  Constants.IntakeConstants.kIntakingVoltage;
+                
                 break;
         }
     }
