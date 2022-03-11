@@ -159,7 +159,7 @@ public class Constants {
     }
 
     public static final class VisionAlignConstants {
-        public static final double kP = 11.0;
+        public static final double kP = 5.0;
         public static final double kI = 0.0;
         public static final double kD = 0.5;
         public static final double kTimeout = 0.25;
@@ -249,7 +249,7 @@ public class Constants {
 
         /* Goal Tracker Constants */
         public static final double kMaxTrackerDistance = 9.0;
-        public static final double kMaxGoalTrackAge = 2.5;
+        public static final double kMaxGoalTrackAge = 30.0;
         public static final double kMaxGoalTrackSmoothingTime = 1.5;
         public static final double kCameraFrameRate = 90.0;
 

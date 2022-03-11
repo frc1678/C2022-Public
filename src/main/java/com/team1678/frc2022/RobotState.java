@@ -173,6 +173,8 @@ public class RobotState {
             return;
         Pose2d cameraToVisionTarget = Pose2d.fromTranslation(cameraToVisionTargetPoses.get(0));
 
+        SmartDashboard.putString("camera to vision target", cameraToVisionTarget.toString());
+
         Pose2d fieldToVisionTarget = getFieldToVehicle(timestamp).transformBy(cameraToVisionTarget);
         tracker.update(timestamp, List.of(new Pose2d(fieldToVisionTarget.getTranslation(), Rotation2d.identity())));
     }
@@ -259,9 +261,11 @@ public class RobotState {
         }
 
         Pose2d vehicleToGoal = getFieldToVehicle(timestamp).inverse().transformBy(report.field_to_target);
+        vehicleToGoal = new Pose2d(vehicleToGoal.getTranslation().rotateBy(getFieldToVehicle(timestamp).getRotation()), vehicleToGoal.getRotation());
 
         AimingParameters params = new AimingParameters(vehicleToGoal, report.field_to_target,
                 report.field_to_target.getRotation(), report.latest_timestamp, report.stability, report.id);
+        SmartDashboard.putString("Field to Target", report.field_to_target.toString());
         return Optional.of(params);
     }
 
@@ -283,9 +287,8 @@ public class RobotState {
         Optional<AimingParameters> params = getAimingParameters(-1, Constants.VisionConstants.kMaxGoalTrackAge);
         SmartDashboard.putBoolean("Has Aiming Parameters", params.isPresent());
         if (params.isPresent()) {
-            SmartDashboard.putNumber("Vehicle to Target", params.get().getRange());
+            SmartDashboard.putString("Vehicle to Target", params.get().getVehicleToGoal().toString());
             SmartDashboard.putNumber("Vehicle to Target Angle", params.get().getVehicleToGoalRotation().getDegrees());
-
         }
     }
 }

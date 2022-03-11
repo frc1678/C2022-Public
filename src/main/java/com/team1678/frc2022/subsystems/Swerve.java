@@ -208,10 +208,10 @@ public class Swerve extends Subsystem {
         if (aiming_params_.isPresent()) {
             mTrackId = aiming_params_.get().getTrackId();
             targetOffset = aiming_params_.get().getVehicleToGoalRotation().getRadians();
-            mCorrectedDistanceToTarget = aiming_params_.get().getVehicleToGoal()
+            mCorrectedDistanceToTarget = aiming_params_.get().getRange();
         }
 
-        mVisionAlignGoal = MathUtil.inputModulus(currentAngle + targetOffset, 0.0, 2 * Math.PI);
+        mVisionAlignGoal = MathUtil.inputModulus(targetOffset + 180, 0.0, 2 * Math.PI);
 
         visionPIDController.setSetpoint(mVisionAlignGoal);
         mVisionAlignAdjustment = visionPIDController.calculate(currentAngle);

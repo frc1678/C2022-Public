@@ -77,7 +77,8 @@ public class Limelight extends Subsystem {
                 final double start = Timer.getFPGATimestamp();
                 
                 synchronized (Limelight.this) {
-                    if (mPeriodicIO.sees_target) {
+                    List<TargetInfo> targetInfo = getTarget();
+                    if (mPeriodicIO.sees_target && targetInfo != null) {
                         RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), getTarget(), Limelight.this);
                         updateDistanceToTarget();
                     }
