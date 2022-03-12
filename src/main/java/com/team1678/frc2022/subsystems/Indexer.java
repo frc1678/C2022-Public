@@ -69,8 +69,8 @@ public class Indexer extends Subsystem {
 
         mTunnel.setInverted(true);
 
-        mBottomBeamBreak = new DigitalInput(Ports.BOTTOM_BEAM_BREAK);
-        mTopBeamBreak = new DigitalInput(Ports.TOP_BEAM_BREAK);
+        mBottomBeamBreak = new DigitalInput(Ports.getBottomBeamBreakPort());
+        mTopBeamBreak = new DigitalInput(Ports.getTopBeamBreakPort());
     }
             
     public void setState(WantedAction wanted_state) {
