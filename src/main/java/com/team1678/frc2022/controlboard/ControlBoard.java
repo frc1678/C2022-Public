@@ -4,6 +4,7 @@ import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.controlboard.CustomXboxController.Axis;
 import com.team1678.frc2022.controlboard.CustomXboxController.Button;
 import com.team1678.frc2022.controlboard.CustomXboxController.Side;
+import com.team1678.frc2022.subsystems.Superstructure;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
 import com.team254.lib.util.DelayedBoolean;
@@ -97,7 +98,7 @@ public class ControlBoard {
     }
 
     public SwerveCardinal getSwerveSnap() {
-        if (getClimbMode() && driver.getButton(Button.A)) {
+        if (Superstructure.getInstance().getInClimbMode() && driver.getButton(Button.A)) {
             return SwerveCardinal.CLIMB;
         }
         if (driver.getButton(Button.A)) {
