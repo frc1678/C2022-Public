@@ -12,7 +12,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class ControlBoard {
     private final double kSwerveDeadband = Constants.stickDeadband;
 
-    private int mLastDpad = -1;
+    private int mLastDpadLeft = -1;
+    private int mLastDpadRight = -1;
 
     private final int kDpadUp = 0;
     private final int kDpadRight = 90;
@@ -155,14 +156,16 @@ public class ControlBoard {
     }
 
     public boolean getDisableColorLogic() {
-        boolean wasPressed = operator.getController().getPOV() == kDpadRight && mLastDpad != kDpadRight;
-        mLastDpad = operator.getController().getPOV();
+        boolean wasPressed = operator.getController().getPOV() == kDpadRight && mLastDpadRight != kDpadRight;
+        SmartDashboard.putNumber("DPAD", operator.getController().getPOV());
+        SmartDashboard.putNumber("Last DPAD", mLastDpadRight);
+        mLastDpadRight = operator.getController().getPOV();
         return wasPressed;
     }
 
     public boolean getDisableIntakeLogic() {
-        boolean wasPressed = operator.getController().getPOV() == kDpadRight && mLastDpad != kDpadLeft;
-        mLastDpad = operator.getController().getPOV();
+        boolean wasPressed = operator.getController().getPOV() == kDpadRight && mLastDpadLeft != kDpadLeft;
+        mLastDpadLeft = operator.getController().getPOV();
         return wasPressed;
     }
 
