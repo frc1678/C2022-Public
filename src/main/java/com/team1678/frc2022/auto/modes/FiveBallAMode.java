@@ -28,10 +28,12 @@ public class FiveBallAMode extends AutoModeBase {
     String file_path_c = "paths/FiveBallPaths/5 Ball a C.path";
     String file_path_d = "paths/FiveBallPaths/5 Ball a D.path";
     String file_path_e = "paths/FiveBallPaths/5 Ball a E.path";
+    String file_path_f = "paths/FiveBallPaths/5 Ball a F.path";
     
 	// trajectory actions
 	SwerveTrajectoryAction driveToIntakeSecondShotCargo;
     SwerveTrajectoryAction driveToThirdShotCargo;
+    SwerveTrajectoryAction driveToIntakeThirdShotCargo;
 	SwerveTrajectoryAction driveToIntakeAtTerminal;
 	SwerveTrajectoryAction driveToFourthShotPose;
     SwerveTrajectoryAction driveToEjectCargo;
