@@ -792,6 +792,10 @@ public class Superstructure extends Subsystem {
     public boolean getWantsSpit() {
         return mPeriodicIO.SPIT;
     }
+    //setter
+    public void setWantsSpitject(boolean spit) {
+        mPeriodicIO.SPIT = spit;
+    }
 
     // get other statuses
     public boolean getInClimbMode() {

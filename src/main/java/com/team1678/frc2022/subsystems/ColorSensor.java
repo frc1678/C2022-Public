@@ -19,6 +19,8 @@ public class ColorSensor extends Subsystem {
         }
         return mInstance;
     }
+    private final Superstructure mSuperstructure = Superstructure.getInstance();
+    private final Indexer mIndexer = Indexer.getInstance();
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
     private PicoColorSensor mPico;
@@ -139,9 +141,13 @@ public class ColorSensor extends Subsystem {
 
     // update whether we want to eject or not
     public void updateWantsEject() {
-        if (hasOppositeColor() && hasBall()) {
+        if (hasOppositeColor() && hasBall() && mSuperstructure.mBallCount==1) {
             mPeriodicIO.eject = true;
             mEjectorTimer.start();
+        }
+
+        if (hasOppositeColor() && hasBall() && mIndexer.getTopBeamBreak() && mSuperstructure.mBallCount==2) {
+            mSuperstructure.setWantsSpitject(true);
         }
 
         if (mEjectorTimer.hasElapsed(Constants.IndexerConstants.kEjectDelay) || (hasCorrectColor() && hasBall())) {
