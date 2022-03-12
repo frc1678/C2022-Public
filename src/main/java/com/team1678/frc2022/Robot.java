@@ -172,6 +172,7 @@ public class Robot extends TimedRobot {
 	public void autonomousPeriodic() {
 		mSwerve.updateSwerveOdometry();
 		mLimelight.setLed(Limelight.LedMode.ON);
+		mColorSensor.updateWantsEject();
 	}
 
 	@Override
