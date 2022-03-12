@@ -1,6 +1,5 @@
 package com.team1678.frc2022.controlboard;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.controlboard.CustomXboxController.Axis;
 import com.team1678.frc2022.controlboard.CustomXboxController.Button;
@@ -30,7 +29,8 @@ public class ControlBoard {
         FRONT(143),
         LEFT(233),
         RIGHT(53),
-        BACK(323);
+        BACK(323),
+        CLIMB(270);
 
         public final double degrees;
 
@@ -97,6 +97,9 @@ public class ControlBoard {
     }
 
     public SwerveCardinal getSwerveSnap() {
+        if (getClimbMode() && driver.getButton(Button.A)) {
+            return SwerveCardinal.CLIMB;
+        }
         if (driver.getButton(Button.A)) {
             return SwerveCardinal.BACK;
         }
