@@ -28,6 +28,10 @@ public class RobotState {
     }
 
     private static final int kObservationBufferSize = 1;
+    public static final Pose2d kFieldRelativeGoalLocation = new Pose2d(8.3, 4.1, new Rotation2d(26.28));
+
+    // required limelight instance
+    private Limelight mLimelight = Limelight.getInstance();
 
     /*
      * RobotState keeps track of the poses of various coordinate frames throughout
@@ -258,6 +262,10 @@ public class RobotState {
         }
         if (report == null) {
             return Optional.empty();
+        }
+
+        if (!mLimelight.isOK()) {
+            report.field_to_target = kFieldRelativeGoalLocation;
         }
 
         Pose2d vehicleToGoal = getFieldToVehicle(timestamp).inverse().transformBy(report.field_to_target);

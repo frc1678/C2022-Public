@@ -92,7 +92,6 @@ public class RobotStateEstimator extends Subsystem {
 
             SmartDashboard.putNumber("Robot State Estimator dt", loop_dt);
 
-            
             // Shuffleboard outputs for logic checks
             SmartDashboard.putNumber("Odometry Delta X", odometry_delta.getTranslation().x());
             SmartDashboard.putNumber("Odometry Delta Y", odometry_delta.getTranslation().y());
