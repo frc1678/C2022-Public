@@ -230,6 +230,13 @@ public class Constants {
                         .setKinematics(Constants.SwerveConstants.swerveKinematics)
                         .setStartVelocity(kMaxSpeedMetersPerSecond)
                         .setEndVelocity(kMaxSpeedMetersPerSecond);
+        public static final TrajectoryConfig zeroToZeroSpeedConfig =
+                new TrajectoryConfig(
+                kSlowSpeedMetersPerSecond,
+                kSlowAccelerationMetersPerSecondSquared)    
+                .setKinematics(Constants.SwerveConstants.swerveKinematics)
+                        .setStartVelocity(0)
+                        .setEndVelocity(0); 
     }
 
     public static final class VisionConstants {

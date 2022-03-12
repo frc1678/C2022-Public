@@ -46,7 +46,7 @@ public class FiveBallAMode extends AutoModeBase {
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
     // read trajectories from PathWeaver and generate trajectory actions
-    Trajectory traj_path_a = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_a, Constants.AutoConstants.zeroToDefaultSpeedConfig);
+    Trajectory traj_path_a = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_a, Constants.AutoConstants.zeroToZeroSpeedConfig);
     driveToIntakeSecondShotCargo = new SwerveTrajectoryAction(traj_path_a,
                                                         mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
                                                         new PIDController(Constants.AutoConstants.kPXController, 0, 0),
@@ -56,7 +56,7 @@ public class FiveBallAMode extends AutoModeBase {
                                                         mSwerve::getWantAutoVisionAim,
                                                         mSwerve::setModuleStates);
 
-    Trajectory traj_path_b = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_b, Constants.AutoConstants.constantSpeedConfig);
+    Trajectory traj_path_b = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_b, Constants.AutoConstants.zeroToZeroSpeedConfig);
     driveToThirdShotCargo = new SwerveTrajectoryAction(traj_path_b,
                                                         mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
                                                         new PIDController(Constants.AutoConstants.kPXController, 0, 0),
@@ -66,7 +66,7 @@ public class FiveBallAMode extends AutoModeBase {
                                                         mSwerve::getWantAutoVisionAim,
                                                         mSwerve::setModuleStates);
 
-    Trajectory traj_path_c = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_c, Constants.AutoConstants.defaultToZeroSpeedConfig);
+    Trajectory traj_path_c = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_c, Constants.AutoConstants.zeroToDefaultSpeedConfig);
     driveToIntakeAtTerminal = new SwerveTrajectoryAction(traj_path_c,
                                                         mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
                                                         new PIDController(Constants.AutoConstants.kPXController, 0, 0),
@@ -76,7 +76,7 @@ public class FiveBallAMode extends AutoModeBase {
                                                         mSwerve::getWantAutoVisionAim,
                                                         mSwerve::setModuleStates);
                                                     
-    Trajectory traj_path_d = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_d, Constants.AutoConstants.slowSpeedConfig);
+    Trajectory traj_path_d = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_d, Constants.AutoConstants.defaultToZeroSpeedConfig);
     driveToFourthShotPose = new SwerveTrajectoryAction(traj_path_d,
                                                         mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
                                                         new PIDController(Constants.AutoConstants.kPXController, 0, 0),
@@ -86,7 +86,7 @@ public class FiveBallAMode extends AutoModeBase {
                                                         mSwerve::getWantAutoVisionAim,
                                                         mSwerve::setModuleStates);
 
-    Trajectory traj_path_e = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_e, Constants.AutoConstants.slowSpeedConfig);
+    Trajectory traj_path_e = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_e, Constants.AutoConstants.zeroToDefaultSpeedConfig);
     driveToEjectCargo = new SwerveTrajectoryAction(traj_path_e,
                                                         mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
                                                         new PIDController(Constants.AutoConstants.kPXController, 0, 0),
@@ -111,11 +111,11 @@ public class FiveBallAMode extends AutoModeBase {
     // start spinning up for shot
     runAction(new LambdaAction(() -> mSuperstructure.setWantPrep(true)));
 
-    // run trajectory to intake second cargo
-    runAction(driveToIntakeSecondShotCargo);
-    
     // start intaking
     runAction(new LambdaAction(() -> mSuperstructure.setWantIntake(true)));
+
+    // run trajectory to intake second cargo
+    runAction(driveToIntakeSecondShotCargo);
 
     // wait for 0.5 seconds to finish intaking
     runAction(new WaitAction(0.5));
@@ -136,9 +136,6 @@ public class FiveBallAMode extends AutoModeBase {
 
     //run trajectory to intake third shot cargo
     runAction(driveToThirdShotCargo);
-
-    //start intaking 
-    runAction(new LambdaAction(() -> mSuperstructure.setWantIntake(true)));
     
     // wait for 0.5 seconds to finish intaking
     runAction(new WaitAction(0.5));
@@ -156,9 +153,6 @@ public class FiveBallAMode extends AutoModeBase {
 
     // run trajectory for terminal
     runAction(driveToIntakeAtTerminal);
-
-    //start intaking 
-    runAction(new LambdaAction(() -> mSuperstructure.setWantIntake(true)));
 
     // wait for 0.5 seconds to finish intaking
     runAction(new WaitAction(0.5));
@@ -179,9 +173,6 @@ public class FiveBallAMode extends AutoModeBase {
 
     // run trajectory for eject cargo
     runAction(driveToEjectCargo);
-
-    // start intaking
-    runAction(new LambdaAction(() -> mSuperstructure.setWantIntake(true)));
 
     // wait for 0.5 seconds to finish intaking
     runAction(new WaitAction(0.5));
