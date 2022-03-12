@@ -54,12 +54,21 @@ public class FiveBallAMode extends AutoModeBase {
                                                         new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                         new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                         thetaController,
-                                                        () -> Rotation2d.fromDegrees(230.0),
+                                                        () -> Rotation2d.fromDegrees(265.0),
                                                         mSwerve::getWantAutoVisionAim,
                                                         mSwerve::setModuleStates);
 
-    Trajectory traj_path_b = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_b, Constants.AutoConstants.zeroToZeroSpeedConfig);
+    Trajectory traj_path_b = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_b, Constants.AutoConstants.zeroToDefaultSpeedConfig);
     driveToThirdShotCargo = new SwerveTrajectoryAction(traj_path_b,
+                                                        mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
+                                                        new PIDController(Constants.AutoConstants.kPXController, 0, 0),
+                                                        new PIDController(Constants.AutoConstants.kPYController, 0, 0),
+                                                        thetaController,
+                                                        () -> Rotation2d.fromDegrees(115.0),
+                                                        mSwerve::getWantAutoVisionAim,
+                                                        mSwerve::setModuleStates);
+    Trajectory traj_path_c = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_c, Constants.AutoConstants.defaultToZeroSpeedConfig);
+    driveToIntakeAtTerminal = new SwerveTrajectoryAction(traj_path_c,
                                                         mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
                                                         new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                         new PIDController(Constants.AutoConstants.kPYController, 0, 0),
@@ -67,34 +76,33 @@ public class FiveBallAMode extends AutoModeBase {
                                                         () -> Rotation2d.fromDegrees(195.0),
                                                         mSwerve::getWantAutoVisionAim,
                                                         mSwerve::setModuleStates);
-
-    Trajectory traj_path_c = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_c, Constants.AutoConstants.zeroToDefaultSpeedConfig);
-    driveToIntakeAtTerminal = new SwerveTrajectoryAction(traj_path_c,
+    Trajectory traj_path_d = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_d, Constants.AutoConstants.zeroToDefaultSpeedConfig);
+    driveToIntakeAtTerminal = new SwerveTrajectoryAction(traj_path_d,
                                                         mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
                                                         new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                         new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                         thetaController,
-                                                        () -> Rotation2d.fromDegrees(205.0),
+                                                        () -> Rotation2d.fromDegrees(190.0),
                                                         mSwerve::getWantAutoVisionAim,
                                                         mSwerve::setModuleStates);
                                                     
-    Trajectory traj_path_d = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_d, Constants.AutoConstants.defaultToZeroSpeedConfig);
-    driveToFourthShotPose = new SwerveTrajectoryAction(traj_path_d,
+    Trajectory traj_path_e = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_e, Constants.AutoConstants.defaultToZeroSpeedConfig);
+    driveToFourthShotPose = new SwerveTrajectoryAction(traj_path_e,
                                                         mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
                                                         new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                         new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                         thetaController,
-                                                        () -> Rotation2d.fromDegrees(345.0),
+                                                        () -> Rotation2d.fromDegrees(5.0),
                                                         mSwerve::getWantAutoVisionAim,
                                                         mSwerve::setModuleStates);
 
-    Trajectory traj_path_e = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_e, Constants.AutoConstants.zeroToDefaultSpeedConfig);
-    driveToEjectCargo = new SwerveTrajectoryAction(traj_path_e,
+    Trajectory traj_path_f = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_f, Constants.AutoConstants.zeroToDefaultSpeedConfig);
+    driveToEjectCargo = new SwerveTrajectoryAction(traj_path_f,
                                                         mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
                                                         new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                         new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                         thetaController,
-                                                        () -> Rotation2d.fromDegrees(200.0),
+                                                        () -> Rotation2d.fromDegrees(300.0),
                                                         mSwerve::getWantAutoVisionAim,
                                                         mSwerve::setModuleStates);
     }
@@ -137,7 +145,7 @@ public class FiveBallAMode extends AutoModeBase {
     runAction(driveToThirdShotCargo);
 
     //run trajectory to intake third shot cargo
-    runAction(driveToThirdShotCargo);
+    runAction(driveToIntakeThirdShotCargo);
     
     // wait for 0.5 seconds to finish intaking
     runAction(new WaitAction(0.5));
