@@ -3,7 +3,6 @@ package com.team1678.frc2022.subsystems;
 import java.util.ArrayList;
 
 import com.ctre.phoenix.sensors.Pigeon2;
-import com.ctre.phoenix.sensors.PigeonIMU;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.SwerveModule;
