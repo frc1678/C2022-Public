@@ -159,11 +159,11 @@ public class Constants {
     }
 
     public static final class VisionAlignConstants {
-        public static final double kP = 5.0;
+        public static final double kP = 8.0;
         public static final double kI = 0.0;
-        public static final double kD = 0.5;
+        public static final double kD = 0.75;
         public static final double kTimeout = 0.25;
-        public static final double kEpsilon = 5.0;
+        public static final double kEpsilon = 3.0;
 
         // Constraints for the profiled angle controller
         public static final double kMaxAngularSpeedRadiansPerSecond = 2.0 * Math.PI;
@@ -252,7 +252,7 @@ public class Constants {
 
         /* Goal Tracker Constants */
         public static final double kMaxTrackerDistance = 9.0;
-        public static final double kMaxGoalTrackAge = 30.0;
+        public static final double kMaxGoalTrackAge = 10.0;
         public static final double kMaxGoalTrackSmoothingTime = 1.5;
         public static final double kCameraFrameRate = 90.0;
 
