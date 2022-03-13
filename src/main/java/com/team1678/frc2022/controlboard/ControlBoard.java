@@ -121,9 +121,9 @@ public class ControlBoard {
             case kDpadUp:
                 return SwerveCardinal.FORWARDS;
             case kDpadLeft:
-                return SwerveCardinal.LEFT;
-            case kDpadRight:
                 return SwerveCardinal.RIGHT;
+            case kDpadRight:
+                return SwerveCardinal.LEFT;
             case kDpadDown:
                 return SwerveCardinal.BACKWARDS;
             default:
@@ -164,7 +164,7 @@ public class ControlBoard {
     }
 
     public boolean getDisableIntakeLogic() {
-        boolean wasPressed = operator.getController().getPOV() == kDpadRight && mLastDpadLeft != kDpadLeft;
+        boolean wasPressed = operator.getController().getPOV() == kDpadLeft && mLastDpadLeft != kDpadLeft;
         mLastDpadLeft = operator.getController().getPOV();
         return wasPressed;
     }
