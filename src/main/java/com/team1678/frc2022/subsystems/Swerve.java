@@ -128,6 +128,8 @@ public class Swerve extends Subsystem {
         }
 
         SmartDashboard.putBoolean("Wants Auto Vision Aim", mWantsAutoVisionAim);
+        SmartDashboard.putNumber("Vision Align Target Angle", Math.toDegrees(mVisionAlignGoal));
+        SmartDashboard.putNumber("Swerve Heading", MathUtil.inputModulus(getYaw().getDegrees(), 0, 360));
     }
 
     public void setWantAutoVisionAim(boolean aim) {
@@ -336,8 +338,6 @@ public class Swerve extends Subsystem {
         mPeriodicIO.robot_pitch = getPitch().getDegrees();
         mPeriodicIO.robot_roll = getRoll().getDegrees();
         mPeriodicIO.snap_target = Math.toDegrees(snapPIDController.getGoal().position);
-        mPeriodicIO.vision_align_target_angle = Math.toDegrees(mVisionAlignGoal);
-        mPeriodicIO.swerve_heading = MathUtil.inputModulus(getYaw().getDegrees(), 0, 360);
 
         SendLog();
     }
@@ -351,8 +351,6 @@ public class Swerve extends Subsystem {
         public double robot_pitch;
         public double robot_roll;
         public double snap_target;
-        public double vision_align_target_angle;
-        public double swerve_heading;
 
     }
 
@@ -374,13 +372,6 @@ public class Swerve extends Subsystem {
         headers.add("robot_pitch");
         headers.add("robot_roll");
         headers.add("snap_target");
-        headers.add("vision_align_target_angle");
-        headers.add("swerve_heading");
-        for (SwerveModule module : this.mSwerveMods) {
-            headers.add(module.moduleNumber + "_angle");
-            headers.add(module.moduleNumber + "_desired_angle");
-            headers.add(module.moduleNumber + "_velocity");
-        }
 
         mStorage.setHeaders(headers);
     }
@@ -394,13 +385,6 @@ public class Swerve extends Subsystem {
         items.add(mPeriodicIO.robot_pitch);
         items.add(mPeriodicIO.robot_roll);
         items.add(mPeriodicIO.snap_target);
-        items.add(mPeriodicIO.vision_align_target_angle);
-        items.add(mPeriodicIO.swerve_heading);
-        for (SwerveModule module : this.mSwerveMods) {
-            items.add(module.getState().angle.getDegrees());
-            items.add(module.getTargetAngle());
-            items.add(module.getState().speedMetersPerSecond);
-        }
 
         // send data to logging storage
         mStorage.addData(items);
