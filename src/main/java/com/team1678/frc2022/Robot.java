@@ -117,7 +117,7 @@ public class Robot extends TimedRobot {
 					mSwerve,
 					mSuperstructure,
 					mInfrastructure,
-					// mIntake,
+					mIntake,
 					mIndexer,
 					mShooter,
 					mTrigger,
@@ -134,6 +134,7 @@ public class Robot extends TimedRobot {
 			mSubsystemManager.registerLoggingSystems(mLogger);
             mLogger.registerLoops(mLoggingLooper);
 
+			RobotState.getInstance().reset(Timer.getFPGATimestamp(), new com.team254.lib.geometry.Pose2d());
 			mSwerve.resetOdometry(new Pose2d());
 			mSwerve.resetAnglesToAbsolute();
 
@@ -263,8 +264,6 @@ public class Robot extends TimedRobot {
 			CrashTracker.logDisabledInit();
 			mEnabledLooper.stop();
 			mDisabledLooper.start();
-
-			RobotState.getInstance().reset(Timer.getFPGATimestamp(), new com.team254.lib.geometry.Pose2d(RobotState.kFiveBallStartingLocation));
 
 			mLoggingLooper.stop();
 

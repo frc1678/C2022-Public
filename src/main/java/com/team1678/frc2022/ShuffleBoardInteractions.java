@@ -686,15 +686,14 @@ public class ShuffleBoardInteractions {
         
         //  Only uncomment cancoder update when redoing cancoder offsets for modules
         // Update cancoders at a slower period to avoid stale can frames
+        /*
         double dt = Timer.getFPGATimestamp();
         if (dt > lastCancoderUpdate + 0.1) {
             for (int i = 0; i < mSwerveCancoders.length; i++) {
                 mSwerveCancoders[i].setDouble(truncate(mSwerveModules[i].getCanCoder().getDegrees()));
             }
             lastCancoderUpdate = dt;
-        }
-        
-        
+        }        
         for (int i = 0; i < mSwerveCancoders.length; i++) {
             mSwerveIntegrated[i].setDouble(truncate(MathUtil.inputModulus(mSwerveModules[i].getState().angle.getDegrees(), 0, 360)));
             mSwerveDrivePercent[i].setDouble(truncate(mSwerveModules[i].getState().speedMetersPerSecond));
@@ -702,7 +701,7 @@ public class ShuffleBoardInteractions {
             mModuleAngleCurrent[i].setDouble(truncate(MathUtil.inputModulus(mSwerveModules[i].getState().angle.getDegrees(), 0, 360)));
             mModuleAngleGoals[i].setDouble(truncate(MathUtil.inputModulus(mSwerveModules[i].getTargetAngle(), 0, 360)));
         }
-        
+        */
 
         mSwerveOdometryX.setDouble(truncate(mSwerve.getPose().getX()));
         mSwerveOdometryY.setDouble(truncate(mSwerve.getPose().getY()));

@@ -151,7 +151,7 @@ public class Limelight extends Subsystem {
         return mConstants.kHorizontalPlaneToLens;
     }
 
-    public Optional<Double> getDistanceToTarget() {
+    public Optional<Double> getLimelightDistanceToTarget() {
         return mDistanceToTarget;
     }
 
@@ -219,7 +219,7 @@ public class Limelight extends Subsystem {
         SmartDashboard.putNumber("Limelight Tx: ", mPeriodicIO.xOffset);
         SmartDashboard.putNumber("Limelight Ty: ", mPeriodicIO.yOffset);
 
-        SmartDashboard.putNumber("Distance To Target", mDistanceToTarget.isPresent() ? mDistanceToTarget.get() : 0.0);
+        SmartDashboard.putNumber("Limelight Distance To Target", mDistanceToTarget.isPresent() ? mDistanceToTarget.get() : 0.0);
     }
 
     public enum LedMode {

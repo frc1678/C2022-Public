@@ -906,6 +906,8 @@ public class Superstructure extends Subsystem {
         SmartDashboard.putNumber("Robot Roll", mSwerve.getRoll().getDegrees());
         SmartDashboard.putNumber("Gyro Start", mStartingGyroPosition);
         SmartDashboard.putNumber("Gyro Offset", mGyroOffset);
+
+        SmartDashboard.putNumber("Distance To Target", mCorrectedDistanceToTarget);
     }
 
     // included to continue logging while disabled
