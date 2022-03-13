@@ -571,7 +571,10 @@ public class Superstructure extends Subsystem {
 
         SmartDashboard.putString("Field to Target", real_aiming_params_.get().getFieldToGoal().toString());
         SmartDashboard.putString("Vehicle to Target", real_aiming_params_.get().getVehicleToGoal().toString());
-        SmartDashboard.putNumber("target offset", Math.toDegrees(mTargetAngle));
+        SmartDashboard.putNumber("Vision Target Angle", Math.toDegrees(mTargetAngle));
+
+        // lookahead angle offset
+        SmartDashboard.putNumber("Lookahead Offset", Math.toDegrees(mTargetAngle) - (real_aiming_params_.get().getVehicleToGoalRotation().getDegrees() + 180));
     }
 
     /*** SEND VISION ALIGN GOAL TO SWERVE ***/

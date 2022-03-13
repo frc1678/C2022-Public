@@ -264,7 +264,7 @@ public class Robot extends TimedRobot {
 			mEnabledLooper.stop();
 			mDisabledLooper.start();
 
-			RobotState.getInstance().reset(Timer.getFPGATimestamp(), new com.team254.lib.geometry.Pose2d());
+			RobotState.getInstance().reset(Timer.getFPGATimestamp(), new com.team254.lib.geometry.Pose2d(RobotState.kFiveBallStartingLocation));
 
 			mLoggingLooper.stop();
 

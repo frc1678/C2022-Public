@@ -7,6 +7,7 @@ import com.team254.lib.geometry.Translation2d;
 
 import com.team254.lib.util.InterpolatingDouble;
 import com.team254.lib.util.InterpolatingTreeMap;
+import com.team254.lib.util.MovingAveragePose2d;
 import com.team254.lib.vision.AimingParameters;
 import com.team254.lib.vision.GoalTracker;
 import com.team254.lib.vision.GoalTracker.TrackReportComparator;
@@ -63,6 +64,7 @@ public class RobotState {
     // FPGATimestamp -> Pose2d or Rotation2d
     private InterpolatingTreeMap<InterpolatingDouble, Pose2d> field_to_vehicle_;
     private Pose2d vehicle_velocity_predicted_;
+    private MovingAveragePose2d vehicle_velocity_predicted_filtered_;
     private Pose2d vehicle_velocity_measured_;
     private double distance_driven_;
 
@@ -81,6 +83,7 @@ public class RobotState {
         field_to_vehicle_ = new InterpolatingTreeMap<>(kObservationBufferSize);
         field_to_vehicle_.put(new InterpolatingDouble(start_time), kFiveBallStartingLocation);
         vehicle_velocity_predicted_ = Pose2d.identity();
+        vehicle_velocity_predicted_filtered_ = new MovingAveragePose2d(25);
         vehicle_velocity_measured_ = Pose2d.identity();
         distance_driven_ = 0.0;
     }
@@ -104,7 +107,7 @@ public class RobotState {
     public synchronized Pose2d getPredictedFieldToVehicle(double lookahead_time) {
         return new Pose2d(
             getLatestFieldToVehicle().getValue()
-                .transformBy(vehicle_velocity_predicted_.scaled(lookahead_time)).getTranslation(), new Rotation2d());
+                .transformBy(getSmoothedPredictedVelocity().scaled(-lookahead_time)).getTranslation(), new Rotation2d());
     }
 
     public synchronized void addFieldToVehicleObservation(double timestamp, Pose2d observation) {
@@ -121,6 +124,9 @@ public class RobotState {
 
         vehicle_velocity_measured_ = measured_velocity;
         vehicle_velocity_predicted_ = predicted_velocity;
+
+        // add predicted velocity to moving average array for filter
+        vehicle_velocity_predicted_filtered_.add(vehicle_velocity_predicted_);
     }
 
     public synchronized double getDistanceDriven() {
@@ -137,6 +143,10 @@ public class RobotState {
 
     public synchronized Pose2d getMeasuredVelocity() {
         return vehicle_velocity_measured_;
+    }
+
+    public synchronized Pose2d getSmoothedPredictedVelocity() {
+        return vehicle_velocity_predicted_filtered_.getAverage();
     }
 
     public synchronized void resetVision() {
@@ -300,6 +310,7 @@ public class RobotState {
         SmartDashboard.putNumber("Robot Field To Vehicle X", getLatestFieldToVehicle().getValue().getTranslation().x());
         SmartDashboard.putNumber("Robot Field To Vehicle Y", getLatestFieldToVehicle().getValue().getTranslation().y());
         SmartDashboard.putNumber("Robot Field To Vehicle Theta", getLatestFieldToVehicle().getValue().getRotation().getDegrees());
+        SmartDashboard.putString("Smoothed Predicted Velocity", getSmoothedPredictedVelocity().toString());
 
         Optional<AimingParameters> params = getAimingParameters(-1, Constants.VisionConstants.kMaxGoalTrackAge);
         SmartDashboard.putBoolean("Has Aiming Parameters", params.isPresent());
