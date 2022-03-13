@@ -28,10 +28,7 @@ public class RobotState {
     }
 
     private static final int kObservationBufferSize = 1;
-    public static final Pose2d kFieldRelativeGoalLocation = new Pose2d(8.3, 4.1, new Rotation2d(26.28));
-
-    // required limelight instance
-    private Limelight mLimelight = Limelight.getInstance();
+    public static final Pose2d kDefaultFieldRelativeGoalLocation = new Pose2d(8.2296, 4.12155, new Rotation2d());
 
     /*
      * RobotState keeps track of the poses of various coordinate frames throughout
@@ -116,7 +113,7 @@ public class RobotState {
             Pose2d predicted_velocity) {
 
         distance_driven_ += displacement.getTranslation().norm();
-        addFieldToVehicleObservation(timestamp, getLatestFieldToVehicle().getValue().transformBy(displacement));
+        addFieldToVehicleObservation(timestamp, new Pose2d(getLatestFieldToVehicle().getValue().getTranslation().translateBy(displacement.getTranslation()), getLatestFieldToVehicle().getValue().getRotation().rotateBy(displacement.getRotation())));
 
         vehicle_velocity_measured_ = measured_velocity;
         vehicle_velocity_predicted_ = predicted_velocity;
@@ -233,6 +230,19 @@ public class RobotState {
         return getFieldToVehicle(timestamp).inverse().transformBy(fieldToVisionTarget);
     }
 
+    public synchronized Optional<AimingParameters> getDefaultAimingParameters() {
+        double timestamp = Timer.getFPGATimestamp();
+
+        Pose2d vehicleToGoal = getFieldToVehicle(timestamp).inverse().transformBy(kDefaultFieldRelativeGoalLocation);
+        vehicleToGoal = new Pose2d(vehicleToGoal.getTranslation().rotateBy(getFieldToVehicle(timestamp).getRotation()), vehicleToGoal.getRotation());
+
+        AimingParameters params = new AimingParameters(vehicleToGoal, kDefaultFieldRelativeGoalLocation,
+                kDefaultFieldRelativeGoalLocation.getRotation(), 0, 0, -1);
+
+        return Optional.of(params);
+
+    }
+
     public synchronized Optional<AimingParameters> getAimingParameters(int prev_track_id, double max_track_age) {
         GoalTracker tracker = goal_tracker_;
         List<GoalTracker.TrackReport> reports = tracker.getTracks();
@@ -264,10 +274,6 @@ public class RobotState {
             return Optional.empty();
         }
 
-        if (!mLimelight.isOK()) {
-            report.field_to_target = kFieldRelativeGoalLocation;
-        }
-
         Pose2d vehicleToGoal = getFieldToVehicle(timestamp).inverse().transformBy(report.field_to_target);
         vehicleToGoal = new Pose2d(vehicleToGoal.getTranslation().rotateBy(getFieldToVehicle(timestamp).getRotation()), vehicleToGoal.getRotation());
 
@@ -288,9 +294,9 @@ public class RobotState {
     public synchronized void outputToSmartDashboard() {
         SmartDashboard.putString("Robot Velocity", getMeasuredVelocity().toString());
         SmartDashboard.putString("Robot Field to Vehicle", getLatestFieldToVehicle().getValue().toString());
-        SmartDashboard.putNumber("Robot X", getLatestFieldToVehicle().getValue().getTranslation().x());
-        SmartDashboard.putNumber("Robot Y", getLatestFieldToVehicle().getValue().getTranslation().y());
-        SmartDashboard.putNumber("Robot Theta", getLatestFieldToVehicle().getValue().getRotation().getDegrees());
+        SmartDashboard.putNumber("Robot Field To Vehicle X", getLatestFieldToVehicle().getValue().getTranslation().x());
+        SmartDashboard.putNumber("Robot Field To Vehicle Y", getLatestFieldToVehicle().getValue().getTranslation().y());
+        SmartDashboard.putNumber("Robot Field To Vehicle Theta", getLatestFieldToVehicle().getValue().getRotation().getDegrees());
 
         Optional<AimingParameters> params = getAimingParameters(-1, Constants.VisionConstants.kMaxGoalTrackAge);
         SmartDashboard.putBoolean("Has Aiming Parameters", params.isPresent());
