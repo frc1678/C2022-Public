@@ -53,7 +53,7 @@ public class Swerve extends Subsystem {
     private double mVisionAlignGoal;
 
     public ProfiledPIDController snapPIDController;
-    public PIDController visionPIDController;
+    public ProfiledPIDController visionPIDController;
 
     
     // Private boolean to lock Swerve wheels
@@ -86,9 +86,10 @@ public class Swerve extends Subsystem {
                                                       Constants.SnapConstants.kThetaControllerConstraints);
         snapPIDController.enableContinuousInput(-Math.PI, Math.PI);
 
-        visionPIDController = new PIDController(Constants.VisionAlignConstants.kP,
+        visionPIDController = new ProfiledPIDController(Constants.VisionAlignConstants.kP,
                                                         Constants.VisionAlignConstants.kI,
-                                                        Constants.VisionAlignConstants.kD);
+                                                        Constants.VisionAlignConstants.kD,
+                                                        Constants.VisionAlignConstants.kThetaControllerConstraints);
         visionPIDController.enableContinuousInput(-Math.PI, Math.PI);
         visionPIDController.setTolerance(0.0);
 
@@ -146,13 +147,7 @@ public class Swerve extends Subsystem {
 
     public void visionAlignDrive(Translation2d translation2d, double rotation, boolean fieldRelative, boolean isOpenLoop) {
         double adjustedRotation;
-        /*
-        if (mLimelight.hasTarget()) {
-            adjustedRotation = mVisionAlignAdjustment;
-        } else {
-            adjustedRotation = rotation;
-        }
-        */
+        
         adjustedRotation = mVisionAlignAdjustment;
         drive(translation2d, adjustedRotation, fieldRelative, isOpenLoop);
     }
@@ -200,7 +195,7 @@ public class Swerve extends Subsystem {
         mVisionAlignGoal = vision_goal;
 
         double currentAngle = getYaw().getRadians();
-        visionPIDController.setSetpoint(mVisionAlignGoal);
+        visionPIDController.setGoal(new TrapezoidProfile.State(MathUtil.inputModulus(mVisionAlignGoal, 0.0, 2 * Math.PI), 0.0));
         mVisionAlignAdjustment = visionPIDController.calculate(currentAngle);
     }
 
@@ -248,6 +243,9 @@ public class Swerve extends Subsystem {
     public void resetOdometry(Pose2d pose) {
         swerveOdometry.resetPosition(pose, pose.getRotation());
         zeroGyro(pose.getRotation().getDegrees());
+
+        // reset field to vehicle
+        RobotState.getInstance().reset();
     }
 
     public void resetAnglesToAbsolute() {
@@ -293,7 +291,7 @@ public class Swerve extends Subsystem {
 
     public void zeroGyro(double reset){
         gyro.setYaw(reset);
-        visionPIDController.reset();
+        visionPIDController.reset(reset);
     }
 
     public Rotation2d getYaw() {
