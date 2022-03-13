@@ -117,14 +117,14 @@ public class Robot extends TimedRobot {
 					mSwerve,
 					mSuperstructure,
 					mInfrastructure,
-					mIntake,
+					// mIntake,
 					mIndexer,
 					mShooter,
 					mTrigger,
 					mHood,
 					mColorSensor,
 					mClimber,
-					// mLimelight,
+					mLimelight,
 					mLEDs
 			);
 
