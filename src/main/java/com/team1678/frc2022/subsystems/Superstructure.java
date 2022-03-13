@@ -3,6 +3,7 @@ package com.team1678.frc2022.subsystems;
 import com.team1678.frc2022.loops.Loop;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.Constants;
+import com.team1678.frc2022.Robot;
 import com.team1678.frc2022.RobotState;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.CustomXboxController;
@@ -13,6 +14,7 @@ import com.team1678.frc2022.regressions.ShooterRegression;
 import com.team1678.frc2022.subsystems.LEDs.State;
 import com.team254.lib.util.Util;
 import com.team254.lib.vision.AimingParameters;
+import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.util.InterpolatingDouble;
 
 import edu.wpi.first.wpilibj.Timer;
@@ -48,6 +50,9 @@ public class Superstructure extends Subsystem {
     private final Climber mClimber = Climber.getInstance();
     private final Limelight mLimelight = Limelight.getInstance();
     private final LEDs mLEDs = LEDs.getInstance();
+
+    // robot state
+    private final RobotState mRobotState = RobotState.getInstance();
 
     // timer for reversing the intake and then stopping it once we have two correct cargo
     Timer mIntakeRejectTimer = new Timer();
@@ -551,10 +556,15 @@ public class Superstructure extends Subsystem {
         // get aiming parameters from either vision-assisted goal tracking or odometry-only tracking
         real_aiming_params_ = getRealAimingParameters();
 
+        // predicted pose and target
+        Pose2d predicted_field_to_vehicle = mRobotState.getPredictedFieldToVehicle(Constants.VisionConstants.kLookaheadTime);
+        Pose2d predicted_vehicle_to_goal = predicted_field_to_vehicle.inverse()
+                .transformBy(real_aiming_params_.get().getFieldToGoal());
+
         // update align delta from target and distance from target
         mTrackId = real_aiming_params_.get().getTrackId();
-        mTargetAngle = real_aiming_params_.get().getVehicleToGoalRotation().getRadians() + Math.PI;
-        mCorrectedDistanceToTarget = real_aiming_params_.get().getRange();
+        mTargetAngle = predicted_vehicle_to_goal.getTranslation().direction().getRadians() + Math.PI;
+        mCorrectedDistanceToTarget = predicted_vehicle_to_goal.getTranslation().norm();
 
         // send vision aligning target delta to swerve
         mSwerve.acceptLatestVisionAlignGoal(mTargetAngle);

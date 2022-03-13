@@ -246,6 +246,9 @@ public class Constants {
 		public static final double kVPW = 2.0 * Math.tan(Math.toRadians(kHorizontalFOV / 2.0));
 		public static final double kVPH = 2.0 * Math.tan(Math.toRadians(kVerticalFOV / 2.0));
 		public static final double kImageCaptureLatency = 11.0 / 1000.0; // seconds
+        
+        // lookahead time
+        public static final double kLookaheadTime = 1.0;
 
         /* Goal Tracker Constants */
         public static final double kMaxTrackerDistance = 9.0;
