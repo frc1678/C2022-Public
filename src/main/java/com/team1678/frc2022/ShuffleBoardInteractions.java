@@ -23,7 +23,10 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.trajectory.Trajectory;
 
 public class ShuffleBoardInteractions {
 
@@ -68,6 +71,8 @@ public class ShuffleBoardInteractions {
     private ShuffleboardTab COLOR_SENSOR;   
 
     /*** ENTRIES ***/
+
+    private final Field2d mField2d;
     
     /* CANdle */
     private final NetworkTableEntry mTopLEDState;
@@ -662,9 +667,14 @@ public class ShuffleBoardInteractions {
                 .withSize(2, 2)
                 .withPosition(8, 2)
                 .getEntry();
+
+        mField2d = new Field2d();
+        SmartDashboard.putData(mField2d);
     }
 
     public void update() {
+
+        mField2d.setRobotPose(mSwerve.getPose());
 
         /* OPERATOR */
         mOperatorShooting.setBoolean(mSuperstructure.getShooting());
@@ -828,6 +838,10 @@ public class ShuffleBoardInteractions {
 
     public ShuffleboardTab getOperatorTab() {
         return OPERATOR_TAB;
+    }
+
+    public void addTrajectory(Trajectory trajectory, String name) {
+        mField2d.getObject(name).setTrajectory(trajectory);
     }
 }
  
