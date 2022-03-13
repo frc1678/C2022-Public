@@ -123,7 +123,7 @@ public class Constants {
         }
         /* Back Left Module - Module 2 */
         public static final class Mod2 {
-            public static final double epsilonAngleOffset = 345.41;
+            public static final double epsilonAngleOffset = 43.5;
             public static final double compAngleOffset = 319;   // TODO: Check value
 
             public static SwerveModuleConstants SwerveModuleConstants() {
