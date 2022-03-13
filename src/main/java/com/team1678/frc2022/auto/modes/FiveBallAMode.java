@@ -64,16 +64,16 @@ public class FiveBallAMode extends AutoModeBase {
                                                         new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                         new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                         thetaController,
-                                                        () -> Rotation2d.fromDegrees(115.0),
+                                                        () -> Rotation2d.fromDegrees(200.0),
                                                         mSwerve::getWantAutoVisionAim,
                                                         mSwerve::setModuleStates);
     Trajectory traj_path_c = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_c, Constants.AutoConstants.defaultToZeroSpeedConfig);
-    driveToIntakeAtTerminal = new SwerveTrajectoryAction(traj_path_c,
+    driveToIntakeThirdShotCargo = new SwerveTrajectoryAction(traj_path_c,
                                                         mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
                                                         new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                         new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                         thetaController,
-                                                        () -> Rotation2d.fromDegrees(195.0),
+                                                        () -> Rotation2d.fromDegrees(200.0),
                                                         mSwerve::getWantAutoVisionAim,
                                                         mSwerve::setModuleStates);
     Trajectory traj_path_d = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_d, Constants.AutoConstants.zeroToDefaultSpeedConfig);
@@ -92,7 +92,7 @@ public class FiveBallAMode extends AutoModeBase {
                                                         new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                         new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                         thetaController,
-                                                        () -> Rotation2d.fromDegrees(5.0),
+                                                        () -> Rotation2d.fromDegrees(210.0),
                                                         mSwerve::getWantAutoVisionAim,
                                                         mSwerve::setModuleStates);
 
@@ -107,31 +107,28 @@ public class FiveBallAMode extends AutoModeBase {
                                                         mSwerve::setModuleStates);
     }
 
-@Override
+    @Override
     protected void routine() throws AutoModeEndedException {
-        System.out.println("Running five ball mode a auto!");
-        SmartDashboard.putBoolean("Auto Finished", false);
+    System.out.println("Running five ball mode a auto!");
+    SmartDashboard.putBoolean("Auto Finished", false);
 
     // reset odometry at the start of the trajectory
-    runAction(new LambdaAction(() -> mSwerve.resetOdometry(new Pose2d(
-    driveToIntakeSecondShotCargo.getInitialPose().getX(),
-    driveToIntakeSecondShotCargo.getInitialPose().getY(),
-    Rotation2d.fromDegrees(230)))));
+    runAction(new LambdaAction(() -> mSwerve.resetOdometry(driveToIntakeSecondShotCargo.getInitialPose())));
    
     // start spinning up for shot
     runAction(new LambdaAction(() -> mSuperstructure.setWantPrep(true)));
 
     // start intaking
     runAction(new LambdaAction(() -> mSuperstructure.setWantIntake(true)));
+    
+    // start vision aiming to align drivetrain to target
+    runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));
 
     // run trajectory to intake second cargo
     runAction(driveToIntakeSecondShotCargo);
 
     // wait for 0.5 seconds to finish intaking
     runAction(new WaitAction(0.5));
-
-    // start vision aiming to align drivetrain to target
-    runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));
 
     // shoot cargo
     runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
