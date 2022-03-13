@@ -29,6 +29,7 @@ public class RobotState {
 
     private static final int kObservationBufferSize = 1;
     public static final Pose2d kDefaultFieldRelativeGoalLocation = new Pose2d(8.2296, 4.12155, new Rotation2d());
+    public static final Pose2d kFiveBallStartingLocation = new Pose2d(8.597, 1.529, new Rotation2d());
 
     /*
      * RobotState keeps track of the poses of various coordinate frames throughout
@@ -78,7 +79,7 @@ public class RobotState {
      */
     public synchronized void reset(double start_time, Pose2d initial_field_to_vehicle) {
         field_to_vehicle_ = new InterpolatingTreeMap<>(kObservationBufferSize);
-        field_to_vehicle_.put(new InterpolatingDouble(start_time), initial_field_to_vehicle);
+        field_to_vehicle_.put(new InterpolatingDouble(start_time), kFiveBallStartingLocation);
         vehicle_velocity_predicted_ = Pose2d.identity();
         vehicle_velocity_measured_ = Pose2d.identity();
         distance_driven_ = 0.0;
@@ -101,8 +102,9 @@ public class RobotState {
     }
 
     public synchronized Pose2d getPredictedFieldToVehicle(double lookahead_time) {
-        return getLatestFieldToVehicle().getValue()
-                .transformBy(vehicle_velocity_predicted_.scaled(lookahead_time));
+        return new Pose2d(
+            getLatestFieldToVehicle().getValue()
+                .transformBy(vehicle_velocity_predicted_.scaled(lookahead_time)).getTranslation(), new Rotation2d());
     }
 
     public synchronized void addFieldToVehicleObservation(double timestamp, Pose2d observation) {
@@ -113,7 +115,9 @@ public class RobotState {
             Pose2d predicted_velocity) {
 
         distance_driven_ += displacement.getTranslation().norm();
-        addFieldToVehicleObservation(timestamp, new Pose2d(getLatestFieldToVehicle().getValue().getTranslation().translateBy(displacement.getTranslation()), getLatestFieldToVehicle().getValue().getRotation().rotateBy(displacement.getRotation())));
+        addFieldToVehicleObservation(timestamp, new Pose2d(
+            getLatestFieldToVehicle().getValue().getTranslation().translateBy(displacement.getTranslation()), 
+            getLatestFieldToVehicle().getValue().getRotation().rotateBy(displacement.getRotation())));
 
         vehicle_velocity_measured_ = measured_velocity;
         vehicle_velocity_predicted_ = predicted_velocity;
@@ -240,7 +244,6 @@ public class RobotState {
                 kDefaultFieldRelativeGoalLocation.getRotation(), 0, 0, -1);
 
         return Optional.of(params);
-
     }
 
     public synchronized Optional<AimingParameters> getAimingParameters(int prev_track_id, double max_track_age) {
