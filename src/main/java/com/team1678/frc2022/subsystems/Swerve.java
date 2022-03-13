@@ -6,6 +6,7 @@ import java.util.Optional;
 import com.ctre.phoenix.sensors.Pigeon2;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
+import com.team1678.frc2022.Robot;
 import com.team1678.frc2022.RobotState;
 import com.team1678.frc2022.SwerveModule;
 import com.team1678.frc2022.logger.LogStorage;
@@ -40,9 +41,6 @@ public class Swerve extends Subsystem {
     // required instance for vision align
     public Limelight mLimelight = Limelight.getInstance();
 
-    // track id
-    private int mTrackId = -1;
-
     // wants vision aim during auto
     public boolean mWantsAutoVisionAim = false;
 
@@ -53,7 +51,6 @@ public class Swerve extends Subsystem {
     public boolean isSnapping;
     private double mVisionAlignAdjustment;
     private double mVisionAlignGoal;
-    private double mCorrectedDistanceToTarget;
 
     public ProfiledPIDController snapPIDController;
     public PIDController visionPIDController;
@@ -116,7 +113,6 @@ public class Swerve extends Subsystem {
             @Override
             public void onLoop(double timestamp) {
                 updateSwerveOdometry();
-                updateVisionAimingSetpoints();
                 outputTelemetry();
             }
 
@@ -198,25 +194,15 @@ public class Swerve extends Subsystem {
         for (SwerveModule mod : mSwerveMods) {
             mod.setDesiredState(swerveModuleStates[mod.moduleNumber], isOpenLoop);
         }
-    }    
-    
-    public void updateVisionAimingSetpoints() {
+    }
+
+    public void acceptLatestVisionAlignGoal(double vision_goal) {
+        mVisionAlignGoal = vision_goal;
+
         double currentAngle = getYaw().getRadians();
-        double targetOffset = 0.0;
-
-        Optional<AimingParameters> aiming_params_ = RobotState.getInstance().getAimingParameters(mTrackId, Constants.VisionConstants.kMaxGoalTrackAge);
-        if (aiming_params_.isPresent()) {
-            mTrackId = aiming_params_.get().getTrackId();
-            targetOffset = aiming_params_.get().getVehicleToGoalRotation().getRadians();
-            mCorrectedDistanceToTarget = aiming_params_.get().getRange();
-        }
-
-        mVisionAlignGoal = MathUtil.inputModulus(targetOffset + 180, 0.0, 2 * Math.PI);
-
         visionPIDController.setSetpoint(mVisionAlignGoal);
         mVisionAlignAdjustment = visionPIDController.calculate(currentAngle);
     }
-
 
     public double calculateSnapValue() {
         return snapPIDController.calculate(getYaw().getRadians());

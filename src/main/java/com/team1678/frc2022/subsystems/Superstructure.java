@@ -3,6 +3,7 @@ package com.team1678.frc2022.subsystems;
 import com.team1678.frc2022.loops.Loop;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.Constants;
+import com.team1678.frc2022.RobotState;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.CustomXboxController;
 import com.team1678.frc2022.controlboard.CustomXboxController.Button;
@@ -11,6 +12,7 @@ import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.regressions.ShooterRegression;
 import com.team1678.frc2022.subsystems.LEDs.State;
 import com.team254.lib.util.Util;
+import com.team254.lib.vision.AimingParameters;
 import com.team254.lib.util.InterpolatingDouble;
 
 import edu.wpi.first.wpilibj.Timer;
@@ -113,6 +115,12 @@ public class Superstructure extends Subsystem {
 
     private final double kSpitVelocity = 1000;
     private final double kSpitAngle = 20.0;
+    
+    // aiming parameter vars
+    private Optional<AimingParameters> real_aiming_params_ = Optional.empty();
+    private int mTrackId = -1;
+    private double mTargetAngle = 0.0;
+    private double mCorrectedDistanceToTarget = 0.0;
 
     @Override
     public void registerEnabledLoops(ILooper enabledLooper) {
@@ -127,7 +135,8 @@ public class Superstructure extends Subsystem {
 
                 if (!mClimbMode) {
                     updateBallCounter();
-                    updateShootingParams();
+                    updateVisionAimingParameters();
+                    updateShootingSetpoints();
                 }
                 setGoals();
                 updateLEDs();
@@ -524,20 +533,48 @@ public class Superstructure extends Subsystem {
         }
     }
 
-    /*** UPDATE SHOOTER AND HOOD SETPOINTS WHEN VISION AIMING ***/
-    public synchronized void updateShootingParams() {
+    /*** GET REAL AIMING PARAMETERS
+     * called in updateVisionAimingSetpoints()
+    */
+    public Optional<AimingParameters> getRealAimingParameters() {
+        Optional<AimingParameters> aiming_params = RobotState.getInstance().getAimingParameters(mTrackId, Constants.VisionConstants.kMaxGoalTrackAge);
+        if (aiming_params.isPresent()) {
+            return aiming_params;
+        } else {
+            Optional<AimingParameters> default_aiming_params = RobotState.getInstance().getDefaultAimingParameters();
+            return default_aiming_params;
+        }
+    }
+
+    /*** UPDATE VISION AIMING PARAMETERS FROM GOAL TRACKING ***/
+    public void updateVisionAimingParameters() {
+        // get aiming parameters from either vision-assisted goal tracking or odometry-only tracking
+        real_aiming_params_ = getRealAimingParameters();
+
+        // update align delta from target and distance from target
+        mTrackId = real_aiming_params_.get().getTrackId();
+        mTargetAngle = real_aiming_params_.get().getVehicleToGoalRotation().getRadians() + Math.PI;
+        mCorrectedDistanceToTarget = real_aiming_params_.get().getRange();
+
+        // send vision aligning target delta to swerve
+        mSwerve.acceptLatestVisionAlignGoal(mTargetAngle);
+
+        SmartDashboard.putString("Field to Target", real_aiming_params_.get().getFieldToGoal().toString());
+        SmartDashboard.putString("Vehicle to Target", real_aiming_params_.get().getVehicleToGoal().toString());
+        SmartDashboard.putNumber("target offset", Math.toDegrees(mTargetAngle));
+    }
+
+    /*** SEND VISION ALIGN GOAL TO SWERVE ***/
+    public synchronized void updateShootingSetpoints() {
         if (mPeriodicIO.SPIT) {
             mShooterSetpoint = kSpitVelocity;
             mHoodSetpoint = kSpitAngle;
         } else if (mPeriodicIO.FENDER) {
             mShooterSetpoint = kFenderVelocity;
             mHoodSetpoint = kFenderAngle;
-        } else if (hasTarget()) {
-            Optional<Double> distance_to_target = mLimelight.getDistanceToTarget();
-            if (distance_to_target.isPresent()) {
-                mShooterSetpoint = getShooterSetpointFromRegression(distance_to_target.get());
-                mHoodSetpoint = getHoodSetpointFromRegression(distance_to_target.get());
-            }
+        } else if (real_aiming_params_.isPresent()) {
+            mShooterSetpoint = getShooterSetpointFromRegression(mCorrectedDistanceToTarget);
+            mHoodSetpoint = getHoodSetpointFromRegression(mCorrectedDistanceToTarget);
         }
     }
 
@@ -707,6 +744,10 @@ public class Superstructure extends Subsystem {
         } else {
             return ShooterRegression.kHoodAutoAimMap.getInterpolated(new InterpolatingDouble(range)).value;
         }
+    }
+    // get vision align delta from goal
+    public double getVisionAlignGoal() {
+        return mTargetAngle;
     }
 
     // call normal intake controls
