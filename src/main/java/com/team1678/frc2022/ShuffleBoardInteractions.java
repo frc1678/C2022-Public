@@ -16,12 +16,16 @@ import com.team1678.frc2022.subsystems.Swerve;
 import com.team1678.frc2022.subsystems.Trigger;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 
 public class ShuffleBoardInteractions {
 
@@ -63,7 +67,9 @@ public class ShuffleBoardInteractions {
     private ShuffleboardTab CLIMBER_TAB;
     private ShuffleboardTab SUPERSTRUCTURE_TAB;
     private ShuffleboardTab MANUAL_PARAMS;
-    private ShuffleboardTab COLOR_SENSOR;   
+    private ShuffleboardTab COLOR_SENSOR; 
+    
+    private Field2d mField = new Field2d();
 
     /*** ENTRIES ***/
     
@@ -660,6 +666,8 @@ public class ShuffleBoardInteractions {
                 .withSize(2, 2)
                 .withPosition(8, 2)
                 .getEntry();
+        
+        SmartDashboard.putData("Robot field to vehicle", mField);
     }
 
     public void update() {
@@ -675,7 +683,7 @@ public class ShuffleBoardInteractions {
 
         /* SWERVE */
 
-        /*
+        
         //  Only uncomment cancoder update when redoing cancoder offsets for modules
         // Update cancoders at a slower period to avoid stale can frames
         double dt = Timer.getFPGATimestamp();
@@ -694,7 +702,7 @@ public class ShuffleBoardInteractions {
             mModuleAngleCurrent[i].setDouble(truncate(MathUtil.inputModulus(mSwerveModules[i].getState().angle.getDegrees(), 0, 360)));
             mModuleAngleGoals[i].setDouble(truncate(MathUtil.inputModulus(mSwerveModules[i].getTargetAngle(), 0, 360)));
         }
-        */
+        
 
         mSwerveOdometryX.setDouble(truncate(mSwerve.getPose().getX()));
         mSwerveOdometryY.setDouble(truncate(mSwerve.getPose().getY()));
@@ -816,6 +824,8 @@ public class ShuffleBoardInteractions {
         // Lights
         mTopLEDState.setString(mLEDs.getTopState().getName());
         mBottomLEDState.setString(mLEDs.getBottomState().getName());
+
+        mField.setRobotPose(RobotState.getInstance().getLatestFieldToVehicle().getValue().getWpilibPose2d());
     }
 
     /* Truncates number to 2 decimal places for cleaner numbers */
