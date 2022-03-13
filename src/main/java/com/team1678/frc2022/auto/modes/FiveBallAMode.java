@@ -54,7 +54,7 @@ public class FiveBallAMode extends AutoModeBase {
                                                         new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                         new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                         thetaController,
-                                                        () -> Rotation2d.fromDegrees(265.0),
+                                                        () -> Rotation2d.fromDegrees(270.0),
                                                         mSwerve::getWantAutoVisionAim,
                                                         mSwerve::setModuleStates);
 
@@ -64,7 +64,7 @@ public class FiveBallAMode extends AutoModeBase {
                                                         new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                         new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                         thetaController,
-                                                        () -> Rotation2d.fromDegrees(200.0),
+                                                        () -> Rotation2d.fromDegrees(195.0),
                                                         mSwerve::getWantAutoVisionAim,
                                                         mSwerve::setModuleStates);
     Trajectory traj_path_c = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_c, Constants.AutoConstants.defaultToZeroSpeedConfig);
@@ -73,7 +73,7 @@ public class FiveBallAMode extends AutoModeBase {
                                                         new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                         new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                         thetaController,
-                                                        () -> Rotation2d.fromDegrees(200.0),
+                                                        () -> Rotation2d.fromDegrees(195.0),
                                                         mSwerve::getWantAutoVisionAim,
                                                         mSwerve::setModuleStates);
     Trajectory traj_path_d = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_d, Constants.AutoConstants.zeroToDefaultSpeedConfig);
@@ -102,7 +102,7 @@ public class FiveBallAMode extends AutoModeBase {
                                                         new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                         new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                         thetaController,
-                                                        () -> Rotation2d.fromDegrees(300.0),
+                                                        () -> Rotation2d.fromDegrees(310.0),
                                                         mSwerve::getWantAutoVisionAim,
                                                         mSwerve::setModuleStates);
     }
