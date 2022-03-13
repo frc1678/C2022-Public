@@ -96,6 +96,7 @@ public class RobotStateEstimator extends Subsystem {
             SmartDashboard.putNumber("Odometry Delta X", odometry_delta.getTranslation().x());
             SmartDashboard.putNumber("Odometry Delta Y", odometry_delta.getTranslation().y());
             SmartDashboard.putNumber("Odometry Delta Theta", odometry_delta.getRotation().getDegrees());
+            SmartDashboard.putString("Predicted Velocity", predicted_velocity.toString());
             
         }
 
