@@ -159,9 +159,9 @@ public class Constants {
     }
 
     public static final class VisionAlignConstants {
-        public static final double kP = 8.2;
+        public static final double kP = 8.0;
         public static final double kI = 0.0;
-        public static final double kD = 0.8;
+        public static final double kD = 0.75;
 
         public static final double kTimeout = 0.25;
         public static final double kEpsilon = 3.0;
@@ -249,7 +249,7 @@ public class Constants {
 		public static final double kImageCaptureLatency = 11.0 / 1000.0; // seconds
         
         // lookahead time
-        public static final double kLookaheadTime = 1.75; // 1.5
+        public static final double kLookaheadTime = 2.3; // 1.5
 
         /* Goal Tracker Constants */
         public static final double kMaxTrackerDistance = 9.0;
