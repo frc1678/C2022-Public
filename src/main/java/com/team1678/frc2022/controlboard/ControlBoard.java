@@ -157,8 +157,6 @@ public class ControlBoard {
 
     public boolean getDisableColorLogic() {
         boolean wasPressed = operator.getController().getPOV() == kDpadRight && mLastDpadRight != kDpadRight;
-        SmartDashboard.putNumber("DPAD", operator.getController().getPOV());
-        SmartDashboard.putNumber("Last DPAD", mLastDpadRight);
         mLastDpadRight = operator.getController().getPOV();
         return wasPressed;
     }
