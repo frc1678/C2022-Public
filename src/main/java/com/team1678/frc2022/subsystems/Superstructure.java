@@ -585,10 +585,16 @@ public class Superstructure extends Subsystem {
         } else if (mPeriodicIO.FENDER) {
             mShooterSetpoint = kFenderVelocity;
             mHoodSetpoint = kFenderAngle;
+        } else if (mLimelight.getLimelightDistanceToTarget().isPresent()) {
+            mShooterSetpoint = getShooterSetpointFromRegression(mLimelight.getLimelightDistanceToTarget().get());
+            mHoodSetpoint = getHoodSetpointFromRegression(mLimelight.getLimelightDistanceToTarget().get());
+        }
+        /*
         } else if (real_aiming_params_.isPresent()) {
             mShooterSetpoint = getShooterSetpointFromRegression(mCorrectedDistanceToTarget);
             mHoodSetpoint = getHoodSetpointFromRegression(mCorrectedDistanceToTarget);
         }
+        */
     }
 
     /*** UPDATE SUBSYSTEM STATES + SETPOINTS AND SET GOALS

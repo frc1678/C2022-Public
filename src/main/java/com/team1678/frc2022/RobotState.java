@@ -83,7 +83,7 @@ public class RobotState {
         field_to_vehicle_ = new InterpolatingTreeMap<>(kObservationBufferSize);
         field_to_vehicle_.put(new InterpolatingDouble(start_time), kFiveBallStartingLocation);
         vehicle_velocity_predicted_ = Pose2d.identity();
-        vehicle_velocity_predicted_filtered_ = new MovingAveragePose2d(25);
+        vehicle_velocity_predicted_filtered_ = new MovingAveragePose2d(50);
         vehicle_velocity_measured_ = Pose2d.identity();
         distance_driven_ = 0.0;
     }
