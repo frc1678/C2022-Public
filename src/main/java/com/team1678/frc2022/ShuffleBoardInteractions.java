@@ -72,7 +72,7 @@ public class ShuffleBoardInteractions {
 
     /*** ENTRIES ***/
 
-    private final Field2d mField2d;
+    private Field2d mField2d;
     
     /* CANdle */
     private final NetworkTableEntry mTopLEDState;
@@ -842,6 +842,11 @@ public class ShuffleBoardInteractions {
 
     public void addTrajectory(Trajectory trajectory, String name) {
         mField2d.getObject(name).setTrajectory(trajectory);
+    }
+
+    public void clearTrajectories() {
+        mField2d = new Field2d();
+        SmartDashboard.putData(mField2d);
     }
 }
  
