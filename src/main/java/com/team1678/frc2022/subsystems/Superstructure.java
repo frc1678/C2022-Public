@@ -401,7 +401,7 @@ public class Superstructure extends Subsystem {
             /*** NORMAL TELEOP CONTROLS ***/
 
             // toggle whether we want to force intake or decide whether we intake based on whether we have two correct cargo
-            if (mControlBoard.operator.getController().getPOV() == 270) {
+            if (mControlBoard.getDisableIntakeLogic()) {
                 mForceIntake = !mForceIntake;
             }
             // control intake + reverse actions
@@ -441,7 +441,7 @@ public class Superstructure extends Subsystem {
             }            
 
             // toggle ejecting to disable if necessary
-            if (mControlBoard.operator.getController().getPOV() == 90) {
+            if (mControlBoard.getDisableColorLogic()) {
                 mDisableEjecting = !mDisableEjecting;
             }
             // control options to filter cargo and eject
@@ -460,6 +460,11 @@ public class Superstructure extends Subsystem {
             // control shooting
             if (mControlBoard.operator.getController().getYButtonPressed()) {
                 mPeriodicIO.SHOOT = !mPeriodicIO.SHOOT;
+            }
+
+            // spin up if we aren't already
+            if (mPeriodicIO.SHOOT && !mPeriodicIO.PREP) {
+                mPeriodicIO.PREP = true;
             }
 
             // control prepping
