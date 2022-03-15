@@ -62,7 +62,7 @@ public class FiveBallAMode extends AutoModeBase {
         traj_path_a = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_a,
                 Constants.AutoConstants.createConfig(
                         Constants.AutoConstants.kMaxSpeedMetersPerSecond, 
-                        Constants.AutoConstants.kMaxSpeedMetersPerSecond,
+                        Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared,
                         0.0, 
                         0.0)
                 );
@@ -82,7 +82,7 @@ public class FiveBallAMode extends AutoModeBase {
                         Constants.AutoConstants.kMaxSpeedMetersPerSecond, 
                         Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared, 
                         0.0, 
-                        Constants.AutoConstants.kMaxSpeedMetersPerSecond)
+                        Constants.AutoConstants.kSlowAccelerationMetersPerSecondSquared)
                 );
 
         driveToThirdShotCargo = new SwerveTrajectoryAction(traj_path_b,
@@ -97,9 +97,9 @@ public class FiveBallAMode extends AutoModeBase {
         // Intake third cargo
         traj_path_c = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_c,
                 Constants.AutoConstants.createConfig(
-                        Constants.AutoConstants.kMaxSpeedMetersPerSecond, 
                         Constants.AutoConstants.kSlowAccelerationMetersPerSecondSquared, 
-                        Constants.AutoConstants.kMaxSpeedMetersPerSecond, 
+                        Constants.AutoConstants.kSlowAccelerationMetersPerSecondSquared, 
+                        Constants.AutoConstants.kSlowAccelerationMetersPerSecondSquared, 
                         0.0)
                 );
 
@@ -115,7 +115,7 @@ public class FiveBallAMode extends AutoModeBase {
         // Drive to intake 4th cargo at terminal
         traj_path_d = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_d,
                 Constants.AutoConstants.createConfig(
-                        Constants.AutoConstants.kMaxSpeedMetersPerSecond, 
+                        3.0, 
                         Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared, 
                         0.0, 
                         0.0)
@@ -126,14 +126,14 @@ public class FiveBallAMode extends AutoModeBase {
                 new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                 new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                 thetaController,
-                () -> Rotation2d.fromDegrees(190.0),
+                () -> Rotation2d.fromDegrees(225.0),
                 mSwerve::getWantAutoVisionAim,
                 mSwerve::setModuleStates);
 
         // Drive to second shot
         traj_path_e = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_e,
                 Constants.AutoConstants.createConfig(
-                        Constants.AutoConstants.kMaxSpeedMetersPerSecond, 
+                        3.0, 
                         Constants.AutoConstants.kSlowAccelerationMetersPerSecondSquared, 
                         0.0, 
                         0.0)        
@@ -152,7 +152,7 @@ public class FiveBallAMode extends AutoModeBase {
         // Drive to opponent cargo
         traj_path_f = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_f,
                 Constants.AutoConstants.createConfig(
-                        Constants.AutoConstants.kMaxSpeedMetersPerSecond, 
+                        3.0, 
                         Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared, 
                         0.0,
                         Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared)
@@ -163,7 +163,7 @@ public class FiveBallAMode extends AutoModeBase {
                 new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                 new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                 thetaController,
-                () -> Rotation2d.fromDegrees(300.0),
+                () -> Rotation2d.fromDegrees(330),
                 mSwerve::getWantAutoVisionAim,
                 mSwerve::setModuleStates);
 
@@ -174,6 +174,8 @@ public class FiveBallAMode extends AutoModeBase {
     protected void routine() throws AutoModeEndedException {
         System.out.println("Running five ball mode a auto!");
         SmartDashboard.putBoolean("Auto Finished", false);
+
+        runAction(new WaitAction(0.2));
 
         // reset odometry at the start of the trajectory
         runAction(new LambdaAction(() -> mSwerve.resetOdometry(driveToIntakeSecondShotCargo.getInitialPose())));
@@ -237,13 +239,7 @@ public class FiveBallAMode extends AutoModeBase {
         // run trajectory for eject cargo
         runAction(driveToEjectCargo);
 
-        // start ejecting fifth cargo
-
-        // wait to finish ejecting cargo
-        runAction(new WaitAction(0.5));
-
         // stop ejecting cargo
-        runAction(new LambdaAction(() -> mSuperstructure.setWantEject(false, false)));
 
         System.out.println("Finished auto!");
         SmartDashboard.putBoolean("Auto Finished", true);

@@ -192,6 +192,8 @@ public class Robot extends TimedRobot {
 
 			// mInfrastructure.setIsDuringAuto(false);
 
+			mSuperstructure.setWantEject(false, false);
+
 			mClimber.setBrakeMode(true);
 
 			mInfrastructure.setIsDuringAuto(false);
