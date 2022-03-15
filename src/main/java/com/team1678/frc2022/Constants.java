@@ -5,6 +5,8 @@ import com.lib.util.SwerveModuleConstants;
 import com.team1678.frc2022.subsystems.Limelight.LimelightConstants;
 import com.team1678.frc2022.subsystems.ServoMotorSubsystem.ServoMotorSubsystemConstants;
 import com.team254.lib.geometry.Rotation2d;
+import com.team254.lib.motion.MotionProfileConstraints;
+
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
@@ -163,15 +165,17 @@ public class Constants {
         public static final double kI = 0.0;
         public static final double kD = 0.75;
 
+        // Constraints for the profiled angle controller
+        public static final double kMaxAngularSpeedRadiansPerSecond = 1.0 * Math.PI;
+        public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.pow(kMaxAngularSpeedRadiansPerSecond, 2);
+        
+        public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
+                new TrapezoidProfile.Constraints(kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
+
         public static final double kTimeout = 0.25;
         public static final double kEpsilon = 3.0;
 
-        // Constraints for the profiled angle controller
-        public static final double kMaxAngularSpeedRadiansPerSecond = 2.0 * Math.PI;
-        public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.pow(kMaxAngularSpeedRadiansPerSecond, 2);
 
-        public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
-                new TrapezoidProfile.Constraints(kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
     }
 
     public static final class AutoConstants {

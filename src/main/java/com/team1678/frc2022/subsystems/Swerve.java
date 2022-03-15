@@ -1,12 +1,10 @@
 package com.team1678.frc2022.subsystems;
 
 import java.util.ArrayList;
-import java.util.Optional;
 
 import com.ctre.phoenix.sensors.Pigeon2;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
-import com.team1678.frc2022.Robot;
 import com.team1678.frc2022.RobotState;
 import com.team1678.frc2022.SwerveModule;
 import com.team1678.frc2022.logger.LogStorage;
@@ -14,7 +12,6 @@ import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
 import com.team254.lib.util.TimeDelayedBoolean;
-import com.team254.lib.vision.AimingParameters;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -22,12 +19,11 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Swerve extends Subsystem {
@@ -39,15 +35,19 @@ public class Swerve extends Subsystem {
     // logger
     LogStorage<PeriodicIO> mStorage = null;
 
-    // required instance for vision align
-    public Limelight mLimelight = Limelight.getInstance();
-
     // wants vision aim during auto
     public boolean mWantsAutoVisionAim = false;
 
     public SwerveDriveOdometry swerveOdometry;
     public SwerveModule[] mSwerveMods;
     public Pigeon2 gyro;
+
+    // chassis velocity status
+    ChassisSpeeds chassisVelocity = new ChassisSpeeds();
+
+    // trapezoid motion profile for vision aiming
+    private double mProfileGenTime = 0.0;
+    private TrapezoidProfile mTrapezoidProfile = null;
 
     public boolean isSnapping;
     private double mVisionAlignAdjustment;
@@ -146,10 +146,12 @@ public class Swerve extends Subsystem {
     }
 
     public void visionAlignDrive(Translation2d translation2d, double rotation, boolean fieldRelative, boolean isOpenLoop) {
-        double adjustedRotation;
+        TrapezoidProfile.State adjustedRotation;
         
-        adjustedRotation = mVisionAlignAdjustment;
-        drive(translation2d, adjustedRotation, fieldRelative, isOpenLoop);
+        if (mTrapezoidProfile != null) {
+            adjustedRotation = mTrapezoidProfile.calculate(Constants.kLooperDt + Timer.getFPGATimestamp() - mProfileGenTime);
+            drive(translation2d, adjustedRotation.velocity, fieldRelative, isOpenLoop);
+        }
     }
 
     public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
@@ -192,11 +194,14 @@ public class Swerve extends Subsystem {
     }
 
     public void acceptLatestVisionAlignGoal(double vision_goal) {
-        mVisionAlignGoal = vision_goal;
+        mVisionAlignGoal = vision_goal; 
 
         double currentAngle = getYaw().getRadians();
-        visionPIDController.setGoal(new TrapezoidProfile.State(MathUtil.inputModulus(mVisionAlignGoal, 0.0, 2 * Math.PI), 0.0));
-        mVisionAlignAdjustment = visionPIDController.calculate(currentAngle);
+        mTrapezoidProfile = new TrapezoidProfile(Constants.VisionAlignConstants.kThetaControllerConstraints,
+                                    new TrapezoidProfile.State(MathUtil.inputModulus(mVisionAlignGoal, 0.0, 2 * Math.PI), 0.0),
+                                    new TrapezoidProfile.State(MathUtil.inputModulus(currentAngle, 0.0, 2 * Math.PI), chassisVelocity.omegaRadiansPerSecond));
+        mProfileGenTime = Timer.getFPGATimestamp();
+
     }
 
     public double calculateSnapValue() {
@@ -313,7 +318,14 @@ public class Swerve extends Subsystem {
     }
 
     public void updateSwerveOdometry(){
-        swerveOdometry.update(getYaw(), getStates());  
+        swerveOdometry.update(getYaw(), getStates());
+
+        chassisVelocity = Constants.SwerveConstants.swerveKinematics.toChassisSpeeds(
+                    mInstance.mSwerveMods[0].getState(),
+                    mInstance.mSwerveMods[1].getState(),
+                    mInstance.mSwerveMods[2].getState(),
+                    mInstance.mSwerveMods[3].getState()
+            );
     }
 
     @Override
