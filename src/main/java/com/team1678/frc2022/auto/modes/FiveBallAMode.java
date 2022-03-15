@@ -12,7 +12,6 @@ import com.team1678.frc2022.subsystems.Swerve;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -187,12 +186,13 @@ public class FiveBallAMode extends AutoModeBase {
         // start vision aiming to align drivetrain to target
         runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));
 
+        // wait for swerve modules to align
         runAction(new WaitAction(0.3));
 
         // run trajectory to intake second cargo
         runAction(driveToIntakeSecondShotCargo);
 
-        // shoot cargo
+        // shoot first & second cargo
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
         runAction(new WaitAction(1.0));
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
@@ -203,12 +203,13 @@ public class FiveBallAMode extends AutoModeBase {
         // run trajectory for third cargo
         runAction(driveToThirdShotCargo);
 
+        // vision aim when intaking third cargo
         runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));
 
         // run trajectory to intake third shot cargo
         runAction(driveToIntakeThirdShotCargo);
 
-        // shoot cargo
+        // shoot third cargo
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
         runAction(new WaitAction(0.5));
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
@@ -219,11 +220,10 @@ public class FiveBallAMode extends AutoModeBase {
         // run trajectory for terminal
         runAction(driveToIntakeAtTerminal);
 
-
-        // start vision aiming to align drivetrain to target
+        // start vision aiming when driving to shot pose
         runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));
 
-        // run trajectory for fourth shot pose
+        // run trajectory to drive to second shot pose
         runAction(driveToSecondShotPose);
 
         // shoot cargo
@@ -234,12 +234,11 @@ public class FiveBallAMode extends AutoModeBase {
         // stop vision aiming to control robot heading
         runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(false)));
 
+        // slow eject
         runAction(new LambdaAction(() -> mSuperstructure.setSlowEject(true)));
 
         // run trajectory for eject cargo
         runAction(driveToEjectCargo);
-
-        // stop ejecting cargo
 
         System.out.println("Finished auto!");
         SmartDashboard.putBoolean("Auto Finished", true);
