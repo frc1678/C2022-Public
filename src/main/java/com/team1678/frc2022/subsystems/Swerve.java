@@ -50,7 +50,6 @@ public class Swerve extends Subsystem {
     private TrapezoidProfile mTrapezoidProfile = null;
 
     public boolean isSnapping;
-    private double mVisionAlignAdjustment;
     private double mVisionAlignGoal;
 
     public ProfiledPIDController snapPIDController;
@@ -146,11 +145,13 @@ public class Swerve extends Subsystem {
     }
 
     public void visionAlignDrive(Translation2d translation2d, double rotation, boolean fieldRelative, boolean isOpenLoop) {
-        TrapezoidProfile.State adjustedRotation;
         
         if (mTrapezoidProfile != null) {
+            TrapezoidProfile.State adjustedRotation;
             adjustedRotation = mTrapezoidProfile.calculate(Constants.kLooperDt + Timer.getFPGATimestamp() - mProfileGenTime);
             drive(translation2d, adjustedRotation.velocity, fieldRelative, isOpenLoop);
+        } else {
+            drive(translation2d, rotation, fieldRelative, isOpenLoop);
         }
     }
 
