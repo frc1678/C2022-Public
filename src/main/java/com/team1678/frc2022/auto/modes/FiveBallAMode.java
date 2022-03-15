@@ -175,8 +175,6 @@ public class FiveBallAMode extends AutoModeBase {
         System.out.println("Running five ball mode a auto!");
         SmartDashboard.putBoolean("Auto Finished", false);
 
-        runAction(new WaitAction(0.2));
-
         // reset odometry at the start of the trajectory
         runAction(new LambdaAction(() -> mSwerve.resetOdometry(driveToIntakeSecondShotCargo.getInitialPose())));
 
@@ -188,6 +186,8 @@ public class FiveBallAMode extends AutoModeBase {
 
         // start vision aiming to align drivetrain to target
         runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));
+
+        runAction(new WaitAction(0.3));
 
         // run trajectory to intake second cargo
         runAction(driveToIntakeSecondShotCargo);
@@ -234,7 +234,7 @@ public class FiveBallAMode extends AutoModeBase {
         // stop vision aiming to control robot heading
         runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(false)));
 
-        runAction(new LambdaAction(() -> mSuperstructure.setWantEject(true, false)));
+        runAction(new LambdaAction(() -> mSuperstructure.setSlowEject(true)));
 
         // run trajectory for eject cargo
         runAction(driveToEjectCargo);

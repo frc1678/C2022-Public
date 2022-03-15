@@ -130,6 +130,8 @@ public class Superstructure extends Subsystem {
                     updateBallCounter();
                     updateShootingParams();
                 }
+
+                updateWantEjection();
                 setGoals();
                 updateLEDs();
                 outputTelemetry();
@@ -185,6 +187,11 @@ public class Superstructure extends Subsystem {
         mPeriodicIO.EJECT = eject;
         mSlowEject = slow_eject;
     }
+
+    public void setSlowEject(boolean slow_eject) {
+        mSlowEject = slow_eject;
+    }
+
     public void setWantPrep(boolean wants_prep) {
         mPeriodicIO.PREP = wants_prep;
     }
@@ -452,9 +459,9 @@ public class Superstructure extends Subsystem {
             } else if (mDisableEjecting || mLockIntake) {
                 mPeriodicIO.EJECT = false;
             } else {
+                updateWantEjection();
                 mForceEject = false;
                 // when not forcing an eject, passively check whether want to passively eject using color sensor logic
-                mPeriodicIO.EJECT = mColorSensor.wantsEject();
             }
 
             // control shooting
@@ -494,6 +501,10 @@ public class Superstructure extends Subsystem {
                 mResetHoodAngleAdjustment = true;
             }
         }
+    }
+
+    public void updateWantEjection() {
+        mPeriodicIO.EJECT = mColorSensor.wantsEject();
     }
 
     /*** UPDATE BALL COUNTER FOR INDEXING STATUS ***/
