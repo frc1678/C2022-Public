@@ -29,6 +29,7 @@ public class ColorSensor extends Subsystem {
 
     public ColorChoices mAllianceColor = ColorChoices.NONE;
     public ColorChoices mMatchedColor;
+    public ColorChoices mSensor1Color;
 
     public enum ColorChoices {
         RED, BLUE, OTHER, NONE  
@@ -139,6 +140,22 @@ public class ColorSensor extends Subsystem {
                 mMatchedColor = ColorChoices.OTHER;
             }
         }
+    }
+
+    // don't eject the ball if the two sensors read different colors
+    public boolean overrideEject() {
+        if (mPeriodicIO.proximity_1 < Constants.ColorSensorConstants.kColorSensorThreshold) { 
+            mSensor1Color = ColorChoices.NONE;
+        } else {
+            if (1.111 * mPeriodicIO.raw_color_1.red > 1.667 * mPeriodicIO.raw_color_1.blue) {
+                mSensor1Color = ColorChoices.RED;
+            } else if (1.111 * mPeriodicIO.raw_color_1.blue > 1.667 * mPeriodicIO.raw_color_1.red) {
+                mSensor1Color = ColorChoices.BLUE;
+            } else {
+                mSensor1Color = ColorChoices.OTHER;
+            }
+        }
+        return mMatchedColor != mSensor1Color;
     }
 
     // update whether we want to eject or not
