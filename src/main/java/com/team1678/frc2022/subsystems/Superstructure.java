@@ -86,15 +86,16 @@ public class Superstructure extends Subsystem {
     public double mBallCount = 0.0;
     private boolean mHasTopBall = false;
     private boolean mHasBottomBall = false;
+    private boolean mTopColor = false;
+    private boolean mBottomColor = false;
                       
     /* Matrix to keep track of our balls
             pos.0   pos.1
     has?      #       #
     color?    #       #
-    0 is true, 1 is false
     */
-    private int[][] mBallTracker = {{0, 0},  
-                                    {0, 0}};
+    private boolean[][] mBallTracker = {{false, false},  
+                                    {false, false}};
 
     // shooting system setpoints
     public double mShooterSetpoint = 1000.0;
@@ -137,7 +138,7 @@ public class Superstructure extends Subsystem {
                 final double start = Timer.getFPGATimestamp();
 
                 if (!mClimbMode) {
-                    updateBallCounter();
+                    updateBallTracker();
                     updateShootingParams();
                 }
                 setGoals();
@@ -204,6 +205,10 @@ public class Superstructure extends Subsystem {
     public void setShootingParameters(double flywheel, double hood) {
         mShooterSetpoint = flywheel;
         mHoodSetpoint = hood;
+    }
+
+    public void setBallTracker(int x, int y, boolean value) {
+        mBallTracker[x][y] = value;
     }
 
     /*** CONTAINER FOR OPERATOR COMMANDS CALLING SUPERSTRUCTURE ACTIONS
@@ -464,8 +469,8 @@ public class Superstructure extends Subsystem {
             } else {
                 mForceEject = false;
                 
-                mPeriodicIO.EJECT = mBallTracker[1][0] == 1; //Cargo in lower position is the wrong color --> bottom eject
-                mPeriodicIO.SPIT_EJECT = mBallTracker[1][1] == 1; //Cargo in uppoer position is wrong color --> spit eject
+                mPeriodicIO.EJECT = !mBallTracker[1][0]; //Cargo in lower position is the wrong color --> bottom eject
+                mPeriodicIO.SPIT_EJECT = !mBallTracker[1][1]; //Cargo in uppoer position is wrong color --> spit eject
                 
             }
 
@@ -514,7 +519,14 @@ public class Superstructure extends Subsystem {
     }
 
     /*** UPDATE BALL COUNTER FOR INDEXING STATUS ***/
-    public void updateBallCounter() {
+    public void updateBallTracker() {
+
+        // will always have the top ball if the top beam break is triggering
+        if (mIndexer.getTopBeamBreak()) {
+            mHasTopBall = true;
+        } else {
+            mHasTopBall = false;
+        }
 
         // we have our bottom ball if:
         // - we are triggering the bottom beam break
@@ -534,6 +546,20 @@ public class Superstructure extends Subsystem {
         } else {
             mBallCount = 0;
         }
+
+        if (mBallCount == 0) { // if we have no balls, don't spit or eject 
+            mBottomColor = true;
+            mTopColor = true;
+        } else if (mBallCount == 1) {
+               mTopColor = mColorSensor.hasCorrectColor(); //only one ball --> sensor reading cooresponds to top ball
+        } else if (mBallCount == 2) {
+            mBottomColor = mColorSensor.hasCorrectColor(); //two balls --> sensor reading corresponds to bottom ball
+        }
+        
+        setBallTracker(0, 0, mHasBottomBall);
+        setBallTracker(0, 1, mHasTopBall);
+        setBallTracker(1, 0, mBottomColor);
+        setBallTracker(1, 1, mTopColor);
     }
 
     /*** UPDATE SHOOTER AND HOOD SETPOINTS WHEN VISION AIMING ***/
@@ -601,7 +627,7 @@ public class Superstructure extends Subsystem {
                 mPeriodicIO.real_trigger = Trigger.WantedAction.PASSIVE_REVERSE;
             // only do any indexing action if we detect a ball
             } else if (mColorSensor.hasBall()) { 
-                if (mBallTracker[0][0] == 0 & mBallTracker[0][1] == 0) { // stop intaking if we are full
+                if (mBallTracker[0][0] & mBallTracker[0][1]) { // stop intaking if we are full
                     mPeriodicIO.real_indexer = Indexer.WantedAction.NONE;
                 } else {
                     mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX;
