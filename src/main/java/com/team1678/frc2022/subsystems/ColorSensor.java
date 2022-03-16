@@ -21,7 +21,8 @@ public class ColorSensor extends Subsystem {
     }
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
-    private PicoColorSensor mPico;
+    private PicoColorSensor mPico0; //Color Sensor Closer to Intake TODO: check with electrical
+    private PicoColorSensor mPico1; //Color Sensor Closer to Ejector TODO: check with electrical
 
     private Timer mHasBallTimer = new Timer();
     private Timer mEjectorTimer = new Timer();
@@ -35,7 +36,8 @@ public class ColorSensor extends Subsystem {
 
     private ColorSensor() {
         mMatchedColor = ColorChoices.NONE;
-        mPico = new PicoColorSensor();
+        mPico0 = new PicoColorSensor();
+        mPico1 = new PicoColorSensor();
         
     }
 
@@ -44,7 +46,8 @@ public class ColorSensor extends Subsystem {
         enabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
-                mPico.start();
+                mPico0.start();
+                mPico1.start();
             }
  
             @Override
@@ -74,7 +77,7 @@ public class ColorSensor extends Subsystem {
 
     // check if we see a ball
     public boolean seesBall() {
-        return mPeriodicIO.proximity > Constants.ColorSensorConstants.kColorSensorThreshold;
+        return mPeriodicIO.proximity_0 > Constants.ColorSensorConstants.kColorSensorThreshold;
     }
 
     // check if we have the right color
@@ -89,8 +92,9 @@ public class ColorSensor extends Subsystem {
                     && (mMatchedColor != ColorChoices.NONE);
     }
 
-    // check if we have a ball
+
     public void updateHasBall() {
+        //update based off whether a ball enters into the system
         if (seesBall()) {
             // reset the timer if we see another ball
             if (mPeriodicIO.has_ball) {
@@ -124,12 +128,12 @@ public class ColorSensor extends Subsystem {
 
     // update the color of the cargo we see
     public void updateMatchedColor() {
-        if (mPeriodicIO.proximity < Constants.ColorSensorConstants.kColorSensorThreshold) { 
+        if (mPeriodicIO.proximity_0 < Constants.ColorSensorConstants.kColorSensorThreshold) { 
             mMatchedColor = ColorChoices.NONE;
         } else {
-            if (mPeriodicIO.raw_color.red > mPeriodicIO.raw_color.blue) {
+            if (mPeriodicIO.raw_color_0.red > mPeriodicIO.raw_color_0.blue) {
                 mMatchedColor = ColorChoices.RED;
-            } else if (mPeriodicIO.raw_color.blue > mPeriodicIO.raw_color.red) {
+            } else if (mPeriodicIO.raw_color_0.blue > mPeriodicIO.raw_color_0.red) {
                 mMatchedColor = ColorChoices.BLUE;
             } else {
                 mMatchedColor = ColorChoices.OTHER;
@@ -160,11 +164,15 @@ public class ColorSensor extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        mPeriodicIO.sensor0Connected = mPico.isSensor0Connected();
-        mPeriodicIO.raw_color = mPico.getRawColor0();
-        mPeriodicIO.proximity = mPico.getProximity0();
+        mPeriodicIO.sensor0Connected = mPico0.isSensor0Connected();
+        mPeriodicIO.raw_color_0 = mPico0.getRawColor0();
+        mPeriodicIO.proximity_0 = mPico0.getProximity0();
 
-        mPeriodicIO.timestamp = mPico.getLastReadTimestampSeconds();
+        mPeriodicIO.sensor1Connected = mPico1.isSensor1Connected();
+        mPeriodicIO.raw_color_1 = mPico1.getRawColor1();
+        mPeriodicIO.proximity_1 = mPico1.getProximity1();
+
+        mPeriodicIO.timestamp = mPico0.getLastReadTimestampSeconds();
 
         updateHasBall();
         updateMatchedColor();
@@ -177,33 +185,60 @@ public class ColorSensor extends Subsystem {
     }
 
     //subystem getters
-    public double getDetectedRValue() {
-        if (mPeriodicIO.raw_color == null) {
+    public double getDetectedRValue0() {
+        if (mPeriodicIO.raw_color_0 == null) {
             return 0;
         }
-        return mPeriodicIO.raw_color.red;
+        return mPeriodicIO.raw_color_0.red;
     }
-    public double getDetectedGValue() {
-        if (mPeriodicIO.raw_color == null) {
+    public double getDetectedGValue0() {
+        if (mPeriodicIO.raw_color_0 == null) {
             return 0;
         }
-        return mPeriodicIO.raw_color.green;
+        return mPeriodicIO.raw_color_0.green;
     }
-    public double getDetectedBValue() {
-        if (mPeriodicIO.raw_color == null) {
+
+    public double getDetectedBValue0() {
+        if (mPeriodicIO.raw_color_0 == null) {
             return 0;
         }
-        return mPeriodicIO.raw_color.blue;
+        return mPeriodicIO.raw_color_0.blue;
     }
+
+    public double getDistance0() {
+        return mPeriodicIO.proximity_0;
+    }
+
+    public double getDetectedRValue1() {
+        if (mPeriodicIO.raw_color_1 == null) {
+            return 0;
+        }
+        return mPeriodicIO.raw_color_1.red;
+    }
+    public double getDetectedGValue1() {
+        if (mPeriodicIO.raw_color_1 == null) {
+            return 0;
+        }
+        return mPeriodicIO.raw_color_1.green;
+    }
+
+    public double getDetectedBValue1() {
+        if (mPeriodicIO.raw_color_1 == null) {
+            return 0;
+        }
+        return mPeriodicIO.raw_color_1.blue;
+    }
+
+    public double getDistance1() {
+        return mPeriodicIO.proximity_1;
+    }
+
     public String getAllianceColor() {
         return mAllianceColor.toString();
     }
     public String getMatchedColor() {
         return mMatchedColor.toString();
     }    
-    public double getDistance() {
-        return mPeriodicIO.proximity;
-    }
 
     public boolean getSensor0() {
         return mPeriodicIO.sensor0Connected;
@@ -215,9 +250,13 @@ public class ColorSensor extends Subsystem {
 
     public static class PeriodicIO {
         // INPUTS
-        public RawColor raw_color;
-        public int proximity;
+        public RawColor raw_color_0;
+        public int proximity_0;
         public boolean sensor0Connected;
+
+        public RawColor raw_color_1;
+        public int proximity_1;
+        public boolean sensor1Connected;
 
         // OUTPUTS
         public boolean has_ball;
