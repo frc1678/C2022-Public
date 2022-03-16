@@ -62,6 +62,7 @@ public class Superstructure extends Subsystem {
         private boolean REVERSE = false; // reverse the intake and singulator
         private boolean REJECT = false; // have the intake reject cargo
         private boolean EJECT = false; // run ejector to eject balls
+        private boolean SPIT_EJECT = false; // spit cargo to eject wrong color
         private boolean PREP = false; // spin up and aim with shooting setpoints
         private boolean SHOOT = false; // shoot cargo
         private boolean FENDER = false; // shoot cargo from up against the hub
@@ -85,6 +86,15 @@ public class Superstructure extends Subsystem {
     public double mBallCount = 0.0;
     private boolean mHasTopBall = false;
     private boolean mHasBottomBall = false;
+                      
+    /* Matrix to keep track of our balls
+            pos.0   pos.1
+    has?      #       #
+    color?    #       #
+    0 is true, 1 is false
+    */
+    private int[][] mBallTracker = {{0, 0},  
+                                    {0, 0}};
 
     // shooting system setpoints
     public double mShooterSetpoint = 1000.0;
@@ -453,8 +463,10 @@ public class Superstructure extends Subsystem {
                 mPeriodicIO.EJECT = false;
             } else {
                 mForceEject = false;
-                // when not forcing an eject, passively check whether want to passively eject using color sensor logic
-                mPeriodicIO.EJECT = mColorSensor.wantsEject();
+                
+                mPeriodicIO.EJECT = mBallTracker[1][0] == 1; //Cargo in lower position is the wrong color --> bottom eject
+                mPeriodicIO.SPIT_EJECT = mBallTracker[1][1] == 1; //Cargo in uppoer position is wrong color --> spit eject
+                
             }
 
             // control shooting
@@ -503,12 +515,6 @@ public class Superstructure extends Subsystem {
 
     /*** UPDATE BALL COUNTER FOR INDEXING STATUS ***/
     public void updateBallCounter() {
-        // will always have the top ball if the top beam break is triggering
-        if (mIndexer.getTopBeamBreak()) {
-            mHasTopBall = true;
-        } else {
-            mHasTopBall = false;
-        }
 
         // we have our bottom ball if:
         // - we are triggering the bottom beam break
@@ -594,20 +600,12 @@ public class Superstructure extends Subsystem {
                 mPeriodicIO.real_indexer = Indexer.WantedAction.EJECT;
                 mPeriodicIO.real_trigger = Trigger.WantedAction.PASSIVE_REVERSE;
             // only do any indexing action if we detect a ball
-            } else if (mColorSensor.hasBall()) {
-                mPeriodicIO.real_trigger = Trigger.WantedAction.PASSIVE_REVERSE;
-                if (mPeriodicIO.EJECT) {
-                    if (mSlowEject) {
-                        mPeriodicIO.real_indexer = Indexer.WantedAction.SLOW_EJECT;
-                    } else {
-                        mPeriodicIO.real_indexer = Indexer.WantedAction.EJECT;
-                    }
+            } else if (mColorSensor.hasBall()) { 
+                if (mBallTracker[0][0] == 0 & mBallTracker[0][1] == 0) { // stop intaking if we are full
+                    mPeriodicIO.real_indexer = Indexer.WantedAction.NONE;
                 } else {
                     mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX;
                 }
-            } else {
-                mPeriodicIO.real_trigger = Trigger.WantedAction.NONE;
-                mPeriodicIO.real_indexer = Indexer.WantedAction.NONE;
             }
 
             // normal operator manual control for intake
