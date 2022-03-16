@@ -757,12 +757,12 @@ public class ShuffleBoardInteractions {
 
         /* COLOR SENSOR */
         mSensor0.setBoolean(mColorSensor.getSensor0());
-        mRValue.setDouble(mColorSensor.getDetectedRValue());
-        mGValue.setDouble(mColorSensor.getDetectedGValue());
-        mBValue.setDouble(mColorSensor.getDetectedBValue());
+        mRValue.setDouble(mColorSensor.getDetectedRValue0());
+        mGValue.setDouble(mColorSensor.getDetectedGValue0());
+        mBValue.setDouble(mColorSensor.getDetectedBValue0());
         mAllianceColor.setString(mColorSensor.getAllianceColor().toString());
         mMatchedColor.setString(mColorSensor.getMatchedColor().toString());
-        mReadDistance.setDouble(mColorSensor.getDistance());
+        mReadDistance.setDouble(mColorSensor.getDistance0());
 
         mHasBall.setBoolean(mColorSensor.hasBall());
         mEject.setBoolean(mColorSensor.wantsEject());
