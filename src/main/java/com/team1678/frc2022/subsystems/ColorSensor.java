@@ -131,9 +131,9 @@ public class ColorSensor extends Subsystem {
         if (mPeriodicIO.proximity_0 < Constants.ColorSensorConstants.kColorSensorThreshold) { 
             mMatchedColor = ColorChoices.NONE;
         } else {
-            if (mPeriodicIO.raw_color_0.red > mPeriodicIO.raw_color_0.blue) {
+            if (1.111 * mPeriodicIO.raw_color_0.red > 1.667 * mPeriodicIO.raw_color_0.blue) {
                 mMatchedColor = ColorChoices.RED;
-            } else if (mPeriodicIO.raw_color_0.blue > mPeriodicIO.raw_color_0.red) {
+            } else if (1.111 * mPeriodicIO.raw_color_0.blue > 1.667 * mPeriodicIO.raw_color_0.red) {
                 mMatchedColor = ColorChoices.BLUE;
             } else {
                 mMatchedColor = ColorChoices.OTHER;
@@ -236,12 +236,17 @@ public class ColorSensor extends Subsystem {
     public String getAllianceColor() {
         return mAllianceColor.toString();
     }
+
     public String getMatchedColor() {
         return mMatchedColor.toString();
-    }    
+    }
 
     public boolean getSensor0() {
         return mPeriodicIO.sensor0Connected;
+    }
+
+    public boolean getSensor1() {
+        return mPeriodicIO.sensor1Connected;
     }
 
     public double getTimestamp() {
