@@ -221,6 +221,7 @@ public class Intake extends Subsystem {
                     mPeriodicIO.deploy_demand = -Constants.IntakeConstants.kInHoldingVoltage;
                 } else if (mPeriodicIO.force_hold_intake) {
                     mPeriodicIO.deploy_demand = -Constants.IntakeConstants.kDeployVoltage;
+                    mPeriodicIO.intake_demand = 0.0;
                 } else {
                     setState(WantedAction.NONE);
                 }
