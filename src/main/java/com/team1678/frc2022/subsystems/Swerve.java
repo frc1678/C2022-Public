@@ -22,6 +22,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Swerve extends Subsystem {
@@ -365,6 +366,7 @@ public class Swerve extends Subsystem {
         mStorage = new LogStorage<PeriodicIO>();
 
         ArrayList<String> headers = new ArrayList<String>();
+        headers.add("timestamp");
         headers.add("odometry_pose_x");
         headers.add("odometry_pose_y");
         headers.add("odometry_pose_rot");
@@ -386,6 +388,7 @@ public class Swerve extends Subsystem {
 
     public void SendLog() {
         ArrayList<Number> items = new ArrayList<Number>();
+        items.add(Timer.getFPGATimestamp());
         items.add(mPeriodicIO.odometry_pose_x);
         items.add(mPeriodicIO.odometry_pose_y);
         items.add(mPeriodicIO.odometry_pose_rot);
