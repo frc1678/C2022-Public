@@ -205,7 +205,6 @@ public class Shooter extends Subsystem {
         ArrayList<String> headers = new ArrayList<String>();
         headers.add("timestamp");
         headers.add("flywheel_velocity");
-        headers.add("timestamp");
         headers.add("flywheel_demand");
         headers.add("slave_voltage");
         headers.add("flywheel_current");
