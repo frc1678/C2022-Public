@@ -65,39 +65,23 @@ public class RobotStateEstimator extends Subsystem {
             SmartDashboard.putString("translation delta", latest_translational_displacement.toString());
             SmartDashboard.putString("rotation delta", latest_rotational_displacement.toString());
 
-            ChassisSpeeds chassisVelocity = Constants.SwerveConstants.swerveKinematics.toChassisSpeeds(
-                    mSwerve.mSwerveMods[0].getState(),
-                    mSwerve.mSwerveMods[1].getState(),
-                    mSwerve.mSwerveMods[2].getState(),
-                    mSwerve.mSwerveMods[3].getState()
-            );
-
             Pose2d odometry_delta = new Pose2d(latest_translational_displacement, latest_rotational_displacement);
 
             final Pose2d measured_velocity = odometry_delta.scaled(1.0 / dt);
-            final Pose2d current_velocity = new Pose2d(chassisVelocity.vxMetersPerSecond,
-                                                       chassisVelocity.vyMetersPerSecond,
-                                                       new Rotation2d(chassisVelocity.omegaRadiansPerSecond)
-                                                       );
-            final Pose2d latest_velocity_acceleration = prev_swerve_velocity.inverse().transformBy(current_velocity).scaled(1.0 / dt);
+            final Pose2d measured_velocity_filtered = RobotState.getInstance().getSmoothedMeasuredVelocity();
+            final Pose2d latest_velocity_acceleration = prev_swerve_velocity.inverse().transformBy(measured_velocity_filtered).scaled(1.0 / dt);            
             final Pose2d predicted_velocity = measured_velocity.transformBy(latest_velocity_acceleration.scaled(dt));
 
             mRobotState.addObservations(timestamp, odometry_delta, measured_velocity, predicted_velocity);
 
             prev_swerve_pose_ = swerve_pose_;
+            prev_swerve_velocity = measured_velocity_filtered;
             prev_timestamp_ = timestamp;
 
             final double end_time = Timer.getFPGATimestamp();
             double loop_dt = end_time - start_time;
 
-            SmartDashboard.putNumber("Robot State Estimator dt", loop_dt);
-
-            // Shuffleboard outputs for logic checks
-            SmartDashboard.putNumber("Odometry Delta X", odometry_delta.getTranslation().x());
-            SmartDashboard.putNumber("Odometry Delta Y", odometry_delta.getTranslation().y());
-            SmartDashboard.putNumber("Odometry Delta Theta", odometry_delta.getRotation().getDegrees());
-            SmartDashboard.putString("Predicted Velocity", predicted_velocity.toString());
-            
+            SmartDashboard.putNumber("Robot State Estimator dt", loop_dt);            
         }
 
         @Override

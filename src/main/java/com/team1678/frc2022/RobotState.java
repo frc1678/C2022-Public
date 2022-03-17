@@ -66,6 +66,7 @@ public class RobotState {
     private Pose2d vehicle_velocity_predicted_;
     private MovingAveragePose2d vehicle_velocity_predicted_filtered_;
     private Pose2d vehicle_velocity_measured_;
+    private MovingAveragePose2d vehicle_velocity_measured_filtered_;
     private double distance_driven_;
 
     private GoalTracker goal_tracker_ = new GoalTracker();
@@ -85,6 +86,7 @@ public class RobotState {
         vehicle_velocity_predicted_ = Pose2d.identity();
         vehicle_velocity_predicted_filtered_ = new MovingAveragePose2d(50);
         vehicle_velocity_measured_ = Pose2d.identity();
+        vehicle_velocity_measured_filtered_ = new MovingAveragePose2d(50);
         distance_driven_ = 0.0;
     }
 
@@ -125,6 +127,8 @@ public class RobotState {
         vehicle_velocity_measured_ = measured_velocity;
         vehicle_velocity_predicted_ = predicted_velocity;
 
+        // add measured velocity to moving average array for filter
+        vehicle_velocity_measured_filtered_.add(vehicle_velocity_measured_);
         // add predicted velocity to moving average array for filter
         vehicle_velocity_predicted_filtered_.add(vehicle_velocity_predicted_);
     }
@@ -143,6 +147,10 @@ public class RobotState {
 
     public synchronized Pose2d getMeasuredVelocity() {
         return vehicle_velocity_measured_;
+    }
+
+    public synchronized Pose2d getSmoothedMeasuredVelocity() {
+        return vehicle_velocity_measured_filtered_.getAverage();
     }
 
     public synchronized Pose2d getSmoothedPredictedVelocity() {
