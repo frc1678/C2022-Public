@@ -76,7 +76,7 @@ public class Constants {
         public static final double driveKF = 0.0;
 
         /* Drive Motor Characterization Values */
-        public static final double driveKS = (0.667 / 12); // divide by 12 to convert from volts to percent output for CTRE
+        public static final double driveKS = (0.440 / 12); // divide by 12 to convert from volts to percent output for CTRE
         public static final double driveKV = (2.44 / 12);
         public static final double driveKA = (0.27 / 12);
 
@@ -161,9 +161,9 @@ public class Constants {
     }
 
     public static final class VisionAlignConstants {
-        public static final double kP = 8.0;
+        public static final double kP = 4.0;
         public static final double kI = 0.0;
-        public static final double kD = 0.75;
+        public static final double kD = 0.1;
 
         // Constraints for the profiled angle controller
         public static final double kMaxAngularSpeedRadiansPerSecond = 2.0 * Math.PI;
@@ -251,7 +251,7 @@ public class Constants {
 		public static final double kImageCaptureLatency = 11.0 / 1000.0; // seconds
         
         // lookahead time
-        public static final double kLookaheadTime = 2.3; // 1.5
+        public static final double kLookaheadTime = 2.0; // 1.5
 
         /* Goal Tracker Constants */
         public static final double kMaxTrackerDistance = 9.0;
@@ -456,7 +456,7 @@ public class Constants {
     }
 
     public static final class ColorSensorConstants {
-        public static final double kColorSensorThreshold = 170;
+        public static final double kColorSensorThreshold = 300;
 
         public static final double kTimeWithBall = 1.2;
     }

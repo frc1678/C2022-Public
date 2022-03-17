@@ -19,6 +19,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -51,9 +52,10 @@ public class Swerve extends Subsystem {
 
     public boolean isSnapping;
     private double mVisionAlignGoal;
+    private double mVisionAlignAdjustment;
 
     public ProfiledPIDController snapPIDController;
-    public ProfiledPIDController visionPIDController;
+    public PIDController visionPIDController;
     
     // Private boolean to lock Swerve wheels
     private boolean mLocked = false;
@@ -85,10 +87,9 @@ public class Swerve extends Subsystem {
                                                       Constants.SnapConstants.kThetaControllerConstraints);
         snapPIDController.enableContinuousInput(-Math.PI, Math.PI);
 
-        visionPIDController = new ProfiledPIDController(Constants.VisionAlignConstants.kP,
+        visionPIDController = new PIDController(Constants.VisionAlignConstants.kP,
                                                         Constants.VisionAlignConstants.kI,
-                                                        Constants.VisionAlignConstants.kD,
-                                                        Constants.VisionAlignConstants.kThetaControllerConstraints);
+                                                        Constants.VisionAlignConstants.kD);
         visionPIDController.enableContinuousInput(-Math.PI, Math.PI);
         visionPIDController.setTolerance(0.0);
 
@@ -145,16 +146,10 @@ public class Swerve extends Subsystem {
     }
 
     public void visionAlignDrive(Translation2d translation2d, double rotation, boolean fieldRelative, boolean isOpenLoop) {
+        double adjustedRotation;
         
-        if (mTrapezoidProfile != null) {
-            TrapezoidProfile.State adjustedRotation;
-            adjustedRotation = mTrapezoidProfile.calculate(Constants.kLooperDt + Timer.getFPGATimestamp() - mProfileGenTime);
-            mPeriodicIO.goal_velocity = adjustedRotation.velocity;
-            mPeriodicIO.profile_position = adjustedRotation.position;
-            drive(translation2d, adjustedRotation.velocity, fieldRelative, isOpenLoop);
-        } else {
-            drive(translation2d, rotation, !fieldRelative, isOpenLoop);
-        }
+        adjustedRotation = mVisionAlignAdjustment;
+        drive(translation2d, adjustedRotation, fieldRelative, isOpenLoop);
     }
 
     public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
@@ -200,11 +195,8 @@ public class Swerve extends Subsystem {
         mVisionAlignGoal = vision_goal; 
 
         double currentAngle = getYaw().getRadians();
-        mPeriodicIO.align_goal = mVisionAlignGoal;
-        mTrapezoidProfile = new TrapezoidProfile(Constants.VisionAlignConstants.kThetaControllerConstraints,
-                                    new TrapezoidProfile.State(MathUtil.inputModulus(mVisionAlignGoal, 0.0, 2 * Math.PI), 0.0),
-                                    new TrapezoidProfile.State(MathUtil.inputModulus(currentAngle, 0.0, 2 * Math.PI), chassisVelocity.omegaRadiansPerSecond));
-        mProfileGenTime = Timer.getFPGATimestamp();
+        visionPIDController.setSetpoint(mVisionAlignGoal);
+        mVisionAlignAdjustment = visionPIDController.calculate(currentAngle);
     }
 
     public double calculateSnapValue() {
@@ -299,7 +291,7 @@ public class Swerve extends Subsystem {
 
     public void zeroGyro(double reset){
         gyro.setYaw(reset);
-        visionPIDController.reset(reset);
+        visionPIDController.reset();
     }
 
     public Rotation2d getYaw() {

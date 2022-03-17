@@ -564,7 +564,7 @@ public class Superstructure extends Subsystem {
         // update align delta from target and distance from target
         mTrackId = real_aiming_params_.get().getTrackId();
         mTargetAngle = predicted_vehicle_to_goal.getTranslation().direction().getRadians() + Math.PI;
-        mCorrectedDistanceToTarget = predicted_vehicle_to_goal.getTranslation().norm();
+        mCorrectedDistanceToTarget = predicted_vehicle_to_goal.getTranslation().norm() + 0.5;
 
         // send vision aligning target delta to swerve
         mSwerve.acceptLatestVisionAlignGoal(mTargetAngle);
@@ -585,16 +585,18 @@ public class Superstructure extends Subsystem {
         } else if (mPeriodicIO.FENDER) {
             mShooterSetpoint = kFenderVelocity;
             mHoodSetpoint = kFenderAngle;
+        /*
         } else if (mLimelight.getLimelightDistanceToTarget().isPresent()) {
             mShooterSetpoint = getShooterSetpointFromRegression(mLimelight.getLimelightDistanceToTarget().get());
             mHoodSetpoint = getHoodSetpointFromRegression(mLimelight.getLimelightDistanceToTarget().get());
         }
-        /*
+        */
+        
         } else if (real_aiming_params_.isPresent()) {
             mShooterSetpoint = getShooterSetpointFromRegression(mCorrectedDistanceToTarget);
             mHoodSetpoint = getHoodSetpointFromRegression(mCorrectedDistanceToTarget);
         }
-        */
+        
     }
 
     /*** UPDATE SUBSYSTEM STATES + SETPOINTS AND SET GOALS
