@@ -5,7 +5,6 @@ import com.lib.util.SwerveModuleConstants;
 import com.team1678.frc2022.subsystems.Limelight.LimelightConstants;
 import com.team1678.frc2022.subsystems.ServoMotorSubsystem.ServoMotorSubsystemConstants;
 import com.team254.lib.geometry.Rotation2d;
-import com.team254.lib.motion.MotionProfileConstraints;
 
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -15,7 +14,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 public class Constants {
 
     // toggle constants for comp robot
-    public static final boolean isComp = false;
+    public static final boolean isComp = true;
 	
 	// robot loop time
 	public static final double kLooperDt = 0.02;
@@ -76,8 +75,8 @@ public class Constants {
         public static final double driveKF = 0.0;
 
         /* Drive Motor Characterization Values */
-        public static final double driveKS = (0.440 / 12); // divide by 12 to convert from volts to percent output for CTRE
-        public static final double driveKV = (2.44 / 12);
+        public static final double driveKS = (0.421 / 12); // divide by 12 to convert from volts to percent output for CTRE
+        public static final double driveKV = (2.80 / 12); // 0.244 previously
         public static final double driveKA = (0.27 / 12);
 
         /* Swerve Profiling Values */
@@ -251,7 +250,7 @@ public class Constants {
 		public static final double kImageCaptureLatency = 11.0 / 1000.0; // seconds
         
         // lookahead time
-        public static final double kLookaheadTime = 2.0; // 1.5
+        public static final double kLookaheadTime = 1.10; // 1.5
 
         /* Goal Tracker Constants */
         public static final double kMaxTrackerDistance = 9.0;
