@@ -263,6 +263,10 @@ public class Intake extends Subsystem {
         return mPeriodicIO.singulator_demand;
     }
 
+    public boolean getForceHoldIntake() {
+        return mPeriodicIO.force_hold_intake;
+    }
+
     public static class PeriodicIO {
         // INPUTS
         private double intake_current;

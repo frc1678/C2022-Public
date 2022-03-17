@@ -102,6 +102,7 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mIntakeDeployCurrent;
     private final NetworkTableEntry mIntakeDeployVoltage;
     private final NetworkTableEntry mIntakeDeployDemand;
+    private final NetworkTableEntry mIsForceHolding;
 
     // private final NetworkTableEntry mFlywheelManualPIDToggle;
     // private final NetworkTableEntry mFlywheelP;
@@ -370,6 +371,9 @@ public class ShuffleBoardInteractions {
             .getEntry();
         mIntakeDeployDemand= INTAKE_TAB
             .add("Deploy Demand", 0.0)
+            .getEntry();
+        mIsForceHolding = INTAKE_TAB
+            .add("Is Force Holding", 0.0)
             .getEntry();
         
 
@@ -726,6 +730,7 @@ public class ShuffleBoardInteractions {
         mIntakeDeployCurrent.setDouble(mIntake.getDeployCurrent());
         mIntakeDeployVoltage.setDouble(mIntake.getDeployVoltage());
         mIntakeDeployDemand.setDouble(mIntake.getDeployDemand());
+        mIsForceHolding.setBoolean(mIntake.getForceHoldIntake());
         
         /* SHOOTER */
         mFlywheelRPM.setDouble(truncate(mShooter.getFlywheelRPM()));
