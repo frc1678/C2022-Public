@@ -194,12 +194,18 @@ public class ShuffleBoardInteractions {
 
     /* COLOR SENSOR */
     private final NetworkTableEntry mSensor0;
-    private final NetworkTableEntry mRValue;
-    private final NetworkTableEntry mGValue;
-    private final NetworkTableEntry mBValue;
+    private final NetworkTableEntry mRValue0;
+    private final NetworkTableEntry mGValue0;
+    private final NetworkTableEntry mBValue0;
+    private final NetworkTableEntry mReadDistance0;
+    private final NetworkTableEntry mSensor1;
+    private final NetworkTableEntry mRValue1;
+    private final NetworkTableEntry mGValue1;
+    private final NetworkTableEntry mBValue1;
+    private final NetworkTableEntry mReadDistance1;
     private final NetworkTableEntry mAllianceColor;
     private final NetworkTableEntry mMatchedColor;
-    private final NetworkTableEntry mReadDistance;
+    
 
     private final NetworkTableEntry mHasBall;
     private final NetworkTableEntry mEject;
@@ -479,14 +485,32 @@ public class ShuffleBoardInteractions {
         mSensor0 = COLOR_SENSOR
             .add("Is Sensor 0 Connected", false)
             .getEntry();
-        mRValue = COLOR_SENSOR
-            .add("Detected R Value", 0.0)
+        mRValue0 = COLOR_SENSOR
+            .add("Detected R Value 0", 0.0)
             .getEntry();
-        mGValue = COLOR_SENSOR
-            .add("Detected G Value", 0.0)
+        mGValue0 = COLOR_SENSOR
+            .add("Detected G Value 0", 0.0)
             .getEntry();
-        mBValue = COLOR_SENSOR
-            .add("Detected B Value", 0.0)
+        mBValue0 = COLOR_SENSOR
+            .add("Detected B Value 0", 0.0)
+            .getEntry();
+        mReadDistance0 = COLOR_SENSOR
+            .add("Read Distance 0", 0.0)
+            .getEntry();
+        mSensor1 = COLOR_SENSOR
+            .add("Is Sensor 1 Connected", false)
+            .getEntry();
+        mRValue1 = COLOR_SENSOR
+            .add("Detected R Value 1", 0.0)
+            .getEntry();
+        mGValue1 = COLOR_SENSOR
+            .add("Detected G Value 1", 0.0)
+            .getEntry();
+        mBValue1 = COLOR_SENSOR
+            .add("Detected B Value 1", 0.0)
+            .getEntry();
+        mReadDistance1 = COLOR_SENSOR
+            .add("Read Distance 1", 0.0)
             .getEntry();
         mAllianceColor = COLOR_SENSOR
             .add("Alliance Color", "N/A")
@@ -494,9 +518,7 @@ public class ShuffleBoardInteractions {
         mMatchedColor = COLOR_SENSOR
             .add("Matched Color", "N/A")
             .getEntry();
-        mReadDistance = COLOR_SENSOR
-            .add("Read Distance", 0.0)
-            .getEntry();
+        
             
         mHasBall = COLOR_SENSOR
             .add("Has Ball", false)
@@ -757,12 +779,17 @@ public class ShuffleBoardInteractions {
 
         /* COLOR SENSOR */
         mSensor0.setBoolean(mColorSensor.getSensor0());
-        mRValue.setDouble(mColorSensor.getDetectedRValue0());
-        mGValue.setDouble(mColorSensor.getDetectedGValue0());
-        mBValue.setDouble(mColorSensor.getDetectedBValue0());
+        mRValue0.setDouble(mColorSensor.getDetectedRValue0());
+        mGValue0.setDouble(mColorSensor.getDetectedGValue0());
+        mBValue0.setDouble(mColorSensor.getDetectedBValue0());
+        mReadDistance0.setDouble(mColorSensor.getDistance0());
         mAllianceColor.setString(mColorSensor.getAllianceColor().toString());
         mMatchedColor.setString(mColorSensor.getMatchedColor().toString());
-        mReadDistance.setDouble(mColorSensor.getDistance0());
+
+        mSensor1.setBoolean(mColorSensor.getSensor1());
+        mRValue1.setDouble(mColorSensor.getDetectedRValue1());
+        mGValue1.setDouble(mColorSensor.getDetectedGValue1());
+        mBValue1.setDouble(mColorSensor.getDetectedBValue1());
 
         mHasBall.setBoolean(mColorSensor.hasBall());
         mEject.setBoolean(mColorSensor.wantsEject());

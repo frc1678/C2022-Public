@@ -551,7 +551,7 @@ public class Superstructure extends Subsystem {
             mBottomColor = true;
             mTopColor = true;
         } else if (mBallCount == 1) {
-               mTopColor = mColorSensor.hasCorrectColor(); //only one ball --> sensor reading cooresponds to top ball
+            mTopColor = mColorSensor.hasCorrectColor(); //only one ball --> sensor reading cooresponds to top ball
         } else if (mBallCount == 2) {
             mBottomColor = mColorSensor.hasCorrectColor(); //two balls --> sensor reading corresponds to bottom ball
         }
