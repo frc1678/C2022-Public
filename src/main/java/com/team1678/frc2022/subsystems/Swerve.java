@@ -149,6 +149,8 @@ public class Swerve extends Subsystem {
         if (mTrapezoidProfile != null) {
             TrapezoidProfile.State adjustedRotation;
             adjustedRotation = mTrapezoidProfile.calculate(Constants.kLooperDt + Timer.getFPGATimestamp() - mProfileGenTime);
+            mPeriodicIO.goal_velocity = adjustedRotation.velocity;
+            mPeriodicIO.profile_position = adjustedRotation.position;
             drive(translation2d, adjustedRotation.velocity, fieldRelative, isOpenLoop);
         } else {
             drive(translation2d, rotation, !fieldRelative, isOpenLoop);
@@ -198,11 +200,11 @@ public class Swerve extends Subsystem {
         mVisionAlignGoal = vision_goal; 
 
         double currentAngle = getYaw().getRadians();
+        mPeriodicIO.align_goal = mVisionAlignGoal;
         mTrapezoidProfile = new TrapezoidProfile(Constants.VisionAlignConstants.kThetaControllerConstraints,
                                     new TrapezoidProfile.State(MathUtil.inputModulus(mVisionAlignGoal, 0.0, 2 * Math.PI), 0.0),
                                     new TrapezoidProfile.State(MathUtil.inputModulus(currentAngle, 0.0, 2 * Math.PI), chassisVelocity.omegaRadiansPerSecond));
         mProfileGenTime = Timer.getFPGATimestamp();
-
     }
 
     public double calculateSnapValue() {
@@ -350,18 +352,27 @@ public class Swerve extends Subsystem {
         mPeriodicIO.robot_roll = getRoll().getDegrees();
         mPeriodicIO.snap_target = Math.toDegrees(snapPIDController.getGoal().position);
 
+        mPeriodicIO.angular_velocity = chassisVelocity.omegaRadiansPerSecond;
+
         SendLog();
     }
 
     public static class PeriodicIO {
-
         public double odometry_pose_x;
         public double odometry_pose_y;
         public double odometry_pose_rot;
+
         public double pigeon_heading;
         public double robot_pitch;
         public double robot_roll;
         public double snap_target;
+
+        public double angular_velocity;
+        public double goal_velocity;
+
+        public double profile_position;
+
+        public double align_goal;
 
     }
 
@@ -376,6 +387,7 @@ public class Swerve extends Subsystem {
         mStorage = new LogStorage<PeriodicIO>();
 
         ArrayList<String> headers = new ArrayList<String>();
+        headers.add("timestamp");
         headers.add("odometry_pose_x");
         headers.add("odometry_pose_y");
         headers.add("odometry_pose_rot");
@@ -384,11 +396,17 @@ public class Swerve extends Subsystem {
         headers.add("robot_roll");
         headers.add("snap_target");
 
+        headers.add("angular_velocity");
+        headers.add("goal_velocity");
+        headers.add("profile_position");
+        headers.add("align_goal");
+
         mStorage.setHeaders(headers);
     }
 
     public void SendLog() {
         ArrayList<Number> items = new ArrayList<Number>();
+        items.add(Timer.getFPGATimestamp());
         items.add(mPeriodicIO.odometry_pose_x);
         items.add(mPeriodicIO.odometry_pose_y);
         items.add(mPeriodicIO.odometry_pose_rot);
@@ -396,6 +414,11 @@ public class Swerve extends Subsystem {
         items.add(mPeriodicIO.robot_pitch);
         items.add(mPeriodicIO.robot_roll);
         items.add(mPeriodicIO.snap_target);
+
+        items.add(mPeriodicIO.angular_velocity);
+        items.add(mPeriodicIO.goal_velocity);
+        items.add(mPeriodicIO.profile_position);
+        items.add(mPeriodicIO.align_goal);
 
         // send data to logging storage
         mStorage.addData(items);

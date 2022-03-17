@@ -166,7 +166,7 @@ public class Constants {
         public static final double kD = 0.75;
 
         // Constraints for the profiled angle controller
-        public static final double kMaxAngularSpeedRadiansPerSecond = 3.0 * Math.PI;
+        public static final double kMaxAngularSpeedRadiansPerSecond = 2.0 * Math.PI;
         public static final double kMaxAngularSpeedRadiansPerSecondSquared = 10.0 * Math.PI;
         
         public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
@@ -174,8 +174,6 @@ public class Constants {
 
         public static final double kTimeout = 0.25;
         public static final double kEpsilon = 3.0;
-
-
     }
 
     public static final class AutoConstants {
