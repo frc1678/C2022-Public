@@ -15,7 +15,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 public class Constants {
 
     // toggle constants for comp robot
-    public static final boolean isComp = true;
+    public static final boolean isComp = false;
 	
 	// robot loop time
 	public static final double kLooperDt = 0.02;
@@ -166,8 +166,8 @@ public class Constants {
         public static final double kD = 0.75;
 
         // Constraints for the profiled angle controller
-        public static final double kMaxAngularSpeedRadiansPerSecond = 1.0 * Math.PI;
-        public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.pow(kMaxAngularSpeedRadiansPerSecond, 2);
+        public static final double kMaxAngularSpeedRadiansPerSecond = 3.0 * Math.PI;
+        public static final double kMaxAngularSpeedRadiansPerSecondSquared = 10.0 * Math.PI;
         
         public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
                 new TrapezoidProfile.Constraints(kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);

@@ -151,7 +151,7 @@ public class Swerve extends Subsystem {
             adjustedRotation = mTrapezoidProfile.calculate(Constants.kLooperDt + Timer.getFPGATimestamp() - mProfileGenTime);
             drive(translation2d, adjustedRotation.velocity, fieldRelative, isOpenLoop);
         } else {
-            drive(translation2d, rotation, fieldRelative, isOpenLoop);
+            drive(translation2d, rotation, !fieldRelative, isOpenLoop);
         }
     }
 

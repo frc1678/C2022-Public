@@ -117,8 +117,8 @@ public class Robot extends TimedRobot {
 					mSwerve,
 					mSuperstructure,
 					mInfrastructure,
-					mIntake,
-					mIndexer,
+					// mIntake,
+					// mIndexer,
 					mShooter,
 					mTrigger,
 					mHood,
@@ -245,7 +245,7 @@ public class Robot extends TimedRobot {
 			double swerveRotation = mControlBoard.getSwerveRotation();
 
 			if (mControlBoard.getVisionAlign()) {
-				mSwerve.visionAlignDrive(swerveTranslation, swerveRotation, true, true);
+				mSwerve.visionAlignDrive(swerveTranslation, swerveRotation, false, true);
 			} else {
 				mSwerve.drive(swerveTranslation, swerveRotation, true, true);
 			}
