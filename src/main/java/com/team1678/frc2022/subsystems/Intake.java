@@ -1,6 +1,7 @@
 package com.team1678.frc2022.subsystems;
 
 import com.team1678.frc2022.Ports;
+import com.team1678.frc2022.Constants.IntakeConstants;
 import com.team1678.frc2022.logger.LogStorage;
 import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.loops.ILooper;
@@ -22,11 +23,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Intake extends Subsystem {
 
     public enum WantedAction {
-        NONE, INTAKE, REVERSE, REJECT
+        NONE, INTAKE, REVERSE, REJECT, FORCE_HOLD
     }
 
     public enum State {
-        IDLE, INTAKING, REVERSING, REJECTING
+        IDLE, INTAKING, REVERSING, REJECTING, FORCE_HOLDING
     }
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -107,6 +108,7 @@ public class Intake extends Subsystem {
             mPeriodicIO.hold_intake = true;
         }
 
+        SmartDashboard.putBoolean("Force Hold Intake", mPeriodicIO.force_hold_intake);
         SmartDashboard.putBoolean("Hold Intake", mPeriodicIO.hold_intake);
         SmartDashboard.putNumber("Deploy Demand", mPeriodicIO.deploy_demand);
         SmartDashboard.putNumber("Deploy Voltage", mPeriodicIO.deploy_voltage);
@@ -154,6 +156,13 @@ public class Intake extends Subsystem {
                     mIntakeRejectionTimer.reset();
                     mIntakeRejectionTimer.start();
                     mState = State.REJECTING;
+                }
+                break;
+            case FORCE_HOLD:
+                if (mState != State.FORCE_HOLDING) {
+                    mPeriodicIO.hold_intake = false;
+                    mPeriodicIO.force_hold_intake = true;
+                    mState = State.FORCE_HOLDING;
                 }
                 break;
         }
@@ -207,7 +216,20 @@ public class Intake extends Subsystem {
                     mPeriodicIO.deploy_demand = Constants.IntakeConstants.kDeployVoltage;
                 }
                 break;
-        }
+            case FORCE_HOLDING:
+                if (mPeriodicIO.hold_intake) {
+                    mPeriodicIO.deploy_demand = -Constants.IntakeConstants.kInHoldingVoltage;
+                } else if (mPeriodicIO.force_hold_intake) {
+                    mPeriodicIO.deploy_demand = -Constants.IntakeConstants.kDeployVoltage;
+                    mPeriodicIO.intake_demand = 0.0;
+                } else {
+                    setState(WantedAction.NONE);
+                }
+            }
+       }
+
+    public void setForceHold(boolean force_hold) {
+        mPeriodicIO.force_hold_intake = force_hold;
     }
 
     /* Subsystem Getters */
@@ -242,6 +264,10 @@ public class Intake extends Subsystem {
         return mPeriodicIO.singulator_demand;
     }
 
+    public boolean getForceHoldIntake() {
+        return mPeriodicIO.force_hold_intake;
+    }
+
     public static class PeriodicIO {
         // INPUTS
         private double intake_current;
@@ -257,6 +283,7 @@ public class Intake extends Subsystem {
         private double singulator_demand;
         private double deploy_demand;
         private boolean hold_intake;
+        private boolean force_hold_intake;
     }
 
     public void zeroSensors() {

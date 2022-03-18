@@ -106,6 +106,7 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mIntakeDeployCurrent;
     private final NetworkTableEntry mIntakeDeployVoltage;
     private final NetworkTableEntry mIntakeDeployDemand;
+    private final NetworkTableEntry mIsForceHolding;
 
     // private final NetworkTableEntry mFlywheelManualPIDToggle;
     // private final NetworkTableEntry mFlywheelP;
@@ -175,6 +176,7 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mReversing;
     private final NetworkTableEntry mRejecting;
     private final NetworkTableEntry mEjecting;
+    private final NetworkTableEntry mForceHolding;
     private final NetworkTableEntry mPrepping;
     private final NetworkTableEntry mShooting;
     private final NetworkTableEntry mFenderShot;
@@ -374,6 +376,9 @@ public class ShuffleBoardInteractions {
         mIntakeDeployDemand= INTAKE_TAB
             .add("Deploy Demand", 0.0)
             .getEntry();
+        mIsForceHolding = INTAKE_TAB
+            .add("Is Force Holding", 0.0)
+            .getEntry();
         
 
         /* INDEXER */
@@ -562,6 +567,10 @@ public class ShuffleBoardInteractions {
             .add("Rejecting", false)
             .withSize(1, 1)
             .getEntry();
+        mForceHolding = SUPERSTRUCTURE_TAB
+            .add("Force Holding", false)
+            .withSize(1, 1)
+            .getEntry();
         mEjecting = SUPERSTRUCTURE_TAB
             .add("Ejecting", false)
             .withSize(1, 1)
@@ -727,6 +736,7 @@ public class ShuffleBoardInteractions {
         mIntakeDeployCurrent.setDouble(mIntake.getDeployCurrent());
         mIntakeDeployVoltage.setDouble(mIntake.getDeployVoltage());
         mIntakeDeployDemand.setDouble(mIntake.getDeployDemand());
+        mIsForceHolding.setBoolean(mIntake.getForceHoldIntake());
         
         /* SHOOTER */
         mFlywheelRPM.setDouble(truncate(mShooter.getFlywheelRPM()));
@@ -800,6 +810,7 @@ public class ShuffleBoardInteractions {
         mIntaking.setBoolean(mSuperstructure.getIntaking());
         mReversing.setBoolean(mSuperstructure.getReversing());
         mRejecting.setBoolean(mSuperstructure.getRejecting());
+        mForceHolding.setBoolean(mSuperstructure.getForceHolding());
         mEjecting.setBoolean(mSuperstructure.getEjecting());
         mPrepping.setBoolean(mSuperstructure.getPrepping());
         mShooting.setBoolean(mSuperstructure.getShooting());
