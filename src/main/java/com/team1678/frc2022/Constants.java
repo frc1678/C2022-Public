@@ -250,7 +250,7 @@ public class Constants {
 		public static final double kImageCaptureLatency = 11.0 / 1000.0; // seconds
         
         // lookahead time
-        public static final double kLookaheadTime = 1.10; // 1.5
+        public static final double kLookaheadTime = 0.0; // 1.10 as latest
 
         /* Goal Tracker Constants */
         public static final double kMaxTrackerDistance = 9.0;
