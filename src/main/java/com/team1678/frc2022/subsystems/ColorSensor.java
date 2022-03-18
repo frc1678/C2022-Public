@@ -79,7 +79,7 @@ public class ColorSensor extends Subsystem {
 
     // check if we see a ball
     public boolean seesBall() {
-        return mForwardBreak.get();
+        return getFowrardBeamBreak();
     }
 
     // check if we have the right color
@@ -129,7 +129,7 @@ public class ColorSensor extends Subsystem {
 
     // update the color of the cargo we see
     public void updateMatchedColor() {
-        if (seesBall()) { 
+        if (!seesBall()) { 
             mMatchedColor = ColorChoices.NONE;
         } else {
             if (mPeriodicIO.adjustedRed > mPeriodicIO.adjustedBlue) {
@@ -168,8 +168,8 @@ public class ColorSensor extends Subsystem {
         mPeriodicIO.sensor0Connected = mPico.isSensor0Connected();
         mPeriodicIO.raw_color = mPico.getRawColor0();
         
-        mPeriodicIO.adjustedRed = mPeriodicIO.raw_color.red * 1.11;
-        mPeriodicIO.adjustedBlue = mPeriodicIO.raw_color.blue * 1.66;
+        mPeriodicIO.adjustedRed = mPeriodicIO.raw_color.red * 1.66;
+        mPeriodicIO.adjustedBlue = mPeriodicIO.raw_color.blue * 1.11;
 
         mPeriodicIO.timestamp = mPico.getLastReadTimestampSeconds();
 
@@ -188,7 +188,7 @@ public class ColorSensor extends Subsystem {
         if (mPeriodicIO.raw_color == null) {
             return 0;
         }
-        return mPeriodicIO.adjustedRed;
+        return mPeriodicIO.raw_color.red;
     }
     public double getDetectedGValue() {
         if (mPeriodicIO.raw_color == null) {
@@ -200,7 +200,7 @@ public class ColorSensor extends Subsystem {
         if (mPeriodicIO.raw_color == null) {
             return 0;
         }
-        return mPeriodicIO.adjustedBlue;
+        return mPeriodicIO.raw_color.blue;
     }
     public String getAllianceColor() {
         return mAllianceColor.toString();
@@ -209,7 +209,15 @@ public class ColorSensor extends Subsystem {
         return mMatchedColor.toString();
     }    
     public boolean getFowrardBeamBreak() {
-        return mForwardBreak.get();
+        return !mForwardBreak.get();
+    }
+
+    public double getAdjustedRed() {
+        return mPeriodicIO.adjustedRed;
+    }
+
+    public double getAdjustedBlue() {
+        return mPeriodicIO.adjustedBlue;
     }
 
     public boolean getSensor0() {
@@ -223,8 +231,8 @@ public class ColorSensor extends Subsystem {
     public static class PeriodicIO {
         // INPUTS
         public RawColor raw_color;
-        public double adjustedRed; // 1.11
-        public double adjustedBlue; // 1.66
+        public double adjustedRed; // 1.66
+        public double adjustedBlue; // 1.11
         public boolean sensor0Connected;
 
         // OUTPUTS
