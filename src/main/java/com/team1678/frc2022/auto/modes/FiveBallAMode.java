@@ -1,10 +1,15 @@
 package com.team1678.frc2022.auto.modes;
 
+import java.util.List;
+
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.ShuffleBoardInteractions;
 import com.team1678.frc2022.auto.AutoModeEndedException;
 import com.team1678.frc2022.auto.AutoTrajectoryReader;
 import com.team1678.frc2022.auto.actions.LambdaAction;
+import com.team1678.frc2022.auto.actions.ParallelAction;
+import com.team1678.frc2022.auto.actions.RaceAction;
+import com.team1678.frc2022.auto.actions.SeriesAction;
 import com.team1678.frc2022.auto.actions.SwerveTrajectoryAction;
 import com.team1678.frc2022.auto.actions.WaitAction;
 import com.team1678.frc2022.subsystems.Superstructure;
@@ -81,8 +86,9 @@ public class FiveBallAMode extends AutoModeBase {
                         Constants.AutoConstants.kMaxSpeedMetersPerSecond, 
                         Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared, 
                         0.0, 
-                        Constants.AutoConstants.kSlowAccelerationMetersPerSecondSquared)
-                );
+                        Constants.AutoConstants.kMaxSpeedMetersPerSecond
+                )
+        );
 
         driveToThirdShotCargo = new SwerveTrajectoryAction(traj_path_b,
                 mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
@@ -96,11 +102,12 @@ public class FiveBallAMode extends AutoModeBase {
         // Intake third cargo
         traj_path_c = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_c,
                 Constants.AutoConstants.createConfig(
-                        Constants.AutoConstants.kSlowAccelerationMetersPerSecondSquared, 
-                        Constants.AutoConstants.kSlowAccelerationMetersPerSecondSquared, 
-                        Constants.AutoConstants.kSlowAccelerationMetersPerSecondSquared, 
-                        0.0)
-                );
+                        Constants.AutoConstants.kMaxSpeedMetersPerSecond,
+                        Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared,
+                        Constants.AutoConstants.kMaxSpeedMetersPerSecond,
+                        0.0
+                )
+        );
 
         driveToIntakeThirdShotCargo = new SwerveTrajectoryAction(traj_path_c,
                 mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
@@ -114,7 +121,7 @@ public class FiveBallAMode extends AutoModeBase {
         // Drive to intake 4th cargo at terminal
         traj_path_d = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_d,
                 Constants.AutoConstants.createConfig(
-                        3.0, 
+                        4.0, 
                         Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared, 
                         0.0, 
                         0.0)
@@ -132,7 +139,7 @@ public class FiveBallAMode extends AutoModeBase {
         // Drive to second shot
         traj_path_e = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_e,
                 Constants.AutoConstants.createConfig(
-                        3.0, 
+                        4.0, 
                         Constants.AutoConstants.kSlowAccelerationMetersPerSecondSquared, 
                         0.0, 
                         0.0)        
@@ -151,11 +158,11 @@ public class FiveBallAMode extends AutoModeBase {
         // Drive to opponent cargo
         traj_path_f = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_f,
                 Constants.AutoConstants.createConfig(
-                        3.0, 
+                        4.0, 
                         Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared, 
                         0.0,
-                        Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared)
-                );
+                        Constants.AutoConstants.kMaxSpeedMetersPerSecond
+                ));
                         
         driveToEjectCargo = new SwerveTrajectoryAction(traj_path_f,
                 mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
@@ -177,20 +184,21 @@ public class FiveBallAMode extends AutoModeBase {
         // reset odometry at the start of the trajectory
         runAction(new LambdaAction(() -> mSwerve.resetOdometry(driveToIntakeSecondShotCargo.getInitialPose())));
 
-        // start spinning up for shot
-        runAction(new LambdaAction(() -> mSuperstructure.setWantPrep(true)));
-
-        // start intaking
-        runAction(new LambdaAction(() -> mSuperstructure.setWantIntake(true)));
-
         // start vision aiming to align drivetrain to target
         runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));
 
-        // wait for swerve modules to align
-        runAction(new WaitAction(0.3));
-
-        // run trajectory to intake second cargo
-        runAction(driveToIntakeSecondShotCargo);
+        runAction(new RaceAction(
+                new SeriesAction(List.of(
+                                        new WaitAction(0.1),
+                                        driveToIntakeSecondShotCargo
+                                )),
+                
+                new SeriesAction(List.of(
+                        new WaitAction(0.2),
+                        new LambdaAction(() -> mSuperstructure.setWantPrep(true)),
+                        new LambdaAction(() -> mSuperstructure.setWantIntake(true))
+                )
+        )));
 
         // shoot first & second cargo
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
@@ -235,7 +243,7 @@ public class FiveBallAMode extends AutoModeBase {
         runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(false)));
 
         // slow eject
-        runAction(new LambdaAction(() -> mSuperstructure.setSlowEject(true)));
+        runAction(new LambdaAction(() -> mSuperstructure.setWantEject(true, true)));
 
         // run trajectory for eject cargo
         runAction(driveToEjectCargo);

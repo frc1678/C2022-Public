@@ -9,6 +9,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.constraint.CentripetalAccelerationConstraint;
 
 public class Constants {
 
@@ -197,6 +198,7 @@ public class Constants {
             config.setKinematics(Constants.SwerveConstants.swerveKinematics);
             config.setStartVelocity(startSpeed);
             config.setEndVelocity(endSpeed);
+            config.addConstraint(new CentripetalAccelerationConstraint(3.0));
             return config;
         }
 

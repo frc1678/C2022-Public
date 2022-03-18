@@ -131,7 +131,7 @@ public class Superstructure extends Subsystem {
                     updateShootingParams();
                 }
 
-                updateWantEjection();
+                // updateWantEjection();
                 setGoals();
                 updateLEDs();
                 outputTelemetry();
