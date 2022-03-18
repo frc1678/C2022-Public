@@ -280,7 +280,7 @@ public class Superstructure extends Subsystem {
         if (mClimbMode) {
 
             // update gyro offset
-            mGyroOffset = mSwerve.getRoll().getDegrees();
+            mGyroOffset = mSwerve.getRoll().getDegrees() - mStartingGyroPosition;
 
             /*** CLIMB MODE CONTROLS ***/
 
