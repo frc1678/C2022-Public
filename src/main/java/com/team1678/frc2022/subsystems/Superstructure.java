@@ -162,16 +162,6 @@ public class Superstructure extends Subsystem {
             mPeriodicIO.FORCE_HOLD = false;
         }
     }
-    public void setWantHold(boolean force_hold) {
-        mPeriodicIO.FORCE_HOLD = force_hold;
-
-        //set other intake actions to false when true
-        if (mPeriodicIO.FORCE_HOLD) {
-            mPeriodicIO.REVERSE = false;
-            mPeriodicIO.REJECT = false;
-            mPeriodicIO.INTAKE = false;
-        }
-    }
     public void setWantReverse(boolean reverse) {
         mPeriodicIO.REVERSE = reverse;
 
@@ -180,6 +170,16 @@ public class Superstructure extends Subsystem {
             mPeriodicIO.INTAKE = false;
             mPeriodicIO.REJECT = false;
             mPeriodicIO.FORCE_HOLD = false;
+        }
+    }
+    public void setWantHold(boolean force_hold) {
+        mPeriodicIO.FORCE_HOLD = force_hold;
+
+        //set other intake actions to false when true
+        if (mPeriodicIO.FORCE_HOLD) {
+            mPeriodicIO.REVERSE = false;
+            mPeriodicIO.REJECT = false;
+            mPeriodicIO.INTAKE = false;
         }
     }
     public void setWantReject(boolean reject) {
