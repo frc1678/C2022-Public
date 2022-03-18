@@ -199,7 +199,7 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mBValue;
     private final NetworkTableEntry mAllianceColor;
     private final NetworkTableEntry mMatchedColor;
-    private final NetworkTableEntry mReadDistance;
+    private final NetworkTableEntry mForwardBreak;
 
     private final NetworkTableEntry mHasBall;
     private final NetworkTableEntry mEject;
@@ -494,7 +494,7 @@ public class ShuffleBoardInteractions {
         mMatchedColor = COLOR_SENSOR
             .add("Matched Color", "N/A")
             .getEntry();
-        mReadDistance = COLOR_SENSOR
+        mForwardBreak = COLOR_SENSOR
             .add("Read Distance", 0.0)
             .getEntry();
             
@@ -762,7 +762,7 @@ public class ShuffleBoardInteractions {
         mBValue.setDouble(mColorSensor.getDetectedBValue());
         mAllianceColor.setString(mColorSensor.getAllianceColor().toString());
         mMatchedColor.setString(mColorSensor.getMatchedColor().toString());
-        mReadDistance.setDouble(mColorSensor.getDistance());
+        mForwardBreak.setBoolean(mColorSensor.getFowrardBeamBreak());
 
         mHasBall.setBoolean(mColorSensor.hasBall());
         mEject.setBoolean(mColorSensor.wantsEject());

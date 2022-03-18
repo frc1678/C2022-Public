@@ -1,6 +1,7 @@
 package com.team1678.frc2022.subsystems;
 
 import com.team1678.frc2022.Constants;
+import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.lib.drivers.PicoColorSensor;
 import com.team1678.frc2022.lib.drivers.PicoColorSensor.RawColor;
 import com.team1678.frc2022.loops.ILooper;
@@ -8,6 +9,7 @@ import com.team1678.frc2022.loops.Loop;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 
 public class ColorSensor extends Subsystem {
@@ -23,6 +25,8 @@ public class ColorSensor extends Subsystem {
     public PeriodicIO mPeriodicIO = new PeriodicIO();
     private PicoColorSensor mPico;
 
+    private final DigitalInput mForwardBreak;
+
     private Timer mHasBallTimer = new Timer();
     private Timer mEjectorTimer = new Timer();
 
@@ -36,7 +40,8 @@ public class ColorSensor extends Subsystem {
     private ColorSensor() {
         mMatchedColor = ColorChoices.NONE;
         mPico = new PicoColorSensor();
-        
+
+        mForwardBreak = new DigitalInput(Ports.FORWARD_BEAM_BREAK);
     }
 
     @Override
@@ -74,7 +79,7 @@ public class ColorSensor extends Subsystem {
 
     // check if we see a ball
     public boolean seesBall() {
-        return mPeriodicIO.proximity > Constants.ColorSensorConstants.kColorSensorThreshold;
+        return mForwardBreak.get();
     }
 
     // check if we have the right color
@@ -124,7 +129,7 @@ public class ColorSensor extends Subsystem {
 
     // update the color of the cargo we see
     public void updateMatchedColor() {
-        if (mPeriodicIO.proximity < Constants.ColorSensorConstants.kColorSensorThreshold) { 
+        if (seesBall()) { 
             mMatchedColor = ColorChoices.NONE;
         } else {
             if (mPeriodicIO.raw_color.red > mPeriodicIO.raw_color.blue) {
@@ -162,7 +167,6 @@ public class ColorSensor extends Subsystem {
     public synchronized void readPeriodicInputs() {
         mPeriodicIO.sensor0Connected = mPico.isSensor0Connected();
         mPeriodicIO.raw_color = mPico.getRawColor0();
-        mPeriodicIO.proximity = mPico.getProximity0();
 
         mPeriodicIO.timestamp = mPico.getLastReadTimestampSeconds();
 
@@ -201,8 +205,8 @@ public class ColorSensor extends Subsystem {
     public String getMatchedColor() {
         return mMatchedColor.toString();
     }    
-    public double getDistance() {
-        return mPeriodicIO.proximity;
+    public boolean getFowrardBeamBreak() {
+        return mForwardBreak.get();
     }
 
     public boolean getSensor0() {
@@ -216,7 +220,6 @@ public class ColorSensor extends Subsystem {
     public static class PeriodicIO {
         // INPUTS
         public RawColor raw_color;
-        public int proximity;
         public boolean sensor0Connected;
 
         // OUTPUTS
