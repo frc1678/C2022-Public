@@ -3,15 +3,18 @@ package com.team1678.frc2022.subsystems;
 import com.team1678.frc2022.loops.Loop;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.Constants;
+import com.team1678.frc2022.Robot;
+import com.team1678.frc2022.RobotState;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.CustomXboxController;
 import com.team1678.frc2022.controlboard.CustomXboxController.Button;
-import com.team1678.frc2022.lib.drivers.PicoColorSensor;
 import com.team1678.frc2022.logger.LogStorage;
 import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.regressions.ShooterRegression;
 import com.team1678.frc2022.subsystems.LEDs.State;
 import com.team254.lib.util.Util;
+import com.team254.lib.vision.AimingParameters;
+import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.util.InterpolatingDouble;
 
 import edu.wpi.first.wpilibj.Timer;
@@ -47,6 +50,9 @@ public class Superstructure extends Subsystem {
     private final Climber mClimber = Climber.getInstance();
     private final Limelight mLimelight = Limelight.getInstance();
     private final LEDs mLEDs = LEDs.getInstance();
+
+    // robot state
+    private final RobotState mRobotState = RobotState.getInstance();
 
     // timer for reversing the intake and then stopping it once we have two correct cargo
     Timer mIntakeRejectTimer = new Timer();
@@ -114,6 +120,12 @@ public class Superstructure extends Subsystem {
 
     private final double kSpitVelocity = 1000;
     private final double kSpitAngle = 20.0;
+    
+    // aiming parameter vars
+    private Optional<AimingParameters> real_aiming_params_ = Optional.empty();
+    private int mTrackId = -1;
+    private double mTargetAngle = 0.0;
+    private double mCorrectedDistanceToTarget = 0.0;
 
     @Override
     public void registerEnabledLoops(ILooper enabledLooper) {
@@ -128,7 +140,8 @@ public class Superstructure extends Subsystem {
 
                 if (!mClimbMode) {
                     updateBallCounter();
-                    updateShootingParams();
+                    updateVisionAimingParameters();
+                    updateShootingSetpoints();
                 }
                 setGoals();
                 updateLEDs();
@@ -530,21 +543,66 @@ public class Superstructure extends Subsystem {
         }
     }
 
-    /*** UPDATE SHOOTER AND HOOD SETPOINTS WHEN VISION AIMING ***/
-    public synchronized void updateShootingParams() {
+    /*** GET REAL AIMING PARAMETERS
+     * called in updateVisionAimingSetpoints()
+    */
+    public Optional<AimingParameters> getRealAimingParameters() {
+        Optional<AimingParameters> aiming_params = RobotState.getInstance().getAimingParameters(mTrackId, Constants.VisionConstants.kMaxGoalTrackAge);
+        if (aiming_params.isPresent()) {
+            return aiming_params;
+        } else {
+            Optional<AimingParameters> default_aiming_params = RobotState.getInstance().getDefaultAimingParameters();
+            return default_aiming_params;
+        }
+    }
+
+    /*** UPDATE VISION AIMING PARAMETERS FROM GOAL TRACKING ***/
+    public void updateVisionAimingParameters() {
+        // get aiming parameters from either vision-assisted goal tracking or odometry-only tracking
+        real_aiming_params_ = getRealAimingParameters();
+
+        // predicted pose and target
+        Pose2d predicted_field_to_vehicle = mRobotState.getPredictedFieldToVehicle(Constants.VisionConstants.kLookaheadTime);
+        Pose2d predicted_vehicle_to_goal = predicted_field_to_vehicle.inverse()
+                .transformBy(real_aiming_params_.get().getFieldToGoal());
+
+        // update align delta from target and distance from target
+        mTrackId = real_aiming_params_.get().getTrackId();
+        mTargetAngle = predicted_vehicle_to_goal.getTranslation().direction().getRadians() + Math.PI;
+        mCorrectedDistanceToTarget = predicted_vehicle_to_goal.getTranslation().norm() + 0.6;
+
+        // send vision aligning target delta to swerve
+        mSwerve.acceptLatestVisionAlignGoal(mTargetAngle);
+
+        SmartDashboard.putString("Field to Target", real_aiming_params_.get().getFieldToGoal().toString());
+        SmartDashboard.putString("Vehicle to Target", real_aiming_params_.get().getVehicleToGoal().toString());
+        SmartDashboard.putNumber("Vision Target Angle", Math.toDegrees(mTargetAngle));
+
+        // lookahead angle offset
+        SmartDashboard.putNumber("Lookahead Offset", Math.toDegrees(mTargetAngle) - (real_aiming_params_.get().getVehicleToGoalRotation().getDegrees() + 180));
+        SmartDashboard.putNumber("Distance Offset", mCorrectedDistanceToTarget - real_aiming_params_.get().getRange());
+    }
+
+    /*** SEND VISION ALIGN GOAL TO SWERVE ***/
+    public synchronized void updateShootingSetpoints() {
         if (mPeriodicIO.SPIT) {
             mShooterSetpoint = kSpitVelocity;
             mHoodSetpoint = kSpitAngle;
         } else if (mPeriodicIO.FENDER) {
             mShooterSetpoint = kFenderVelocity;
             mHoodSetpoint = kFenderAngle;
-        } else if (hasTarget()) {
-            Optional<Double> distance_to_target = mLimelight.getDistanceToTarget();
-            if (distance_to_target.isPresent()) {
-                mShooterSetpoint = getShooterSetpointFromRegression(distance_to_target.get());
-                mHoodSetpoint = getHoodSetpointFromRegression(distance_to_target.get());
-            }
+        /*
+        } else if (mLimelight.getLimelightDistanceToTarget().isPresent()) {
+            mShooterSetpoint = getShooterSetpointFromRegression(mLimelight.getLimelightDistanceToTarget().get());
+            mHoodSetpoint = getHoodSetpointFromRegression(mLimelight.getLimelightDistanceToTarget().get());
         }
+        */
+        
+        } else if (real_aiming_params_.isPresent()) {
+            mShooterSetpoint = getShooterSetpointFromRegression(mCorrectedDistanceToTarget);
+            mHoodSetpoint = getHoodSetpointFromRegression(mCorrectedDistanceToTarget);
+        }
+        
     }
 
     /*** UPDATE SUBSYSTEM STATES + SETPOINTS AND SET GOALS
@@ -714,6 +772,10 @@ public class Superstructure extends Subsystem {
             return ShooterRegression.kHoodAutoAimMap.getInterpolated(new InterpolatingDouble(range)).value;
         }
     }
+    // get vision align delta from goal
+    public double getVisionAlignGoal() {
+        return mTargetAngle;
+    }
 
     // call normal intake controls
     public void normalIntakeControls() {
@@ -858,6 +920,8 @@ public class Superstructure extends Subsystem {
         SmartDashboard.putNumber("Robot Roll", mSwerve.getRoll().getDegrees());
         SmartDashboard.putNumber("Gyro Start", mStartingGyroPosition);
         SmartDashboard.putNumber("Gyro Offset", mGyroOffset);
+
+        SmartDashboard.putNumber("Distance To Target", mCorrectedDistanceToTarget);
     }
 
     // included to continue logging while disabled

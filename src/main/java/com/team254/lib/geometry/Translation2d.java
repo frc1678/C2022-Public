@@ -36,6 +36,11 @@ public class Translation2d implements ITranslation2d<Translation2d> {
         x_ = end.x_ - start.x_;
         y_ = end.y_ - start.y_;
     }
+
+    public Translation2d(final edu.wpi.first.math.geometry.Translation2d other) {
+        x_ = other.getX();
+        y_ = other.getY();
+    }
     
     public static Translation2d fromPolar(Rotation2d direction, double magnitude){
     	return new Translation2d(direction.cos() * magnitude, direction.sin() * magnitude);
