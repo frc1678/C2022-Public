@@ -132,9 +132,9 @@ public class ColorSensor extends Subsystem {
         if (seesBall()) { 
             mMatchedColor = ColorChoices.NONE;
         } else {
-            if (mPeriodicIO.raw_color.red > mPeriodicIO.raw_color.blue) {
+            if (mPeriodicIO.adjustedRed > mPeriodicIO.adjustedBlue) {
                 mMatchedColor = ColorChoices.RED;
-            } else if (mPeriodicIO.raw_color.blue > mPeriodicIO.raw_color.red) {
+            } else if (mPeriodicIO.adjustedBlue > mPeriodicIO.adjustedRed) {
                 mMatchedColor = ColorChoices.BLUE;
             } else {
                 mMatchedColor = ColorChoices.OTHER;
@@ -167,6 +167,9 @@ public class ColorSensor extends Subsystem {
     public synchronized void readPeriodicInputs() {
         mPeriodicIO.sensor0Connected = mPico.isSensor0Connected();
         mPeriodicIO.raw_color = mPico.getRawColor0();
+        
+        mPeriodicIO.adjustedRed = mPeriodicIO.raw_color.red * 1.11;
+        mPeriodicIO.adjustedBlue = mPeriodicIO.raw_color.blue * 1.66;
 
         mPeriodicIO.timestamp = mPico.getLastReadTimestampSeconds();
 
@@ -185,7 +188,7 @@ public class ColorSensor extends Subsystem {
         if (mPeriodicIO.raw_color == null) {
             return 0;
         }
-        return mPeriodicIO.raw_color.red;
+        return mPeriodicIO.adjustedRed;
     }
     public double getDetectedGValue() {
         if (mPeriodicIO.raw_color == null) {
@@ -197,7 +200,7 @@ public class ColorSensor extends Subsystem {
         if (mPeriodicIO.raw_color == null) {
             return 0;
         }
-        return mPeriodicIO.raw_color.blue;
+        return mPeriodicIO.adjustedBlue;
     }
     public String getAllianceColor() {
         return mAllianceColor.toString();
@@ -220,6 +223,8 @@ public class ColorSensor extends Subsystem {
     public static class PeriodicIO {
         // INPUTS
         public RawColor raw_color;
+        public double adjustedRed; // 1.11
+        public double adjustedBlue; // 1.66
         public boolean sensor0Connected;
 
         // OUTPUTS
