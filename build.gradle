@@ -2,7 +2,7 @@ import edu.wpi.first.gradlerio.deploy.roborio.RoboRIO
 
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2022.3.1"
+    id "edu.wpi.first.GradleRIO" version "2022.4.1"
 }
 
 sourceCompatibility = JavaVersion.VERSION_11
@@ -42,7 +42,6 @@ deploy {
 }
 
 def deployArtifact = deploy.targets.roborio.artifacts.frcJava
-
 // Set to true to use debug for JNI.
 wpi.java.debugJni = false
 

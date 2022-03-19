@@ -98,7 +98,7 @@ public class LoggingSystem {
             try {
                 for (int h=0; h < itemNames.size(); h++) {
                     fileWriter.write(itemNames.get(h));
-                    if (h != itemNames.size()) {
+                    if (h != itemNames.size() - 1) {
                         fileWriter.write(",");
                     }
                 }

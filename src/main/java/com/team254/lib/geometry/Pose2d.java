@@ -2,6 +2,7 @@ package com.team254.lib.geometry;
 
 import com.team254.lib.util.Util;
 
+
 /**
  * Represents a 2d pose (rigid transform) containing translational and rotational elements.
  * <p>
@@ -24,6 +25,12 @@ public class Pose2d implements IPose2d<Pose2d> {
         rotation_ = new Rotation2d();
     }
 
+    public Pose2d(edu.wpi.first.math.geometry.Pose2d pose2d) {
+        translation_ = new Translation2d(pose2d.getTranslation());
+        rotation_ = new Rotation2d(pose2d.getRotation());
+    }
+
+
     public Pose2d(double x, double y, final Rotation2d rotation) {
         translation_ = new Translation2d(x, y);
         rotation_ = rotation;
@@ -37,6 +44,10 @@ public class Pose2d implements IPose2d<Pose2d> {
     public Pose2d(final Pose2d other) {
         translation_ = new Translation2d(other.translation_);
         rotation_ = new Rotation2d(other.rotation_);
+    }
+
+    public edu.wpi.first.math.geometry.Pose2d getWpilibPose2d() {
+        return new edu.wpi.first.math.geometry.Pose2d(new edu.wpi.first.math.geometry.Translation2d(translation_.x(), translation_.y()), edu.wpi.first.math.geometry.Rotation2d.fromDegrees(rotation_.getDegrees()));
     }
 
     public static Pose2d fromTranslation(final Translation2d translation) {
