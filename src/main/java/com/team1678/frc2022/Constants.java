@@ -270,6 +270,9 @@ public class Constants {
     /*** SUBSYSTEM CONSTANTS ***/
 
     public static final class IntakeConstants {
+
+        public static final double kSingulatorVelocityConversion = (600.0 / 2048.0) * (1.9 / 1.0);
+
         public static final double kIntakingVoltage = 10;
         public static final double kSpittingVoltage = -8;
         public static final double kRejectingVoltage = -5;
@@ -363,19 +366,12 @@ public class Constants {
 
     public static final class IndexerConstants {
 
-        // TODO: find actual values
-        public static final double kIndexerKp = 0.2;
-        public static final double kIndexerKi = 0.;
-        public static final double kIndexerKd = 0.;
-        public static final double kIndexerKf = .05;
+        public static final double kTunnelVelocityConversion = (600.0 / 2048.0) * (3.0 / 1.0);
 
-        public static final double kIndexerVelocityKp = 0.05;
-        public static final double kIndexerVelocityKi = 0.;
-        public static final double kIndexerVelocityKd = 0.;
-        public static final double kIndexerVelocityKf = .05;
-
-        public static final int kIndexerMaxVelocity = 20000;
-        public static final int kIndexerMaxAcceleration = 40000;
+        public static final double kTunnelP = 0.05;
+        public static final double kTunnelI = 0.0;
+        public static final double kTunnelD = 0.0;
+        public static final double kTunnelF = 0.05;
 
         public static final double kIdleVoltage = 0.0;
 

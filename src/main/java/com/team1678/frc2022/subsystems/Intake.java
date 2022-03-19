@@ -103,6 +103,8 @@ public class Intake extends Subsystem {
 
         mPeriodicIO.deploy_current = mDeploy.getStatorCurrent();
         mPeriodicIO.deploy_voltage = mDeploy.getMotorOutputVoltage();
+
+        mPeriodicIO.singulator_velocity = mSingulator.getSelectedSensorVelocity() * Constants.IntakeConstants.kSingulatorVelocityConversion;
         
         if (mPeriodicIO.deploy_current > Constants.IntakeConstants.kDeployCurrentLimit) {
             mPeriodicIO.hold_intake = true;
@@ -273,6 +275,8 @@ public class Intake extends Subsystem {
         private double intake_current;
         private double singulator_current;
         private double deploy_current;
+
+        private double singulator_velocity;
 
         private double intake_voltage;
         private double singulator_voltage;

@@ -67,6 +67,15 @@ public class Indexer extends Subsystem {
         mEjector = TalonFXFactory.createDefaultTalon(Ports.EJECTOR_ID);
         mTunnel = TalonFXFactory.createDefaultTalon(Ports.TUNNEL_ID);
 
+        /* Tuning Values */
+        mTunnel.config_kP(0, Constants.IndexerConstants.kTunnelP, Constants.kLongCANTimeoutMs);
+        mTunnel.config_kI(0, Constants.IndexerConstants.kTunnelI, Constants.kLongCANTimeoutMs);
+        mTunnel.config_kD(0, Constants.IndexerConstants.kTunnelD, Constants.kLongCANTimeoutMs);
+        mTunnel.config_kF(0, Constants.IndexerConstants.kTunnelF, Constants.kLongCANTimeoutMs);
+        mTunnel.config_IntegralZone(0, (int) (200.0 / Constants.IndexerConstants.kTunnelVelocityConversion));
+        mTunnel.selectProfileSlot(0, 0);
+        mTunnel.configClosedloopRamp(0.1);
+
         mTunnel.setInverted(true);
 
         mBottomBeamBreak = new DigitalInput(Ports.BOTTOM_BEAM_BREAK);
@@ -168,6 +177,14 @@ public class Indexer extends Subsystem {
     public synchronized void readPeriodicInputs() {
         mPeriodicIO.top_break = !mTopBeamBreak.get();
         mPeriodicIO.bottom_break = !mBottomBeamBreak.get();
+
+        mPeriodicIO.tunnel_velocity = mTunnel.getSelectedSensorVelocity() * Constants.IndexerConstants.kTunnelVelocityConversion;
+        mPeriodicIO.tunnel_current = mTunnel.getStatorCurrent();
+        mPeriodicIO.tunnel_voltage = mTunnel.getMotorOutputVoltage();
+
+        mPeriodicIO.ejector_velocity = mEjector.getSelectedSensorVelocity();
+        mPeriodicIO.ejector_current = mEjector.getStatorCurrent();
+        mPeriodicIO.ejector_voltage = mEjector.getMotorOutputVoltage();
     }
 
     public State getState() {
@@ -231,6 +248,9 @@ public class Indexer extends Subsystem {
         // INPUTS
         public boolean top_break;
         public boolean bottom_break;
+
+        public double tunnel_velocity;
+        public double ejector_velocity;
         
         public double ejector_current;
         public double tunnel_current;
