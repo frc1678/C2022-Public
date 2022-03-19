@@ -155,6 +155,35 @@ public class ControlBoard {
         return driver.getButton(Button.LB);
     }
 
+    //Intake Controls
+    public boolean getIntake() {
+        return operator.getTrigger(Side.RIGHT);
+    }
+
+    public boolean getOuttake() {
+        return operator.getTrigger(Side.LEFT);
+    }
+
+    public boolean getSpitting() {
+        return operator.getController().getRightBumper();
+    }
+
+    public boolean getHoldIntake() {
+        return operator.getButton(Button.LB);
+    }
+
+    public boolean getForceHoldIntake() {
+        return operator.getButton(Button.RB);
+    }
+
+    //Indexer Controls
+    public boolean getElevating() {
+        return operator.getButton(Button.B);
+    }
+
+    public boolean getIndexing() {
+        return operator.getButton(Button.Y);
+    }
     public boolean getDisableColorLogic() {
         boolean wasPressed = operator.getController().getPOV() == kDpadRight && mLastDpadRight != kDpadRight;
         mLastDpadRight = operator.getController().getPOV();
