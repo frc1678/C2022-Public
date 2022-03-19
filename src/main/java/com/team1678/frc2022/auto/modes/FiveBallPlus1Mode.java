@@ -11,24 +11,23 @@ import com.team1678.frc2022.subsystems.Swerve;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class FiveBallAMode extends AutoModeBase {
+public class FiveBallPlus1Mode extends AutoModeBase {
     
     // Swerve instance 
     private final Swerve mSwerve = Swerve.getInstance();
     private final Superstructure mSuperstructure = Superstructure.getInstance();
 
     // required PathWeaver file paths
-    String file_path_a = "paths/FiveBallPaths/5 Ball a A.path";
-    String file_path_b = "paths/FiveBallPaths/5 Ball a B.path";
-    String file_path_c = "paths/FiveBallPaths/5 Ball a C.path";
-    String file_path_d = "paths/FiveBallPaths/5 Ball a D.path";
-    String file_path_e = "paths/FiveBallPaths/5 Ball a E.path";
-    String file_path_f = "paths/FiveBallPaths/5 Ball a F.path";
+    String file_path_a = "paths/FiveBallPaths/5 Ball + 1 a.path";
+    String file_path_b = "paths/FiveBallPaths/5 Ball + 1 b.path";
+    String file_path_c = "paths/FiveBallPaths/5 Ball + 1 c.path";
+    String file_path_d = "paths/FiveBallPaths/5 Ball + 1 d.path";
+    String file_path_e = "paths/FiveBallPaths/5 Ball + 1 e.path";
+    String file_path_f = "paths/FiveBallPaths/5 Ball + 1 f.path";
     
 	// trajectory actions
 	SwerveTrajectoryAction driveToIntakeSecondShotCargo;
@@ -38,7 +37,7 @@ public class FiveBallAMode extends AutoModeBase {
 	SwerveTrajectoryAction driveToFourthShotPose;
     SwerveTrajectoryAction driveToEjectCargo;
 
-    public FiveBallAMode() {
+    public FiveBallPlus1Mode() {
 
         SmartDashboard.putBoolean("Auto Finished", false);
 
