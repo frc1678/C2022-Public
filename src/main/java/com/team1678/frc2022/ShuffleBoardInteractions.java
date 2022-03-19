@@ -203,9 +203,11 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mRValue;
     private final NetworkTableEntry mGValue;
     private final NetworkTableEntry mBValue;
+    private final NetworkTableEntry mAdjustedRed;
+    private final NetworkTableEntry mAdjustedBlue;
     private final NetworkTableEntry mAllianceColor;
     private final NetworkTableEntry mMatchedColor;
-    private final NetworkTableEntry mReadDistance;
+    private final NetworkTableEntry mForwardBreak;
 
     private final NetworkTableEntry mHasBall;
     private final NetworkTableEntry mEject;
@@ -497,14 +499,24 @@ public class ShuffleBoardInteractions {
         mBValue = COLOR_SENSOR
             .add("Detected B Value", 0.0)
             .getEntry();
+
+        mAdjustedRed = COLOR_SENSOR
+                .add("Adjusted R Value", 0.0)
+                .withSize(2, 2)
+                .getEntry();
+        mAdjustedBlue = COLOR_SENSOR
+                .add("Adjusted B Value", 0.0)
+                .withSize(2, 2)
+                .getEntry();
+
         mAllianceColor = COLOR_SENSOR
             .add("Alliance Color", "N/A")
             .getEntry();
         mMatchedColor = COLOR_SENSOR
             .add("Matched Color", "N/A")
             .getEntry();
-        mReadDistance = COLOR_SENSOR
-            .add("Read Distance", 0.0)
+        mForwardBreak = COLOR_SENSOR
+            .add("Beam Break", false)
             .getEntry();
             
         mHasBall = COLOR_SENSOR
@@ -776,9 +788,14 @@ public class ShuffleBoardInteractions {
         mRValue.setDouble(mColorSensor.getDetectedRValue());
         mGValue.setDouble(mColorSensor.getDetectedGValue());
         mBValue.setDouble(mColorSensor.getDetectedBValue());
+        mBValue.setDouble(mColorSensor.getDetectedBValue());
+
+        mAdjustedRed.setDouble(mColorSensor.getAdjustedRed());
+        mAdjustedBlue.setDouble(mColorSensor.getAdjustedBlue());
+        
         mAllianceColor.setString(mColorSensor.getAllianceColor().toString());
         mMatchedColor.setString(mColorSensor.getMatchedColor().toString());
-        mReadDistance.setDouble(mColorSensor.getDistance());
+        mForwardBreak.setBoolean(mColorSensor.getFowrardBeamBreak());
 
         mHasBall.setBoolean(mColorSensor.hasBall());
         mEject.setBoolean(mColorSensor.wantsEject());
