@@ -36,8 +36,8 @@ public class Ports {
     public static final int SINGULATOR_ID = 10;
     public static final int TUNNEL_ID = 11;
     public static final int TRIGGER_ID = 12;
-    public static final int BOTTOM_BEAM_BREAK = 3;
-    public static final int TOP_BEAM_BREAK = 2;
+    public static final int BOTTOM_BEAM_BREAK = 1;
+    public static final int TOP_BEAM_BREAK = 4;
 
     public static final int FLYWHEEL_MASTER_ID = 13;
     public static final int FLYWHEEL_SLAVE_ID = 14;

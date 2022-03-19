@@ -1,6 +1,8 @@
 package com.team1678.frc2022.auto.modes;
 
 import com.team1678.frc2022.Constants;
+import com.team1678.frc2022.Robot;
+import com.team1678.frc2022.RobotState;
 import com.team1678.frc2022.auto.AutoModeEndedException;
 import com.team1678.frc2022.auto.AutoTrajectoryReader;
 import com.team1678.frc2022.auto.actions.LambdaAction;
@@ -14,6 +16,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class FiveBallBMode extends AutoModeBase {
@@ -23,11 +26,11 @@ public class FiveBallBMode extends AutoModeBase {
     private final Superstructure mSuperstructure = Superstructure.getInstance();
 
     // required PathWeaver file paths
-    String file_path_a = "paths/FiveBallPaths/5 Ball b A.path";
-    String file_path_b = "paths/FiveBallPaths/5 Ball b B.path";
-    String file_path_c = "paths/FiveBallPaths/5 Ball b C.path";
-    String file_path_d = "paths/FiveBallPaths/5 Ball b D.path";
-    String file_path_e = "paths/FiveBallPaths/5 Ball b E.path";
+    String file_path_a = "paths/FiveBallPaths/5 Ball B-A.path";
+    String file_path_b = "paths/FiveBallPaths/5 Ball B-B.path";
+    String file_path_c = "paths/FiveBallPaths/5 Ball B-C.path";
+    String file_path_d = "paths/FiveBallPaths/5 Ball B-D.path";
+    String file_path_e = "paths/FiveBallPaths/5 Ball B-E.path";
     
 	// trajectory actions
 	SwerveTrajectoryAction driveToIntakeFirstCargo;
@@ -106,11 +109,12 @@ public class FiveBallBMode extends AutoModeBase {
         System.out.println("Running five ball mode b auto!");
         SmartDashboard.putBoolean("Auto Finished", false);
 
-        // reset odometry at the start of the trajectory
-        runAction(new LambdaAction(() -> mSwerve.resetOdometry(new Pose2d(
-            driveToIntakeFirstCargo.getInitialPose().getX(),
-            driveToIntakeFirstCargo.getInitialPose().getY(),
-            Rotation2d.fromDegrees(270)))));
+        // reset odometry and field to vehicle at the start of the trajectory
+        Pose2d initial_pose = new Pose2d(driveToIntakeFirstCargo.getInitialPose().getX(),
+                                         driveToIntakeFirstCargo.getInitialPose().getY(),
+                                         Rotation2d.fromDegrees(270));
+        runAction(new LambdaAction(() -> mSwerve.resetOdometry(initial_pose)));
+        runAction(new LambdaAction(() -> RobotState.getInstance().reset(Timer.getFPGATimestamp(), new com.team254.lib.geometry.Pose2d(initial_pose))));
         
         // start spinning up for shot
         runAction(new LambdaAction(() -> mSuperstructure.setWantPrep(true)));

@@ -1,6 +1,5 @@
 package com.team1678.frc2022;
 
-import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 
 import com.team1678.frc2022.subsystems.ColorSensor;
@@ -23,7 +22,10 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.trajectory.Trajectory;
 
 public class ShuffleBoardInteractions {
 
@@ -65,9 +67,13 @@ public class ShuffleBoardInteractions {
     private ShuffleboardTab CLIMBER_TAB;
     private ShuffleboardTab SUPERSTRUCTURE_TAB;
     private ShuffleboardTab MANUAL_PARAMS;
-    private ShuffleboardTab COLOR_SENSOR;   
+    private ShuffleboardTab COLOR_SENSOR; 
+    
+    private Field2d mField = new Field2d();
 
     /*** ENTRIES ***/
+
+    private Field2d mField2d;
     
     /* CANdle */
     private final NetworkTableEntry mTopLEDState;
@@ -102,6 +108,7 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mIntakeDeployCurrent;
     private final NetworkTableEntry mIntakeDeployVoltage;
     private final NetworkTableEntry mIntakeDeployDemand;
+    private final NetworkTableEntry mIsForceHolding;
 
     // private final NetworkTableEntry mFlywheelManualPIDToggle;
     // private final NetworkTableEntry mFlywheelP;
@@ -171,6 +178,7 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mReversing;
     private final NetworkTableEntry mRejecting;
     private final NetworkTableEntry mEjecting;
+    private final NetworkTableEntry mForceHolding;
     private final NetworkTableEntry mPrepping;
     private final NetworkTableEntry mShooting;
     private final NetworkTableEntry mFenderShot;
@@ -370,6 +378,9 @@ public class ShuffleBoardInteractions {
         mIntakeDeployDemand= INTAKE_TAB
             .add("Deploy Demand", 0.0)
             .getEntry();
+        mIsForceHolding = INTAKE_TAB
+            .add("Is Force Holding", 0.0)
+            .getEntry();
         
 
         /* INDEXER */
@@ -558,6 +569,10 @@ public class ShuffleBoardInteractions {
             .add("Rejecting", false)
             .withSize(1, 1)
             .getEntry();
+        mForceHolding = SUPERSTRUCTURE_TAB
+            .add("Force Holding", false)
+            .withSize(1, 1)
+            .getEntry();
         mEjecting = SUPERSTRUCTURE_TAB
             .add("Ejecting", false)
             .withSize(1, 1)
@@ -662,9 +677,14 @@ public class ShuffleBoardInteractions {
                 .withSize(2, 2)
                 .withPosition(8, 2)
                 .getEntry();
+
+        mField2d = new Field2d();
+        SmartDashboard.putData(mField2d);
     }
 
     public void update() {
+
+        mField2d.setRobotPose(mSwerve.getPose());
 
         /* OPERATOR */
         mOperatorShooting.setBoolean(mSuperstructure.getShooting());
@@ -677,9 +697,10 @@ public class ShuffleBoardInteractions {
 
         /* SWERVE */
 
-        /*
+        
         //  Only uncomment cancoder update when redoing cancoder offsets for modules
         // Update cancoders at a slower period to avoid stale can frames
+        /*
         double dt = Timer.getFPGATimestamp();
         if (dt > lastCancoderUpdate + 0.1) {
             for (int i = 0; i < mSwerveCancoders.length; i++) {
@@ -687,7 +708,7 @@ public class ShuffleBoardInteractions {
             }
             lastCancoderUpdate = dt;
         }
-        
+        */
         
         for (int i = 0; i < mSwerveCancoders.length; i++) {
             mSwerveIntegrated[i].setDouble(truncate(MathUtil.inputModulus(mSwerveModules[i].getState().angle.getDegrees(), 0, 360)));
@@ -695,9 +716,8 @@ public class ShuffleBoardInteractions {
 
             mModuleAngleCurrent[i].setDouble(truncate(MathUtil.inputModulus(mSwerveModules[i].getState().angle.getDegrees(), 0, 360)));
             mModuleAngleGoals[i].setDouble(truncate(MathUtil.inputModulus(mSwerveModules[i].getTargetAngle(), 0, 360)));
-
         }
-        */
+        
 
         mSwerveOdometryX.setDouble(truncate(mSwerve.getPose().getX()));
         mSwerveOdometryY.setDouble(truncate(mSwerve.getPose().getY()));
@@ -721,6 +741,7 @@ public class ShuffleBoardInteractions {
         mIntakeDeployCurrent.setDouble(mIntake.getDeployCurrent());
         mIntakeDeployVoltage.setDouble(mIntake.getDeployVoltage());
         mIntakeDeployDemand.setDouble(mIntake.getDeployDemand());
+        mIsForceHolding.setBoolean(mIntake.getForceHoldIntake());
         
         /* SHOOTER */
         mFlywheelRPM.setDouble(truncate(mShooter.getFlywheelRPM()));
@@ -794,6 +815,7 @@ public class ShuffleBoardInteractions {
         mIntaking.setBoolean(mSuperstructure.getIntaking());
         mReversing.setBoolean(mSuperstructure.getReversing());
         mRejecting.setBoolean(mSuperstructure.getRejecting());
+        mForceHolding.setBoolean(mSuperstructure.getForceHolding());
         mEjecting.setBoolean(mSuperstructure.getEjecting());
         mPrepping.setBoolean(mSuperstructure.getPrepping());
         mShooting.setBoolean(mSuperstructure.getShooting());
@@ -819,6 +841,8 @@ public class ShuffleBoardInteractions {
         // Lights
         mTopLEDState.setString(mLEDs.getTopState().getName());
         mBottomLEDState.setString(mLEDs.getBottomState().getName());
+
+        mField.setRobotPose(RobotState.getInstance().getLatestFieldToVehicle().getValue().getWpilibPose2d());
     }
 
     /* Truncates number to 2 decimal places for cleaner numbers */
@@ -828,6 +852,15 @@ public class ShuffleBoardInteractions {
 
     public ShuffleboardTab getOperatorTab() {
         return OPERATOR_TAB;
+    }
+
+    public void addTrajectory(Trajectory trajectory, String name) {
+        mField2d.getObject(name).setTrajectory(trajectory);
+    }
+
+    public void clearTrajectories() {
+        mField2d = new Field2d();
+        SmartDashboard.putData(mField2d);
     }
 }
  
