@@ -16,6 +16,7 @@ public class AutoModeSelector {
         TWO_BALL_RIGHT_AUTO,
         TWO_BY_TWO_AUTO,
         FIVE_BALL_PLUS_1_AUTO,
+        FIVE_BALL_A_AUTO,
         FIVE_BALL_B_AUTO,
         SIX_BALL_AUTO,    }
 
@@ -32,7 +33,8 @@ public class AutoModeSelector {
         mModeChooser.addOption("Two Ball Left Mode", DesiredMode.TWO_BALL_LEFT_AUTO);
         mModeChooser.addOption("Two Ball Right Mode", DesiredMode.TWO_BALL_RIGHT_AUTO);
         mModeChooser.addOption("Two by Two Mode", DesiredMode.TWO_BY_TWO_AUTO);
-        mModeChooser.addOption("Five Ball A Mode", DesiredMode.FIVE_BALL_PLUS_1_AUTO);
+        mModeChooser.addOption("Five Ball + 1 Mode", DesiredMode.FIVE_BALL_PLUS_1_AUTO);
+        mModeChooser.addOption("Five Ball A Mode", DesiredMode.FIVE_BALL_A_AUTO);
         mModeChooser.addOption("Five Ball B Mode", DesiredMode.FIVE_BALL_B_AUTO);
         mModeChooser.addOption("Six Ball Mode", DesiredMode.SIX_BALL_AUTO);
         ShuffleBoardInteractions.getInstance().getOperatorTab().add("Auto Mode", mModeChooser).withSize(2, 1);
@@ -71,6 +73,9 @@ public class AutoModeSelector {
 
         case FIVE_BALL_B_AUTO:
             return Optional.of(new FiveBallBMode());
+
+        case FIVE_BALL_A_AUTO:
+        return Optional.of(new FiveBallBMode());
             
         case SIX_BALL_AUTO:
             return Optional.of(new SixBallMode());

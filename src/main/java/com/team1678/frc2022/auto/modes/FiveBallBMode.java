@@ -1,7 +1,6 @@
 package com.team1678.frc2022.auto.modes;
 
 import com.team1678.frc2022.Constants;
-import com.team1678.frc2022.Robot;
 import com.team1678.frc2022.RobotState;
 import com.team1678.frc2022.auto.AutoModeEndedException;
 import com.team1678.frc2022.auto.AutoTrajectoryReader;
