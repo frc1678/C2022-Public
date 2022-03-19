@@ -25,7 +25,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.trajectory.Trajectory;
 
 public class ShuffleBoardInteractions {
 
@@ -72,6 +72,8 @@ public class ShuffleBoardInteractions {
     private Field2d mField = new Field2d();
 
     /*** ENTRIES ***/
+
+    private Field2d mField2d;
     
     /* CANdle */
     private final NetworkTableEntry mTopLEDState;
@@ -675,11 +677,14 @@ public class ShuffleBoardInteractions {
                 .withSize(2, 2)
                 .withPosition(8, 2)
                 .getEntry();
-        
-        SmartDashboard.putData("Robot field to vehicle", mField);
+
+        mField2d = new Field2d();
+        SmartDashboard.putData(mField2d);
     }
 
     public void update() {
+
+        mField2d.setRobotPose(mSwerve.getPose());
 
         /* OPERATOR */
         mOperatorShooting.setBoolean(mSuperstructure.getShooting());
@@ -847,6 +852,15 @@ public class ShuffleBoardInteractions {
 
     public ShuffleboardTab getOperatorTab() {
         return OPERATOR_TAB;
+    }
+
+    public void addTrajectory(Trajectory trajectory, String name) {
+        mField2d.getObject(name).setTrajectory(trajectory);
+    }
+
+    public void clearTrajectories() {
+        mField2d = new Field2d();
+        SmartDashboard.putData(mField2d);
     }
 }
  

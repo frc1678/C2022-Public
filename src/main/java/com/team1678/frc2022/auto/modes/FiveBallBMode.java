@@ -26,11 +26,11 @@ public class FiveBallBMode extends AutoModeBase {
     private final Superstructure mSuperstructure = Superstructure.getInstance();
 
     // required PathWeaver file paths
-    String file_path_a = "paths/FiveBallPaths/5 Ball b A.path";
-    String file_path_b = "paths/FiveBallPaths/5 Ball b B.path";
-    String file_path_c = "paths/FiveBallPaths/5 Ball b C.path";
-    String file_path_d = "paths/FiveBallPaths/5 Ball b D.path";
-    String file_path_e = "paths/FiveBallPaths/5 Ball b E.path";
+    String file_path_a = "paths/FiveBallPaths/5 Ball B-A.path";
+    String file_path_b = "paths/FiveBallPaths/5 Ball B-B.path";
+    String file_path_c = "paths/FiveBallPaths/5 Ball B-C.path";
+    String file_path_d = "paths/FiveBallPaths/5 Ball B-D.path";
+    String file_path_e = "paths/FiveBallPaths/5 Ball B-E.path";
     
 	// trajectory actions
 	SwerveTrajectoryAction driveToIntakeFirstCargo;

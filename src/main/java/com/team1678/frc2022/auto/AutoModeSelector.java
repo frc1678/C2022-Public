@@ -54,7 +54,6 @@ public class AutoModeSelector {
         switch (mode) {
         case DO_NOTHING:
             return Optional.of(new DoNothingMode());
-        
         case TEST_PATH_AUTO:
             return Optional.of(new TestPathMode());
 
