@@ -1,13 +1,12 @@
 package com.team1678.frc2022.subsystems;
-
-import javax.management.MBeanPermission;
-
+ 
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.lib.drivers.PicoColorSensor;
 import com.team1678.frc2022.lib.drivers.PicoColorSensor.RawColor;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
+import com.team254.lib.util.MovingAverage;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -146,9 +145,9 @@ public class ColorSensor extends Subsystem {
         if (!seesBall()) { 
             mMatchedColor = ColorChoices.NONE;
         } else {
-            if (mPeriodicIO.adjustedRed > mPeriodicIO.adjustedBlue) {
+            if (mPeriodicIO.adjusted_red > mPeriodicIO.adjusted_blue) {
                 mMatchedColor = ColorChoices.RED;
-            } else if (mPeriodicIO.adjustedBlue > mPeriodicIO.adjustedRed) {
+            } else if (mPeriodicIO.adjusted_blue > mPeriodicIO.adjusted_red) {
                 mMatchedColor = ColorChoices.BLUE;
             } else {
                 mMatchedColor = ColorChoices.OTHER;
@@ -192,8 +191,12 @@ public class ColorSensor extends Subsystem {
             updateBaselineColorScaling();
         }
         */
-        mPeriodicIO.adjustedBlue = mPeriodicIO.raw_color.blue * mPeriodicIO.blue_scale;
-        mPeriodicIO.adjustedRed = mPeriodicIO.raw_color.red * mPeriodicIO.red_scale;
+
+        mPeriodicIO.adjusted_blue_filter.addNumber(mPeriodicIO.raw_color.blue * mPeriodicIO.blue_scale);
+        mPeriodicIO.adjusted_red_filter.addNumber(mPeriodicIO.raw_color.red * mPeriodicIO.red_scale);
+        
+        mPeriodicIO.adjusted_blue = mPeriodicIO.adjusted_blue_filter.getAverage();
+        mPeriodicIO.adjusted_red = mPeriodicIO.adjusted_red_filter.getAverage();
 
         updateHasBall();
         updateMatchedColor();
@@ -235,11 +238,11 @@ public class ColorSensor extends Subsystem {
     }
 
     public double getAdjustedRed() {
-        return mPeriodicIO.adjustedRed;
+        return mPeriodicIO.adjusted_red;
     }
 
     public double getAdjustedBlue() {
-        return mPeriodicIO.adjustedBlue;
+        return mPeriodicIO.adjusted_blue;
     }
 
     public boolean getSensor0() {
@@ -259,8 +262,10 @@ public class ColorSensor extends Subsystem {
         public double red_scale;
         public double blue_scale;
 
-        public double adjustedRed;
-        public double adjustedBlue;
+        public MovingAverage adjusted_red_filter = new MovingAverage(25);
+        public MovingAverage adjusted_blue_filter = new MovingAverage(25);
+        public double adjusted_red;
+        public double adjusted_blue;
 
         // OUTPUTS
         public boolean has_ball;
