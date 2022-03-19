@@ -31,7 +31,7 @@ public class ColorSensor extends Subsystem {
     private final DigitalInput mForwardBreak;
 
     private Timer mHasBallTimer = new Timer();
-    private Timer mEjectorTimer = new Timer();
+    private Timer mEjectTimer = new Timer();
 
     public ColorChoices mAllianceColor = ColorChoices.NONE;
     public ColorChoices mMatchedColor;
@@ -162,12 +162,12 @@ public class ColorSensor extends Subsystem {
     public void updateWantsEject() {
         if (hasOppositeColor() && hasBall()) {
             mPeriodicIO.eject = true;
-            mEjectorTimer.start();
+            mEjectTimer.start();
         }
 
-        if (mEjectorTimer.hasElapsed(Constants.IndexerConstants.kEjectDelay) || (hasCorrectColor() && hasBall())) {
+        if (mEjectTimer.hasElapsed(Constants.IndexerConstants.kEjectDelay) || (hasCorrectColor() && hasBall())) {
             mPeriodicIO.eject = false;
-            mEjectorTimer.reset();
+            mEjectTimer.reset();
         }
     }
 
