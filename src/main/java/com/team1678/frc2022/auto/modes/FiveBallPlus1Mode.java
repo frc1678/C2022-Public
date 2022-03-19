@@ -7,7 +7,6 @@ import com.team1678.frc2022.ShuffleBoardInteractions;
 import com.team1678.frc2022.auto.AutoModeEndedException;
 import com.team1678.frc2022.auto.AutoTrajectoryReader;
 import com.team1678.frc2022.auto.actions.LambdaAction;
-import com.team1678.frc2022.auto.actions.ParallelAction;
 import com.team1678.frc2022.auto.actions.RaceAction;
 import com.team1678.frc2022.auto.actions.SeriesAction;
 import com.team1678.frc2022.auto.actions.SwerveTrajectoryAction;
@@ -28,12 +27,12 @@ public class FiveBallPlus1Mode extends AutoModeBase {
     private final Superstructure mSuperstructure = Superstructure.getInstance();
 
     // required PathWeaver file paths
-    String file_path_a = "paths/FiveBallPaths/5 Ball A-A.path";
-    String file_path_b = "paths/FiveBallPaths/5 Ball A-B.path";
-    String file_path_c = "paths/FiveBallPaths/5 Ball A-C.path";
-    String file_path_d = "paths/FiveBallPaths/5 Ball A-D.path";
-    String file_path_e = "paths/FiveBallPaths/5 Ball A-E.path";
-    String file_path_f = "paths/FiveBallPaths/5 Ball A-F.path";
+    String file_path_a = "paths/FiveBallPaths/5 Ball + 1 A.path";
+    String file_path_b = "paths/FiveBallPaths/5 Ball + 1 B.path";
+    String file_path_c = "paths/FiveBallPaths/5 Ball + 1 C.path";
+    String file_path_d = "paths/FiveBallPaths/5 Ball + 1 D.path";
+    String file_path_e = "paths/FiveBallPaths/5 Ball + 1 E.path";
+    String file_path_f = "paths/FiveBallPaths/5 Ball + 1 F.path";
 
     // trajectories
     private Trajectory traj_path_a;
