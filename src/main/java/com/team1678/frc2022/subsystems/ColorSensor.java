@@ -1,5 +1,7 @@
 package com.team1678.frc2022.subsystems;
 
+import javax.management.MBeanPermission;
+
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.lib.drivers.PicoColorSensor;
@@ -9,6 +11,7 @@ import com.team1678.frc2022.loops.Loop;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 
@@ -79,7 +82,7 @@ public class ColorSensor extends Subsystem {
 
     // check if we see a ball
     public boolean seesBall() {
-        return getFowrardBeamBreak();
+        return getForwardBeamBreak();
     }
 
     // check if we have the right color
@@ -127,6 +130,17 @@ public class ColorSensor extends Subsystem {
         }
     }
 
+    // update scaling of red and blue values for baseline when ball isn't seen
+    public void updateBaselineColorScaling() {
+        double proportional_diff = (double) mPeriodicIO.raw_color.red / (double) mPeriodicIO.raw_color.blue;
+        if (proportional_diff < Constants.ColorSensorConstants.kColorProportionalDiffEpsilon) {
+            mPeriodicIO.red_scale = 1.0;
+        } else {
+            mPeriodicIO.red_scale = 1.0 / proportional_diff; // calculate scale for red based on proportional difference
+        }
+        mPeriodicIO.blue_scale = 1.0; // keep blue color raw so red can be scaled off of blue
+    }
+
     // update the color of the cargo we see
     public void updateMatchedColor() {
         if (!seesBall()) { 
@@ -140,6 +154,8 @@ public class ColorSensor extends Subsystem {
                 mMatchedColor = ColorChoices.OTHER;
             }
         }
+        SmartDashboard.putNumber("Correct Color", hasCorrectColor() ? 1 : 0);
+
     }
 
     // update whether we want to eject or not
@@ -167,11 +183,17 @@ public class ColorSensor extends Subsystem {
     public synchronized void readPeriodicInputs() {
         mPeriodicIO.sensor0Connected = mPico.isSensor0Connected();
         mPeriodicIO.raw_color = mPico.getRawColor0();
-        
-        mPeriodicIO.adjustedRed = mPeriodicIO.raw_color.red * 1.66;
-        mPeriodicIO.adjustedBlue = mPeriodicIO.raw_color.blue * 1.11;
 
         mPeriodicIO.timestamp = mPico.getLastReadTimestampSeconds();
+
+        // update baseline color readings based off scaling when a ball isn't present
+        /*
+        if (!hasBall()) {
+            updateBaselineColorScaling();
+        }
+        */
+        mPeriodicIO.adjustedBlue = mPeriodicIO.raw_color.blue * mPeriodicIO.blue_scale;
+        mPeriodicIO.adjustedRed = mPeriodicIO.raw_color.red * mPeriodicIO.red_scale;
 
         updateHasBall();
         updateMatchedColor();
@@ -208,7 +230,7 @@ public class ColorSensor extends Subsystem {
     public String getMatchedColor() {
         return mMatchedColor.toString();
     }    
-    public boolean getFowrardBeamBreak() {
+    public boolean getForwardBeamBreak() {
         return !mForwardBreak.get();
     }
 
@@ -230,10 +252,15 @@ public class ColorSensor extends Subsystem {
 
     public static class PeriodicIO {
         // INPUTS
-        public RawColor raw_color;
-        public double adjustedRed; // 1.66
-        public double adjustedBlue; // 1.11
         public boolean sensor0Connected;
+
+        public RawColor raw_color;
+
+        public double red_scale;
+        public double blue_scale;
+
+        public double adjustedRed;
+        public double adjustedBlue;
 
         // OUTPUTS
         public boolean has_ball;

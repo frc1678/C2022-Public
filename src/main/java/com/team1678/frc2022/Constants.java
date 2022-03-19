@@ -457,6 +457,8 @@ public class Constants {
     public static final class ColorSensorConstants {
         public static final double kColorSensorThreshold = 300;
 
+        public static final double kColorProportionalDiffEpsilon = 0.001;
+
         public static final double kTimeWithBall = 1.2;
     }
 

@@ -795,7 +795,7 @@ public class ShuffleBoardInteractions {
         
         mAllianceColor.setString(mColorSensor.getAllianceColor().toString());
         mMatchedColor.setString(mColorSensor.getMatchedColor().toString());
-        mForwardBreak.setBoolean(mColorSensor.getFowrardBeamBreak());
+        mForwardBreak.setBoolean(mColorSensor.getForwardBeamBreak());
 
         mHasBall.setBoolean(mColorSensor.hasBall());
         mEject.setBoolean(mColorSensor.wantsEject());
