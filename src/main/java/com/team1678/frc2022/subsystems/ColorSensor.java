@@ -131,13 +131,10 @@ public class ColorSensor extends Subsystem {
 
     // update scaling of red and blue values for baseline when ball isn't seen
     public void updateBaselineColorScaling() {
-        double proportional_diff = (double) mPeriodicIO.raw_color.red / (double) mPeriodicIO.raw_color.blue;
-        if (proportional_diff < Constants.ColorSensorConstants.kColorProportionalDiffEpsilon) {
-            mPeriodicIO.red_scale = 1.0;
-        } else {
-            mPeriodicIO.red_scale = 1.0 / proportional_diff; // calculate scale for red based on proportional difference
-        }
-        mPeriodicIO.blue_scale = 1.0; // keep blue color raw so red can be scaled off of blue
+        double color_diff = (double) mPeriodicIO.red_scaled - (double) mPeriodicIO.blue_scaled;
+
+        mPeriodicIO.red_offset = -color_diff; // flip sign on offset
+        mPeriodicIO.blue_offset = 0.0; // keep blue color raw so red can be scaled off of blue
     }
 
     // update the color of the cargo we see
@@ -145,15 +142,16 @@ public class ColorSensor extends Subsystem {
         if (!seesBall()) { 
             mMatchedColor = ColorChoices.NONE;
         } else {
-            if (mPeriodicIO.adjusted_red > mPeriodicIO.adjusted_blue) {
+            if (mPeriodicIO.red_final > mPeriodicIO.blue_final) {
                 mMatchedColor = ColorChoices.RED;
-            } else if (mPeriodicIO.adjusted_blue > mPeriodicIO.adjusted_red) {
+            } else if (mPeriodicIO.blue_final > mPeriodicIO.red_final) {
                 mMatchedColor = ColorChoices.BLUE;
             } else {
                 mMatchedColor = ColorChoices.OTHER;
             }
         }
         SmartDashboard.putNumber("Correct Color", hasCorrectColor() ? 1 : 0);
+        SmartDashboard.putBoolean("Sees Ball", seesBall());
 
     }
 
@@ -164,7 +162,7 @@ public class ColorSensor extends Subsystem {
             mEjectTimer.start();
         }
 
-        if (mEjectTimer.hasElapsed(Constants.IndexerConstants.kEjectDelay) || (hasCorrectColor() && hasBall())) {
+        if (mEjectTimer.hasElapsed(Constants.IndexerConstants.kEjectDelay) || hasCorrectColor()) {
             mPeriodicIO.eject = false;
             mEjectTimer.reset();
         }
@@ -191,12 +189,13 @@ public class ColorSensor extends Subsystem {
             updateBaselineColorScaling();
         }
         */
-
-        mPeriodicIO.adjusted_blue_filter.addNumber(mPeriodicIO.raw_color.blue * mPeriodicIO.blue_scale);
-        mPeriodicIO.adjusted_red_filter.addNumber(mPeriodicIO.raw_color.red * mPeriodicIO.red_scale);
         
-        mPeriodicIO.adjusted_blue = mPeriodicIO.adjusted_blue_filter.getAverage();
-        mPeriodicIO.adjusted_red = mPeriodicIO.adjusted_red_filter.getAverage();
+        // scale red and blue readings properly
+        mPeriodicIO.blue_scaled = mPeriodicIO.raw_color.blue * Constants.ColorSensorConstants.kBlueFreqScaler;
+        mPeriodicIO.red_scaled = mPeriodicIO.raw_color.red * Constants.ColorSensorConstants.kRedFreqScaler;
+
+        mPeriodicIO.blue_final = mPeriodicIO.blue_scaled + mPeriodicIO.blue_offset;
+        mPeriodicIO.red_final = mPeriodicIO.red_scaled + mPeriodicIO.red_offset;
 
         updateHasBall();
         updateMatchedColor();
@@ -238,11 +237,11 @@ public class ColorSensor extends Subsystem {
     }
 
     public double getAdjustedRed() {
-        return mPeriodicIO.adjusted_red;
+        return mPeriodicIO.red_final;
     }
 
     public double getAdjustedBlue() {
-        return mPeriodicIO.adjusted_blue;
+        return mPeriodicIO.blue_final;
     }
 
     public boolean getSensor0() {
@@ -259,13 +258,14 @@ public class ColorSensor extends Subsystem {
 
         public RawColor raw_color;
 
-        public double red_scale;
-        public double blue_scale;
+        public double red_offset;
+        public double blue_offset;
 
-        public MovingAverage adjusted_red_filter = new MovingAverage(25);
-        public MovingAverage adjusted_blue_filter = new MovingAverage(25);
-        public double adjusted_red;
-        public double adjusted_blue;
+        public double red_scaled;
+        public double blue_scaled;
+
+        public double red_final;
+        public double blue_final;
 
         // OUTPUTS
         public boolean has_ball;
