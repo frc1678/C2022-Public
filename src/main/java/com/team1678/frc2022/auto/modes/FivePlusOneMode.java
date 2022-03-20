@@ -21,7 +21,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class FiveBallAMode extends AutoModeBase {
+public class FivePlusOneMode extends AutoModeBase {
 
     // Swerve instance
     private final Swerve mSwerve = Swerve.getInstance();
@@ -51,7 +51,7 @@ public class FiveBallAMode extends AutoModeBase {
     SwerveTrajectoryAction driveToSecondShotPose;
     SwerveTrajectoryAction driveToEjectCargo;
 
-    public FiveBallAMode() {
+    public FivePlusOneMode() {
 
         SmartDashboard.putBoolean("Auto Finished", false);
 
