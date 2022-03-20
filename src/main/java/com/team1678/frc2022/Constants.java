@@ -14,7 +14,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 public class Constants {
 
     // toggle constants for comp robot
-    public static final boolean isComp = false;
+    public static final boolean isComp = true;
 	
 	// robot loop time
 	public static final double kLooperDt = 0.02;
@@ -270,11 +270,19 @@ public class Constants {
     /*** SUBSYSTEM CONSTANTS ***/
 
     public static final class IntakeConstants {
+
+        public static final double kSingulatorVelocityConversion = (600.0 / 2048.0) * (1.0 / 1.9);
+
+        public static final double kSingulatorP = 0.07;
+        public static final double kSingulatorI = 0.0;
+        public static final double kSingulatorD = 0.01;
+        public static final double kSingulatorF = 0.045;
+
         public static final double kIntakingVoltage = 10;
         public static final double kSpittingVoltage = -8;
         public static final double kRejectingVoltage = -5;
 
-        public static final double kSingulatorVoltage = 9.0;
+        public static final double kSingulatorVelocity = 2386.0;
 
         public static final double kDeployVoltage = 4.0;
         public static final double kInHoldingVoltage = 1.2;
@@ -363,24 +371,17 @@ public class Constants {
 
     public static final class IndexerConstants {
 
-        // TODO: find actual values
-        public static final double kIndexerKp = 0.2;
-        public static final double kIndexerKi = 0.;
-        public static final double kIndexerKd = 0.;
-        public static final double kIndexerKf = .05;
+        public static final double kTunnelVelocityConversion = (600.0 / 2048.0) * (1.0 / 3.0);
 
-        public static final double kIndexerVelocityKp = 0.05;
-        public static final double kIndexerVelocityKi = 0.;
-        public static final double kIndexerVelocityKd = 0.;
-        public static final double kIndexerVelocityKf = .05;
-
-        public static final int kIndexerMaxVelocity = 20000;
-        public static final int kIndexerMaxAcceleration = 40000;
+        public static final double kTunnelP = 0.015;
+        public static final double kTunnelI = 0.0;
+        public static final double kTunnelD = 0.0;
+        public static final double kTunnelF = 0.045;
 
         public static final double kIdleVoltage = 0.0;
 
-        public static final double kTunnelIndexingVoltage = 6.0;
-        public static final double kTunnelFeedingVoltage = 4.0;
+        public static final double kTunnelIndexingVelocity = 642.0;
+        public static final double kTunnelFeedingVelocity = 500.0;
 
         public static final double kEjectorVoltage = 12.0;
         public static final double kSlowEjectorVoltage = 4.0;

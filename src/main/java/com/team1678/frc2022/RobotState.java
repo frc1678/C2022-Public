@@ -182,7 +182,7 @@ public class RobotState {
             double scaling = differential_height / z;
             double distance = Math.hypot(x, y) * scaling;
             Rotation2d angle = new Rotation2d(x, y, true);
-            return new Translation2d(distance * angle.cos(), distance * angle.sin());
+            return new Translation2d(distance * angle.cos() + Constants.VisionConstants.kGoalRadius, distance * angle.sin());
         }
         return null;
     }
