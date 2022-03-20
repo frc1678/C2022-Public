@@ -16,7 +16,6 @@ import com.team1678.frc2022.subsystems.Swerve;
 import com.team1678.frc2022.subsystems.Trigger;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -25,7 +24,6 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
 
 public class ShuffleBoardInteractions {
 
@@ -254,7 +252,7 @@ public class ShuffleBoardInteractions {
         
         /*** Create Entries ***/
 
-        mSwerveBrakeMode = SWERVE_TAB.add("Swerve Break Mode", false).getEntry();
+        mSwerveBrakeMode = SWERVE_TAB.add("Swerve Brake Mode", false).getEntry();
 
         for (int i = 0; i < mSwerveCancoders.length; i++) {
             mSwerveAngles[i] = SWERVE_TAB
@@ -795,7 +793,7 @@ public class ShuffleBoardInteractions {
         
         mAllianceColor.setString(mColorSensor.getAllianceColor().toString());
         mMatchedColor.setString(mColorSensor.getMatchedColor().toString());
-        mForwardBreak.setBoolean(mColorSensor.getFowrardBeamBreak());
+        mForwardBreak.setBoolean(mColorSensor.getForwardBeamBreak());
 
         mHasBall.setBoolean(mColorSensor.hasBall());
         mEject.setBoolean(mColorSensor.wantsEject());
