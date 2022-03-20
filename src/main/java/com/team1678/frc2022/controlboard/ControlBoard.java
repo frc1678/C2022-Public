@@ -150,6 +150,10 @@ public class ControlBoard {
         return driver.getButton(Button.RB);
     }
 
+    public boolean getClimbAlign() {
+        return driver.getTrigger(Side.RIGHT);
+    }
+
     //Locks wheels in X formation
     public boolean getBrake() {
         return driver.getButton(Button.LB);
