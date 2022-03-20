@@ -341,6 +341,7 @@ public class Intake extends Subsystem {
         headers.add("intake_demand");
         headers.add("deploy_demand");
         headers.add("hold_intake");
+        headers.add("singulator_velocity");
 
         mStorage.setHeaders(headers);
     }
@@ -358,6 +359,7 @@ public class Intake extends Subsystem {
         items.add(mPeriodicIO.intake_demand);
         items.add(mPeriodicIO.deploy_demand);
         items.add(mPeriodicIO.hold_intake ? 1.0 : 0.0);
+        items.add(mPeriodicIO.singulator_velocity);
 
         // send data to logging storage
         mStorage.addData(items);

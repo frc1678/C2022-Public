@@ -293,6 +293,7 @@ public class Indexer extends Subsystem {
         headers.add("tunnel_demand");
         headers.add("ejector_demand");
         headers.add("tunnel_current");
+        headers.add("tunnel_velocity");
         
         mStorage.setHeaders(headers);
     }
@@ -308,6 +309,7 @@ public class Indexer extends Subsystem {
         items.add(mPeriodicIO.tunnel_demand);
         items.add(mPeriodicIO.ejector_demand);
         items.add(mPeriodicIO.tunnel_current);
+        items.add(mPeriodicIO.tunnel_velocity);
 
         // send data to logging storage
         mStorage.addData(items);
