@@ -9,6 +9,7 @@ import com.team1678.frc2022.loops.Loop;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 
@@ -26,6 +27,7 @@ public class ColorSensor extends Subsystem {
     private PicoColorSensor mPico;
 
     private final DigitalInput mForwardBreak;
+    private boolean mSawBall = false;
 
     private Timer mHasBallTimer = new Timer();
     private Timer mEjectorTimer = new Timer();
@@ -80,6 +82,15 @@ public class ColorSensor extends Subsystem {
     // check if we see a ball
     public boolean seesBall() {
         return getFowrardBeamBreak();
+    }
+
+    public boolean seesNewBall() {
+        boolean newBall = false;
+        if ((seesBall() && !mSawBall)) {
+            newBall = true;
+        }
+        mSawBall = seesBall();
+        return newBall;
     }
 
     // check if we have the right color
@@ -168,10 +179,13 @@ public class ColorSensor extends Subsystem {
         mPeriodicIO.sensor0Connected = mPico.isSensor0Connected();
         mPeriodicIO.raw_color = mPico.getRawColor0();
         
-        mPeriodicIO.adjustedRed = mPeriodicIO.raw_color.red * 1.66;
+        mPeriodicIO.adjustedRed = mPeriodicIO.raw_color.red * 1.8;
         mPeriodicIO.adjustedBlue = mPeriodicIO.raw_color.blue * 1.11;
 
         mPeriodicIO.timestamp = mPico.getLastReadTimestampSeconds();
+
+        SmartDashboard.putBoolean("oppo color", hasOppositeColor());
+        SmartDashboard.putBoolean("correct color", hasCorrectColor());
 
         updateHasBall();
         updateMatchedColor();

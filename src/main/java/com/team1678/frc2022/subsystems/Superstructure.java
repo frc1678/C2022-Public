@@ -8,6 +8,7 @@ import com.team1678.frc2022.RobotState;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.CustomXboxController;
 import com.team1678.frc2022.controlboard.CustomXboxController.Button;
+import com.team1678.frc2022.lib.drivers.PicoColorSensor;
 import com.team1678.frc2022.logger.LogStorage;
 import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.regressions.ShooterRegression;
@@ -22,8 +23,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.ArrayList;
 import java.util.Optional;
-
-import javax.lang.model.util.ElementScanner6;
 
 public class Superstructure extends Subsystem {
 
@@ -74,7 +73,6 @@ public class Superstructure extends Subsystem {
         private boolean SHOOT = false; // shoot cargo
         private boolean FENDER = false; // shoot cargo from up against the hub
         private boolean SPIT = false; // spit cargo from shooter at low velocity
-        private boolean FORCE_HOLD = false; //don't eject until another ball intook
 
         // time measurements
         public double timestamp;
@@ -83,7 +81,6 @@ public class Superstructure extends Subsystem {
         // OUTPUTS
         // (superstructure goals/setpoints)
         private Intake.WantedAction real_intake = Intake.WantedAction.NONE;
-        private Indexer.WantedAction real_indexer = Indexer.WantedAction.NONE;
         private Trigger.WantedAction real_trigger = Trigger.WantedAction.NONE;
         private double real_shooter = 0.0;
         private double real_hood = 0.0;   
@@ -172,7 +169,6 @@ public class Superstructure extends Subsystem {
         if (mPeriodicIO.INTAKE) {
             mPeriodicIO.REVERSE = false;
             mPeriodicIO.REJECT = false;
-            mPeriodicIO.FORCE_HOLD = false;
         }
     }
     public void setWantReverse(boolean reverse) {
@@ -182,17 +178,6 @@ public class Superstructure extends Subsystem {
         if (mPeriodicIO.REVERSE) {
             mPeriodicIO.INTAKE = false;
             mPeriodicIO.REJECT = false;
-            mPeriodicIO.FORCE_HOLD = false;
-        }
-    }
-    public void setWantHold(boolean force_hold) {
-        mPeriodicIO.FORCE_HOLD = force_hold;
-
-        //set other intake actions to false when true
-        if (mPeriodicIO.FORCE_HOLD) {
-            mPeriodicIO.REVERSE = false;
-            mPeriodicIO.REJECT = false;
-            mPeriodicIO.INTAKE = false;
         }
     }
     public void setWantReject(boolean reject) {
@@ -202,14 +187,12 @@ public class Superstructure extends Subsystem {
         if (mPeriodicIO.REJECT) {
             mPeriodicIO.INTAKE = false;
             mPeriodicIO.REVERSE = false;
-            mPeriodicIO.FORCE_HOLD = false;
         }
     }
     public void setWantIntakeNone() {
         mPeriodicIO.INTAKE = false;
         mPeriodicIO.REVERSE = false;
         mPeriodicIO.REJECT = false;
-        mPeriodicIO.FORCE_HOLD = false;
     }
     public void setWantEject(boolean eject, boolean slow_eject) {
         mPeriodicIO.EJECT = eject;
@@ -439,7 +422,7 @@ public class Superstructure extends Subsystem {
                 normalIntakeControls();
             } else {
                 // start a timer for rejecting balls and then locking the intake when we want to stop intaking
-                if (stopIntaking()) {
+                if (mIndexer.indexerFull() && mColorSensor.seesBall()) {
                     mLockIntake = true;
                     mIntakeRejectTimer.reset();
                     mIntakeRejectTimer.start();
@@ -460,8 +443,7 @@ public class Superstructure extends Subsystem {
                     // - we don't want to stop intaking
                     // then unlock the intake
                     if(!(mIndexer.getTopBeamBreak() && mColorSensor.hasBall()) 
-                            && !indexerFull()
-                            && !stopIntaking()) {
+                            && !indexerFull()) {
                         
                         mLockIntake = false;
                     }
@@ -485,11 +467,6 @@ public class Superstructure extends Subsystem {
                 mForceEject = false;
                 // when not forcing an eject, passively check whether want to passively eject using color sensor logic
                 mPeriodicIO.EJECT = mColorSensor.wantsEject();
-            }
-
-            //force holding button: keep intake retracted when button is pressed
-            if (mControlBoard.getForceHoldIntake()) {
-                mPeriodicIO.FORCE_HOLD = true;
             }
 
             // control shooting
@@ -658,7 +635,7 @@ public class Superstructure extends Subsystem {
 
             // only feed cargo to shoot when spun up and aimed
             if (isSpunUp() /*&& isAimed()*/) {
-                mPeriodicIO.real_indexer = Indexer.WantedAction.FEED;
+                mIndexer.setWantFeeding(true);
                 if (mPeriodicIO.FENDER) {
                     mPeriodicIO.real_trigger = Trigger.WantedAction.SLOW_FEED;
                 } else {
@@ -666,28 +643,20 @@ public class Superstructure extends Subsystem {
                 }
             } else {
                 mPeriodicIO.real_trigger = Trigger.WantedAction.NONE;
-                mPeriodicIO.real_indexer = Indexer.WantedAction.NONE;
+                mIndexer.setWantFeeding(false);
             }
         } else {
-            // force eject
-            if (mPeriodicIO.EJECT && mForceEject) {
-                mPeriodicIO.real_indexer = Indexer.WantedAction.EJECT;
-                mPeriodicIO.real_trigger = Trigger.WantedAction.PASSIVE_REVERSE;
-            // only do any indexing action if we detect a ball
-            } else if (mColorSensor.hasBall()) {
-                mPeriodicIO.real_trigger = Trigger.WantedAction.PASSIVE_REVERSE;
-                if (mPeriodicIO.EJECT) {
-                    if (mSlowEject) {
-                        mPeriodicIO.real_indexer = Indexer.WantedAction.SLOW_EJECT;
-                    } else {
-                        mPeriodicIO.real_indexer = Indexer.WantedAction.EJECT;
-                    }
-                } else {
-                    mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX;
-                }
-            } else {
-                mPeriodicIO.real_trigger = Trigger.WantedAction.NONE;
-                mPeriodicIO.real_indexer = Indexer.WantedAction.NONE;
+
+            mIndexer.setWantFeeding(false);
+            mPeriodicIO.real_trigger = Trigger.WantedAction.NONE;
+
+                
+            if (mColorSensor.seesNewBall()) {
+                if (!mColorSensor.hasCorrectColor()) {
+                    mIndexer.queueEject();
+                }  else if (!indexerFull()){
+                    mIndexer.queueBall(mColorSensor.hasCorrectColor());
+                } 
             }
 
             // normal operator manual control for intake
@@ -695,8 +664,6 @@ public class Superstructure extends Subsystem {
                 mPeriodicIO.real_intake = Intake.WantedAction.INTAKE;
             } else if (mPeriodicIO.REVERSE) {
                 mPeriodicIO.real_intake = Intake.WantedAction.REVERSE;
-            } else if (mPeriodicIO.FORCE_HOLD) {
-                mPeriodicIO.real_intake = Intake.WantedAction.FORCE_HOLD;
             } else if (mPeriodicIO.REJECT) {
                 mPeriodicIO.real_intake = Intake.WantedAction.REJECT;
             } else {
@@ -708,7 +675,6 @@ public class Superstructure extends Subsystem {
 
         // set intake and indexer states
         mIntake.setState(mPeriodicIO.real_intake);
-        mIndexer.setState(mPeriodicIO.real_indexer);
         // set shooter subsystem setpoint
         if (Math.abs(mPeriodicIO.real_shooter) < Util.kEpsilon) {
             mShooter.setOpenLoop(0.0); // open loop if rpm goal is 0, to smooth spin down and stop belt skipping
@@ -811,10 +777,7 @@ public class Superstructure extends Subsystem {
             setWantIntakeNone();
         }
     }
-    // stop intaking if we have two of the correct cargo
-    public boolean stopIntaking() {
-        return (mIndexer.getTopBeamBreak() && mColorSensor.seesBall() && mColorSensor.hasCorrectColor());
-    }
+    
     // get number of correct cargo in indexer
     public double getBallCount() {
         return mBallCount;
@@ -847,7 +810,6 @@ public class Superstructure extends Subsystem {
         mPeriodicIO.INTAKE = false;
         mPeriodicIO.REVERSE = false;
         mPeriodicIO.REJECT = false;
-        mPeriodicIO.FORCE_HOLD = false;
         mPeriodicIO.EJECT = false;
         mPeriodicIO.PREP = false;
         mPeriodicIO.SHOOT = false;
@@ -868,9 +830,6 @@ public class Superstructure extends Subsystem {
     }
     public boolean getRejecting() {
         return mPeriodicIO.REJECT;
-    }
-    public boolean getForceHolding() {
-        return mPeriodicIO.FORCE_HOLD;
     }
     public boolean getEjecting() {
         return mPeriodicIO.EJECT;
@@ -905,9 +864,6 @@ public class Superstructure extends Subsystem {
     public String getIntakeGoal() {
         return mPeriodicIO.real_intake.toString();
     }
-    public String getIndexerGoal() {
-        return mPeriodicIO.real_indexer.toString();
-    }
     public double getShooterGoal() {
         return mPeriodicIO.real_shooter;
     }
@@ -938,7 +894,6 @@ public class Superstructure extends Subsystem {
         // SmartDashboard.putBoolean("Is Vision Aimed", mLimelight.isAimed());
        
         SmartDashboard.putBoolean("Disable Ejecting", mDisableEjecting);
-        SmartDashboard.putBoolean("Stop Intaking", stopIntaking());
         SmartDashboard.putBoolean("Force Intake", mForceIntake);
         SmartDashboard.putBoolean("Force Eject", mForceEject);
 
@@ -974,7 +929,6 @@ public class Superstructure extends Subsystem {
         headers.add("INTAKE");
         headers.add("REVERSE");
         headers.add("REJECT");
-        headers.add("FORCE HOLD");
         headers.add("EJECT");
         headers.add("PREP");
         headers.add("SHOOT");
@@ -994,7 +948,6 @@ public class Superstructure extends Subsystem {
         items.add(mPeriodicIO.dt);
         items.add(mPeriodicIO.SPIT ? 1.0 : 0.0);
         items.add(mPeriodicIO.REJECT ? 1.0 : 0.0);
-        items.add(mPeriodicIO.FORCE_HOLD ? 1.0 : 0.0);
         items.add(mPeriodicIO.EJECT ? 1.0 : 0.0);
         items.add(mPeriodicIO.REVERSE ? 1.0 : 0.0);
         items.add(mPeriodicIO.PREP ? 1.0 : 0.0);

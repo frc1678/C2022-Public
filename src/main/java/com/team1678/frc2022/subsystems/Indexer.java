@@ -2,6 +2,7 @@ package com.team1678.frc2022.subsystems;
 
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
+import com.team1678.frc2022.lib.drivers.BeamBreak;
 import com.team1678.frc2022.logger.LogStorage;
 import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.loops.ILooper;
@@ -13,7 +14,6 @@ import java.util.ArrayList;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -35,12 +35,11 @@ public class Indexer extends Subsystem {
     private TalonFX mEjector;
     private TalonFX mTunnel;
 
-    private final DigitalInput mBottomBeamBreak;
-    private final DigitalInput mTopBeamBreak;
+    private final BeamBreak mBottomBeamBreak;
+    private final BeamBreak mTopBeamBreak;
 
-    private boolean mBottomHadSeenBall = false;
-    private boolean mTopHadSeenBall = false;
-
+    private Timer ejectDelayTimer = new Timer();
+    
     public boolean stopTunnel() {
         return ballAtTrigger() && ballInTunnel();
     }
@@ -53,15 +52,11 @@ public class Indexer extends Subsystem {
         return mPeriodicIO.bottom_break;
     }
 
-    private State mState = State.IDLE;
+    private IndexerSlot mTopSlot = new IndexerSlot();
+    private IndexerSlot mBottomSlot = new IndexerSlot();
 
-    public enum WantedAction {
-        NONE, INDEX, EJECT, SLOW_EJECT, FEED, REVERSE, 
-    }
+    private boolean mIndexingTopBall, mIndexingBottomBall, mEjecting, mFeeding = false;
 
-    public enum State{
-        IDLE, INDEXING, EJECTING, SLOW_EJECTING, FEEDING, REVERSING,
-    }
 
     private Indexer() {
         mEjector = TalonFXFactory.createDefaultTalon(Ports.EJECTOR_ID);
@@ -69,67 +64,8 @@ public class Indexer extends Subsystem {
 
         mTunnel.setInverted(true);
 
-        mBottomBeamBreak = new DigitalInput(Ports.BOTTOM_BEAM_BREAK);
-        mTopBeamBreak = new DigitalInput(Ports.TOP_BEAM_BREAK);
-    }
-            
-    public void setState(WantedAction wanted_state) {
-        switch (wanted_state) {
-            case NONE:
-                mState = State.IDLE;
-                break;
-            case INDEX:
-                mState = State.INDEXING;
-                break;
-            case EJECT:
-                mState = State.EJECTING;
-                break;
-            case SLOW_EJECT:
-                mState = State.SLOW_EJECTING;
-                break;
-            case FEED:
-                mState = State.FEEDING;
-                break;
-            case REVERSE:
-                mState = State.REVERSING;
-                break;
-        }
-    
-    }
-
-    public void runStateMachine() {
-        switch (mState) {
-            case IDLE:
-                mPeriodicIO.ejector_demand = Constants.IndexerConstants.kIdleVoltage;
-                mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kIdleVoltage;
-                break;
-            case INDEXING:
-                if (!stopTunnel()) {
-                    mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVoltage;
-                    mPeriodicIO.ejector_demand = Constants.IndexerConstants.kEjectorVoltage;
-                } else {
-                    mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kIdleVoltage;
-                    mPeriodicIO.ejector_demand = Constants.IndexerConstants.kIdleVoltage;
-                }
-                break;
-            case EJECTING:
-                mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVoltage;
-                mPeriodicIO.ejector_demand = -Constants.IndexerConstants.kEjectorVoltage;
-                break;
-            case SLOW_EJECTING:
-                mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVoltage;
-                mPeriodicIO.ejector_demand = -Constants.IndexerConstants.kSlowEjectorVoltage;
-                break;
-            case FEEDING:
-                mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelFeedingVoltage;
-                mPeriodicIO.ejector_demand = Constants.IndexerConstants.kEjectorFeedingVoltage;
-                break;
-            case REVERSING:
-                // reverses everything
-                mPeriodicIO.ejector_demand = Constants.IndexerConstants.kIdleVoltage;
-                mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kReversingVoltage;
-                break;
-        }
+        mBottomBeamBreak = new BeamBreak(Ports.BOTTOM_BEAM_BREAK);
+        mTopBeamBreak = new BeamBreak(Ports.TOP_BEAM_BREAK);
     }
     
     @Override
@@ -137,14 +73,13 @@ public class Indexer extends Subsystem {
         enabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
-                mState = State.IDLE;
+                setWantNone();
             }
 
             @Override
             public void onLoop(double timestamp) {
                 synchronized (Indexer.this){
-                    runStateMachine();
-
+                    updateSetpoints();
                     // send log data
                     SendLog();
                 }
@@ -152,10 +87,98 @@ public class Indexer extends Subsystem {
 
             @Override
             public void onStop(double timestamp) {
-                mState = State.IDLE;
                 stop();
             }
         });
+    }
+
+    public void updateSetpoints() {
+
+        // Update slots according to beam breaks
+        mTopSlot.updateHasBall(getTopBeamBreak());
+        mBottomSlot.updateHasBall(getBottomBeamBreak());
+
+        if (mFeeding) { // Feeding to the shooter
+            mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelFeedingVoltage;
+            mPeriodicIO.ejector_demand = Constants.IndexerConstants.kEjectorFeedingVoltage;
+        } else if (mEjecting) { // Pooping
+            mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVoltage;
+            mPeriodicIO.ejector_demand = -Constants.IndexerConstants.kEjectorVoltage;
+            
+            // Keep ejecting for X amount of seconds to ensure ball has left the system
+            if (mBottomBeamBreak.getCleared()) {
+                ejectDelayTimer.reset();
+                ejectDelayTimer.start();
+            } 
+        if (ejectDelayTimer.hasElapsed(0.1)) {
+                System.out.println("stopped ejecting");
+                ejectDelayTimer.stop();
+                ejectDelayTimer.reset();
+                mEjecting = false;
+            }
+        } else if (mIndexingTopBall) { // Indexing first ball
+            mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVoltage;
+            mPeriodicIO.ejector_demand = Constants.IndexerConstants.kEjectorVoltage;
+
+            // Stop running indexer when top slot has a ball
+            if (mTopSlot.hasBall()) {
+                mIndexingTopBall = false;
+            }
+
+        } else if (mIndexingBottomBall) { // Indexing second ball
+            mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVoltage;
+            mPeriodicIO.ejector_demand = Constants.IndexerConstants.kEjectorVoltage;
+
+            // Stop running indexer when bottom slot has a ball
+            if (mBottomSlot.hasBall()) {
+                mIndexingBottomBall = false;
+            }
+        } else {
+            mPeriodicIO.tunnel_demand = 0.0;
+            mPeriodicIO.ejector_demand = 0.0;
+        }
+    }
+
+    // Stop running indexer
+    public void setWantNone() {
+        mIndexingTopBall = false;
+        mIndexingBottomBall = false;
+        mEjecting = false;
+    }
+
+    // Reset slots
+    public void clearSlots() {
+        mTopSlot = new IndexerSlot();
+        mBottomSlot = new IndexerSlot();
+    }
+
+    // Queue a ball for indexing
+    public void queueBall(boolean color) {
+        if (!mTopSlot.hasBall() && !mTopSlot.hasQueuedBall()) {
+            queueFirstBall(color);
+        } else if (!mBottomSlot.hasBall() && !mBottomSlot.hasQueuedBall()) {
+            queueSecondBall(color);
+        }
+    }
+
+    private void queueFirstBall(boolean color) {
+        mTopSlot.queueBall(color);
+        mIndexingTopBall = true;
+    }
+
+    private void queueSecondBall(boolean color) {
+        mBottomSlot.queueBall(color);
+        mIndexingBottomBall = true;
+    }
+
+    // Feed to shooter
+    public void setWantFeeding(boolean wantsFeed) {
+        mFeeding = wantsFeed;
+    }
+
+    // Queue a ball for ejection
+    public void queueEject() {
+        mEjecting = true;
     }
 
     @Override
@@ -166,17 +189,19 @@ public class Indexer extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
+        mTopSlot.outputToSmartdash("Top");
+        mBottomSlot.outputToSmartdash("Bottom");
+        SmartDashboard.putBoolean("Indexing Top Ball", mIndexingTopBall);
+        SmartDashboard.putBoolean("Indexing Bottom Ball", mIndexingBottomBall);
+        SmartDashboard.putBoolean("Indexing Feeding", mFeeding);
+        SmartDashboard.putBoolean("Indexing Ejecting", mEjecting);
         mPeriodicIO.top_break = !mTopBeamBreak.get();
         mPeriodicIO.bottom_break = !mBottomBeamBreak.get();
     }
 
-    public State getState() {
-        return mState;
-    }
-
     @Override
     public void stop() {
-        // TODO Auto-generated method stub
+        setWantNone();
     }
 
     @Override
@@ -227,6 +252,10 @@ public class Indexer extends Subsystem {
         return mPeriodicIO.bottom_break;
     }
 
+    public boolean indexerFull() {
+        return (mTopSlot.hasBall() || mTopSlot.hasQueuedBall()) && (mBottomSlot.hasBall() || mBottomSlot.hasQueuedBall());
+    }
+
     public static class PeriodicIO {
         // INPUTS
         public boolean top_break;
@@ -241,12 +270,6 @@ public class Indexer extends Subsystem {
         // OUTPUTS
         public double ejector_demand;
         public double tunnel_demand;
-    }
-
-    // only call for quick status testing
-    public void outputTelemetry() {
-        SmartDashboard.putBoolean("Top Had Seen Ball", mTopHadSeenBall);
-        SmartDashboard.putBoolean("Bottom Had Seen Ball", mBottomHadSeenBall);
     }
 
     @Override
@@ -286,6 +309,58 @@ public class Indexer extends Subsystem {
 
         // send data to logging storage
         mStorage.addData(items);
+    }
+
+    private class IndexerSlot {
+        private boolean hasBall;
+        private boolean correctColor;
+        
+        private boolean hasQueuedBall;
+        private boolean queuedBallColor;
+
+        public IndexerSlot() {
+            hasBall = false;
+            correctColor = false;
+            hasQueuedBall = false;
+            queuedBallColor = false;
+        }
+
+        public boolean hasBall() {
+            return hasBall;
+        }
+
+        public boolean hasCorrectColor() {
+            return hasBall && correctColor;
+        }
+
+        public void updateHasBall(boolean beamBreakRead) {
+            hasBall = beamBreakRead;
+            if (beamBreakRead) {
+                if (hasQueuedBall) {
+                    hasQueuedBall = false;
+                    correctColor = queuedBallColor;
+                }
+            } else {
+                hasQueuedBall = false;
+            }
+
+        }
+
+        public void queueBall(boolean correctColor) {
+            hasQueuedBall = true;
+            queuedBallColor = correctColor;
+        }
+
+        public boolean hasQueuedBall() {
+            return hasQueuedBall;
+        }
+
+        public void outputToSmartdash(String name) {
+            SmartDashboard.putBoolean(name + " has ball", hasBall);
+            SmartDashboard.putBoolean(name + " has correct color", correctColor);
+            SmartDashboard.putBoolean(name + " has queued ball", hasQueuedBall);
+            SmartDashboard.putBoolean(name + " queued ball color", queuedBallColor);
+        }
     }
     
 }

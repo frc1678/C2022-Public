@@ -777,7 +777,6 @@ public class ShuffleBoardInteractions {
         mTunnelDemand.setDouble(mIndexer.getTunnelDemand());
         mTunnelVoltage.setDouble(mIndexer.getTunnelVoltage());
 
-        mIndexerState.setString(mIndexer.getState().toString());
         mBallCount.setDouble(mSuperstructure.getBallCount());
 
         mTopBeamBreak.setBoolean(mIndexer.getTopBeamBreak());
@@ -827,7 +826,6 @@ public class ShuffleBoardInteractions {
         mIntaking.setBoolean(mSuperstructure.getIntaking());
         mReversing.setBoolean(mSuperstructure.getReversing());
         mRejecting.setBoolean(mSuperstructure.getRejecting());
-        mForceHolding.setBoolean(mSuperstructure.getForceHolding());
         mEjecting.setBoolean(mSuperstructure.getEjecting());
         mPrepping.setBoolean(mSuperstructure.getPrepping());
         mShooting.setBoolean(mSuperstructure.getShooting());
@@ -836,7 +834,6 @@ public class ShuffleBoardInteractions {
 
         // update superstructure goal statuses
         mIntakeGoal.setString(mSuperstructure.getIntakeGoal());
-        mIndexerGoal.setString(mSuperstructure.getIndexerGoal());
         mShooterGoal.setDouble(mSuperstructure.getShooterGoal());
         mHoodGoal.setDouble(mSuperstructure.getHoodGoal());
 
