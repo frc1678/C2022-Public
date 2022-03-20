@@ -989,7 +989,7 @@ public class Superstructure extends Subsystem {
 
     public void SendLog() {
         ArrayList<Number> items = new ArrayList<Number>();
-        items.add(Timer.getFPGATimestamp());
+        items.add(mPeriodicIO.timestamp);
         items.add(mPeriodicIO.dt);
         items.add(mPeriodicIO.INTAKE ? 1.0 : 0.0);
         items.add(mPeriodicIO.REVERSE ? 1.0 : 0.0);
