@@ -130,7 +130,7 @@ public class Indexer extends Subsystem {
                 mPeriodicIO.ejector_demand = -Constants.IndexerConstants.kSlowEjectorVoltage;
                 break;
             case FEEDING:
-                mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelFeedingVoltage;
+                mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelFeedingVelocity;
                 mPeriodicIO.ejector_demand = Constants.IndexerConstants.kEjectorFeedingVoltage;
                 break;
             case REVERSING:

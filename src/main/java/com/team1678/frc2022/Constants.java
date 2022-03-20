@@ -381,7 +381,7 @@ public class Constants {
         public static final double kIdleVoltage = 0.0;
 
         public static final double kTunnelIndexingVelocity = 642.0;
-        public static final double kTunnelFeedingVoltage = 642.0;
+        public static final double kTunnelFeedingVelocity = 500.0;
 
         public static final double kEjectorVoltage = 12.0;
         public static final double kSlowEjectorVoltage = 4.0;
