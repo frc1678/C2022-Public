@@ -3,15 +3,16 @@ package com.team1678.frc2022.subsystems;
 import java.util.ArrayList;
 
 import com.ctre.phoenix.sensors.Pigeon2;
-import com.ctre.phoenix.sensors.PigeonIMU;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
+import com.team1678.frc2022.RobotState;
 import com.team1678.frc2022.SwerveModule;
 import com.team1678.frc2022.logger.LogStorage;
 import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
 import com.team254.lib.util.TimeDelayedBoolean;
+
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
@@ -23,6 +24,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Swerve extends Subsystem {
@@ -31,11 +33,8 @@ public class Swerve extends Subsystem {
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
 
-    //logger
+    // logger
     LogStorage<PeriodicIO> mStorage = null;
-
-    // required instance for vision align
-    public Limelight mLimelight = Limelight.getInstance();
 
     // wants vision aim during auto
     public boolean mWantsAutoVisionAim = false;
@@ -44,13 +43,19 @@ public class Swerve extends Subsystem {
     public SwerveModule[] mSwerveMods;
     public Pigeon2 gyro;
 
+    // chassis velocity status
+    ChassisSpeeds chassisVelocity = new ChassisSpeeds();
+
+    // trapezoid motion profile for vision aiming
+    private double mProfileGenTime = 0.0;
+    private TrapezoidProfile mTrapezoidProfile = null;
+
     public boolean isSnapping;
-    private double mVisionAlignAdjustment;
     private double mVisionAlignGoal;
+    private double mVisionAlignAdjustment;
 
     public ProfiledPIDController snapPIDController;
     public PIDController visionPIDController;
-
     
     // Private boolean to lock Swerve wheels
     private boolean mLocked = false;
@@ -108,7 +113,7 @@ public class Swerve extends Subsystem {
 
             @Override
             public void onLoop(double timestamp) {
-                updateVisionAlignGoal();
+                updateSwerveOdometry();
                 outputTelemetry();
             }
 
@@ -142,11 +147,8 @@ public class Swerve extends Subsystem {
 
     public void visionAlignDrive(Translation2d translation2d, double rotation, boolean fieldRelative, boolean isOpenLoop) {
         double adjustedRotation;
-        if (mLimelight.hasTarget()) {
-            adjustedRotation = mVisionAlignAdjustment;
-        } else {
-            adjustedRotation = rotation;
-        }
+        
+        adjustedRotation = mVisionAlignAdjustment;
         drive(translation2d, adjustedRotation, fieldRelative, isOpenLoop);
     }
 
@@ -187,22 +189,15 @@ public class Swerve extends Subsystem {
         for (SwerveModule mod : mSwerveMods) {
             mod.setDesiredState(swerveModuleStates[mod.moduleNumber], isOpenLoop);
         }
-    }    
-    
-    public void updateVisionAlignGoal() {
+    }
+
+    public void acceptLatestVisionAlignGoal(double vision_goal) {
+        mVisionAlignGoal = vision_goal; 
+
         double currentAngle = getYaw().getRadians();
-        double targetOffset = 0.0;
-        
-        if (mLimelight.hasTarget()) {
-            targetOffset = Math.toRadians(mLimelight.getOffset()[0]);
-        } 
-
-        mVisionAlignGoal = MathUtil.inputModulus(currentAngle - targetOffset, 0.0, 2 * Math.PI);
-
         visionPIDController.setSetpoint(mVisionAlignGoal);
         mVisionAlignAdjustment = visionPIDController.calculate(currentAngle);
     }
-
 
     public double calculateSnapValue() {
         return snapPIDController.calculate(getYaw().getRadians());
@@ -248,6 +243,9 @@ public class Swerve extends Subsystem {
     public void resetOdometry(Pose2d pose) {
         swerveOdometry.resetPosition(pose, pose.getRotation());
         zeroGyro(pose.getRotation().getDegrees());
+
+        // reset field to vehicle
+        RobotState.getInstance().reset();
     }
 
     public void resetAnglesToAbsolute() {
@@ -315,7 +313,14 @@ public class Swerve extends Subsystem {
     }
 
     public void updateSwerveOdometry(){
-        swerveOdometry.update(getYaw(), getStates());  
+        swerveOdometry.update(getYaw(), getStates());
+
+        chassisVelocity = Constants.SwerveConstants.swerveKinematics.toChassisSpeeds(
+                    mInstance.mSwerveMods[0].getState(),
+                    mInstance.mSwerveMods[1].getState(),
+                    mInstance.mSwerveMods[2].getState(),
+                    mInstance.mSwerveMods[3].getState()
+            );
     }
 
     @Override
@@ -339,18 +344,27 @@ public class Swerve extends Subsystem {
         mPeriodicIO.robot_roll = getRoll().getDegrees();
         mPeriodicIO.snap_target = Math.toDegrees(snapPIDController.getGoal().position);
 
+        mPeriodicIO.angular_velocity = chassisVelocity.omegaRadiansPerSecond;
+
         SendLog();
     }
 
     public static class PeriodicIO {
-
         public double odometry_pose_x;
         public double odometry_pose_y;
         public double odometry_pose_rot;
+
         public double pigeon_heading;
         public double robot_pitch;
         public double robot_roll;
         public double snap_target;
+
+        public double angular_velocity;
+        public double goal_velocity;
+
+        public double profile_position;
+
+        public double align_goal;
 
     }
 
@@ -365,6 +379,7 @@ public class Swerve extends Subsystem {
         mStorage = new LogStorage<PeriodicIO>();
 
         ArrayList<String> headers = new ArrayList<String>();
+        headers.add("timestamp");
         headers.add("odometry_pose_x");
         headers.add("odometry_pose_y");
         headers.add("odometry_pose_rot");
@@ -373,11 +388,17 @@ public class Swerve extends Subsystem {
         headers.add("robot_roll");
         headers.add("snap_target");
 
+        headers.add("angular_velocity");
+        headers.add("goal_velocity");
+        headers.add("profile_position");
+        headers.add("align_goal");
+
         mStorage.setHeaders(headers);
     }
 
     public void SendLog() {
         ArrayList<Number> items = new ArrayList<Number>();
+        items.add(Timer.getFPGATimestamp());
         items.add(mPeriodicIO.odometry_pose_x);
         items.add(mPeriodicIO.odometry_pose_y);
         items.add(mPeriodicIO.odometry_pose_rot);
@@ -385,6 +406,11 @@ public class Swerve extends Subsystem {
         items.add(mPeriodicIO.robot_pitch);
         items.add(mPeriodicIO.robot_roll);
         items.add(mPeriodicIO.snap_target);
+
+        items.add(mPeriodicIO.angular_velocity);
+        items.add(mPeriodicIO.goal_velocity);
+        items.add(mPeriodicIO.profile_position);
+        items.add(mPeriodicIO.align_goal);
 
         // send data to logging storage
         mStorage.addData(items);

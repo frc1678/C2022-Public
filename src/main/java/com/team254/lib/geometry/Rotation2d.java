@@ -62,6 +62,12 @@ public class Rotation2d implements IRotation2d<Rotation2d> {
         this(direction.x(), direction.y(), normalize);
     }
 
+    public Rotation2d(final edu.wpi.first.math.geometry.Rotation2d other) {
+        cos_angle_ = other.getCos();
+        sin_angle_ = other.getSin();
+        theta_degrees = Math.toDegrees(Math.atan2(sin_angle_, cos_angle_));
+    }
+
     public static Rotation2d fromRadians(double angle_radians) {
         return new Rotation2d(Math.cos(angle_radians), Math.sin(angle_radians), false);
     }
