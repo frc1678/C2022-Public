@@ -110,23 +110,23 @@ public class Indexer extends Subsystem {
         switch (mState) {
             case IDLE:
                 mPeriodicIO.ejector_demand = Constants.IndexerConstants.kIdleVoltage;
-                mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kIdleVoltage;
+                mPeriodicIO.tunnel_demand = 0.0;
                 break;
             case INDEXING:
                 if (!stopTunnel()) {
-                    mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVoltage;
+                    mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVelocity;
                     mPeriodicIO.ejector_demand = Constants.IndexerConstants.kEjectorVoltage;
                 } else {
-                    mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kIdleVoltage;
+                    mPeriodicIO.tunnel_demand = 0.0;
                     mPeriodicIO.ejector_demand = Constants.IndexerConstants.kIdleVoltage;
                 }
                 break;
             case EJECTING:
-                mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVoltage;
+                mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVelocity;
                 mPeriodicIO.ejector_demand = -Constants.IndexerConstants.kEjectorVoltage;
                 break;
             case SLOW_EJECTING:
-                mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVoltage;
+                mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVelocity;
                 mPeriodicIO.ejector_demand = -Constants.IndexerConstants.kSlowEjectorVoltage;
                 break;
             case FEEDING:
@@ -136,7 +136,7 @@ public class Indexer extends Subsystem {
             case REVERSING:
                 // reverses everything
                 mPeriodicIO.ejector_demand = Constants.IndexerConstants.kIdleVoltage;
-                mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kReversingVoltage;
+                mPeriodicIO.tunnel_demand = -Constants.IndexerConstants.kTunnelIndexingVelocity;
                 break;
         }
     }
@@ -170,7 +170,12 @@ public class Indexer extends Subsystem {
     @Override
     public synchronized void writePeriodicOutputs() {
         mEjector.set(ControlMode.PercentOutput, mPeriodicIO.ejector_demand / 12.0);
-        mTunnel.set(ControlMode.PercentOutput, mPeriodicIO.tunnel_demand / 12.0);  
+        if (mPeriodicIO.tunnel_demand == 0.0) {
+            mTunnel.set(ControlMode.PercentOutput, 0.0);
+        } else {
+            mTunnel.set(ControlMode.Velocity,
+                    mPeriodicIO.tunnel_demand / Constants.IndexerConstants.kTunnelVelocityConversion);
+        }
     }
 
     @Override
