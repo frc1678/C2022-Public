@@ -119,7 +119,7 @@ public class FiveBallMode extends AutoModeBase {
                 traj_path_d = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_d,
                                 Constants.AutoConstants.createConfig(
                                                 3.0,
-                                                Constants.AutoConstants.kSlowAccelerationMetersPerSecondSquared,
+                                                Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared,
                                                 0.0,
                                                 0.0));
 
@@ -176,20 +176,12 @@ public class FiveBallMode extends AutoModeBase {
                 System.out.println("Running five ball mode a auto!");
                 SmartDashboard.putBoolean("Auto Finished", false);
 
-                // reset odometry at the start of the trajectory
-                runAction(new LambdaAction(() -> mSwerve.resetOdometry(driveToIntakeSecondCargo.getInitialPose())));
-
-                // runAction(new LambdaAction(() -> mSwerve.setModuleStates(
-			// Constants.SwerveConstants.swerveKinematics.toSwerveModuleStates((
-			// ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, 0, Rotation2d.fromDegrees(0)))))));
-
                 runAction(new RaceAction(
                                 new SeriesAction(List.of(
-                                                // new WaitAction(0.2),
                                                 driveToIntakeSecondCargo)),
 
                                 new SeriesAction(List.of(
-                                                new WaitAction(0.1),
+                                                // new WaitAction(0.1),
                                                 new LambdaAction(() -> mSuperstructure.setWantPrep(true)),
                                                 new LambdaAction(() -> mSuperstructure.setWantIntake(true))))));
 
