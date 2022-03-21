@@ -176,8 +176,6 @@ public class FiveBallMode extends AutoModeBase {
                 System.out.println("Running five ball mode a auto!");
                 SmartDashboard.putBoolean("Auto Finished", false);
 
-                runAction(new LambdaAction(() -> mSwerve.zeroGyro(getStartingPose().getRotation().getDegrees())));
-
                 runAction(new RaceAction(
                                 new SeriesAction(List.of(
                                                 driveToIntakeSecondCargo)),
