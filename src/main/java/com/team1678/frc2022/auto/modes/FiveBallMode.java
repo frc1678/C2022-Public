@@ -14,10 +14,10 @@ import com.team1678.frc2022.auto.actions.SwerveTrajectoryAction;
 import com.team1678.frc2022.auto.actions.WaitAction;
 import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
-import com.team254.lib.geometry.Pose2d;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
@@ -245,5 +245,10 @@ public class FiveBallMode extends AutoModeBase {
                 ShuffleBoardInteractions.getInstance().addTrajectory(traj_path_d, "Traj D");
                 ShuffleBoardInteractions.getInstance().addTrajectory(traj_path_e, "Traj E");
                 ShuffleBoardInteractions.getInstance().addTrajectory(traj_path_f, "Traj F");
+        }
+
+        @Override
+        public Pose2d getStartingPose() {
+                return driveToIntakeSecondCargo.getInitialPose();
         }
 }

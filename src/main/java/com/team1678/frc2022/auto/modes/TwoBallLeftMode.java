@@ -94,4 +94,9 @@ public class TwoBallLeftMode extends AutoModeBase {
         SmartDashboard.putBoolean("Auto Finished", true);
 
     }
+
+    @Override
+    public Pose2d getStartingPose() {
+        return driveToIntakeCargo.getInitialPose();
+    }
 }

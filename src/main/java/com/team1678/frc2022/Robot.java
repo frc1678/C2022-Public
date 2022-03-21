@@ -317,9 +317,8 @@ public class Robot extends TimedRobot {
 			if (autoMode.isPresent() && autoMode.get() != mAutoModeExecutor.getAutoMode()) {
 				System.out.println("Set auto mode to: " + autoMode.get().getClass().toString());
 				mAutoModeExecutor.setAutoMode(autoMode.get());
+				mSwerve.resetOdometry(autoMode.get().getStartingPose());
 			}
-
-			// mSwerve.resetOdometry(new FiveBallMode().getInitialPose());
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);

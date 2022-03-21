@@ -17,6 +17,7 @@ import com.team1678.frc2022.subsystems.Swerve;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -280,6 +281,11 @@ public class FivePlusOneMode extends AutoModeBase {
         ShuffleBoardInteractions.getInstance().addTrajectory(traj_path_d, "Traj D");
         ShuffleBoardInteractions.getInstance().addTrajectory(traj_path_f, "Traj E");
         ShuffleBoardInteractions.getInstance().addTrajectory(traj_path_g, "Traj F");
+    }
+
+    @Override
+    public Pose2d getStartingPose() {
+            return driveToIntakeSecondShotCargo.getInitialPose();
     }
 
 }

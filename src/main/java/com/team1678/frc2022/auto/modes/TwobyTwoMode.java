@@ -145,4 +145,9 @@ public class TwobyTwoMode extends AutoModeBase {
 
     }
 
+    @Override
+    public Pose2d getStartingPose() {
+        return driveToIntakeSecondShotCargo.getInitialPose();
+    }
+
 }

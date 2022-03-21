@@ -3,6 +3,8 @@ package com.team1678.frc2022.auto.modes;
 import com.team1678.frc2022.auto.AutoModeEndedException;
 import com.team1678.frc2022.auto.actions.Action;
 import com.team1678.frc2022.auto.actions.EmptyAction;
+
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 
 /**
@@ -99,4 +101,6 @@ public abstract class AutoModeBase {
     public boolean getIsInterrupted() {
         return mIsInterrupted;
     }
+
+    public abstract Pose2d getStartingPose();
 }
