@@ -139,7 +139,7 @@ public class ColorSensor extends Subsystem {
 
     // update the color of the cargo we see
     public void updateMatchedColor() {
-        if (!seesBall()) { 
+        if (!hasBall()) { 
             mMatchedColor = ColorChoices.NONE;
         } else {
             double rb_diff = mPeriodicIO.red_final - mPeriodicIO.blue_final;
