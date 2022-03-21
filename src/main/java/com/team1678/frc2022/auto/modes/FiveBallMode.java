@@ -82,10 +82,10 @@ public class FiveBallMode extends AutoModeBase {
                 // Drive to lineup to third cargo
                 traj_path_b = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_b,
                                 Constants.AutoConstants.createConfig(
-                                                Constants.AutoConstants.kSlowSpeedMetersPerSecond,
+                                                Constants.AutoConstants.kMaxSpeedMetersPerSecond,
                                                 Constants.AutoConstants.kSlowAccelerationMetersPerSecondSquared,
                                                 0.0,
-                                                Constants.AutoConstants.kSlowSpeedMetersPerSecond));
+                                                Constants.AutoConstants.kMaxSpeedMetersPerSecond));
 
                 driveToThirdShotCargo = new SwerveTrajectoryAction(traj_path_b,
                                 mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
@@ -99,9 +99,9 @@ public class FiveBallMode extends AutoModeBase {
                 // Intake third cargo
                 traj_path_c = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_c,
                                 Constants.AutoConstants.createConfig(
-                                                Constants.AutoConstants.kSlowSpeedMetersPerSecond,
+                                                Constants.AutoConstants.kMaxSpeedMetersPerSecond,
                                                 Constants.AutoConstants.kSlowAccelerationMetersPerSecondSquared,
-                                                Constants.AutoConstants.kSlowSpeedMetersPerSecond,
+                                                Constants.AutoConstants.kMaxSpeedMetersPerSecond,
                                                 0.0));
 
                 driveToIntakeThirdShotCargo = new SwerveTrajectoryAction(traj_path_c,
@@ -116,7 +116,7 @@ public class FiveBallMode extends AutoModeBase {
                 // Drive to intake 4th cargo at terminal
                 traj_path_d = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_d,
                                 Constants.AutoConstants.createConfig(
-                                                Constants.AutoConstants.kMaxSpeedMetersPerSecond,
+                                                4.0,
                                                 Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared,
                                                 0.0,
                                                 0.0));
@@ -133,8 +133,8 @@ public class FiveBallMode extends AutoModeBase {
                 // Drive to human player wait pose
                 traj_path_e = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_e,
                                 Constants.AutoConstants.createConfig(
-                                                Constants.AutoConstants.kMaxSpeedMetersPerSecond,
-                                                Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared,
+                                                4.0,
+                                                Constants.AutoConstants.kSlowAccelerationMetersPerSecondSquared,
                                                 0.0,
                                                 0.0));
 
@@ -181,7 +181,7 @@ public class FiveBallMode extends AutoModeBase {
 
                 runAction(new RaceAction(
                                 new SeriesAction(List.of(
-                                                new WaitAction(0.3),
+                                                new WaitAction(0.2),
                                                 driveToIntakeSecondShotCargo)),
 
                                 new SeriesAction(List.of(
@@ -219,7 +219,7 @@ public class FiveBallMode extends AutoModeBase {
 
                 runAction(driveToHumanPlayerWait);
 
-                runAction(new WaitAction(1.0));
+                runAction(new WaitAction(0.5));
 
                 // start vision aiming when driving to shot pose
                 runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));

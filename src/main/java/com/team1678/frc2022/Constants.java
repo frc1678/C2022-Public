@@ -76,7 +76,7 @@ public class Constants {
         public static final double driveKF = 0.0;
 
         /* Drive Motor Characterization Values */
-        public static final double driveKS = (0.421 / 12); // divide by 12 to convert from volts to percent output for CTRE
+        public static final double driveKS = (0.40 / 12); // divide by 12 to convert from volts to percent output for CTRE
         public static final double driveKV = (2.80 / 12); // 0.244 previously
         public static final double driveKA = (0.27 / 12);
 
@@ -161,9 +161,9 @@ public class Constants {
     }
 
     public static final class VisionAlignConstants {
-        public static final double kP = 4.0;
+        public static final double kP = 6.0;
         public static final double kI = 0.0;
-        public static final double kD = 0.1;
+        public static final double kD = 0.15;
 
         // Constraints for the profiled angle controller
         public static final double kMaxAngularSpeedRadiansPerSecond = 2.0 * Math.PI;
@@ -300,7 +300,7 @@ public class Constants {
         public static final double kSpittingVoltage = -8;
         public static final double kRejectingVoltage = -5;
 
-        public static final double kSingulatorVelocity = 2386.0;
+        public static final double kSingulatorVelocity = 1500.0; // 2386
 
         public static final double kDeployVoltage = 4.0;
         public static final double kInHoldingVoltage = 1.2;
@@ -398,7 +398,7 @@ public class Constants {
 
         public static final double kIdleVoltage = 0.0;
 
-        public static final double kTunnelIndexingVelocity = 642.0;
+        public static final double kTunnelIndexingVelocity = 650.0; // 642
         public static final double kTunnelFeedingVelocity = 500.0;
 
         public static final double kEjectorVoltage = 12.0;
@@ -410,7 +410,7 @@ public class Constants {
         public static final int kBottomBeamBreak = 1;
         public static final int kTopBeamBreak = 0;
 
-        public static final double kEjectDelay = 3.0;
+        public static final double kEjectDelay = 5.0;
 
     }
     
@@ -476,6 +476,12 @@ public class Constants {
     public static final class ColorSensorConstants {
         public static final double kColorSensorThreshold = 300;
 
+        public static final double kColorProportionalDiffEpsilon = 0.001;
+
+        public static final double kBlueFreqScaler = 1.0;
+        public static final double kRedFreqScaler = 1.0;
+
+        public static final double kUpdateBaselineDelay = 1.0;
         public static final double kTimeWithBall = 1.2;
     }
 

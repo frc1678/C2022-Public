@@ -3,11 +3,9 @@ package com.team1678.frc2022.subsystems;
 import com.team1678.frc2022.loops.Loop;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.Constants;
-import com.team1678.frc2022.Robot;
 import com.team1678.frc2022.RobotState;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.CustomXboxController;
-import com.team1678.frc2022.controlboard.CustomXboxController.Button;
 import com.team1678.frc2022.logger.LogStorage;
 import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.regressions.ShooterRegression;
@@ -22,8 +20,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.ArrayList;
 import java.util.Optional;
-
-import javax.lang.model.util.ElementScanner6;
 
 public class Superstructure extends Subsystem {
 
@@ -140,6 +136,11 @@ public class Superstructure extends Subsystem {
             @Override
             public void onLoop(double timestamp) {
                 final double start = Timer.getFPGATimestamp();
+
+                if (!mColorSensor.seesBall() && !mPeriodicIO.INTAKE) {
+                    mColorSensor.updateBaselineColorScaling();
+                    System.out.println("updating baseline");
+                }
 
                 if (!mClimbMode) {
                     updateBallCounter();

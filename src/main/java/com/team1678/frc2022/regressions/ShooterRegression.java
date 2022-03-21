@@ -26,6 +26,10 @@ public class ShooterRegression {
         /* TEMPLATE REGRESSION */
         // @x --> distance from target (in meters)
         // @y --> hood angle (in degrees)
+        { 1.0, 11.0 },
+        { 1.25, 12.0 },
+        { 1.50, 14.0 },
+        { 1.75, 17.0 },
         { 2.0, 23.0 },
         { 2.25, 24.0 },
         { 2.5, 25.0 },
@@ -37,10 +41,12 @@ public class ShooterRegression {
         { 4.0, 32.0 },
         { 4.25, 33.0 },
         { 4.5, 34.0 },
-        { 4.75, 35.0 },
-        { 5.0, 35.0 },
+        { 4.75, 34.0 },
+        { 5.0, 34.0 },
         { 5.5, 35.0 },
         { 6.0, 35.0 },
+        { 6.5, 35.0 },
+        { 7.0, 35.0 }
     };
 
     static {
@@ -63,6 +69,10 @@ public class ShooterRegression {
         /* TEMPLATE REGRESSION */
         // @x --> distance from target (in meters)
         // @y --> shooter velocity (in rpm)
+        { 1.0, 2100 },
+        { 1.25, 2100 },
+        { 1.50, 2100 },
+        { 1.75, 2150 },
         { 2.0, 2150 },
         { 2.25, 2200 },
         { 2.5, 2300 },
@@ -75,9 +85,11 @@ public class ShooterRegression {
         { 4.25, 2520 },
         { 4.5, 2600 },
         { 4.75, 2700 },
-        { 5.0, 2730 },
-        { 5.5, 2800 },
-        { 6.0, 2900 }, //  3200
+        { 5.0, 2710 },
+        { 5.5, 2780 },
+        { 6.0, 2900 },
+        { 6.5, 3000 },
+        { 7.0, 3150 }
 
     };
 
