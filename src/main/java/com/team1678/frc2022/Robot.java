@@ -9,6 +9,7 @@ import java.util.Optional;
 import com.team1678.frc2022.auto.AutoModeExecutor;
 import com.team1678.frc2022.auto.AutoModeSelector;
 import com.team1678.frc2022.auto.modes.AutoModeBase;
+import com.team1678.frc2022.auto.modes.FiveBallMode;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.ControlBoard.SwerveCardinal;
 import com.team1678.frc2022.logger.LoggingSystem;
@@ -188,15 +189,17 @@ public class Robot extends TimedRobot {
                 mAutoModeExecutor.stop();
             }
 
-			mSwerve.setModuleStates(
-				Constants.SwerveConstants.swerveKinematics.toSwerveModuleStates((
-					ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, 0, Rotation2d.fromDegrees(0)))));
+			// mSwerve.setModuleStates(
+			// 	Constants.SwerveConstants.swerveKinematics.toSwerveModuleStates((
+			// 		ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, 0, Rotation2d.fromDegrees(0)))));
 
 			mDisabledLooper.stop();
 			mEnabledLooper.start();
 			mLoggingLooper.start();
 
 			// mInfrastructure.setIsDuringAuto(false);
+
+			mSuperstructure.setWantEject(false, false);
 
 			mClimber.setBrakeMode(true);
 
@@ -270,9 +273,9 @@ public class Robot extends TimedRobot {
 			mLimelight.setLed(Limelight.LedMode.ON);
             mLimelight.triggerOutputs();
 
-			mSwerve.setModuleStates(
-				Constants.SwerveConstants.swerveKinematics.toSwerveModuleStates((
-					ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, 0, Rotation2d.fromDegrees(0)))));
+			// mSwerve.setModuleStates(
+			// 	Constants.SwerveConstants.swerveKinematics.toSwerveModuleStates((
+			// 		ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, 0, Rotation2d.fromDegrees(0)))));
 
 
 		} catch (Throwable t) {
@@ -303,6 +306,8 @@ public class Robot extends TimedRobot {
 
 			// update alliance color from driver station while disabled
 			mColorSensor.updateAllianceColor();
+			// update baseline color scaling for accurate rb comparison
+			// mColorSensor.updateBaselineColorScaling();
 
 			mLimelight.setLed(Limelight.LedMode.ON);
 			mLimelight.writePeriodicOutputs();
@@ -312,6 +317,7 @@ public class Robot extends TimedRobot {
 			if (autoMode.isPresent() && autoMode.get() != mAutoModeExecutor.getAutoMode()) {
 				System.out.println("Set auto mode to: " + autoMode.get().getClass().toString());
 				mAutoModeExecutor.setAutoMode(autoMode.get());
+				mSwerve.resetOdometry(autoMode.get().getStartingPose());
 			}
 
 		} catch (Throwable t) {

@@ -65,7 +65,7 @@ public class LoggingSystem {
             // get system time in milliseconds and convert to datetime in PST time zone
             long milliSec = System.currentTimeMillis();
             Date res = new Date(milliSec);
-            DateFormat sdf = new SimpleDateFormat("yy-MM-dd-HH-mm");
+            DateFormat sdf = new SimpleDateFormat("yy:MM:dd:HH:mm:ss");
             sdf.setTimeZone(TimeZone.getTimeZone("PST"));
 
             // format time in datetime and add to file name

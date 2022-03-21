@@ -3,11 +3,9 @@ package com.team1678.frc2022.subsystems;
 import com.team1678.frc2022.loops.Loop;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.Constants;
-import com.team1678.frc2022.Robot;
 import com.team1678.frc2022.RobotState;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.CustomXboxController;
-import com.team1678.frc2022.controlboard.CustomXboxController.Button;
 import com.team1678.frc2022.logger.LogStorage;
 import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.regressions.ShooterRegression;
@@ -22,8 +20,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.ArrayList;
 import java.util.Optional;
-
-import javax.lang.model.util.ElementScanner6;
 
 public class Superstructure extends Subsystem {
 
@@ -141,11 +137,18 @@ public class Superstructure extends Subsystem {
             public void onLoop(double timestamp) {
                 final double start = Timer.getFPGATimestamp();
 
+                if (!mColorSensor.seesBall() && !mPeriodicIO.INTAKE) {
+                    mColorSensor.updateBaselineColorScaling();
+                    System.out.println("updating baseline");
+                }
+
                 if (!mClimbMode) {
                     updateBallCounter();
                     updateVisionAimingParameters();
                     updateShootingSetpoints();
                 }
+
+                // updateWantEjection();
                 setGoals();
                 updateLEDs();
                 outputTelemetry();
@@ -215,6 +218,11 @@ public class Superstructure extends Subsystem {
         mPeriodicIO.EJECT = eject;
         mSlowEject = slow_eject;
     }
+
+    public void setSlowEject(boolean slow_eject) {
+        mSlowEject = slow_eject;
+    }
+
     public void setWantPrep(boolean wants_prep) {
         mPeriodicIO.PREP = wants_prep;
     }
@@ -482,9 +490,9 @@ public class Superstructure extends Subsystem {
             } else if (mDisableEjecting || mLockIntake) {
                 mPeriodicIO.EJECT = false;
             } else {
+                updateWantEjection();
                 mForceEject = false;
                 // when not forcing an eject, passively check whether want to passively eject using color sensor logic
-                mPeriodicIO.EJECT = mColorSensor.wantsEject();
             }
 
             //force holding button: keep intake retracted when button is pressed
@@ -498,7 +506,7 @@ public class Superstructure extends Subsystem {
             }
 
             // spin up if we aren't already
-            if (mPeriodicIO.SHOOT && !mPeriodicIO.PREP) {
+            if ((mPeriodicIO.SHOOT || mPeriodicIO.SPIT) && !mPeriodicIO.PREP) {
                 mPeriodicIO.PREP = true;
             }
 
@@ -534,6 +542,10 @@ public class Superstructure extends Subsystem {
                 mResetHoodAngleAdjustment = true;
             }
         }
+    }
+
+    public void updateWantEjection() {
+        mPeriodicIO.EJECT = mColorSensor.wantsEject();
     }
 
     /*** UPDATE BALL COUNTER FOR INDEXING STATUS ***/
@@ -591,7 +603,7 @@ public class Superstructure extends Subsystem {
         // update align delta from target and distance from target
         mTrackId = real_aiming_params_.get().getTrackId();
         mTargetAngle = predicted_vehicle_to_goal.getTranslation().direction().getRadians() + Math.PI;
-        mCorrectedDistanceToTarget = predicted_vehicle_to_goal.getTranslation().norm() + 0.6;
+        mCorrectedDistanceToTarget = predicted_vehicle_to_goal.getTranslation().norm();
 
         // send vision aligning target delta to swerve
         mSwerve.acceptLatestVisionAlignGoal(mTargetAngle);
@@ -653,7 +665,15 @@ public class Superstructure extends Subsystem {
         }
 
         // update intake and indexer actions
-        if (mPeriodicIO.SHOOT) {
+        if (mPeriodicIO.SPIT) {
+            if (isSpunUp() /*&& isAimed()*/) {
+                mPeriodicIO.real_indexer = Indexer.WantedAction.FEED;
+                mPeriodicIO.real_trigger = Trigger.WantedAction.FEED;
+            } else {
+                mPeriodicIO.real_trigger = Trigger.WantedAction.NONE;
+                mPeriodicIO.real_indexer = Indexer.WantedAction.NONE;
+            }
+        } else if (mPeriodicIO.SHOOT) {
             mPeriodicIO.real_intake = Intake.WantedAction.NONE;
 
             // only feed cargo to shoot when spun up and aimed
@@ -665,8 +685,8 @@ public class Superstructure extends Subsystem {
                     mPeriodicIO.real_trigger = Trigger.WantedAction.FEED;
                 }
             } else {
-                mPeriodicIO.real_trigger = Trigger.WantedAction.NONE;
                 mPeriodicIO.real_indexer = Indexer.WantedAction.NONE;
+                mPeriodicIO.real_trigger = Trigger.WantedAction.NONE;
             }
         } else {
             // force eject

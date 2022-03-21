@@ -28,6 +28,7 @@ public class RaceAction implements Action {
 
     @Override
     public void update() {
+        leadAction.update();
         for (Action action : mActions) {
             action.update();
         }
@@ -35,6 +36,7 @@ public class RaceAction implements Action {
 
     @Override
     public void done() {
+        leadAction.done();
         for (Action action : mActions) {
             action.done();
         }
@@ -42,6 +44,7 @@ public class RaceAction implements Action {
 
     @Override
     public void start() {
+        leadAction.start();
         for (Action action : mActions) {
             action.start();
         }
