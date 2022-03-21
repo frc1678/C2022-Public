@@ -662,10 +662,6 @@ public class Superstructure extends Subsystem {
                 mPeriodicIO.real_trigger = Trigger.WantedAction.NONE;
                 mPeriodicIO.real_indexer = Indexer.WantedAction.NONE;
             }
-
-            if (!mIndexer.getTopBeamBreak()) {
-                mPeriodicIO.SPIT = false;
-            }
         } else if (mPeriodicIO.SHOOT) {
             mPeriodicIO.real_intake = Intake.WantedAction.NONE;
 

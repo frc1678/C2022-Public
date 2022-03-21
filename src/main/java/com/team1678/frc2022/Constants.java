@@ -380,7 +380,7 @@ public class Constants {
 
         public static final double kIdleVoltage = 0.0;
 
-        public static final double kTunnelIndexingVelocity = 650.0; // 642
+        public static final double kTunnelIndexingVelocity = 350.0; // 642
         public static final double kTunnelFeedingVelocity = 500.0;
 
         public static final double kEjectorVoltage = 12.0;
@@ -456,9 +456,7 @@ public class Constants {
     }
 
     public static final class ColorSensorConstants {
-        public static final double kColorSensorThreshold = 300;
-
-        public static final double kColorProportionalDiffEpsilon = 0.001;
+        public static final double kColorDifferenceThreshold = 200;
 
         public static final double kBlueFreqScaler = 1.0;
         public static final double kRedFreqScaler = 1.0;
