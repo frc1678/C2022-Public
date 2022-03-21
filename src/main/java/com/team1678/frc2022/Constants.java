@@ -300,7 +300,7 @@ public class Constants {
         public static final double kSpittingVoltage = -8;
         public static final double kRejectingVoltage = -5;
 
-        public static final double kSingulatorVelocity = 1500.0; // 2386
+        public static final double kSingulatorVelocity = 2300.0; // 2386
 
         public static final double kDeployVoltage = 4.0;
         public static final double kInHoldingVoltage = 1.2;
