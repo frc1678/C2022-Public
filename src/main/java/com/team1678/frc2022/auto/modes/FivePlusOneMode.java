@@ -28,12 +28,13 @@ public class FivePlusOneMode extends AutoModeBase {
     private final Superstructure mSuperstructure = Superstructure.getInstance();
 
     // required PathWeaver file paths
-    String file_path_a = "paths/FiveBallPaths/5 Ball A-A.path";
-    String file_path_b = "paths/FiveBallPaths/5 Ball A-B.path";
-    String file_path_c = "paths/FiveBallPaths/5 Ball A-C.path";
-    String file_path_d = "paths/FiveBallPaths/5 Ball A-D.path";
-    String file_path_e = "paths/FiveBallPaths/5 Ball A-E.path";
-    String file_path_f = "paths/FiveBallPaths/5 Ball A-F.path";
+    String file_path_a = "paths/FiveBallPaths/5 Ball A.path";
+    String file_path_b = "paths/FiveBallPaths/5 Ball B.path";
+    String file_path_c = "paths/FiveBallPaths/5 Ball C.path";
+    String file_path_d = "paths/FiveBallPaths/5 Ball D.path";
+    String file_path_e = "paths/FiveBallPaths/5 Ball E.path";
+    String file_path_f = "paths/FiveBallPaths/5 Ball F.path";
+    String file_path_g = "paths/FiveBallPaths/5 Ball G.path";
 
     // trajectories
     private Trajectory traj_path_a;
@@ -42,12 +43,14 @@ public class FivePlusOneMode extends AutoModeBase {
     private Trajectory traj_path_d;
     private Trajectory traj_path_e;
     private Trajectory traj_path_f;
+    private Trajectory traj_path_g;
 
     // trajectory actions
     SwerveTrajectoryAction driveToIntakeSecondShotCargo;
     SwerveTrajectoryAction driveToThirdShotCargo;
     SwerveTrajectoryAction driveToIntakeThirdShotCargo;
     SwerveTrajectoryAction driveToIntakeAtTerminal;
+    SwerveTrajectoryAction driveToHumanPlayerWait;
     SwerveTrajectoryAction driveToSecondShotPose;
     SwerveTrajectoryAction driveToEjectCargo;
 
@@ -136,8 +139,25 @@ public class FivePlusOneMode extends AutoModeBase {
                 mSwerve::getWantAutoVisionAim,
                 mSwerve::setModuleStates);
 
-        // Drive to second shot
+        // Drive to human player wait pose
         traj_path_e = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_e,
+                        Constants.AutoConstants.createConfig(
+                                        4.0,
+                                        Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared,
+                                        0.0,
+                                        0.0));
+
+        driveToIntakeAtTerminal = new SwerveTrajectoryAction(traj_path_e,
+                        mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
+                        new PIDController(Constants.AutoConstants.kPXController, 0, 0),
+                        new PIDController(Constants.AutoConstants.kPYController, 0, 0),
+                        thetaController,
+                        () -> Rotation2d.fromDegrees(225.0),
+                        mSwerve::getWantAutoVisionAim,
+                        mSwerve::setModuleStates);
+
+        // Drive to second shot
+        traj_path_f = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_f,
                 Constants.AutoConstants.createConfig(
                         4.0, 
                         Constants.AutoConstants.kSlowAccelerationMetersPerSecondSquared, 
@@ -145,7 +165,7 @@ public class FivePlusOneMode extends AutoModeBase {
                         0.0)        
                 );
 
-        driveToSecondShotPose = new SwerveTrajectoryAction(traj_path_e,
+        driveToSecondShotPose = new SwerveTrajectoryAction(traj_path_f,
                 mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
                 new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                 new PIDController(Constants.AutoConstants.kPYController, 0, 0),
@@ -156,7 +176,7 @@ public class FivePlusOneMode extends AutoModeBase {
 
 
         // Drive to opponent cargo
-        traj_path_f = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_f,
+        traj_path_g = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_g,
                 Constants.AutoConstants.createConfig(
                         4.0, 
                         Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared, 
@@ -164,7 +184,7 @@ public class FivePlusOneMode extends AutoModeBase {
                         Constants.AutoConstants.kMaxSpeedMetersPerSecond
                 ));
                         
-        driveToEjectCargo = new SwerveTrajectoryAction(traj_path_f,
+        driveToEjectCargo = new SwerveTrajectoryAction(traj_path_g,
                 mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
                 new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                 new PIDController(Constants.AutoConstants.kPYController, 0, 0),
@@ -172,8 +192,6 @@ public class FivePlusOneMode extends AutoModeBase {
                 () -> Rotation2d.fromDegrees(330),
                 mSwerve::getWantAutoVisionAim,
                 mSwerve::setModuleStates);
-
-        plotTrajectories();
     }
 
     @Override
@@ -228,11 +246,14 @@ public class FivePlusOneMode extends AutoModeBase {
         // run trajectory for terminal
         runAction(driveToIntakeAtTerminal);
 
+        runAction(driveToHumanPlayerWait);
+
         // start vision aiming when driving to shot pose
         runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));
 
         // run trajectory to drive to second shot pose
         runAction(driveToSecondShotPose);
+
 
         // shoot cargo
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
@@ -257,8 +278,8 @@ public class FivePlusOneMode extends AutoModeBase {
         ShuffleBoardInteractions.getInstance().addTrajectory(traj_path_b, "Traj B");
         ShuffleBoardInteractions.getInstance().addTrajectory(traj_path_c, "Traj C");
         ShuffleBoardInteractions.getInstance().addTrajectory(traj_path_d, "Traj D");
-        ShuffleBoardInteractions.getInstance().addTrajectory(traj_path_e, "Traj E");
-        ShuffleBoardInteractions.getInstance().addTrajectory(traj_path_f, "Traj F");
+        ShuffleBoardInteractions.getInstance().addTrajectory(traj_path_f, "Traj E");
+        ShuffleBoardInteractions.getInstance().addTrajectory(traj_path_g, "Traj F");
     }
 
 }

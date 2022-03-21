@@ -73,8 +73,6 @@ public class ShuffleBoardInteractions {
     private Field2d mField = new Field2d();
 
     /*** ENTRIES ***/
-
-    private Field2d mField2d;
     
     /* CANdle */
     private final NetworkTableEntry mTopLEDState;
@@ -690,13 +688,14 @@ public class ShuffleBoardInteractions {
                 .withSize(2, 2)
                 .withPosition(8, 2)
                 .getEntry();
+
+        SmartDashboard.putData(mField);
         
-        SmartDashboard.putData("Robot field to vehicle", mField);
     }
 
     public void update() {
 
-        mField2d.setRobotPose(mSwerve.getPose());
+        mField.setRobotPose(mSwerve.getPose());
 
         /* OPERATOR */
         mOperatorShooting.setBoolean(mSuperstructure.getShooting());
@@ -795,12 +794,12 @@ public class ShuffleBoardInteractions {
         mBValue.setDouble(mColorSensor.getDetectedBValue());
         mBValue.setDouble(mColorSensor.getDetectedBValue());
 
-        mAdjustedRed.setDouble(mColorSensor.getAdjustedRed());
-        mAdjustedBlue.setDouble(mColorSensor.getAdjustedBlue());
+        // mAdjustedRed.setDouble(mColorSensor.getAdjustedRed());
+        // mAdjustedBlue.setDouble(mColorSensor.getAdjustedBlue());
         
         mAllianceColor.setString(mColorSensor.getAllianceColor().toString());
         mMatchedColor.setString(mColorSensor.getMatchedColor().toString());
-        mForwardBreak.setBoolean(mColorSensor.getFowrardBeamBreak());
+        // mForwardBreak.setBoolean(mColorSensor.getFowrardBeamBreak());
 
         mHasBall.setBoolean(mColorSensor.hasBall());
         mEject.setBoolean(mColorSensor.wantsEject());
@@ -859,7 +858,6 @@ public class ShuffleBoardInteractions {
         mTopLEDState.setString(mLEDs.getTopState().getName());
         mBottomLEDState.setString(mLEDs.getBottomState().getName());
 
-        mField.setRobotPose(RobotState.getInstance().getLatestFieldToVehicle().getValue().getWpilibPose2d());
     }
 
     /* Truncates number to 2 decimal places for cleaner numbers */
@@ -872,12 +870,12 @@ public class ShuffleBoardInteractions {
     }
 
     public void addTrajectory(Trajectory trajectory, String name) {
-        mField2d.getObject(name).setTrajectory(trajectory);
+        mField.getObject(name).setTrajectory(trajectory);
     }
 
     public void clearTrajectories() {
-        mField2d = new Field2d();
-        SmartDashboard.putData(mField2d);
+        mField = new Field2d();
+        SmartDashboard.putData(mField);
     }
 }
  
