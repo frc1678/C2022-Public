@@ -499,7 +499,7 @@ public class Superstructure extends Subsystem {
             }
 
             // spin up if we aren't already
-            if (mPeriodicIO.SHOOT && !mPeriodicIO.PREP) {
+            if ((mPeriodicIO.SHOOT || mPeriodicIO.SPIT) && !mPeriodicIO.PREP) {
                 mPeriodicIO.PREP = true;
             }
 
@@ -654,7 +654,19 @@ public class Superstructure extends Subsystem {
         }
 
         // update intake and indexer actions
-        if (mPeriodicIO.SHOOT) {
+        if (mPeriodicIO.SPIT) {
+            if (isSpunUp() /*&& isAimed()*/) {
+                mPeriodicIO.real_indexer = Indexer.WantedAction.FEED;
+                mPeriodicIO.real_trigger = Trigger.WantedAction.FEED;
+            } else {
+                mPeriodicIO.real_trigger = Trigger.WantedAction.NONE;
+                mPeriodicIO.real_indexer = Indexer.WantedAction.NONE;
+            }
+
+            if (!mIndexer.getTopBeamBreak()) {
+                mPeriodicIO.SPIT = false;
+            }
+        } else if (mPeriodicIO.SHOOT) {
             mPeriodicIO.real_intake = Intake.WantedAction.NONE;
 
             // only feed cargo to shoot when spun up and aimed
@@ -666,8 +678,8 @@ public class Superstructure extends Subsystem {
                     mPeriodicIO.real_trigger = Trigger.WantedAction.FEED;
                 }
             } else {
-                mPeriodicIO.real_trigger = Trigger.WantedAction.NONE;
                 mPeriodicIO.real_indexer = Indexer.WantedAction.NONE;
+                mPeriodicIO.real_trigger = Trigger.WantedAction.NONE;
             }
         } else {
             // force eject
