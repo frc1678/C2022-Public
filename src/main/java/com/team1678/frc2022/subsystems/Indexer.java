@@ -62,6 +62,15 @@ public class Indexer extends Subsystem {
         mEjector = TalonFXFactory.createDefaultTalon(Ports.EJECTOR_ID);
         mTunnel = TalonFXFactory.createDefaultTalon(Ports.TUNNEL_ID);
 
+        /* Tuning Values */
+        mTunnel.config_kP(0, Constants.IndexerConstants.kTunnelP, Constants.kLongCANTimeoutMs);
+        mTunnel.config_kI(0, Constants.IndexerConstants.kTunnelI, Constants.kLongCANTimeoutMs);
+        mTunnel.config_kD(0, Constants.IndexerConstants.kTunnelD, Constants.kLongCANTimeoutMs);
+        mTunnel.config_kF(0, Constants.IndexerConstants.kTunnelF, Constants.kLongCANTimeoutMs);
+        mTunnel.config_IntegralZone(0, (int) (200.0 / Constants.IndexerConstants.kTunnelVelocityConversion));
+        mTunnel.selectProfileSlot(0, 0);
+        mTunnel.configClosedloopRamp(0.1);
+
         mTunnel.setInverted(true);
 
         mBottomBeamBreak = new BeamBreak(Ports.BOTTOM_BEAM_BREAK);
@@ -99,10 +108,10 @@ public class Indexer extends Subsystem {
         mBottomSlot.updateHasBall(getBottomBeamBreak());
 
         if (mFeeding) { // Feeding to the shooter
-            mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelFeedingVoltage;
+            mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelFeedingVelocity;
             mPeriodicIO.ejector_demand = Constants.IndexerConstants.kEjectorFeedingVoltage;
         } else if (mEjecting) { // Pooping
-            mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVoltage;
+            mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVelocity;
             mPeriodicIO.ejector_demand = -Constants.IndexerConstants.kEjectorVoltage;
             
             // Keep ejecting for X amount of seconds to ensure ball has left the system
@@ -117,7 +126,7 @@ public class Indexer extends Subsystem {
                 mEjecting = false;
             }
         } else if (mIndexingTopBall) { // Indexing first ball
-            mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVoltage;
+            mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVelocity;
             mPeriodicIO.ejector_demand = Constants.IndexerConstants.kEjectorVoltage;
 
             // Stop running indexer when top slot has a ball
@@ -126,7 +135,7 @@ public class Indexer extends Subsystem {
             }
 
         } else if (mIndexingBottomBall) { // Indexing second ball
-            mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVoltage;
+            mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVelocity;
             mPeriodicIO.ejector_demand = Constants.IndexerConstants.kEjectorVoltage;
 
             // Stop running indexer when bottom slot has a ball
@@ -184,7 +193,12 @@ public class Indexer extends Subsystem {
     @Override
     public synchronized void writePeriodicOutputs() {
         mEjector.set(ControlMode.PercentOutput, mPeriodicIO.ejector_demand / 12.0);
-        mTunnel.set(ControlMode.PercentOutput, mPeriodicIO.tunnel_demand / 12.0);  
+        if (mPeriodicIO.tunnel_demand == 0.0) {
+            mTunnel.set(ControlMode.PercentOutput, 0.0);
+        } else {
+            mTunnel.set(ControlMode.Velocity,
+                    mPeriodicIO.tunnel_demand / Constants.IndexerConstants.kTunnelVelocityConversion);
+        }
     }
 
     @Override
@@ -197,6 +211,14 @@ public class Indexer extends Subsystem {
         SmartDashboard.putBoolean("Indexing Ejecting", mEjecting);
         mPeriodicIO.top_break = !mTopBeamBreak.get();
         mPeriodicIO.bottom_break = !mBottomBeamBreak.get();
+
+        mPeriodicIO.tunnel_velocity = mTunnel.getSelectedSensorVelocity() * Constants.IndexerConstants.kTunnelVelocityConversion;
+        mPeriodicIO.tunnel_current = mTunnel.getStatorCurrent();
+        mPeriodicIO.tunnel_voltage = mTunnel.getMotorOutputVoltage();
+
+        mPeriodicIO.ejector_velocity = mEjector.getSelectedSensorVelocity();
+        mPeriodicIO.ejector_current = mEjector.getStatorCurrent();
+        mPeriodicIO.ejector_voltage = mEjector.getMotorOutputVoltage();
     }
 
     @Override
@@ -260,6 +282,9 @@ public class Indexer extends Subsystem {
         // INPUTS
         public boolean top_break;
         public boolean bottom_break;
+
+        public double tunnel_velocity;
+        public double ejector_velocity;
         
         public double ejector_current;
         public double tunnel_current;
@@ -291,6 +316,7 @@ public class Indexer extends Subsystem {
         headers.add("tunnel_demand");
         headers.add("ejector_demand");
         headers.add("tunnel_current");
+        headers.add("tunnel_velocity");
         
         mStorage.setHeaders(headers);
     }
@@ -306,6 +332,7 @@ public class Indexer extends Subsystem {
         items.add(mPeriodicIO.tunnel_demand);
         items.add(mPeriodicIO.ejector_demand);
         items.add(mPeriodicIO.tunnel_current);
+        items.add(mPeriodicIO.tunnel_velocity);
 
         // send data to logging storage
         mStorage.addData(items);

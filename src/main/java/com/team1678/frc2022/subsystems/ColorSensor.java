@@ -1,11 +1,12 @@
 package com.team1678.frc2022.subsystems;
-
+ 
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.lib.drivers.PicoColorSensor;
 import com.team1678.frc2022.lib.drivers.PicoColorSensor.RawColor;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
+import com.team254.lib.util.MovingAverage;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -30,7 +31,7 @@ public class ColorSensor extends Subsystem {
     private boolean mSawBall = false;
 
     private Timer mHasBallTimer = new Timer();
-    private Timer mEjectorTimer = new Timer();
+    private Timer mEjectTimer = new Timer();
 
     public ColorChoices mAllianceColor = ColorChoices.NONE;
     public ColorChoices mMatchedColor;
@@ -81,7 +82,7 @@ public class ColorSensor extends Subsystem {
 
     // check if we see a ball
     public boolean seesBall() {
-        return getFowrardBeamBreak();
+        return getForwardBeamBreak();
     }
 
     public boolean seesNewBall() {
@@ -138,31 +139,42 @@ public class ColorSensor extends Subsystem {
         }
     }
 
+    // update scaling of red and blue values for baseline when ball isn't seen
+    public void updateBaselineColorScaling() {
+        double color_diff = (double) mPeriodicIO.red_scaled - (double) mPeriodicIO.blue_scaled;
+
+        mPeriodicIO.red_offset = -color_diff; // flip sign on offset
+        mPeriodicIO.blue_offset = 0.0; // keep blue color raw so red can be scaled off of blue
+    }
+
     // update the color of the cargo we see
     public void updateMatchedColor() {
         if (!seesBall()) { 
             mMatchedColor = ColorChoices.NONE;
         } else {
-            if (mPeriodicIO.adjustedRed > mPeriodicIO.adjustedBlue) {
+            if (mPeriodicIO.red_final > mPeriodicIO.blue_final) {
                 mMatchedColor = ColorChoices.RED;
-            } else if (mPeriodicIO.adjustedBlue > mPeriodicIO.adjustedRed) {
+            } else if (mPeriodicIO.blue_final > mPeriodicIO.red_final) {
                 mMatchedColor = ColorChoices.BLUE;
             } else {
                 mMatchedColor = ColorChoices.OTHER;
             }
         }
+        SmartDashboard.putNumber("Correct Color", hasCorrectColor() ? 1 : 0);
+        SmartDashboard.putBoolean("Sees Ball", seesBall());
+
     }
 
     // update whether we want to eject or not
     public void updateWantsEject() {
         if (hasOppositeColor() && hasBall()) {
             mPeriodicIO.eject = true;
-            mEjectorTimer.start();
+            mEjectTimer.start();
         }
 
-        if (mEjectorTimer.hasElapsed(Constants.IndexerConstants.kEjectDelay) || (hasCorrectColor() && hasBall())) {
+        if (mEjectTimer.hasElapsed(Constants.IndexerConstants.kEjectDelay) || hasCorrectColor()) {
             mPeriodicIO.eject = false;
-            mEjectorTimer.reset();
+            mEjectTimer.reset();
         }
     }
 
@@ -178,14 +190,22 @@ public class ColorSensor extends Subsystem {
     public synchronized void readPeriodicInputs() {
         mPeriodicIO.sensor0Connected = mPico.isSensor0Connected();
         mPeriodicIO.raw_color = mPico.getRawColor0();
-        
-        mPeriodicIO.adjustedRed = mPeriodicIO.raw_color.red * 1.8;
-        mPeriodicIO.adjustedBlue = mPeriodicIO.raw_color.blue * 1.11;
 
         mPeriodicIO.timestamp = mPico.getLastReadTimestampSeconds();
 
-        SmartDashboard.putBoolean("oppo color", hasOppositeColor());
-        SmartDashboard.putBoolean("correct color", hasCorrectColor());
+        // update baseline color readings based off scaling when a ball isn't present
+        /*
+        if (!hasBall()) {
+            updateBaselineColorScaling();
+        }
+        */
+        
+        // scale red and blue readings properly
+        mPeriodicIO.blue_scaled = mPeriodicIO.raw_color.blue * Constants.ColorSensorConstants.kBlueFreqScaler;
+        mPeriodicIO.red_scaled = mPeriodicIO.raw_color.red * Constants.ColorSensorConstants.kRedFreqScaler;
+
+        mPeriodicIO.blue_final = mPeriodicIO.blue_scaled + mPeriodicIO.blue_offset;
+        mPeriodicIO.red_final = mPeriodicIO.red_scaled + mPeriodicIO.red_offset;
 
         updateHasBall();
         updateMatchedColor();
@@ -222,16 +242,16 @@ public class ColorSensor extends Subsystem {
     public String getMatchedColor() {
         return mMatchedColor.toString();
     }    
-    public boolean getFowrardBeamBreak() {
+    public boolean getForwardBeamBreak() {
         return !mForwardBreak.get();
     }
 
     public double getAdjustedRed() {
-        return mPeriodicIO.adjustedRed;
+        return mPeriodicIO.red_final;
     }
 
     public double getAdjustedBlue() {
-        return mPeriodicIO.adjustedBlue;
+        return mPeriodicIO.blue_final;
     }
 
     public boolean getSensor0() {
@@ -244,10 +264,18 @@ public class ColorSensor extends Subsystem {
 
     public static class PeriodicIO {
         // INPUTS
-        public RawColor raw_color;
-        public double adjustedRed; // 1.66
-        public double adjustedBlue; // 1.11
         public boolean sensor0Connected;
+
+        public RawColor raw_color;
+
+        public double red_offset;
+        public double blue_offset;
+
+        public double red_scaled;
+        public double blue_scaled;
+
+        public double red_final;
+        public double blue_final;
 
         // OUTPUTS
         public boolean has_ball;

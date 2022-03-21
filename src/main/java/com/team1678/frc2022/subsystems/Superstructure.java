@@ -3,7 +3,6 @@ package com.team1678.frc2022.subsystems;
 import com.team1678.frc2022.loops.Loop;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.Constants;
-import com.team1678.frc2022.Robot;
 import com.team1678.frc2022.RobotState;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.CustomXboxController;
@@ -137,6 +136,11 @@ public class Superstructure extends Subsystem {
             @Override
             public void onLoop(double timestamp) {
                 final double start = Timer.getFPGATimestamp();
+
+                if (!mColorSensor.seesBall() && !mPeriodicIO.INTAKE) {
+                    mColorSensor.updateBaselineColorScaling();
+                    System.out.println("updating baseline");
+                }
 
                 if (!mClimbMode) {
                     updateBallCounter();
@@ -568,7 +572,7 @@ public class Superstructure extends Subsystem {
         // update align delta from target and distance from target
         mTrackId = real_aiming_params_.get().getTrackId();
         mTargetAngle = predicted_vehicle_to_goal.getTranslation().direction().getRadians() + Math.PI;
-        mCorrectedDistanceToTarget = predicted_vehicle_to_goal.getTranslation().norm() + 0.6;
+        mCorrectedDistanceToTarget = predicted_vehicle_to_goal.getTranslation().norm();
 
         // send vision aligning target delta to swerve
         mSwerve.acceptLatestVisionAlignGoal(mTargetAngle);
