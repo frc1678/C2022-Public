@@ -161,9 +161,9 @@ public class Constants {
     }
 
     public static final class VisionAlignConstants {
-        public static final double kP = 6.0;
+        public static final double kP = 5.0;
         public static final double kI = 0.0;
-        public static final double kD = 0.15;
+        public static final double kD = 0.10;
 
         // Constraints for the profiled angle controller
         public static final double kMaxAngularSpeedRadiansPerSecond = 2.0 * Math.PI;

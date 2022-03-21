@@ -319,7 +319,7 @@ public class Robot extends TimedRobot {
 				mAutoModeExecutor.setAutoMode(autoMode.get());
 			}
 
-			mSwerve.resetOdometry(new FiveBallMode().getInitialPose());
+			// mSwerve.resetOdometry(new FiveBallMode().getInitialPose());
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
