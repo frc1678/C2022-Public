@@ -253,8 +253,10 @@ public class Robot extends TimedRobot {
 					mControlBoard.getSwerveTranslation().y());
 			double swerveRotation = mControlBoard.getSwerveRotation();
 
-			if (mControlBoard.getVisionAlign()) {
-				mSwerve.visionAlignDrive(swerveTranslation, swerveRotation, true, false);
+			if (mControlBoard.getClimbAlign()) {
+				mSwerve.angleAlignDrive(swerveTranslation, 270, true);
+			} else if (mControlBoard.getVisionAlign()) {
+				mSwerve.visionAlignDrive(swerveTranslation, true);
 			} else {
 				mSwerve.drive(swerveTranslation, swerveRotation, true, true);
 			}

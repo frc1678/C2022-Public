@@ -145,11 +145,14 @@ public class Swerve extends Subsystem {
         return mWantsAutoVisionAim;
     }
 
-    public void visionAlignDrive(Translation2d translation2d, double rotation, boolean fieldRelative, boolean isOpenLoop) {
-        double adjustedRotation;
-        
-        adjustedRotation = mVisionAlignAdjustment;
-        drive(translation2d, adjustedRotation, fieldRelative, isOpenLoop);
+    public void visionAlignDrive(Translation2d translation2d, boolean fieldRelative) {
+        drive(translation2d, mVisionAlignAdjustment, fieldRelative, false);
+    }
+
+    public void angleAlignDrive(Translation2d translation2d, double targetHeading, boolean fieldRelative) {
+        snapPIDController.setGoal(new TrapezoidProfile.State(Math.toRadians(targetHeading), 0.0));
+        double angleAdjustment = snapPIDController.calculate(getYaw().getRadians());
+        drive(translation2d, angleAdjustment, fieldRelative, false);
     }
 
     public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
