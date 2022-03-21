@@ -9,6 +9,7 @@ import java.util.Optional;
 import com.team1678.frc2022.auto.AutoModeExecutor;
 import com.team1678.frc2022.auto.AutoModeSelector;
 import com.team1678.frc2022.auto.modes.AutoModeBase;
+import com.team1678.frc2022.auto.modes.FiveBallMode;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.ControlBoard.SwerveCardinal;
 import com.team1678.frc2022.logger.LoggingSystem;
@@ -188,9 +189,9 @@ public class Robot extends TimedRobot {
                 mAutoModeExecutor.stop();
             }
 
-			mSwerve.setModuleStates(
-				Constants.SwerveConstants.swerveKinematics.toSwerveModuleStates((
-					ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, 0, Rotation2d.fromDegrees(0)))));
+			// mSwerve.setModuleStates(
+			// 	Constants.SwerveConstants.swerveKinematics.toSwerveModuleStates((
+			// 		ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, 0, Rotation2d.fromDegrees(0)))));
 
 			mDisabledLooper.stop();
 			mEnabledLooper.start();
@@ -272,9 +273,9 @@ public class Robot extends TimedRobot {
 			mLimelight.setLed(Limelight.LedMode.ON);
             mLimelight.triggerOutputs();
 
-			mSwerve.setModuleStates(
-				Constants.SwerveConstants.swerveKinematics.toSwerveModuleStates((
-					ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, 0, Rotation2d.fromDegrees(0)))));
+			// mSwerve.setModuleStates(
+			// 	Constants.SwerveConstants.swerveKinematics.toSwerveModuleStates((
+			// 		ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, 0, Rotation2d.fromDegrees(0)))));
 
 
 		} catch (Throwable t) {
@@ -317,6 +318,8 @@ public class Robot extends TimedRobot {
 				System.out.println("Set auto mode to: " + autoMode.get().getClass().toString());
 				mAutoModeExecutor.setAutoMode(autoMode.get());
 			}
+
+			mSwerve.resetOdometry(new FiveBallMode().getInitialPose());
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
