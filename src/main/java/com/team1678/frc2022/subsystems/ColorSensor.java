@@ -142,9 +142,12 @@ public class ColorSensor extends Subsystem {
         if (!seesBall()) { 
             mMatchedColor = ColorChoices.NONE;
         } else {
-            if (mPeriodicIO.red_final > mPeriodicIO.blue_final) {
+            double rb_diff = mPeriodicIO.red_final - mPeriodicIO.blue_final;
+            // more red than blue
+            if ((rb_diff > 0) && (Math.abs(rb_diff) > Constants.ColorSensorConstants.kColorDifferenceThreshold)) {
                 mMatchedColor = ColorChoices.RED;
-            } else if (mPeriodicIO.blue_final > mPeriodicIO.red_final) {
+            // less red than blue
+            } else if ((rb_diff < 0) && (Math.abs(rb_diff) > Constants.ColorSensorConstants.kColorDifferenceThreshold)) {
                 mMatchedColor = ColorChoices.BLUE;
             } else {
                 mMatchedColor = ColorChoices.OTHER;
