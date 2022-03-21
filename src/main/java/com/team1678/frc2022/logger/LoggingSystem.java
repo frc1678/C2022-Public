@@ -65,11 +65,11 @@ public class LoggingSystem {
             // get system time in milliseconds and convert to datetime in PST time zone
             long milliSec = System.currentTimeMillis();
             Date res = new Date(milliSec);
-            DateFormat sdf = new SimpleDateFormat("dd:MM:yy:HH:mm:ss");
+            DateFormat sdf = new SimpleDateFormat("yy-MM-dd-HH-mm");
             sdf.setTimeZone(TimeZone.getTimeZone("PST"));
 
             // format time in datetime and add to file name
-            mDirectory = mRootDirectory + "/" + maxNum.toString() + "_" + sdf.format(res);
+            mDirectory = mRootDirectory + "/" + String.format("%05d", maxNum) + "_" + sdf.format(res);
 
             File newDirectory = new File(mDirectory);
             newDirectory.mkdir();

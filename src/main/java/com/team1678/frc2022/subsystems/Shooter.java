@@ -205,7 +205,6 @@ public class Shooter extends Subsystem {
         ArrayList<String> headers = new ArrayList<String>();
         headers.add("timestamp");
         headers.add("flywheel_velocity");
-        headers.add("timestamp");
         headers.add("flywheel_demand");
         headers.add("slave_voltage");
         headers.add("flywheel_current");
@@ -218,9 +217,8 @@ public class Shooter extends Subsystem {
 
     public void SendLog() {
         ArrayList<Number> items = new ArrayList<Number>();
-        items.add(Timer.getFPGATimestamp());
-        items.add(mPeriodicIO.flywheel_velocity);
         items.add(mPeriodicIO.timestamp);
+        items.add(mPeriodicIO.flywheel_velocity);
         items.add(mPeriodicIO.flywheel_demand);
         items.add(mPeriodicIO.slave_voltage);
         items.add(mPeriodicIO.flywheel_current);
