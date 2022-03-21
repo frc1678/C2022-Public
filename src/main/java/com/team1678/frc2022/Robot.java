@@ -164,10 +164,16 @@ public class Robot extends TimedRobot {
 			mEnabledLooper.start();
 			mLoggingLooper.start();
 
+			Optional<AutoModeBase> autoMode = mAutoModeSelector.getAutoMode();
+			if (autoMode.isPresent()) {
+				mSwerve.resetOdometry(autoMode.get().getStartingPose());
+			}
+
 			mAutoModeExecutor.start();
 
 			mInfrastructure.setIsDuringAuto(true);
 			mLimelight.setPipeline(Constants.VisionConstants.kDefaultPipeline);
+			
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
@@ -317,7 +323,6 @@ public class Robot extends TimedRobot {
 			if (autoMode.isPresent() && autoMode.get() != mAutoModeExecutor.getAutoMode()) {
 				System.out.println("Set auto mode to: " + autoMode.get().getClass().toString());
 				mAutoModeExecutor.setAutoMode(autoMode.get());
-				mSwerve.resetOdometry(autoMode.get().getStartingPose());
 			}
 
 		} catch (Throwable t) {
