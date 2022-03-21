@@ -177,4 +177,9 @@ public class SixBallMode extends AutoModeBase {
         SmartDashboard.putBoolean("Auto Finished", true);
 
     }
+
+    @Override
+    public Pose2d getStartingPose() {
+        return driveToIntakeSecondCargo.getInitialPose();
+    }
 }

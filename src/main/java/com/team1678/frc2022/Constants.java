@@ -10,6 +10,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.constraint.CentripetalAccelerationConstraint;
 
 public class Constants {
 
@@ -176,13 +177,14 @@ public class Constants {
     }
 
     public static final class AutoConstants {
-        public static final double kSlowSpeedMetersPerSecond = 1.7; // TODO: Revise this
-        public static final double kSlowAccelerationMetersPerSecondSquared = 2.0; // TODO: Revise this
+        public static final double kSlowSpeedMetersPerSecond = 1.7;
+        public static final double kSlowAccelerationMetersPerSecondSquared = 2.0;
 
-        public static final double kMaxSpeedMetersPerSecond = 2.2; // TODO: Revise this
-        public static final double kMaxAccelerationMetersPerSecondSquared = 2.3; // TODO: Revise this
-        public static final double kMaxAngularSpeedRadiansPerSecond = 2.0*Math.PI; // TODO: Revise this
-        public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.pow(kMaxAngularSpeedRadiansPerSecond, 2); // TODO: Revise this
+        public static final double kMaxSpeedMetersPerSecond = 2.2; 
+        public static final double kMaxAccelerationMetersPerSecondSquared = 2.3;
+        
+        public static final double kMaxAngularSpeedRadiansPerSecond = 2.0*Math.PI;
+        public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.pow(kMaxAngularSpeedRadiansPerSecond, 2);
 
         public static final double kPXController = 1;
         public static final double kPYController = 1;
@@ -192,6 +194,15 @@ public class Constants {
         public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
                 new TrapezoidProfile.Constraints(
                         kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
+
+        public static TrajectoryConfig createConfig(double maxSpeed, double maxAccel, double startSpeed, double endSpeed) {
+            TrajectoryConfig config = new TrajectoryConfig(maxSpeed, maxAccel);
+            config.setKinematics(Constants.SwerveConstants.swerveKinematics);
+            config.setStartVelocity(startSpeed);
+            config.setEndVelocity(endSpeed);
+            config.addConstraint(new CentripetalAccelerationConstraint(3.0));
+            return config;
+        }
 
         // Trajectory Speed Configs
         public static final TrajectoryConfig defaultSpeedConfig =
@@ -232,6 +243,13 @@ public class Constants {
                         .setKinematics(Constants.SwerveConstants.swerveKinematics)
                         .setStartVelocity(kMaxSpeedMetersPerSecond)
                         .setEndVelocity(kMaxSpeedMetersPerSecond);
+        public static final TrajectoryConfig zeroToZeroSpeedConfig =
+                new TrajectoryConfig(
+                kSlowSpeedMetersPerSecond,
+                kSlowAccelerationMetersPerSecondSquared)    
+                .setKinematics(Constants.SwerveConstants.swerveKinematics)
+                        .setStartVelocity(0)
+                        .setEndVelocity(0); 
     }
 
     public static final class VisionConstants {

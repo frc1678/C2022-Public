@@ -24,6 +24,8 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.geometry.Pose2d;
 
 public class ShuffleBoardInteractions {
 
@@ -685,11 +687,14 @@ public class ShuffleBoardInteractions {
                 .withSize(2, 2)
                 .withPosition(8, 2)
                 .getEntry();
+
+        SmartDashboard.putData(mField);
         
-        SmartDashboard.putData("Robot field to vehicle", mField);
     }
 
     public void update() {
+
+        mField.setRobotPose(mSwerve.getPose());
 
         /* OPERATOR */
         mOperatorShooting.setBoolean(mSuperstructure.getShooting());
@@ -788,8 +793,8 @@ public class ShuffleBoardInteractions {
         mBValue.setDouble(mColorSensor.getDetectedBValue());
         mBValue.setDouble(mColorSensor.getDetectedBValue());
 
-        mAdjustedRed.setDouble(mColorSensor.getAdjustedRed());
-        mAdjustedBlue.setDouble(mColorSensor.getAdjustedBlue());
+        // mAdjustedRed.setDouble(mColorSensor.getAdjustedRed());
+        // mAdjustedBlue.setDouble(mColorSensor.getAdjustedBlue());
         
         mAllianceColor.setString(mColorSensor.getAllianceColor().toString());
         mMatchedColor.setString(mColorSensor.getMatchedColor().toString());
@@ -852,7 +857,6 @@ public class ShuffleBoardInteractions {
         mTopLEDState.setString(mLEDs.getTopState().getName());
         mBottomLEDState.setString(mLEDs.getBottomState().getName());
 
-        mField.setRobotPose(RobotState.getInstance().getLatestFieldToVehicle().getValue().getWpilibPose2d());
     }
 
     /* Truncates number to 2 decimal places for cleaner numbers */
@@ -862,6 +866,15 @@ public class ShuffleBoardInteractions {
 
     public ShuffleboardTab getOperatorTab() {
         return OPERATOR_TAB;
+    }
+
+    public void addTrajectory(Trajectory trajectory, String name) {
+        mField.getObject(name).setTrajectory(trajectory);
+    }
+
+    public void clearTrajectories() {
+        mField = new Field2d();
+        SmartDashboard.putData(mField);
     }
 }
  
