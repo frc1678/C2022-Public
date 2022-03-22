@@ -793,8 +793,8 @@ public class ShuffleBoardInteractions {
         mBValue.setDouble(mColorSensor.getDetectedBValue());
         mBValue.setDouble(mColorSensor.getDetectedBValue());
 
-        // mAdjustedRed.setDouble(mColorSensor.getAdjustedRed());
-        // mAdjustedBlue.setDouble(mColorSensor.getAdjustedBlue());
+        mAdjustedRed.setDouble(mColorSensor.getAdjustedRed());
+        mAdjustedBlue.setDouble(mColorSensor.getAdjustedBlue());
         
         mAllianceColor.setString(mColorSensor.getAllianceColor().toString());
         mMatchedColor.setString(mColorSensor.getMatchedColor().toString());

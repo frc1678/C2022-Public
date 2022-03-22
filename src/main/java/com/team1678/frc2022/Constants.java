@@ -76,8 +76,8 @@ public class Constants {
         public static final double driveKF = 0.0;
 
         /* Drive Motor Characterization Values */
-        public static final double driveKS = (0.40 / 12); // divide by 12 to convert from volts to percent output for CTRE
-        public static final double driveKV = (2.80 / 12); // 0.244 previously
+        public static final double driveKS = (0.440 / 12); // divide by 12 to convert from volts to percent output for CTRE
+        public static final double driveKV = (2.80 / 12); // 2.44 previously
         public static final double driveKA = (0.27 / 12);
 
         /* Swerve Profiling Values */
@@ -161,9 +161,9 @@ public class Constants {
     }
 
     public static final class VisionAlignConstants {
-        public static final double kP = 5.0;
+        public static final double kP = 5.7;
         public static final double kI = 0.0;
-        public static final double kD = 0.10;
+        public static final double kD = 0.12;
 
         // Constraints for the profiled angle controller
         public static final double kMaxAngularSpeedRadiansPerSecond = 2.0 * Math.PI;

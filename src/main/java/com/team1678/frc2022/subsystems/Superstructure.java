@@ -139,7 +139,6 @@ public class Superstructure extends Subsystem {
 
                 if (!mColorSensor.seesBall() && !mPeriodicIO.INTAKE) {
                     mColorSensor.updateBaselineColorScaling();
-                    System.out.println("updating baseline");
                 }
 
                 if (!mClimbMode) {
