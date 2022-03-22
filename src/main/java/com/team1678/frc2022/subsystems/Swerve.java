@@ -205,7 +205,6 @@ public class Swerve extends Subsystem {
             double targetOffset = Math.toRadians(mLimelight.getOffset()[0]);
             mLimelightVisionAlignGoal = MathUtil.inputModulus(currentAngle - targetOffset, 0.0, 2 * Math.PI);
             visionPIDController.setSetpoint(mLimelightVisionAlignGoal);
-            System.out.println("using tx");
         } else {
             visionPIDController.setSetpoint(mGoalTrackVisionAlignGoal);
         }
