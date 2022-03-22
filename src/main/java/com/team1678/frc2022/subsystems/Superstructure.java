@@ -601,7 +601,7 @@ public class Superstructure extends Subsystem {
         mCorrectedDistanceToTarget = predicted_vehicle_to_goal.getTranslation().norm();
 
         // send vision aligning target delta to swerve
-        mSwerve.acceptLatestVisionAlignGoal(mTargetAngle);
+        mSwerve.acceptLatestGoalTrackVisionAlignGoal(mTargetAngle);
 
         SmartDashboard.putString("Field to Target", real_aiming_params_.get().getFieldToGoal().toString());
         SmartDashboard.putString("Vehicle to Target", real_aiming_params_.get().getVehicleToGoal().toString());
