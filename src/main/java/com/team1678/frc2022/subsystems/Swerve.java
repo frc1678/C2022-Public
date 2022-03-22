@@ -147,7 +147,7 @@ public class Swerve extends Subsystem {
     }
 
     public void visionAlignDrive(Translation2d translation2d, boolean fieldRelative) {
-        drive(translation2d, mVisionAlignAdjustment, fieldRelative, true);
+        drive(translation2d, mVisionAlignAdjustment, fieldRelative, false);
     }
 
     public void angleAlignDrive(Translation2d translation2d, double targetHeading, boolean fieldRelative) {
@@ -205,6 +205,7 @@ public class Swerve extends Subsystem {
             double targetOffset = Math.toRadians(mLimelight.getOffset()[0]);
             mLimelightVisionAlignGoal = MathUtil.inputModulus(currentAngle - targetOffset, 0.0, 2 * Math.PI);
             visionPIDController.setSetpoint(mLimelightVisionAlignGoal);
+            System.out.println("using tx");
         } else {
             visionPIDController.setSetpoint(mGoalTrackVisionAlignGoal);
         }
