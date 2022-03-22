@@ -76,7 +76,7 @@ public class Constants {
         public static final double driveKF = 0.0;
 
         /* Drive Motor Characterization Values */
-        public static final double driveKS = (0.440 / 12); // divide by 12 to convert from volts to percent output for CTRE
+        public static final double driveKS = (0.425 / 12); // divide by 12 to convert from volts to percent output for CTRE
         public static final double driveKV = (2.80 / 12); // 2.44 previously
         public static final double driveKA = (0.27 / 12);
 
@@ -173,7 +173,7 @@ public class Constants {
                 new TrapezoidProfile.Constraints(kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
 
         public static final double kTimeout = 0.25;
-        public static final double kEpsilon = 3.0;
+        public static final double kEpsilon = 5.0;
     }
 
     public static final class AutoConstants {
@@ -271,9 +271,9 @@ public class Constants {
         public static final double kLookaheadTime = 0.0; // 1.10 as latest
 
         /* Goal Tracker Constants */
-        public static final double kMaxTrackerDistance = 9.0;
+        public static final double kMaxTrackerDistance = 8.0;
         public static final double kMaxGoalTrackAge = 10.0;
-        public static final double kMaxGoalTrackSmoothingTime = 1.5;
+        public static final double kMaxGoalTrackSmoothingTime = 1.0;
         public static final double kCameraFrameRate = 90.0;
 
         public static final double kTrackStabilityWeight = 0.0;
@@ -329,7 +329,7 @@ public class Constants {
 
     public static final class TriggerConstants {
         public static final double kTriggerPassiveVelocity = 0;
-        public static final double kTriggerFeedingVelocity = 450;
+        public static final double kTriggerFeedingVelocity = 350;
         public static final double kTriggerSlowFeedVelocity = 350;
         public static final double kTriggerReverseVelocity = -500;
 
@@ -398,7 +398,7 @@ public class Constants {
 
         public static final double kIdleVoltage = 0.0;
 
-        public static final double kTunnelIndexingVelocity = 350.0; // 642
+        public static final double kTunnelIndexingVelocity = 640.0; // 642
         public static final double kTunnelFeedingVelocity = 500.0;
 
         public static final double kEjectorVoltage = 12.0;
