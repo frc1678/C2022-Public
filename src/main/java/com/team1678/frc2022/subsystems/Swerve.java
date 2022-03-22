@@ -46,10 +46,6 @@ public class Swerve extends Subsystem {
     // chassis velocity status
     ChassisSpeeds chassisVelocity = new ChassisSpeeds();
 
-    // trapezoid motion profile for vision aiming
-    private double mProfileGenTime = 0.0;
-    private TrapezoidProfile mTrapezoidProfile = null;
-
     public boolean isSnapping;
     private double mVisionAlignGoal;
     private double mVisionAlignAdjustment;
@@ -146,7 +142,7 @@ public class Swerve extends Subsystem {
     }
 
     public void visionAlignDrive(Translation2d translation2d, boolean fieldRelative) {
-        drive(translation2d, mVisionAlignAdjustment, fieldRelative, false);
+        drive(translation2d, mVisionAlignAdjustment, fieldRelative, true);
     }
 
     public void angleAlignDrive(Translation2d translation2d, double targetHeading, boolean fieldRelative) {
