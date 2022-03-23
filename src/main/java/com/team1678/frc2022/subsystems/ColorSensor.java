@@ -110,6 +110,8 @@ public class ColorSensor extends Subsystem {
         if (!seesBall() && mHasBallTimer.hasElapsed(Constants.ColorSensorConstants.kTimeWithBall)) {
             mHasBallTimer.reset();
             mPeriodicIO.has_ball = false;
+            mBallPauseTimer.stop();
+            mBallPauseTimer.reset();
         }
     }
 
