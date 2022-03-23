@@ -77,7 +77,7 @@ public class FiveBallMode extends AutoModeBase {
                                 new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                 new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                 thetaController,
-                                () -> Rotation2d.fromDegrees(265.0),
+                                () -> Rotation2d.fromDegrees(270.0),
                                 mSwerve::getWantAutoVisionAim,
                                 mSwerve::setModuleStates);
 

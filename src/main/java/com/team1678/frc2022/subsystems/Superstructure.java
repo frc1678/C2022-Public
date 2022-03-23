@@ -137,11 +137,6 @@ public class Superstructure extends Subsystem {
             public void onLoop(double timestamp) {
                 final double start = Timer.getFPGATimestamp();
 
-                if (!mColorSensor.seesBall() && !mPeriodicIO.INTAKE) {
-                    mColorSensor.updateBaselineColorScaling();
-                    System.out.println("updating baseline");
-                }
-
                 if (!mClimbMode) {
                     updateBallCounter();
                     updateVisionAimingParameters();
