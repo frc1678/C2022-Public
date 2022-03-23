@@ -76,8 +76,8 @@ public class Constants {
         public static final double driveKF = 0.0;
 
         /* Drive Motor Characterization Values */
-        public static final double driveKS = (0.40 / 12); // divide by 12 to convert from volts to percent output for CTRE
-        public static final double driveKV = (2.80 / 12); // 2.44 previously
+        public static final double driveKS = (0.32 / 12); // divide by 12 to convert from volts to percent output for CTRE
+        public static final double driveKV = (2.10 / 12); // 2.44 previously
         public static final double driveKA = (0.27 / 12);
 
         /* Swerve Profiling Values */
@@ -161,7 +161,7 @@ public class Constants {
     }
 
     public static final class VisionAlignConstants {
-        public static final double kP = 5.0;
+        public static final double kP = 5.5;
         public static final double kI = 0.0;
         public static final double kD = 0.10;
 
@@ -474,7 +474,7 @@ public class Constants {
     }
 
     public static final class ColorSensorConstants {
-        public static final double kColorDifferenceThreshold = 0;
+        public static final double kColorSensorThreshold = 160;
 
         public static final double kBlueFreqScaler = 1.0;
         public static final double kRedFreqScaler = 1.0;

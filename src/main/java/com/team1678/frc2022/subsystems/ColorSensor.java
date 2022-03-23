@@ -9,7 +9,6 @@ import com.team1678.frc2022.loops.Loop;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 
@@ -28,8 +27,6 @@ public class ColorSensor extends Subsystem {
 
     private Timer mHasBallTimer = new Timer();
     private Timer mEjectorTimer = new Timer();
-
-    private Timer mBallPauseTimer = new Timer();
 
     public ColorChoices mAllianceColor = ColorChoices.NONE;
     public ColorChoices mMatchedColor;
@@ -82,7 +79,7 @@ public class ColorSensor extends Subsystem {
 
     // check if we see a ball
     public boolean seesBall() {
-        return getForwardBeamBreak();
+        return mPeriodicIO.proximity > Constants.ColorSensorConstants.kColorSensorThreshold;
     }
 
     // check if we have the right color
@@ -100,20 +97,13 @@ public class ColorSensor extends Subsystem {
     // check if we have a ball
     public void updateHasBall() {
         if (seesBall()) {
-            if (mBallPauseTimer.hasElapsed(0.05)) {
-                // reset the timer if we see another ball
-                if (mPeriodicIO.has_ball) {
-                    mHasBallTimer.reset();
-                }
-
-                mPeriodicIO.has_ball = true;
-                mHasBallTimer.start();
-
-                mBallPauseTimer.stop();
-                mBallPauseTimer.reset();
-            } else {
-                mBallPauseTimer.start();
+            // reset the timer if we see another ball
+            if (mPeriodicIO.has_ball) {
+                mHasBallTimer.reset();
             }
+
+            mPeriodicIO.has_ball = true;
+            mHasBallTimer.start();
         }
 
         // if we don't see a ball and the threshold time for having a ball has passed, we don't have a ball anymore
@@ -141,7 +131,7 @@ public class ColorSensor extends Subsystem {
 
     // update the color of the cargo we see
     public void updateMatchedColor() {
-        if (!getForwardBeamBreak()) { 
+        if (mPeriodicIO.proximity < Constants.ColorSensorConstants.kColorSensorThreshold) { 
             mMatchedColor = ColorChoices.NONE;
         } else {
             if (mPeriodicIO.raw_color.red > mPeriodicIO.raw_color.blue) {
@@ -161,7 +151,7 @@ public class ColorSensor extends Subsystem {
             mEjectorTimer.start();
         }
 
-        if (mEjectorTimer.hasElapsed(Constants.IndexerConstants.kEjectDelay) || (hasCorrectColor() && seesBall())) {
+        if (mEjectorTimer.hasElapsed(Constants.IndexerConstants.kEjectDelay) || (hasCorrectColor() && hasBall())) {
             mPeriodicIO.eject = false;
             mEjectorTimer.reset();
         }
@@ -177,9 +167,6 @@ public class ColorSensor extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-
-        SmartDashboard.putBoolean("has correct color", hasCorrectColor());
-        SmartDashboard.putBoolean("has oppo color", hasOppositeColor());
         mPeriodicIO.sensor0Connected = mPico.isSensor0Connected();
         mPeriodicIO.raw_color = mPico.getRawColor0();
         mPeriodicIO.proximity = mPico.getProximity0();

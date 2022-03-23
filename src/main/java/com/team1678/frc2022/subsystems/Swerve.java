@@ -33,6 +33,9 @@ public class Swerve extends Subsystem {
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
 
+    // limelight instance for raw aiming
+    Limelight mLimelight = Limelight.getInstance();
+
     // logger
     LogStorage<PeriodicIO> mStorage = null;
 
@@ -47,7 +50,8 @@ public class Swerve extends Subsystem {
     ChassisSpeeds chassisVelocity = new ChassisSpeeds();
 
     public boolean isSnapping;
-    private double mVisionAlignGoal;
+    private double mLimelightVisionAlignGoal;
+    private double mGoalTrackVisionAlignGoal;
     private double mVisionAlignAdjustment;
 
     public ProfiledPIDController snapPIDController;
@@ -109,6 +113,7 @@ public class Swerve extends Subsystem {
 
             @Override
             public void onLoop(double timestamp) {
+                chooseVisionAlignGoal();
                 updateSwerveOdometry();
                 outputTelemetry();
             }
@@ -129,7 +134,7 @@ public class Swerve extends Subsystem {
         }
 
         SmartDashboard.putBoolean("Wants Auto Vision Aim", mWantsAutoVisionAim);
-        SmartDashboard.putNumber("Vision Align Target Angle", Math.toDegrees(mVisionAlignGoal));
+        SmartDashboard.putNumber("Vision Align Target Angle", Math.toDegrees(mLimelightVisionAlignGoal));
         SmartDashboard.putNumber("Swerve Heading", MathUtil.inputModulus(getYaw().getDegrees(), 0, 360));
     }
 
@@ -142,7 +147,7 @@ public class Swerve extends Subsystem {
     }
 
     public void visionAlignDrive(Translation2d translation2d, boolean fieldRelative) {
-        drive(translation2d, mVisionAlignAdjustment, fieldRelative, true);
+        drive(translation2d, mVisionAlignAdjustment, fieldRelative, false);
     }
 
     public void angleAlignDrive(Translation2d translation2d, double targetHeading, boolean fieldRelative) {
@@ -190,11 +195,20 @@ public class Swerve extends Subsystem {
         }
     }
 
-    public void acceptLatestVisionAlignGoal(double vision_goal) {
-        mVisionAlignGoal = vision_goal; 
+    public void acceptLatestGoalTrackVisionAlignGoal(double vision_goal) {
+        mGoalTrackVisionAlignGoal = vision_goal; 
+    }
 
+    public void chooseVisionAlignGoal() {
         double currentAngle = getYaw().getRadians();
-        visionPIDController.setSetpoint(mVisionAlignGoal);
+        if (mLimelight.hasTarget()) {
+            double targetOffset = Math.toRadians(mLimelight.getOffset()[0]);
+            mLimelightVisionAlignGoal = MathUtil.inputModulus(currentAngle - targetOffset, 0.0, 2 * Math.PI);
+            visionPIDController.setSetpoint(mLimelightVisionAlignGoal);
+        } else {
+            visionPIDController.setSetpoint(mGoalTrackVisionAlignGoal);
+        }
+
         mVisionAlignAdjustment = visionPIDController.calculate(currentAngle);
     }
 
