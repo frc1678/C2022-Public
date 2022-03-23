@@ -273,7 +273,7 @@ public class Constants {
         /* Goal Tracker Constants */
         public static final double kMaxTrackerDistance = 8.0;
         public static final double kMaxGoalTrackAge = 10.0;
-        public static final double kMaxGoalTrackSmoothingTime = 1.0;
+        public static final double kMaxGoalTrackSmoothingTime = 1.5;
         public static final double kCameraFrameRate = 90.0;
 
         public static final double kTrackStabilityWeight = 0.0;
