@@ -84,7 +84,7 @@ public class FiveBallMode extends AutoModeBase {
                 // Drive to lineup to third cargo
                 traj_path_b = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_b,
                                 Constants.AutoConstants.createConfig(
-                                                Constants.AutoConstants.kMaxSpeedMetersPerSecond,
+                                                Constants.AutoConstants.kSlowSpeedMetersPerSecond,
                                                 Constants.AutoConstants.kSlowAccelerationMetersPerSecondSquared,
                                                 0.0,
                                                 0.0));
@@ -101,8 +101,8 @@ public class FiveBallMode extends AutoModeBase {
                 // Intake third cargo
                 traj_path_c = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_c,
                                 Constants.AutoConstants.createConfig(
-                                                Constants.AutoConstants.kMaxSpeedMetersPerSecond,
-                                                Constants.AutoConstants.kSlowAccelerationMetersPerSecondSquared,
+                                                Constants.AutoConstants.kSlowSpeedMetersPerSecond,
+                                                1.7,
                                                 0.0,
                                                 0.0));
 

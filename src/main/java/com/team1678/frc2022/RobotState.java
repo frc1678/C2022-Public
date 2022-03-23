@@ -94,6 +94,10 @@ public class RobotState {
         reset(Timer.getFPGATimestamp(), Pose2d.identity());
     }
 
+    public synchronized void reset(Pose2d pose) {
+        reset(Timer.getFPGATimestamp(), pose);
+    }
+
     /**
      * Returns the robot's position on the field at a certain time. Linearly
      * interpolates between stored robot positions to fill in the gaps.

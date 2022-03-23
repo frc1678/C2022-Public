@@ -490,7 +490,7 @@ public class Superstructure extends Subsystem {
                 // when not forcing an eject, passively check whether want to passively eject using color sensor logic
             }
 
-            //force holding button: keep intake retracted when button is pressed
+            // force holding button: keep intake retracted when button is pressed
             if (mControlBoard.getForceHoldIntake()) {
                 mPeriodicIO.FORCE_HOLD = true;
             }
