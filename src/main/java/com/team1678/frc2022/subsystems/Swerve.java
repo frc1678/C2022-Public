@@ -3,10 +3,10 @@ package com.team1678.frc2022.subsystems;
 import java.util.ArrayList;
 
 import com.ctre.phoenix.sensors.Pigeon2;
+import com.lib.drivers.SwerveModule;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.RobotState;
-import com.team1678.frc2022.SwerveModule;
 import com.team1678.frc2022.logger.LogStorage;
 import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.loops.ILooper;

@@ -1,9 +1,9 @@
 package com.team1678.frc2022.subsystems;
 
+import com.lib.drivers.PicoColorSensor;
+import com.lib.drivers.PicoColorSensor.RawColor;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
-import com.team1678.frc2022.lib.drivers.PicoColorSensor;
-import com.team1678.frc2022.lib.drivers.PicoColorSensor.RawColor;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
 

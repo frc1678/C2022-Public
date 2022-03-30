@@ -1,7 +1,8 @@
 package com.team1678.frc2022;
 
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
-
+import com.lib.drivers.SwerveModule;
+import com.lib.util.CTREConfigs;
 import com.team1678.frc2022.subsystems.ColorSensor;
 
 import com.team1678.frc2022.subsystems.Climber;

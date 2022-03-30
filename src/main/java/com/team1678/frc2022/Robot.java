@@ -6,6 +6,7 @@ package com.team1678.frc2022;
 
 import java.util.Optional;
 
+import com.lib.util.CTREConfigs;
 import com.team1678.frc2022.auto.AutoModeExecutor;
 import com.team1678.frc2022.auto.AutoModeSelector;
 import com.team1678.frc2022.auto.modes.AutoModeBase;
