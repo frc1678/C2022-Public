@@ -171,7 +171,7 @@ public class SixBallMode extends AutoModeBase {
         runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(false)));
 
         // zero gyro properly
-        runAction(new LambdaAction(() -> mSwerve.zeroGyro(mSwerve.getYaw().getDegrees() - 270)));
+        // runAction(new LambdaAction(() -> mSwerve.zeroGyro(mSwerve.getYaw().getDegrees() - 270)));
 
         System.out.println("Finished auto!");
         SmartDashboard.putBoolean("Auto Finished", true);

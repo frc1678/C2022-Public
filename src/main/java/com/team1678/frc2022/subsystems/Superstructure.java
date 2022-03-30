@@ -6,6 +6,7 @@ import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.RobotState;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.CustomXboxController;
+import com.team1678.frc2022.drivers.Pigeon;
 import com.team1678.frc2022.logger.LogStorage;
 import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.regressions.ShooterRegression;
@@ -48,6 +49,7 @@ public class Superstructure extends Subsystem {
     private final Climber mClimber = Climber.getInstance();
     private final Limelight mLimelight = Limelight.getInstance();
     private final LEDs mLEDs = LEDs.getInstance();
+    private final Pigeon mPigeon = Pigeon.getInstance();
 
     // robot state
     private final RobotState mRobotState = RobotState.getInstance();
@@ -271,7 +273,7 @@ public class Superstructure extends Subsystem {
 
         // update starting gyro position
         if (mClimbStep == 0) {
-            mStartingGyroPosition = mSwerve.getRoll().getDegrees();
+            mStartingGyroPosition = mPigeon.getUnadjustedRoll().getDegrees();
         }
           
         // get whether we want to enter climb mode
@@ -283,7 +285,7 @@ public class Superstructure extends Subsystem {
         if (mClimbMode) {
 
             // update gyro offset
-            mGyroOffset = mSwerve.getRoll().getDegrees() - mStartingGyroPosition;
+            mGyroOffset = mPigeon.getUnadjustedRoll().getDegrees() - mStartingGyroPosition;
 
             /*** CLIMB MODE CONTROLS ***/
 
@@ -966,7 +968,7 @@ public class Superstructure extends Subsystem {
         SmartDashboard.putBoolean("Auto Traversal Climb", mAutoTraversalClimb);
         SmartDashboard.putNumber("Climb Step Number", mClimbStep);
 
-        SmartDashboard.putNumber("Robot Roll", mSwerve.getRoll().getDegrees());
+        SmartDashboard.putNumber("Robot Roll", mPigeon.getRoll().getDegrees());
         SmartDashboard.putNumber("Gyro Start", mStartingGyroPosition);
         SmartDashboard.putNumber("Gyro Offset", mGyroOffset);
 
@@ -1024,7 +1026,7 @@ public class Superstructure extends Subsystem {
         items.add(mPeriodicIO.FENDER ? 1.0 : 0.0);
         items.add(mPeriodicIO.real_shooter);
         items.add(mPeriodicIO.real_hood);
-        items.add(mSwerve.getRoll().getDegrees());
+        items.add(mPigeon.getRoll().getDegrees());
 
         // send data to logging storage
         mStorage.addData(items);
