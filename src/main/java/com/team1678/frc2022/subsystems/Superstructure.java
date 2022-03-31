@@ -12,6 +12,9 @@ import com.team1678.frc2022.regressions.ShooterRegression;
 import com.team1678.frc2022.subsystems.LEDs.State;
 import com.team254.lib.util.Util;
 import com.team254.lib.vision.AimingParameters;
+
+import org.opencv.features2d.FlannBasedMatcher;
+
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.util.InterpolatingDouble;
 
@@ -520,6 +523,10 @@ public class Superstructure extends Subsystem {
                 mPeriodicIO.SPIT = !mPeriodicIO.SPIT;
             }
 
+            // non-toggle one ball spit shot
+            if (mControlBoard.getSpitting()) {
+                mPeriodicIO.SPIT = true;
+
             // control for adding manual hood adjustment
             switch(mControlBoard.getHoodManualAdjustment()) {
                 case 1:
@@ -538,6 +545,7 @@ public class Superstructure extends Subsystem {
             }
         }
     }
+}
 
     public void updateWantEjection() {
         mPeriodicIO.EJECT = mColorSensor.wantsEject();
@@ -674,6 +682,36 @@ public class Superstructure extends Subsystem {
                 mPeriodicIO.real_trigger = Trigger.WantedAction.NONE;
                 mPeriodicIO.real_indexer = Indexer.WantedAction.NONE;
             }
+            //stop spitting when top beam break isn't triggered
+            if (!mIndexer.getTopBeamBreak()) {
+                mPeriodicIO.SPIT = false;
+            }
+
+            // when two balls are in the indexer:
+            while (mBallCount > 1) {
+                if (mIndexer.getTopBeamBreak() == true && mIndexer.getBottomBeamBreak() == true) {
+                    mPeriodicIO.SPIT = true;
+                    // stop spitting after one ball
+                    if (mBallCount == 1) {
+                        mPeriodicIO.SPIT = false;
+                } else {
+                    mPeriodicIO.SPIT = !mPeriodicIO.SPIT;
+                }
+            }
+        }
+            // when one ball is in the indexer and triggering top beam break:
+            while (mBallCount == 1) {
+                if (mIndexer.getTopBeamBreak() == true && !mIndexer.getBottomBeamBreak()) {
+                    mPeriodicIO.SPIT = true;
+                    // stop spitting after one ball
+                    if (mBallCount == 0) {
+                        mPeriodicIO.SPIT = false;
+                    }
+                } else {
+                    mPeriodicIO.SPIT = !mPeriodicIO.SPIT;
+                }
+            } 
+
         } else if (mPeriodicIO.SHOOT) {
             mPeriodicIO.real_intake = Intake.WantedAction.NONE;
 
