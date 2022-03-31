@@ -137,11 +137,6 @@ public class Superstructure extends Subsystem {
             public void onLoop(double timestamp) {
                 final double start = Timer.getFPGATimestamp();
 
-                if (!mColorSensor.seesBall() && !mPeriodicIO.INTAKE) {
-                    mColorSensor.updateBaselineColorScaling();
-                    System.out.println("updating baseline");
-                }
-
                 if (!mClimbMode) {
                     updateBallCounter();
                     updateVisionAimingParameters();
@@ -467,7 +462,7 @@ public class Superstructure extends Subsystem {
                     // - we don't have a ball at either fully indexed position
                     // - we don't want to stop intaking
                     // then unlock the intake
-                    if(!(mIndexer.getTopBeamBreak() && mColorSensor.hasBall()) 
+                    if(!(mIndexer.getTopBeamBreak() && mColorSensor.getForwardBeamBreak()) 
                             && !indexerFull()
                             && !stopIntaking()) {
                         
@@ -495,7 +490,7 @@ public class Superstructure extends Subsystem {
                 // when not forcing an eject, passively check whether want to passively eject using color sensor logic
             }
 
-            //force holding button: keep intake retracted when button is pressed
+            // force holding button: keep intake retracted when button is pressed
             if (mControlBoard.getForceHoldIntake()) {
                 mPeriodicIO.FORCE_HOLD = true;
             }
@@ -603,10 +598,16 @@ public class Superstructure extends Subsystem {
         // update align delta from target and distance from target
         mTrackId = real_aiming_params_.get().getTrackId();
         mTargetAngle = predicted_vehicle_to_goal.getTranslation().direction().getRadians() + Math.PI;
-        mCorrectedDistanceToTarget = predicted_vehicle_to_goal.getTranslation().norm();
 
         // send vision aligning target delta to swerve
-        mSwerve.acceptLatestVisionAlignGoal(mTargetAngle);
+        mSwerve.acceptLatestGoalTrackVisionAlignGoal(mTargetAngle);
+
+        // update distance to target
+        if (mLimelight.hasTarget() && mLimelight.getLimelightDistanceToTarget().isPresent()) {
+            mCorrectedDistanceToTarget = mLimelight.getLimelightDistanceToTarget().get();
+        } else {
+            mCorrectedDistanceToTarget = predicted_vehicle_to_goal.getTranslation().norm();
+        }
 
         SmartDashboard.putString("Field to Target", real_aiming_params_.get().getFieldToGoal().toString());
         SmartDashboard.putString("Vehicle to Target", real_aiming_params_.get().getVehicleToGoal().toString());

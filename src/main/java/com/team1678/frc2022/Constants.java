@@ -6,11 +6,11 @@ import com.team1678.frc2022.subsystems.Limelight.LimelightConstants;
 import com.team1678.frc2022.subsystems.ServoMotorSubsystem.ServoMotorSubsystemConstants;
 import com.team254.lib.geometry.Rotation2d;
 
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.constraint.CentripetalAccelerationConstraint;
+import edu.wpi.first.math.util.Units;
 
 public class Constants {
 
@@ -76,8 +76,8 @@ public class Constants {
         public static final double driveKF = 0.0;
 
         /* Drive Motor Characterization Values */
-        public static final double driveKS = (0.40 / 12); // divide by 12 to convert from volts to percent output for CTRE
-        public static final double driveKV = (2.80 / 12); // 0.244 previously
+        public static final double driveKS = (0.32 / 12); // divide by 12 to convert from volts to percent output for CTRE
+        public static final double driveKV = (2.10 / 12); // 2.44 previously
         public static final double driveKA = (0.27 / 12);
 
         /* Swerve Profiling Values */
@@ -106,7 +106,7 @@ public class Constants {
         /* Front Left Module - Module 0 */
         public static final class Mod0 {
             public static final double epsilonAngleOffset = 58.18;
-            public static final double compAngleOffset = 239; // TODO: Check value
+            public static final double compAngleOffset = 58; // TODO: Check value
 
             public static SwerveModuleConstants SwerveModuleConstants() {
                 return new SwerveModuleConstants(Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER,
@@ -126,7 +126,7 @@ public class Constants {
         /* Back Left Module - Module 2 */
         public static final class Mod2 {
             public static final double epsilonAngleOffset = 40.07;
-            public static final double compAngleOffset = 319;   // TODO: Check value
+            public static final double compAngleOffset = 317;   // TODO: Check value
 
             public static SwerveModuleConstants SwerveModuleConstants() {
                 return new SwerveModuleConstants(Ports.BL_DRIVE, Ports.BL_ROTATION, Ports.BL_CANCODER,
@@ -136,7 +136,7 @@ public class Constants {
         /* Back Right Module - Module 3 */
         public static final class Mod3 {
             public static final double epsilonAngleOffset = 71.45;
-            public static final double compAngleOffset = 256;   // TODO: Check value
+            public static final double compAngleOffset = 251; // TODO: Check value
 
             public static SwerveModuleConstants SwerveModuleConstants() {
                 return new SwerveModuleConstants(Ports.BR_DRIVE, Ports.BR_ROTATION, Ports.BR_CANCODER,
@@ -161,7 +161,7 @@ public class Constants {
     }
 
     public static final class VisionAlignConstants {
-        public static final double kP = 5.0;
+        public static final double kP = 5.5;
         public static final double kI = 0.0;
         public static final double kD = 0.10;
 
@@ -173,7 +173,7 @@ public class Constants {
                 new TrapezoidProfile.Constraints(kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
 
         public static final double kTimeout = 0.25;
-        public static final double kEpsilon = 3.0;
+        public static final double kEpsilon = 5.0;
     }
 
     public static final class AutoConstants {
@@ -271,7 +271,7 @@ public class Constants {
         public static final double kLookaheadTime = 0.0; // 1.10 as latest
 
         /* Goal Tracker Constants */
-        public static final double kMaxTrackerDistance = 9.0;
+        public static final double kMaxTrackerDistance = 8.0;
         public static final double kMaxGoalTrackAge = 10.0;
         public static final double kMaxGoalTrackSmoothingTime = 1.5;
         public static final double kCameraFrameRate = 90.0;
@@ -300,7 +300,7 @@ public class Constants {
         public static final double kSpittingVoltage = -8;
         public static final double kRejectingVoltage = -5;
 
-        public static final double kSingulatorVelocity = 1500.0; // 2386
+        public static final double kSingulatorVelocity = 2300.0; // 2386
 
         public static final double kDeployVoltage = 4.0;
         public static final double kInHoldingVoltage = 1.2;
@@ -329,7 +329,7 @@ public class Constants {
 
     public static final class TriggerConstants {
         public static final double kTriggerPassiveVelocity = 0;
-        public static final double kTriggerFeedingVelocity = 450;
+        public static final double kTriggerFeedingVelocity = 350;
         public static final double kTriggerSlowFeedVelocity = 350;
         public static final double kTriggerReverseVelocity = -500;
 
@@ -398,7 +398,7 @@ public class Constants {
 
         public static final double kIdleVoltage = 0.0;
 
-        public static final double kTunnelIndexingVelocity = 350.0; // 642
+        public static final double kTunnelIndexingVelocity = 640.0; // 642
         public static final double kTunnelFeedingVelocity = 500.0;
 
         public static final double kEjectorVoltage = 12.0;
@@ -474,7 +474,7 @@ public class Constants {
     }
 
     public static final class ColorSensorConstants {
-        public static final double kColorDifferenceThreshold = 200;
+        public static final double kColorSensorThreshold = 160;
 
         public static final double kBlueFreqScaler = 1.0;
         public static final double kRedFreqScaler = 1.0;

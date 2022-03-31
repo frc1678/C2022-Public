@@ -6,6 +6,7 @@ package com.team1678.frc2022;
 
 import java.util.Optional;
 
+import com.lib.util.CTREConfigs;
 import com.team1678.frc2022.auto.AutoModeExecutor;
 import com.team1678.frc2022.auto.AutoModeSelector;
 import com.team1678.frc2022.auto.modes.AutoModeBase;
@@ -164,10 +165,16 @@ public class Robot extends TimedRobot {
 			mEnabledLooper.start();
 			mLoggingLooper.start();
 
+			Optional<AutoModeBase> autoMode = mAutoModeSelector.getAutoMode();
+			if (autoMode.isPresent()) {
+				mSwerve.resetOdometry(autoMode.get().getStartingPose());
+			}
+
 			mAutoModeExecutor.start();
 
 			mInfrastructure.setIsDuringAuto(true);
 			mLimelight.setPipeline(Constants.VisionConstants.kDefaultPipeline);
+			
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
@@ -247,8 +254,10 @@ public class Robot extends TimedRobot {
 					mControlBoard.getSwerveTranslation().y());
 			double swerveRotation = mControlBoard.getSwerveRotation();
 
-			if (mControlBoard.getVisionAlign()) {
-				mSwerve.visionAlignDrive(swerveTranslation, swerveRotation, true, false);
+			if (mControlBoard.getClimbAlign()) {
+				mSwerve.angleAlignDrive(swerveTranslation, 270, true);
+			} else if (mControlBoard.getVisionAlign()) {
+				mSwerve.visionAlignDrive(swerveTranslation, true);
 			} else {
 				mSwerve.drive(swerveTranslation, swerveRotation, true, true);
 			}
@@ -317,7 +326,6 @@ public class Robot extends TimedRobot {
 			if (autoMode.isPresent() && autoMode.get() != mAutoModeExecutor.getAutoMode()) {
 				System.out.println("Set auto mode to: " + autoMode.get().getClass().toString());
 				mAutoModeExecutor.setAutoMode(autoMode.get());
-				mSwerve.resetOdometry(autoMode.get().getStartingPose());
 			}
 
 		} catch (Throwable t) {

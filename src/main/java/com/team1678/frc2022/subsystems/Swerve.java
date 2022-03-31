@@ -3,10 +3,10 @@ package com.team1678.frc2022.subsystems;
 import java.util.ArrayList;
 
 import com.ctre.phoenix.sensors.Pigeon2;
+import com.lib.drivers.SwerveModule;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.RobotState;
-import com.team1678.frc2022.SwerveModule;
 import com.team1678.frc2022.logger.LogStorage;
 import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.loops.ILooper;
@@ -33,6 +33,9 @@ public class Swerve extends Subsystem {
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
 
+    // limelight instance for raw aiming
+    Limelight mLimelight = Limelight.getInstance();
+
     // logger
     LogStorage<PeriodicIO> mStorage = null;
 
@@ -46,12 +49,9 @@ public class Swerve extends Subsystem {
     // chassis velocity status
     ChassisSpeeds chassisVelocity = new ChassisSpeeds();
 
-    // trapezoid motion profile for vision aiming
-    private double mProfileGenTime = 0.0;
-    private TrapezoidProfile mTrapezoidProfile = null;
-
     public boolean isSnapping;
-    private double mVisionAlignGoal;
+    private double mLimelightVisionAlignGoal;
+    private double mGoalTrackVisionAlignGoal;
     private double mVisionAlignAdjustment;
 
     public ProfiledPIDController snapPIDController;
@@ -113,6 +113,7 @@ public class Swerve extends Subsystem {
 
             @Override
             public void onLoop(double timestamp) {
+                chooseVisionAlignGoal();
                 updateSwerveOdometry();
                 outputTelemetry();
             }
@@ -132,6 +133,8 @@ public class Swerve extends Subsystem {
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Velocity", mod.getState().speedMetersPerSecond);    
         }
         SmartDashboard.putBoolean("Wants Auto Vision Aim", mWantsAutoVisionAim);
+        SmartDashboard.putNumber("Vision Align Target Angle", Math.toDegrees(mLimelightVisionAlignGoal));
+        SmartDashboard.putNumber("Swerve Heading", MathUtil.inputModulus(getYaw().getDegrees(), 0, 360));
     }
 
     public void setWantAutoVisionAim(boolean aim) {
@@ -142,11 +145,14 @@ public class Swerve extends Subsystem {
         return mWantsAutoVisionAim;
     }
 
-    public void visionAlignDrive(Translation2d translation2d, double rotation, boolean fieldRelative, boolean isOpenLoop) {
-        double adjustedRotation;
-        
-        adjustedRotation = mVisionAlignAdjustment;
-        drive(translation2d, adjustedRotation, fieldRelative, isOpenLoop);
+    public void visionAlignDrive(Translation2d translation2d, boolean fieldRelative) {
+        drive(translation2d, mVisionAlignAdjustment, fieldRelative, false);
+    }
+
+    public void angleAlignDrive(Translation2d translation2d, double targetHeading, boolean fieldRelative) {
+        snapPIDController.setGoal(new TrapezoidProfile.State(Math.toRadians(targetHeading), 0.0));
+        double angleAdjustment = snapPIDController.calculate(getYaw().getRadians());
+        drive(translation2d, angleAdjustment, fieldRelative, false);
     }
 
     public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
@@ -188,11 +194,20 @@ public class Swerve extends Subsystem {
         }
     }
 
-    public void acceptLatestVisionAlignGoal(double vision_goal) {
-        mVisionAlignGoal = vision_goal; 
+    public void acceptLatestGoalTrackVisionAlignGoal(double vision_goal) {
+        mGoalTrackVisionAlignGoal = vision_goal; 
+    }
 
+    public void chooseVisionAlignGoal() {
         double currentAngle = getYaw().getRadians();
-        visionPIDController.setSetpoint(mVisionAlignGoal);
+        if (mLimelight.hasTarget()) {
+            double targetOffset = Math.toRadians(mLimelight.getOffset()[0]);
+            mLimelightVisionAlignGoal = MathUtil.inputModulus(currentAngle - targetOffset, 0.0, 2 * Math.PI);
+            visionPIDController.setSetpoint(mLimelightVisionAlignGoal);
+        } else {
+            visionPIDController.setSetpoint(mGoalTrackVisionAlignGoal);
+        }
+
         mVisionAlignAdjustment = visionPIDController.calculate(currentAngle);
     }
 
@@ -340,7 +355,7 @@ public class Swerve extends Subsystem {
         mPeriodicIO.robot_pitch = getPitch().getDegrees();
         mPeriodicIO.robot_roll = getRoll().getDegrees();
         mPeriodicIO.snap_target = Math.toDegrees(snapPIDController.getGoal().position);
-        mPeriodicIO.vision_align_target_angle = Math.toDegrees(mVisionAlignGoal);
+        mPeriodicIO.vision_align_target_angle = Math.toDegrees(mLimelightVisionAlignGoal);
         mPeriodicIO.swerve_heading = MathUtil.inputModulus(getYaw().getDegrees(), 0, 360);
 
         mPeriodicIO.angular_velocity = chassisVelocity.omegaRadiansPerSecond;
