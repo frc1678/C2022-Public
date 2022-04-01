@@ -23,7 +23,7 @@ public class OneBallMode extends AutoModeBase {
     private final Superstructure mSuperstructure = Superstructure.getInstance();
 
     // required PathWeaver file paths
-    String file_path = "paths/1 Ball Auto .path";
+    String file_path = "paths/OneBallAutos/1 Ball.path";
 
     // trajectory actions
 	SwerveTrajectoryAction driveToPose;
