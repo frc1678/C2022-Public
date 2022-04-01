@@ -225,11 +225,12 @@ public class Intake extends Subsystem {
                     mPeriodicIO.singulator_demand = Constants.IntakeConstants.kSingulatorVelocity;
                 }
 
-                mPeriodicIO.intake_demand = Constants.IntakeConstants.kRejectingVoltage;
 
                 if (mPeriodicIO.hold_intake) {
+                    mPeriodicIO.intake_demand = 0.0;
                     mPeriodicIO.deploy_demand = Constants.IntakeConstants.kOutHoldingVoltage;
                 } else {
+                    mPeriodicIO.intake_demand = Constants.IntakeConstants.kRejectingVoltage;
                     mPeriodicIO.deploy_demand = Constants.IntakeConstants.kDeployVoltage;
                 }
                 break;
