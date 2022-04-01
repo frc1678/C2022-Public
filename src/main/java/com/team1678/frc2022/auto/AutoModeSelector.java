@@ -12,6 +12,7 @@ public class AutoModeSelector {
     enum DesiredMode {
         DO_NOTHING, 
         TEST_PATH_AUTO,
+        ONE_BALL_AUTO,
         TWO_BALL_LEFT_AUTO,
         TWO_BALL_RIGHT_AUTO,
         TWO_BY_TWO_AUTO,
@@ -29,6 +30,7 @@ public class AutoModeSelector {
         mModeChooser = new SendableChooser<>();
         mModeChooser.setDefaultOption("Do Nothing", DesiredMode.DO_NOTHING);
         mModeChooser.addOption("Test Path Mode", DesiredMode.TEST_PATH_AUTO);
+        mModeChooser.addOption("One Ball Auto", DesiredMode.ONE_BALL_AUTO);
         mModeChooser.addOption("Two Ball Left Mode", DesiredMode.TWO_BALL_LEFT_AUTO);
         mModeChooser.addOption("Two Ball Right Mode", DesiredMode.TWO_BALL_RIGHT_AUTO);
         mModeChooser.addOption("Two by Two Mode", DesiredMode.TWO_BY_TWO_AUTO);
