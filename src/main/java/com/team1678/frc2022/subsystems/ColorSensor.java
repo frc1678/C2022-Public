@@ -1,13 +1,15 @@
 package com.team1678.frc2022.subsystems;
 
+import com.lib.drivers.PicoColorSensor;
+import com.lib.drivers.PicoColorSensor.RawColor;
 import com.team1678.frc2022.Constants;
-import com.team1678.frc2022.lib.drivers.PicoColorSensor;
-import com.team1678.frc2022.lib.drivers.PicoColorSensor.RawColor;
+import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 
 public class ColorSensor extends Subsystem {
@@ -29,6 +31,8 @@ public class ColorSensor extends Subsystem {
     public ColorChoices mAllianceColor = ColorChoices.NONE;
     public ColorChoices mMatchedColor;
 
+    private final DigitalInput mForwardBreak;
+
     public enum ColorChoices {
         RED, BLUE, OTHER, NONE  
     }
@@ -36,7 +40,8 @@ public class ColorSensor extends Subsystem {
     private ColorSensor() {
         mMatchedColor = ColorChoices.NONE;
         mPico = new PicoColorSensor();
-        
+
+        mForwardBreak = new DigitalInput(Ports.getForwardBeamBreakPort());
     }
 
     @Override
@@ -200,7 +205,10 @@ public class ColorSensor extends Subsystem {
     }
     public String getMatchedColor() {
         return mMatchedColor.toString();
-    }    
+    }
+    public boolean getForwardBeamBreak() {
+        return !mForwardBreak.get();
+    }
     public double getDistance() {
         return mPeriodicIO.proximity;
     }

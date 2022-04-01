@@ -37,6 +37,10 @@ public class Ports {
     public static final int TUNNEL_ID = 11;
     public static final int TRIGGER_ID = 12;
 
+    public static int getForwardBeamBreakPort() {
+        return Constants.isComp ? 4 : 8;
+    }
+
     public static int getBottomBeamBreakPort() {
         return Constants.isComp ? 3 : 1;
     }

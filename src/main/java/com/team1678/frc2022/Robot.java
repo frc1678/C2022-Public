@@ -6,9 +6,11 @@ package com.team1678.frc2022;
 
 import java.util.Optional;
 
+import com.lib.util.CTREConfigs;
 import com.team1678.frc2022.auto.AutoModeExecutor;
 import com.team1678.frc2022.auto.AutoModeSelector;
 import com.team1678.frc2022.auto.modes.AutoModeBase;
+import com.team1678.frc2022.auto.modes.FiveBallMode;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.ControlBoard.SwerveCardinal;
 import com.team1678.frc2022.logger.LoggingSystem;
@@ -22,6 +24,7 @@ import com.team1678.frc2022.subsystems.Infrastructure;
 import com.team1678.frc2022.subsystems.Intake;
 import com.team1678.frc2022.subsystems.LEDs;
 import com.team1678.frc2022.subsystems.Limelight;
+import com.team1678.frc2022.subsystems.RobotStateEstimator;
 import com.team1678.frc2022.subsystems.Shooter;
 import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
@@ -36,6 +39,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
+import edu.wpi.first.wpilibj.Timer;
 import com.team254.lib.wpilib.TimedRobot;
 
 /**
@@ -82,6 +86,9 @@ public class Robot extends TimedRobot {
 	private final Limelight mLimelight = Limelight.getInstance();
 	private final LEDs mLEDs = LEDs.getInstance();
 
+	// robot state estimator
+	private final RobotStateEstimator mRobotStateEstimator = RobotStateEstimator.getInstance();
+
 	// logging system
 	private LoggingSystem mLogger = LoggingSystem.getInstance();
 
@@ -107,21 +114,20 @@ public class Robot extends TimedRobot {
 		try {
 			CrashTracker.logRobotInit();
 
-			mSubsystemManager.setSubsystems(
+			mSubsystemManager.setSubsystems(			
+					mRobotStateEstimator,
 					mSwerve,
 					mSuperstructure,
 					mInfrastructure,
 					mIntake,
-					mLEDs,
 					mIndexer,
 					mShooter,
 					mTrigger,
 					mHood,
-					mSuperstructure,
-					mLEDs,
 					mColorSensor,
 					mClimber,
-					mLimelight
+					mLimelight,
+					mLEDs
 			);
 
 			mSubsystemManager.registerEnabledLoops(mEnabledLooper);
@@ -130,8 +136,10 @@ public class Robot extends TimedRobot {
 			mSubsystemManager.registerLoggingSystems(mLogger);
             mLogger.registerLoops(mLoggingLooper);
 
+			RobotState.getInstance().reset(Timer.getFPGATimestamp(), new com.team254.lib.geometry.Pose2d());
 			mSwerve.resetOdometry(new Pose2d());
 			mSwerve.resetAnglesToAbsolute();
+
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
 			throw t;
@@ -140,6 +148,7 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void robotPeriodic() {
+		mEnabledLooper.outputToSmartDashboard();
 		mShuffleBoardInteractions.update();
 		mLEDs.updateState();
 		mSwerve.outputTelemetry();
@@ -156,10 +165,16 @@ public class Robot extends TimedRobot {
 			mEnabledLooper.start();
 			mLoggingLooper.start();
 
+			Optional<AutoModeBase> autoMode = mAutoModeSelector.getAutoMode();
+			if (autoMode.isPresent()) {
+				mSwerve.resetOdometry(autoMode.get().getStartingPose());
+			}
+
 			mAutoModeExecutor.start();
 
 			mInfrastructure.setIsDuringAuto(true);
 			mLimelight.setPipeline(Constants.VisionConstants.kDefaultPipeline);
+			
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
@@ -170,7 +185,6 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void autonomousPeriodic() {
-		mSwerve.updateSwerveOdometry();
 		mLimelight.setLed(Limelight.LedMode.ON);
 	}
 
@@ -182,15 +196,17 @@ public class Robot extends TimedRobot {
                 mAutoModeExecutor.stop();
             }
 
-			mSwerve.setModuleStates(
-				Constants.SwerveConstants.swerveKinematics.toSwerveModuleStates((
-					ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, 0, Rotation2d.fromDegrees(0)))));
+			// mSwerve.setModuleStates(
+			// 	Constants.SwerveConstants.swerveKinematics.toSwerveModuleStates((
+			// 		ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, 0, Rotation2d.fromDegrees(0)))));
 
 			mDisabledLooper.stop();
 			mEnabledLooper.start();
 			mLoggingLooper.start();
 
 			// mInfrastructure.setIsDuringAuto(false);
+
+			mSuperstructure.setWantEject(false, false);
 
 			mClimber.setBrakeMode(true);
 
@@ -231,8 +247,6 @@ public class Robot extends TimedRobot {
 				mSwerve.zeroGyro();
 			}
 
-			mSwerve.updateSwerveOdometry();
-
 			if (mControlBoard.getSwerveSnap() != SwerveCardinal.NONE) {
 				mSwerve.startSnap(mControlBoard.getSwerveSnap().degrees);
 			}
@@ -240,13 +254,16 @@ public class Robot extends TimedRobot {
 					mControlBoard.getSwerveTranslation().y());
 			double swerveRotation = mControlBoard.getSwerveRotation();
 
-			if (mControlBoard.getVisionAlign()) {
-				mSwerve.visionAlignDrive(swerveTranslation, swerveRotation, true, true);
+			if (mControlBoard.getClimbAlign()) {
+				mSwerve.angleAlignDrive(swerveTranslation, 270, true);
+			} else if (mControlBoard.getVisionAlign()) {
+				mSwerve.visionAlignDrive(swerveTranslation, true);
 			} else {
 				mSwerve.drive(swerveTranslation, swerveRotation, true, true);
 			}
 
 		} catch (Throwable t) {
+			t.printStackTrace();
 			CrashTracker.logThrowableCrash(t);
 			throw t;
 		}
@@ -265,9 +282,9 @@ public class Robot extends TimedRobot {
 			mLimelight.setLed(Limelight.LedMode.ON);
             mLimelight.triggerOutputs();
 
-			mSwerve.setModuleStates(
-				Constants.SwerveConstants.swerveKinematics.toSwerveModuleStates((
-					ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, 0, Rotation2d.fromDegrees(0)))));
+			// mSwerve.setModuleStates(
+			// 	Constants.SwerveConstants.swerveKinematics.toSwerveModuleStates((
+			// 		ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, 0, Rotation2d.fromDegrees(0)))));
 
 
 		} catch (Throwable t) {
@@ -290,11 +307,16 @@ public class Robot extends TimedRobot {
 	public void disabledPeriodic() {
 		try {
 
+			mDisabledLooper.outputToSmartDashboard();
+
 			mAutoModeSelector.updateModeCreator();
-			// mSwerve.resetAnglesToAbsolute();
+			
+			mSwerve.resetAnglesToAbsolute();
 
 			// update alliance color from driver station while disabled
 			mColorSensor.updateAllianceColor();
+			// update baseline color scaling for accurate rb comparison
+			// mColorSensor.updateBaselineColorScaling();
 
 			mLimelight.setLed(Limelight.LedMode.ON);
 			mLimelight.writePeriodicOutputs();

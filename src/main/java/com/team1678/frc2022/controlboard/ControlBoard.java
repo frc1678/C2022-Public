@@ -1,36 +1,39 @@
 package com.team1678.frc2022.controlboard;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.controlboard.CustomXboxController.Axis;
 import com.team1678.frc2022.controlboard.CustomXboxController.Button;
 import com.team1678.frc2022.controlboard.CustomXboxController.Side;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
-import com.team254.lib.util.DelayedBoolean;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class ControlBoard {
     private final double kSwerveDeadband = Constants.stickDeadband;
-    private final double kOperatorDeadband = 0.15;
 
-    private int mDPadUp = -1;
-    private int mDPadDown = -1;
-    private int mDPadRight = -1;
-    private int mDPadLeft = -1;
+    private int mLastDpadLeft = -1;
+    private int mLastDpadRight = -1;
 
-    private final double kDPadDelay = 0.02;
-    private DelayedBoolean mDPadValid;
+    private final int kDpadUp = 0;
+    private final int kDpadRight = 90;
+    private final int kDpadDown = 180;
+    private final int kDpadLeft = 270;
 
     private static ControlBoard mInstance = null;
 
     public enum SwerveCardinal {
         NONE(0),
-        FRONT(143),
-        LEFT(233),
-        RIGHT(53),
-        BACK(323);
+
+        FORWARDS(0),
+        LEFT(270),
+        RIGHT(90),
+        BACKWARDS(180),
+
+        FAR_FENDER(143),
+        RIGHT_FENDER(233),
+        LEFT_FENDER(53),
+        CLOSE_FENDER(323);
 
         public final double degrees;
 
@@ -97,19 +100,37 @@ public class ControlBoard {
     }
 
     public SwerveCardinal getSwerveSnap() {
+
+        // FENDER SNAPS
         if (driver.getButton(Button.A)) {
-            return SwerveCardinal.BACK;
+            return SwerveCardinal.CLOSE_FENDER;
         }
         if (driver.getButton(Button.B)) {
-            return SwerveCardinal.RIGHT;
+            return SwerveCardinal.LEFT_FENDER;
         }
         if (driver.getButton(Button.X)) {
-            return SwerveCardinal.LEFT;
+            return SwerveCardinal.RIGHT_FENDER;
         }
         if (driver.getButton(Button.Y)) {
-            return SwerveCardinal.FRONT;
+            return SwerveCardinal.FAR_FENDER;
         }
-        return SwerveCardinal.NONE;
+
+        // CARDINAL SNAPS
+
+        switch (driver.getController().getPOV()) {
+            case kDpadUp:
+                return SwerveCardinal.FORWARDS;
+            case kDpadLeft:
+                return SwerveCardinal.RIGHT;
+            case kDpadRight:
+                return SwerveCardinal.LEFT;
+            case kDpadDown:
+                return SwerveCardinal.BACKWARDS;
+            default:
+                return SwerveCardinal.NONE;
+        }
+            
+        
     }
 
     public int getHoodManualAdjustment() {
@@ -127,6 +148,10 @@ public class ControlBoard {
     // Align swerve drive with target
     public boolean getVisionAlign() {
         return driver.getButton(Button.RB);
+    }
+
+    public boolean getClimbAlign() {
+        return driver.getTrigger(Side.RIGHT);
     }
 
     //Locks wheels in X formation
@@ -147,6 +172,14 @@ public class ControlBoard {
         return operator.getController().getRightBumper();
     }
 
+    public boolean getHoldIntake() {
+        return operator.getButton(Button.LB);
+    }
+
+    public boolean getForceHoldIntake() {
+        return operator.getButton(Button.RB);
+    }
+
     //Indexer Controls
     public boolean getElevating() {
         return operator.getButton(Button.B);
@@ -155,13 +188,16 @@ public class ControlBoard {
     public boolean getIndexing() {
         return operator.getButton(Button.Y);
     }
-
-    public boolean getHopping() {
-        return operator.getButton(Button.X);
+    public boolean getDisableColorLogic() {
+        boolean wasPressed = operator.getController().getPOV() == kDpadRight && mLastDpadRight != kDpadRight;
+        mLastDpadRight = operator.getController().getPOV();
+        return wasPressed;
     }
 
-    public boolean getReversing() {
-        return operator.getButton(Button.A);
+    public boolean getDisableIntakeLogic() {
+        boolean wasPressed = operator.getController().getPOV() == kDpadLeft && mLastDpadLeft != kDpadLeft;
+        mLastDpadLeft = operator.getController().getPOV();
+        return wasPressed;
     }
 
     // Climber Controls
@@ -175,38 +211,6 @@ public class ControlBoard {
     
     public boolean getTraversalClimb() {
         return operator.getButton(Button.LB) && operator.getController().getYButtonPressed();
-    }
-
-    public boolean getSwitchClimbControlMode() {
-        return operator.getController().getLeftStickButtonPressed();
-    }
-
-    public boolean getResetClimberPosition() {
-        return operator.getController().getRightStickButtonPressed();
-    }
-
-    public int getClimberJogRight() {
-        int povread = operator.getController().getPOV();
-        switch (povread) {
-            case 0:
-                return 1;
-            case 180:
-                return -1;
-            default:
-                return 0;
-        }
-    }
-
-    public int getClimberJogLeft() {
-        int povread = operator.getController().getPOV();
-        switch (povread) {
-            case 90:
-                return 1;
-            case 360:
-                return -1;
-            default:
-                return 0;
-        }
     }
     
 }

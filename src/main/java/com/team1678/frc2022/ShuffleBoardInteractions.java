@@ -1,8 +1,8 @@
 package com.team1678.frc2022;
 
-import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
-
+import com.lib.drivers.SwerveModule;
+import com.lib.util.CTREConfigs;
 import com.team1678.frc2022.subsystems.ColorSensor;
 
 import com.team1678.frc2022.subsystems.Climber;
@@ -23,7 +23,11 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.geometry.Pose2d;
 
 public class ShuffleBoardInteractions {
 
@@ -65,7 +69,9 @@ public class ShuffleBoardInteractions {
     private ShuffleboardTab CLIMBER_TAB;
     private ShuffleboardTab SUPERSTRUCTURE_TAB;
     private ShuffleboardTab MANUAL_PARAMS;
-    private ShuffleboardTab COLOR_SENSOR;   
+    private ShuffleboardTab COLOR_SENSOR; 
+    
+    private Field2d mField = new Field2d();
 
     /*** ENTRIES ***/
     
@@ -102,6 +108,7 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mIntakeDeployCurrent;
     private final NetworkTableEntry mIntakeDeployVoltage;
     private final NetworkTableEntry mIntakeDeployDemand;
+    private final NetworkTableEntry mIsForceHolding;
 
     // private final NetworkTableEntry mFlywheelManualPIDToggle;
     // private final NetworkTableEntry mFlywheelP;
@@ -171,6 +178,7 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mReversing;
     private final NetworkTableEntry mRejecting;
     private final NetworkTableEntry mEjecting;
+    private final NetworkTableEntry mForceHolding;
     private final NetworkTableEntry mPrepping;
     private final NetworkTableEntry mShooting;
     private final NetworkTableEntry mFenderShot;
@@ -199,7 +207,8 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mBValue;
     private final NetworkTableEntry mAllianceColor;
     private final NetworkTableEntry mMatchedColor;
-    private final NetworkTableEntry mReadDistance;
+    private final NetworkTableEntry mForwardBreak;
+    private final NetworkTableEntry mProximity;
 
     private final NetworkTableEntry mHasBall;
     private final NetworkTableEntry mEject;
@@ -246,7 +255,7 @@ public class ShuffleBoardInteractions {
         
         /*** Create Entries ***/
 
-        mSwerveBrakeMode = SWERVE_TAB.add("Swerve Break Mode", false).getEntry();
+        mSwerveBrakeMode = SWERVE_TAB.add("Swerve Brake Mode", false).getEntry();
 
         for (int i = 0; i < mSwerveCancoders.length; i++) {
             mSwerveAngles[i] = SWERVE_TAB
@@ -370,6 +379,9 @@ public class ShuffleBoardInteractions {
         mIntakeDeployDemand= INTAKE_TAB
             .add("Deploy Demand", 0.0)
             .getEntry();
+        mIsForceHolding = INTAKE_TAB
+            .add("Is Force Holding", 0.0)
+            .getEntry();
         
 
         /* INDEXER */
@@ -488,14 +500,19 @@ public class ShuffleBoardInteractions {
         mBValue = COLOR_SENSOR
             .add("Detected B Value", 0.0)
             .getEntry();
+
         mAllianceColor = COLOR_SENSOR
             .add("Alliance Color", "N/A")
             .getEntry();
         mMatchedColor = COLOR_SENSOR
             .add("Matched Color", "N/A")
             .getEntry();
-        mReadDistance = COLOR_SENSOR
-            .add("Read Distance", 0.0)
+        mForwardBreak = COLOR_SENSOR
+            .add("Beam Break", false)
+            .getEntry();
+
+        mProximity = COLOR_SENSOR
+            .add("Proximity", 0.0)
             .getEntry();
             
         mHasBall = COLOR_SENSOR
@@ -556,6 +573,10 @@ public class ShuffleBoardInteractions {
             .getEntry();
         mRejecting = SUPERSTRUCTURE_TAB
             .add("Rejecting", false)
+            .withSize(1, 1)
+            .getEntry();
+        mForceHolding = SUPERSTRUCTURE_TAB
+            .add("Force Holding", false)
             .withSize(1, 1)
             .getEntry();
         mEjecting = SUPERSTRUCTURE_TAB
@@ -662,9 +683,14 @@ public class ShuffleBoardInteractions {
                 .withSize(2, 2)
                 .withPosition(8, 2)
                 .getEntry();
+
+        SmartDashboard.putData(mField);
+        
     }
 
     public void update() {
+
+        mField.setRobotPose(mSwerve.getPose());
 
         /* OPERATOR */
         mOperatorShooting.setBoolean(mSuperstructure.getShooting());
@@ -677,9 +703,10 @@ public class ShuffleBoardInteractions {
 
         /* SWERVE */
 
-        /*
+        
         //  Only uncomment cancoder update when redoing cancoder offsets for modules
         // Update cancoders at a slower period to avoid stale can frames
+        /*
         double dt = Timer.getFPGATimestamp();
         if (dt > lastCancoderUpdate + 0.1) {
             for (int i = 0; i < mSwerveCancoders.length; i++) {
@@ -687,7 +714,7 @@ public class ShuffleBoardInteractions {
             }
             lastCancoderUpdate = dt;
         }
-        
+        */
         
         for (int i = 0; i < mSwerveCancoders.length; i++) {
             mSwerveIntegrated[i].setDouble(truncate(MathUtil.inputModulus(mSwerveModules[i].getState().angle.getDegrees(), 0, 360)));
@@ -695,9 +722,8 @@ public class ShuffleBoardInteractions {
 
             mModuleAngleCurrent[i].setDouble(truncate(MathUtil.inputModulus(mSwerveModules[i].getState().angle.getDegrees(), 0, 360)));
             mModuleAngleGoals[i].setDouble(truncate(MathUtil.inputModulus(mSwerveModules[i].getTargetAngle(), 0, 360)));
-
         }
-        */
+        
 
         mSwerveOdometryX.setDouble(truncate(mSwerve.getPose().getX()));
         mSwerveOdometryY.setDouble(truncate(mSwerve.getPose().getY()));
@@ -721,6 +747,7 @@ public class ShuffleBoardInteractions {
         mIntakeDeployCurrent.setDouble(mIntake.getDeployCurrent());
         mIntakeDeployVoltage.setDouble(mIntake.getDeployVoltage());
         mIntakeDeployDemand.setDouble(mIntake.getDeployDemand());
+        mIsForceHolding.setBoolean(mIntake.getForceHoldIntake());
         
         /* SHOOTER */
         mFlywheelRPM.setDouble(truncate(mShooter.getFlywheelRPM()));
@@ -760,9 +787,13 @@ public class ShuffleBoardInteractions {
         mRValue.setDouble(mColorSensor.getDetectedRValue());
         mGValue.setDouble(mColorSensor.getDetectedGValue());
         mBValue.setDouble(mColorSensor.getDetectedBValue());
+        mBValue.setDouble(mColorSensor.getDetectedBValue());
+        
         mAllianceColor.setString(mColorSensor.getAllianceColor().toString());
         mMatchedColor.setString(mColorSensor.getMatchedColor().toString());
-        mReadDistance.setDouble(mColorSensor.getDistance());
+        mForwardBreak.setBoolean(mColorSensor.getForwardBeamBreak());
+
+        mProximity.setDouble(mColorSensor.getDistance());
 
         mHasBall.setBoolean(mColorSensor.hasBall());
         mEject.setBoolean(mColorSensor.wantsEject());
@@ -794,6 +825,7 @@ public class ShuffleBoardInteractions {
         mIntaking.setBoolean(mSuperstructure.getIntaking());
         mReversing.setBoolean(mSuperstructure.getReversing());
         mRejecting.setBoolean(mSuperstructure.getRejecting());
+        mForceHolding.setBoolean(mSuperstructure.getForceHolding());
         mEjecting.setBoolean(mSuperstructure.getEjecting());
         mPrepping.setBoolean(mSuperstructure.getPrepping());
         mShooting.setBoolean(mSuperstructure.getShooting());
@@ -819,6 +851,7 @@ public class ShuffleBoardInteractions {
         // Lights
         mTopLEDState.setString(mLEDs.getTopState().getName());
         mBottomLEDState.setString(mLEDs.getBottomState().getName());
+
     }
 
     /* Truncates number to 2 decimal places for cleaner numbers */
@@ -828,6 +861,15 @@ public class ShuffleBoardInteractions {
 
     public ShuffleboardTab getOperatorTab() {
         return OPERATOR_TAB;
+    }
+
+    public void addTrajectory(Trajectory trajectory, String name) {
+        mField.getObject(name).setTrajectory(trajectory);
+    }
+
+    public void clearTrajectories() {
+        mField = new Field2d();
+        SmartDashboard.putData(mField);
     }
 }
  
