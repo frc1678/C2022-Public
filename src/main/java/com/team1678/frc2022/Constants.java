@@ -77,7 +77,7 @@ public class Constants {
 
         /* Drive Motor Characterization Values */
         public static final double driveKS = (0.32 / 12); // divide by 12 to convert from volts to percent output for CTRE
-        public static final double driveKV = (1.65 / 12); // 2.44 previously
+        public static final double driveKV = (1.60 / 12); // 2.44 previously
         public static final double driveKA = (0.27 / 12);
 
         /* Swerve Profiling Values */
