@@ -15,7 +15,7 @@ import edu.wpi.first.math.util.Units;
 public class Constants {
 
     // toggle constants for comp robot
-    public static final boolean isComp = true;
+    public static final boolean isComp = false;
 	
 	// robot loop time
 	public static final double kLooperDt = 0.02;
@@ -105,7 +105,7 @@ public class Constants {
 
         /* Front Left Module - Module 0 */
         public static final class Mod0 {
-            public static final double epsilonAngleOffset = 58.18;
+            public static final double epsilonAngleOffset = 239.06;
             public static final double compAngleOffset = 58; // TODO: Check value
 
             public static SwerveModuleConstants SwerveModuleConstants() {
@@ -115,7 +115,7 @@ public class Constants {
         }
         /* Front Right Module - Module 1 */
         public static final class Mod1 {
-            public static final double epsilonAngleOffset = 162.42;
+            public static final double epsilonAngleOffset = 339.96;
             public static final double compAngleOffset = 76; // TODO: Check value
             
             public static SwerveModuleConstants SwerveModuleConstants() {
@@ -125,7 +125,7 @@ public class Constants {
         }
         /* Back Left Module - Module 2 */
         public static final class Mod2 {
-            public static final double epsilonAngleOffset = 40.07;
+            public static final double epsilonAngleOffset = 317.20;
             public static final double compAngleOffset = 317;   // TODO: Check value
 
             public static SwerveModuleConstants SwerveModuleConstants() {
@@ -135,7 +135,7 @@ public class Constants {
         }
         /* Back Right Module - Module 3 */
         public static final class Mod3 {
-            public static final double epsilonAngleOffset = 71.45;
+            public static final double epsilonAngleOffset = 311.22;
             public static final double compAngleOffset = 251; // TODO: Check value
 
             public static SwerveModuleConstants SwerveModuleConstants() {
@@ -474,7 +474,7 @@ public class Constants {
     }
 
     public static final class ColorSensorConstants {
-        public static final double kColorSensorThreshold = 160;
+        public static final double kColorSensorThreshold = Constants.isComp ? 160 : 170;
 
         public static final double kBlueFreqScaler = 1.0;
         public static final double kRedFreqScaler = 1.0;

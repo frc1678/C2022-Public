@@ -38,7 +38,7 @@ public class Ports {
     public static final int TRIGGER_ID = 12;
 
     public static int getForwardBeamBreakPort() {
-        return Constants.isComp ? 4 : 8;
+        return Constants.isComp ? 4 : 7;
     }
 
     public static int getBottomBeamBreakPort() {
