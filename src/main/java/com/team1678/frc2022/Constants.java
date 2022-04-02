@@ -77,7 +77,7 @@ public class Constants {
 
         /* Drive Motor Characterization Values */
         public static final double driveKS = (0.32 / 12); // divide by 12 to convert from volts to percent output for CTRE
-        public static final double driveKV = (2.10 / 12); // 2.44 previously
+        public static final double driveKV = (1.65 / 12); // 2.44 previously
         public static final double driveKA = (0.27 / 12);
 
         /* Swerve Profiling Values */
@@ -183,7 +183,7 @@ public class Constants {
         public static final double kMaxSpeedMetersPerSecond = 2.2; 
         public static final double kMaxAccelerationMetersPerSecondSquared = 2.3;
         
-        public static final double kMaxAngularSpeedRadiansPerSecond = 2.0*Math.PI;
+        public static final double kMaxAngularSpeedRadiansPerSecond = 1.8 * Math.PI;
         public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.pow(kMaxAngularSpeedRadiansPerSecond, 2);
 
         public static final double kPXController = 1;
