@@ -335,7 +335,7 @@ public class Swerve extends Subsystem {
         mPeriodicIO.robot_roll = mPigeon.getRoll().getDegrees();
         mPeriodicIO.snap_target = Math.toDegrees(snapPIDController.getGoal().position);
         mPeriodicIO.vision_align_target_angle = Math.toDegrees(mLimelightVisionAlignGoal);
-        mPeriodicIO.swerve_heading = MathUtil.inputModulus(getYaw().getDegrees(), 0, 360);
+        mPeriodicIO.swerve_heading = MathUtil.inputModulus(mPigeon.getYaw().getDegrees(), 0, 360);
 
         mPeriodicIO.angular_velocity = chassisVelocity.omegaRadiansPerSecond;
 
