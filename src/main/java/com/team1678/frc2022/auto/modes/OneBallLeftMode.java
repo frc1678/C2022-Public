@@ -78,6 +78,9 @@ public class OneBallLeftMode extends AutoModeBase {
 
         // drive out of tarmac
         runAction(driveOutOfTarmac);
+
+        System.out.println("Finished auto!");
+        SmartDashboard.putBoolean("Auto Finished", true);
     }
 
     public void plotTrajectories() {
