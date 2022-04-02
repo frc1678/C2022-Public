@@ -144,6 +144,7 @@ public class Superstructure extends Subsystem {
 
                 if (!mClimbMode) {
                     updateBallCounter();
+                    updateSpitState();
                     updateVisionAimingParameters();
                     updateShootingSetpoints();
                 }
@@ -528,29 +529,6 @@ public class Superstructure extends Subsystem {
             // non-toggle one ball spit shot
             if (mControlBoard.operator.getController().getXButtonPressed()) {
                 mPeriodicIO.SPIT = true;
-
-                // when two balls are in the indexer:
-                if (mBallCount == 2) {
-                    // check if ball count decreases
-                    // additional case for if we see two balls pass beam break continuous
-                    if ((mBallCount < 2) || (!mIndexer.getBottomBeamBreak() || !mIndexer.getTopBeamBreak())) {
-                        mPeriodicIO.SPIT = false;
-                    }
-                } else if (mBallCount == 1) {
-                    mAssertBallPositionTimer.start();
-
-                    // check if ball count decreases
-                    if ((mBallCount < 1) && mAssertBallPositionTimer.hasElapsed(Constants.IndexerConstants.kBallAssertionTime)) {
-                        mPeriodicIO.SPIT = false;
-
-                        mAssertBallPositionTimer.stop();
-                        mAssertBallPositionTimer.reset();
-                    }
-                // if we don't have any balls we should never be in a spitting state
-                } else {
-                    mPeriodicIO.SPIT = false;
-                    System.out.println("No balls to spit!");
-                }
             }
 
             // control for adding manual hood adjustment
@@ -602,6 +580,33 @@ public class Superstructure extends Subsystem {
             mBallCount = 1;
         } else {
             mBallCount = 0;
+        }
+    }
+
+    /*** UPDATE SPIT STATE ***/
+    public void updateSpitState() {
+        // when two balls are in the indexer:
+        if (mBallCount == 2) {
+            // check if ball count decreases
+            // additional case for if we see two balls pass beam break continuous
+            if ((mBallCount < 2) || (!mIndexer.getBottomBeamBreak() || !mIndexer.getTopBeamBreak())) {
+                mPeriodicIO.SPIT = false;
+            }
+        }
+        if (mBallCount == 1) {
+            mAssertBallPositionTimer.start();
+
+            // check if ball count decreases
+            if ((mBallCount == 0) && mAssertBallPositionTimer.hasElapsed(Constants.IndexerConstants.kBallAssertionTime)) {
+                mPeriodicIO.SPIT = false;
+
+                mAssertBallPositionTimer.stop();
+                mAssertBallPositionTimer.reset();
+            } 
+        }
+        // if we don't have any balls we should never be in a spitting state
+        if (mBallCount == 0) {
+            mPeriodicIO.SPIT = false;
         }
     }
 
