@@ -6,6 +6,7 @@ import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.RobotState;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.CustomXboxController;
+import com.team1678.frc2022.drivers.Pigeon;
 import com.team1678.frc2022.logger.LogStorage;
 import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.regressions.ShooterRegression;
@@ -51,6 +52,7 @@ public class Superstructure extends Subsystem {
     private final Climber mClimber = Climber.getInstance();
     private final Limelight mLimelight = Limelight.getInstance();
     private final LEDs mLEDs = LEDs.getInstance();
+    private final Pigeon mPigeon = Pigeon.getInstance();
 
     // robot state
     private final RobotState mRobotState = RobotState.getInstance();
@@ -115,7 +117,7 @@ public class Superstructure extends Subsystem {
     private boolean mAutoTraversalClimb = false;
     private int mClimbStep = 0;
     private double mStartingGyroPosition = 0.0;
-    private double mGyroOffset = 0.0;
+    private double mRoll = 0.0;
 
     // fender shot constants
     private final double kFenderVelocity = 2200;
@@ -262,7 +264,7 @@ public class Superstructure extends Subsystem {
 
         // update starting gyro position
         if (mClimbStep == 0) {
-            mStartingGyroPosition = mSwerve.getRoll().getDegrees();
+            mPigeon.setRoll(0.0);
         }
           
         // get whether we want to enter climb mode
@@ -272,10 +274,6 @@ public class Superstructure extends Subsystem {
         }
 
         if (mClimbMode) {
-
-            // update gyro offset
-            mGyroOffset = mSwerve.getRoll().getDegrees() - mStartingGyroPosition;
-
             /*** CLIMB MODE CONTROLS ***/
 
             // stop all other superstructure actions
@@ -303,7 +301,6 @@ public class Superstructure extends Subsystem {
             }
 
             if (!mOpenLoopClimbControlMode) {
-
                 if (mControlBoard.operator.getController().getXButtonPressed()) {
                     mClimber.setClimberNone();
                     mClimbStep = 0;
@@ -348,7 +345,7 @@ public class Superstructure extends Subsystem {
                     }
 
                     // set left arm to full extension from partial height to make contact on high bar
-                    if (mGyroOffset < Constants.ClimberConstants.kHighBarExtendAngle // check if dt roll is past high bar while swinging to extend
+                    if (mRoll < Constants.ClimberConstants.kHighBarExtendAngle // check if dt roll is past high bar while swinging to extend
                         &&
                         Util.epsilonEquals(mClimber.getClimberPositionLeft(), // don't extend unless left arm is at partial height
                                             Constants.ClimberConstants.kLeftPartialTravelDistance,
@@ -360,7 +357,7 @@ public class Superstructure extends Subsystem {
                     }
 
                     // pull up with left arm on upper bar while extending right arm to traversal bar
-                    if ((mGyroOffset > Constants.ClimberConstants.kHighBarContactAngle) // check if dt roll is at bar contact angle before climbing to next bar
+                    if ((mRoll > Constants.ClimberConstants.kHighBarContactAngle) // check if dt roll is at bar contact angle before climbing to next bar
                         &&
                         Util.epsilonEquals(mClimber.getClimberPositionLeft(), // don't climb unless left arm is fully extended
                                             Constants.ClimberConstants.kLeftTravelDistance,
@@ -372,7 +369,7 @@ public class Superstructure extends Subsystem {
                     }
 
                     // set right arm to full extension from partial height to make contact on traversal bar
-                    if (mGyroOffset > Constants.ClimberConstants.kTraversalBarExtendAngle // check if dt roll is past traversal bar while swinging to extend
+                    if (mRoll > Constants.ClimberConstants.kTraversalBarExtendAngle // check if dt roll is past traversal bar while swinging to extend
                         &&
                         Util.epsilonEquals(mClimber.getClimberPositionRight(), // don't extend unless right arm is at partial height
                                             Constants.ClimberConstants.kRightPartialTravelDistance,
@@ -384,7 +381,7 @@ public class Superstructure extends Subsystem {
                     }
 
                     // climb on the right arm after we are fully extended on traversal bar
-                    if (Util.epsilonEquals(mGyroOffset, // check if dt roll is at the angle necessary 
+                    if (Util.epsilonEquals(mRoll, // check if dt roll is at the angle necessary 
                                             Constants.ClimberConstants.kTraversalBarContactAngle,
                                             2.0)
                         &&
@@ -1013,9 +1010,9 @@ public class Superstructure extends Subsystem {
         SmartDashboard.putBoolean("Auto Traversal Climb", mAutoTraversalClimb);
         SmartDashboard.putNumber("Climb Step Number", mClimbStep);
 
-        SmartDashboard.putNumber("Robot Roll", mSwerve.getRoll().getDegrees());
+        SmartDashboard.putNumber("Robot Roll", mPigeon.getRoll().getDegrees());
         SmartDashboard.putNumber("Gyro Start", mStartingGyroPosition);
-        SmartDashboard.putNumber("Gyro Offset", mGyroOffset);
+        SmartDashboard.putNumber("Gyro Roll", mRoll);
 
         SmartDashboard.putNumber("Distance To Target", mCorrectedDistanceToTarget);
     }
@@ -1024,6 +1021,7 @@ public class Superstructure extends Subsystem {
     @Override
     public void readPeriodicInputs() {
         mPeriodicIO.timestamp = Timer.getFPGATimestamp();
+        mRoll = mPigeon.getRoll().getDegrees();
     }
 
     // logger
@@ -1069,7 +1067,7 @@ public class Superstructure extends Subsystem {
         items.add(mPeriodicIO.FENDER ? 1.0 : 0.0);
         items.add(mPeriodicIO.real_shooter);
         items.add(mPeriodicIO.real_hood);
-        items.add(mSwerve.getRoll().getDegrees());
+        items.add(mPigeon.getRoll().getDegrees());
 
         // send data to logging storage
         mStorage.addData(items);
