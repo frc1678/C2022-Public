@@ -104,7 +104,7 @@ public class Superstructure extends Subsystem {
     private boolean mResetHoodAngleAdjustment = false;
 
     // intake / eject locking status
-    private boolean mLockIntake = false;
+    private boolean mIntakeReject = false;
     private boolean mIntakeOverride = false;
     private boolean mForceEject = false;
     private boolean mDisableEjecting = false;
@@ -429,32 +429,19 @@ public class Superstructure extends Subsystem {
             if (mControlBoard.operator.getTrigger(CustomXboxController.Side.RIGHT)) {
                 // start a timer for rejecting balls and then locking the intake when we want to
                 // stop intaking
-                if (stopIntaking() && !mLockIntake) {
-                    mLockIntake = true;
-                    mIntakeRejectTimer.reset();
-                    mIntakeRejectTimer.start();
+                if ((indexerFull() || stopIntaking()) && !mIntakeReject) {
+                    mIntakeReject = true;
                 }
 
                 // if we want to lock the intake, reject incoming cargo for a short time and
                 // then lock the intake
-                if (mLockIntake) {
-                    if (mIntakeRejectTimer.hasElapsed(Constants.IntakeConstants.kIntakeRejectTime)) {
-                        mIntakeRejectTimer.stop();
-                        setWantIntakeNone();
-                    } else {
-                        setWantReject(true);
-                    }
-
-                    // if:
-                    // - we don't have a ball indexed and a ball in our system
-                    // - we don't have a ball at either fully indexed position
-                    // - we don't want to stop intaking
-                    // then unlock the intake
+                if (mIntakeReject) {
+                    setWantReject(true);
                     if (!(mIndexer.getTopBeamBreak() && mColorSensor.getForwardBeamBreak())
                             && !indexerFull()
                             && !stopIntaking()) {
 
-                        mLockIntake = false;
+                        mIntakeReject = false;
                     }
                 } else {
                     setWantIntake(true);
@@ -515,7 +502,7 @@ public class Superstructure extends Subsystem {
             if (mControlBoard.getManualEject()) {
                 mPeriodicIO.EJECT = true;
                 mForceEject = true;
-            } else if (mDisableEjecting || mLockIntake) {
+            } else if (mDisableEjecting || mIntakeReject) {
                 mPeriodicIO.EJECT = false;
             } else {
                 updateWantEjection();
