@@ -161,12 +161,12 @@ public class Constants {
     }
 
     public static final class VisionAlignConstants {
-        public static final double kP = 5.5;
+        public static final double kP = 6.15;
         public static final double kI = 0.0;
         public static final double kD = 0.10;
 
         // Constraints for the profiled angle controller
-        public static final double kMaxAngularSpeedRadiansPerSecond = 2.0 * Math.PI;
+        public static final double kMaxAngularSpeedRadiansPerSecond = 1.5 * Math.PI;
         public static final double kMaxAngularSpeedRadiansPerSecondSquared = 10.0 * Math.PI;
         
         public static final TrapezoidProfile.Constraints kThetaControllerConstraints =

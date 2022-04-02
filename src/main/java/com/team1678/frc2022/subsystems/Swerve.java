@@ -244,7 +244,7 @@ public class Swerve extends Subsystem {
         for(SwerveModule mod : mSwerveMods){
             mod.setDesiredState(desiredStates[mod.moduleNumber], false);
             SmartDashboard.putNumber("mod " + mod.moduleNumber +  " desired speed", desiredStates[mod.moduleNumber].speedMetersPerSecond);
-            SmartDashboard.putNumber("mod " + mod.moduleNumber +  " desired angle", desiredStates[mod.moduleNumber].angle.getDegrees());
+            SmartDashboard.putNumber("mod " + mod.moduleNumber +  " desired angle", MathUtil.inputModulus(desiredStates[mod.moduleNumber].angle.getDegrees(), 0, 180));
         }
     }    
 
@@ -271,7 +271,7 @@ public class Swerve extends Subsystem {
         for(SwerveModule mod : mSwerveMods){
             states[mod.moduleNumber] = mod.getState();
             SmartDashboard.putNumber("mod " + mod.moduleNumber + " current speed", states[mod.moduleNumber].speedMetersPerSecond);
-            SmartDashboard.putNumber("mod " + mod.moduleNumber + " current angle", states[mod.moduleNumber].angle.getDegrees());
+            SmartDashboard.putNumber("mod " + mod.moduleNumber + " current angle", MathUtil.inputModulus(states[mod.moduleNumber].angle.getDegrees(), 0, 180));
         }
         return states;
     }
