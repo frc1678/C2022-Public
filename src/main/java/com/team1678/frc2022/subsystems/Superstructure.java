@@ -57,6 +57,8 @@ public class Superstructure extends Subsystem {
 
     // timer for reversing the intake and then stopping it once we have two correct cargo
     Timer mIntakeRejectTimer = new Timer();
+    // timer for asserting ball position
+    Timer mAssertBallPositionTimer = new Timer();
 
     // PeriodicIO instance and paired csv writer
     public PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -519,13 +521,37 @@ public class Superstructure extends Subsystem {
             }
 
             // control spit shot
-            if (mControlBoard.operator.getController().getXButtonPressed()) {
+            /*if (mControlBoard.operator.getController().getXButtonPressed()) {
                 mPeriodicIO.SPIT = !mPeriodicIO.SPIT;
-            }
+            }*/
 
             // non-toggle one ball spit shot
-            if (mControlBoard.getSpitting()) {
+            if (mControlBoard.operator.getController().getXButtonPressed()) {
                 mPeriodicIO.SPIT = true;
+
+                // when two balls are in the indexer:
+                if (mBallCount == 2) {
+                    // check if ball count decreases
+                    // additional case for if we see two balls pass beam break continuous
+                    if ((mBallCount < 2) || (!mIndexer.getBottomBeamBreak() || !mIndexer.getTopBeamBreak())) {
+                        mPeriodicIO.SPIT = false;
+                    }
+                } else if (mBallCount == 1) {
+                    mAssertBallPositionTimer.start();
+
+                    // check if ball count decreases
+                    if ((mBallCount < 1) && mAssertBallPositionTimer.hasElapsed(Constants.IndexerConstants.kBallAssertionTime)) {
+                        mPeriodicIO.SPIT = false;
+
+                        mAssertBallPositionTimer.stop();
+                        mAssertBallPositionTimer.reset();
+                    }
+                // if we don't have any balls we should never be in a spitting state
+                } else {
+                    mPeriodicIO.SPIT = false;
+                    System.out.println("No balls to spit!");
+                }
+            }
 
             // control for adding manual hood adjustment
             switch(mControlBoard.getHoodManualAdjustment()) {
@@ -545,7 +571,6 @@ public class Superstructure extends Subsystem {
             }
         }
     }
-}
 
     public void updateWantEjection() {
         mPeriodicIO.EJECT = mColorSensor.wantsEject();
@@ -682,36 +707,6 @@ public class Superstructure extends Subsystem {
                 mPeriodicIO.real_trigger = Trigger.WantedAction.NONE;
                 mPeriodicIO.real_indexer = Indexer.WantedAction.NONE;
             }
-            //stop spitting when top beam break isn't triggered
-            if (!mIndexer.getTopBeamBreak()) {
-                mPeriodicIO.SPIT = false;
-            }
-
-            // when two balls are in the indexer:
-            while (mBallCount > 1) {
-                if (mIndexer.getTopBeamBreak() == true && mIndexer.getBottomBeamBreak() == true) {
-                    mPeriodicIO.SPIT = true;
-                    // stop spitting after one ball
-                    if (mBallCount == 1) {
-                        mPeriodicIO.SPIT = false;
-                } else {
-                    mPeriodicIO.SPIT = !mPeriodicIO.SPIT;
-                }
-            }
-        }
-            // when one ball is in the indexer and triggering top beam break:
-            while (mBallCount == 1) {
-                if (mIndexer.getTopBeamBreak() == true && !mIndexer.getBottomBeamBreak()) {
-                    mPeriodicIO.SPIT = true;
-                    // stop spitting after one ball
-                    if (mBallCount == 0) {
-                        mPeriodicIO.SPIT = false;
-                    }
-                } else {
-                    mPeriodicIO.SPIT = !mPeriodicIO.SPIT;
-                }
-            } 
-
         } else if (mPeriodicIO.SHOOT) {
             mPeriodicIO.real_intake = Intake.WantedAction.NONE;
 

@@ -412,6 +412,8 @@ public class Constants {
 
         public static final double kEjectDelay = 5.0;
 
+        public static final double kBallAssertionTime = 0.5;
+
     }
     
     public static final class ClimberConstants {
