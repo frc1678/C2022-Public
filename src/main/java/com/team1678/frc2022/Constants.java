@@ -15,7 +15,7 @@ import edu.wpi.first.math.util.Units;
 public class Constants {
 
     // toggle constants for comp robot
-    public static final boolean isComp = false;
+    public static final boolean isComp = true;
 	
 	// robot loop time
 	public static final double kLooperDt = 0.02;
@@ -411,6 +411,8 @@ public class Constants {
         public static final int kTopBeamBreak = 0;
 
         public static final double kEjectDelay = 5.0;
+
+        public static final double kBallAssertionTime = 1.5;
 
     }
     

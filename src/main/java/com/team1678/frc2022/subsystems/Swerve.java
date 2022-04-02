@@ -2,11 +2,10 @@ package com.team1678.frc2022.subsystems;
 
 import java.util.ArrayList;
 
-import com.ctre.phoenix.sensors.Pigeon2;
 import com.lib.drivers.SwerveModule;
 import com.team1678.frc2022.Constants;
-import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.RobotState;
+import com.team1678.frc2022.drivers.Pigeon;
 import com.team1678.frc2022.logger.LogStorage;
 import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.loops.ILooper;
@@ -44,7 +43,8 @@ public class Swerve extends Subsystem {
 
     public SwerveDriveOdometry swerveOdometry;
     public SwerveModule[] mSwerveMods;
-    public Pigeon2 gyro;
+
+    public Pigeon mPigeon = Pigeon.getInstance();
 
     // chassis velocity status
     ChassisSpeeds chassisVelocity = new ChassisSpeeds();
@@ -75,11 +75,8 @@ public class Swerve extends Subsystem {
         return mInstance;
     }
 
-    public Swerve() {
-        gyro = new Pigeon2(Ports.PIGEON, "canivore1");
-        gyro.configFactoryDefault();
-        
-        swerveOdometry = new SwerveDriveOdometry(Constants.SwerveConstants.swerveKinematics, getYaw());
+    public Swerve() {        
+        swerveOdometry = new SwerveDriveOdometry(Constants.SwerveConstants.swerveKinematics, mPigeon.getYaw().getWPIRotation2d());
         
         snapPIDController = new ProfiledPIDController(Constants.SnapConstants.kP,
                                                       Constants.SnapConstants.kI, 
@@ -135,7 +132,7 @@ public class Swerve extends Subsystem {
 
         SmartDashboard.putBoolean("Wants Auto Vision Aim", mWantsAutoVisionAim);
         SmartDashboard.putNumber("Vision Align Target Angle", Math.toDegrees(mLimelightVisionAlignGoal));
-        SmartDashboard.putNumber("Swerve Heading", MathUtil.inputModulus(getYaw().getDegrees(), 0, 360));
+        SmartDashboard.putNumber("Swerve Heading", MathUtil.inputModulus(mPigeon.getYaw().getDegrees(), 0, 360));
     }
 
     public void setWantAutoVisionAim(boolean aim) {
@@ -152,7 +149,7 @@ public class Swerve extends Subsystem {
 
     public void angleAlignDrive(Translation2d translation2d, double targetHeading, boolean fieldRelative) {
         snapPIDController.setGoal(new TrapezoidProfile.State(Math.toRadians(targetHeading), 0.0));
-        double angleAdjustment = snapPIDController.calculate(getYaw().getRadians());
+        double angleAdjustment = snapPIDController.calculate(mPigeon.getYaw().getRadians());
         drive(translation2d, angleAdjustment, fieldRelative, false);
     }
 
@@ -180,7 +177,7 @@ public class Swerve extends Subsystem {
                                         translation.getX(), 
                                         translation.getY(), 
                                         rotation, 
-                                        getYaw()
+                                        mPigeon.getYaw().getWPIRotation2d()
                                     )
                                     : new ChassisSpeeds(
                                         translation.getX(), 
@@ -200,7 +197,7 @@ public class Swerve extends Subsystem {
     }
 
     public void chooseVisionAlignGoal() {
-        double currentAngle = getYaw().getRadians();
+        double currentAngle = mPigeon.getYaw().getRadians();
         if (mLimelight.hasTarget()) {
             double targetOffset = Math.toRadians(mLimelight.getOffset()[0]);
             mLimelightVisionAlignGoal = MathUtil.inputModulus(currentAngle - targetOffset, 0.0, 2 * Math.PI);
@@ -213,11 +210,11 @@ public class Swerve extends Subsystem {
     }
 
     public double calculateSnapValue() {
-        return snapPIDController.calculate(getYaw().getRadians());
+        return snapPIDController.calculate(mPigeon.getYaw().getRadians());
     }
 
     public void startSnap(double snapAngle) {
-        snapPIDController.reset(getYaw().getRadians());
+        snapPIDController.reset(mPigeon.getYaw().getRadians());
         snapPIDController.setGoal(new TrapezoidProfile.State(Math.toRadians(snapAngle), 0.0));
         isSnapping = true;
     }
@@ -225,7 +222,7 @@ public class Swerve extends Subsystem {
     TimeDelayedBoolean delayedBoolean = new TimeDelayedBoolean();
 
     private boolean snapComplete() {
-        double error = snapPIDController.getGoal().position - getYaw().getRadians();
+        double error = snapPIDController.getGoal().position - mPigeon.getYaw().getRadians();
         return delayedBoolean.update(Math.abs(error) < Math.toRadians(Constants.SnapConstants.snapEpsilon), Constants.SnapConstants.snapTimeout);
         //return Math.abs(error) < Math.toRadians(Constants.SnapConstants.snapEpsilon);
     }
@@ -236,7 +233,7 @@ public class Swerve extends Subsystem {
         } 
         if (force || snapComplete()) {
             isSnapping = false;
-            snapPIDController.reset(getYaw().getRadians());
+            snapPIDController.reset(mPigeon.getYaw().getRadians());
         }
     }
 
@@ -307,30 +304,12 @@ public class Swerve extends Subsystem {
     }
 
     public void zeroGyro(double reset){
-        gyro.setYaw(reset);
+        mPigeon.setYaw(reset);
         visionPIDController.reset();
     }
 
-    public Rotation2d getYaw() {
-        double[] ypr = new double[3];
-        gyro.getYawPitchRoll(ypr);
-        return (Constants.SwerveConstants.invertGyro) ? Rotation2d.fromDegrees(360 - ypr[0]) : Rotation2d.fromDegrees(ypr[0]);
-    }
-
-    public Rotation2d getPitch() {
-        double[] ypr = new double[3];
-        gyro.getYawPitchRoll(ypr);
-        return (Constants.SwerveConstants.invertGyro) ? Rotation2d.fromDegrees(360 - ypr[1]) : Rotation2d.fromDegrees(ypr[1]);
-    }
-
-    public Rotation2d getRoll() {
-        double[] ypr = new double[3];
-        gyro.getYawPitchRoll(ypr);
-        return (Constants.SwerveConstants.invertGyro) ? Rotation2d.fromDegrees(360 - ypr[2]) : Rotation2d.fromDegrees(ypr[2]);
-    }
-
     public void updateSwerveOdometry(){
-        swerveOdometry.update(getYaw(), getStates());
+        swerveOdometry.update(mPigeon.getYaw().getWPIRotation2d(), getStates());
 
         chassisVelocity = Constants.SwerveConstants.swerveKinematics.toChassisSpeeds(
                     mInstance.mSwerveMods[0].getState(),
@@ -356,9 +335,9 @@ public class Swerve extends Subsystem {
         mPeriodicIO.odometry_pose_x = swerveOdometry.getPoseMeters().getX();
         mPeriodicIO.odometry_pose_y = swerveOdometry.getPoseMeters().getY();
         mPeriodicIO.odometry_pose_rot = swerveOdometry.getPoseMeters().getRotation().getDegrees();
-        mPeriodicIO.pigeon_heading = getYaw().getDegrees();
-        mPeriodicIO.robot_pitch = getPitch().getDegrees();
-        mPeriodicIO.robot_roll = getRoll().getDegrees();
+        mPeriodicIO.pigeon_heading = mPigeon.getYaw().getDegrees();
+        mPeriodicIO.robot_pitch = mPigeon.getUnadjustedPitch().getDegrees();
+        mPeriodicIO.robot_roll = mPigeon.getRoll().getDegrees();
         mPeriodicIO.snap_target = Math.toDegrees(snapPIDController.getGoal().position);
 
         SendLog();
