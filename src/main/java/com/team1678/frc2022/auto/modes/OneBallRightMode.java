@@ -6,6 +6,7 @@ import com.team1678.frc2022.auto.AutoModeEndedException;
 import com.team1678.frc2022.auto.AutoTrajectoryReader;
 import com.team1678.frc2022.auto.actions.LambdaAction;
 import com.team1678.frc2022.auto.actions.SwerveTrajectoryAction;
+import com.team1678.frc2022.auto.actions.VisionAlignAction;
 import com.team1678.frc2022.auto.actions.WaitAction;
 import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
@@ -27,7 +28,7 @@ public class OneBallRightMode extends AutoModeBase {
     private Trajectory traj_path;
    
     // required PathWeaver file path
-    String file_path = "paths/OneBallAutos/1 Ball Right.path";
+    String file_path = "paths/OneBallPaths/1 Ball Right.path";
     
     // trajectory action
     SwerveTrajectoryAction driveOutOfTarmac;
@@ -48,7 +49,7 @@ public class OneBallRightMode extends AutoModeBase {
                                                             new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                             new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                                             thetaController,
-                                                            () -> Rotation2d.fromDegrees(270.0),
+                                                            () -> Rotation2d.fromDegrees(180.0),
                                                             mSwerve::getWantAutoVisionAim,
                                                             mSwerve::setModuleStates);
 
@@ -59,13 +60,18 @@ public class OneBallRightMode extends AutoModeBase {
         System.out.println("Running five ball mode auto!");
         SmartDashboard.putBoolean("Auto Finished", false);
 
-        // start vision aiming to align drivetrain to target
-        runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));
+        // reset odometry at the start of the trajectory
+        runAction(new LambdaAction(() -> mSwerve.resetOdometry(new Pose2d(driveOutOfTarmac.getInitialPose().getX(),
+                                                                          driveOutOfTarmac.getInitialPose().getY(),
+                                                                          Rotation2d.fromDegrees(180)))));
+
+        // vision align to target
+        runAction(new VisionAlignAction(Constants.SwerveConstants.swerveKinematics));
 
         // start spinning up for shot
         runAction(new LambdaAction(() -> mSuperstructure.setWantPrep(true)));
 
-        //wait before shooting
+        // wait before shooting
         runAction(new WaitAction(1.0));
 
         // shoot cargo
@@ -73,8 +79,8 @@ public class OneBallRightMode extends AutoModeBase {
         runAction(new WaitAction(2.0));
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
 
-        // reset odometry at the start of the trajectory
-        runAction(new LambdaAction(() -> mSwerve.resetOdometry(new Pose2d(driveOutOfTarmac.getInitialPose().getX(), driveOutOfTarmac.getInitialPose().getY(), Rotation2d.fromDegrees(270)))));
+        // wait 10 more seconds before driving out
+        runAction(new WaitAction(8.0));
 
         // drive out of tarmac
         runAction(driveOutOfTarmac);

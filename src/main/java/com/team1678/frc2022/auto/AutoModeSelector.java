@@ -12,9 +12,9 @@ public class AutoModeSelector {
     enum DesiredMode {
         DO_NOTHING, 
         TEST_PATH_AUTO,
-        TWO_BALL_AUTO,
         ONE_BALL_LEFT_AUTO,
         ONE_BALL_RIGHT_AUTO,
+        TWO_BALL_AUTO,
         TWO_BY_TWO_AUTO,
         FIVE_BALL_AUTO,
         FIVE_PLUS_ONE_AUTO,
@@ -60,6 +60,12 @@ public class AutoModeSelector {
 
         case TEST_PATH_AUTO:
             return Optional.of(new TestPathMode());
+
+        case ONE_BALL_LEFT_AUTO:
+            return Optional.of(new OneBallLeftMode());
+
+        case ONE_BALL_RIGHT_AUTO:
+            return Optional.of(new OneBallRightMode());
 
         case TWO_BALL_AUTO:
             return Optional.of(new TwoBallMode());
