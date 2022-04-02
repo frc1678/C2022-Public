@@ -41,7 +41,7 @@ public class ColorSensor extends Subsystem {
         mMatchedColor = ColorChoices.NONE;
         mPico = new PicoColorSensor();
 
-        mForwardBreak = new DigitalInput(Ports.FORWARD_BEAM_BREAK);
+        mForwardBreak = new DigitalInput(Ports.getForwardBeamBreakPort());
     }
 
     @Override
