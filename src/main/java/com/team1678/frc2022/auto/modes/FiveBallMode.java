@@ -7,7 +7,6 @@ import com.team1678.frc2022.ShuffleBoardInteractions;
 import com.team1678.frc2022.auto.AutoModeEndedException;
 import com.team1678.frc2022.auto.AutoTrajectoryReader;
 import com.team1678.frc2022.auto.actions.LambdaAction;
-import com.team1678.frc2022.auto.actions.ParallelAction;
 import com.team1678.frc2022.auto.actions.RaceAction;
 import com.team1678.frc2022.auto.actions.SeriesAction;
 import com.team1678.frc2022.auto.actions.SwerveTrajectoryAction;
@@ -19,7 +18,6 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -152,7 +150,7 @@ public class FiveBallMode extends AutoModeBase {
                 // Drive to second shot
                 traj_path_f = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_f,
                                 Constants.AutoConstants.createConfig(
-                                                3.0,
+                                                5.0,
                                                 Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared,
                                                 0.0,
                                                 0.0));
@@ -202,7 +200,7 @@ public class FiveBallMode extends AutoModeBase {
 
                 // shoot third cargo
                 runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
-                runAction(new WaitAction(1.0));
+                runAction(new WaitAction(0.90));
                 runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
 
                 // stop vision aiming to control robot heading
