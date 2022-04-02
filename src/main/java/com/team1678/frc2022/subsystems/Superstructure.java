@@ -426,7 +426,7 @@ public class Superstructure extends Subsystem {
             if (mControlBoard.operator.getTrigger(CustomXboxController.Side.RIGHT)) {
                 // start a timer for rejecting balls and then locking the intake when we want to
                 // stop intaking
-                if (stopIntaking()) {
+                if (stopIntaking() && !mLockIntake) {
                     mLockIntake = true;
                     mIntakeRejectTimer.reset();
                     mIntakeRejectTimer.start();
@@ -456,10 +456,13 @@ public class Superstructure extends Subsystem {
                 } else {
                     setWantIntake(true);
                 }
-            } else if (mControlBoard.operator.getTrigger(CustomXboxController.Side.LEFT)) {
-                setWantReverse(true);
             } else {
-                setWantIntakeNone();
+                mIntakeRejectTimer.reset();
+                if (mControlBoard.operator.getTrigger(CustomXboxController.Side.LEFT)) {
+                    setWantReverse(true);
+                } else {
+                    setWantIntakeNone();
+                }
             }
 
             /*
