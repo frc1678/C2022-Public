@@ -186,6 +186,7 @@ public class Robot extends TimedRobot {
 	@Override
 	public void autonomousPeriodic() {
 		mLimelight.setLed(Limelight.LedMode.ON);
+		mSuperstructure.updateWantEjection();
 	}
 
 	@Override
