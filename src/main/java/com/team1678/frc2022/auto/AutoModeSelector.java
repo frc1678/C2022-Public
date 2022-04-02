@@ -12,10 +12,12 @@ public class AutoModeSelector {
     enum DesiredMode {
         DO_NOTHING, 
         TEST_PATH_AUTO,
+        ONE_BALL_LEFT_AUTO,
+        ONE_BALL_RIGHT_AUTO,
         TWO_BALL_AUTO,
         TWO_BY_TWO_AUTO,
-        FIVE_PLUS_ONE_AUTO,
         FIVE_BALL_AUTO,
+        FIVE_PLUS_ONE_AUTO,
         SIX_BALL_AUTO,    }
 
     private DesiredMode mCachedDesiredMode = DesiredMode.DO_NOTHING;
@@ -28,11 +30,14 @@ public class AutoModeSelector {
         mModeChooser = new SendableChooser<>();
         mModeChooser.setDefaultOption("Do Nothing", DesiredMode.DO_NOTHING);
         mModeChooser.addOption("Test Path Mode", DesiredMode.TEST_PATH_AUTO);
+        mModeChooser.addOption("One Ball Left Mode", DesiredMode.ONE_BALL_LEFT_AUTO);
+        mModeChooser.addOption("One Ball Right Mode", DesiredMode.ONE_BALL_RIGHT_AUTO);
         mModeChooser.addOption("Two Ball Mode", DesiredMode.TWO_BALL_AUTO);
         mModeChooser.addOption("Two by Two Mode", DesiredMode.TWO_BY_TWO_AUTO);
-        mModeChooser.addOption("Five Plus One Mode", DesiredMode.FIVE_PLUS_ONE_AUTO);
         mModeChooser.addOption("Five Ball Mode", DesiredMode.FIVE_BALL_AUTO);
+        mModeChooser.addOption("Five Plus One Mode", DesiredMode.FIVE_PLUS_ONE_AUTO);
         mModeChooser.addOption("Six Ball Mode", DesiredMode.SIX_BALL_AUTO);
+        
         ShuffleBoardInteractions.getInstance().getOperatorTab().add("Auto Mode", mModeChooser).withSize(2, 1);
     }
 
@@ -56,18 +61,24 @@ public class AutoModeSelector {
         case TEST_PATH_AUTO:
             return Optional.of(new TestPathMode());
 
+        case ONE_BALL_LEFT_AUTO:
+            return Optional.of(new OneBallLeftMode());
+
+        case ONE_BALL_RIGHT_AUTO:
+            return Optional.of(new OneBallRightMode());
+
         case TWO_BALL_AUTO:
             return Optional.of(new TwoBallMode());
 
         case TWO_BY_TWO_AUTO:
             return Optional.of(new TwobyTwoMode());
 
+        case FIVE_BALL_AUTO:
+            return Optional.of(new FiveBallMode());
+
         case FIVE_PLUS_ONE_AUTO:
             return Optional.of(new FivePlusOneMode());
 
-        case FIVE_BALL_AUTO:
-            return Optional.of(new FiveBallMode());
-            
         case SIX_BALL_AUTO:
             return Optional.of(new SixBallMode());
             
