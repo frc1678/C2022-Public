@@ -217,7 +217,7 @@ public class Shooter extends Subsystem {
 
     public void SendLog() {
         ArrayList<Number> items = new ArrayList<Number>();
-        items.add(Timer.getFPGATimestamp());
+        items.add(mPeriodicIO.timestamp);
         items.add(mPeriodicIO.flywheel_velocity);
         items.add(mPeriodicIO.flywheel_demand);
         items.add(mPeriodicIO.slave_voltage);
