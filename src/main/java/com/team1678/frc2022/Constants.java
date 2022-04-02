@@ -166,7 +166,7 @@ public class Constants {
         public static final double kD = 0.10;
 
         // Constraints for the profiled angle controller
-        public static final double kMaxAngularSpeedRadiansPerSecond = 1.5 * Math.PI;
+        public static final double kMaxAngularSpeedRadiansPerSecond = 2.0 * Math.PI;
         public static final double kMaxAngularSpeedRadiansPerSecondSquared = 10.0 * Math.PI;
         
         public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
@@ -183,7 +183,7 @@ public class Constants {
         public static final double kMaxSpeedMetersPerSecond = 2.2; 
         public static final double kMaxAccelerationMetersPerSecondSquared = 2.3;
         
-        public static final double kMaxAngularSpeedRadiansPerSecond = 1.8 * Math.PI;
+        public static final double kMaxAngularSpeedRadiansPerSecond = 1.2 * Math.PI;
         public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.pow(kMaxAngularSpeedRadiansPerSecond, 2);
 
         public static final double kPXController = 1;

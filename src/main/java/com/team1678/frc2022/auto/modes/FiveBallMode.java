@@ -202,7 +202,7 @@ public class FiveBallMode extends AutoModeBase {
 
                 // shoot third cargo
                 runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
-                runAction(new WaitAction(1.0));
+                runAction(new WaitAction(0.90));
                 runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
 
                 // stop vision aiming to control robot heading
