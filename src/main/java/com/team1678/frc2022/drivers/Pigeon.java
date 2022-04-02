@@ -38,7 +38,7 @@ public class Pigeon {
     }
 
     public Rotation2d getRoll() {
-        return getUnadjustedYaw().rotateBy(rollAdjustmentAngle.inverse());
+        return getUnadjustedRoll().rotateBy(rollAdjustmentAngle.inverse());
     }
 
     /**

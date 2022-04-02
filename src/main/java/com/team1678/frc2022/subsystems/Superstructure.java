@@ -13,6 +13,9 @@ import com.team1678.frc2022.regressions.ShooterRegression;
 import com.team1678.frc2022.subsystems.LEDs.State;
 import com.team254.lib.util.Util;
 import com.team254.lib.vision.AimingParameters;
+
+import org.opencv.features2d.FlannBasedMatcher;
+
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.util.InterpolatingDouble;
 
@@ -56,6 +59,8 @@ public class Superstructure extends Subsystem {
 
     // timer for reversing the intake and then stopping it once we have two correct cargo
     Timer mIntakeRejectTimer = new Timer();
+    // timer for asserting ball position
+    Timer mAssertBallPositionTimer = new Timer();
 
     // PeriodicIO instance and paired csv writer
     public PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -113,7 +118,7 @@ public class Superstructure extends Subsystem {
     private boolean mAutoTraversalClimb = false;
     private int mClimbStep = 0;
     private double mStartingGyroPosition = 0.0;
-    private double mGyroOffset = 0.0;
+    private double mRoll = 0.0;
 
     // fender shot constants
     private final double kFenderVelocity = 2200;
@@ -141,6 +146,7 @@ public class Superstructure extends Subsystem {
 
                 if (!mClimbMode) {
                     updateBallCounter();
+                    updateSpitState();
                     updateVisionAimingParameters();
                     updateShootingSetpoints();
                 }
@@ -273,7 +279,7 @@ public class Superstructure extends Subsystem {
 
         // update starting gyro position
         if (mClimbStep == 0) {
-            mStartingGyroPosition = mPigeon.getUnadjustedRoll().getDegrees();
+            mPigeon.setRoll(0.0);
         }
           
         // get whether we want to enter climb mode
@@ -283,10 +289,6 @@ public class Superstructure extends Subsystem {
         }
 
         if (mClimbMode) {
-
-            // update gyro offset
-            mGyroOffset = mPigeon.getUnadjustedRoll().getDegrees() - mStartingGyroPosition;
-
             /*** CLIMB MODE CONTROLS ***/
 
             // stop all other superstructure actions
@@ -314,7 +316,6 @@ public class Superstructure extends Subsystem {
             }
 
             if (!mOpenLoopClimbControlMode) {
-
                 if (mControlBoard.operator.getController().getXButtonPressed()) {
                     mClimber.setClimberNone();
                     mClimbStep = 0;
@@ -359,7 +360,7 @@ public class Superstructure extends Subsystem {
                     }
 
                     // set left arm to full extension from partial height to make contact on high bar
-                    if (mGyroOffset < Constants.ClimberConstants.kHighBarExtendAngle // check if dt roll is past high bar while swinging to extend
+                    if (mRoll < Constants.ClimberConstants.kHighBarExtendAngle // check if dt roll is past high bar while swinging to extend
                         &&
                         Util.epsilonEquals(mClimber.getClimberPositionLeft(), // don't extend unless left arm is at partial height
                                             Constants.ClimberConstants.kLeftPartialTravelDistance,
@@ -371,7 +372,7 @@ public class Superstructure extends Subsystem {
                     }
 
                     // pull up with left arm on upper bar while extending right arm to traversal bar
-                    if ((mGyroOffset > Constants.ClimberConstants.kHighBarContactAngle) // check if dt roll is at bar contact angle before climbing to next bar
+                    if ((mRoll > Constants.ClimberConstants.kHighBarContactAngle) // check if dt roll is at bar contact angle before climbing to next bar
                         &&
                         Util.epsilonEquals(mClimber.getClimberPositionLeft(), // don't climb unless left arm is fully extended
                                             Constants.ClimberConstants.kLeftTravelDistance,
@@ -383,7 +384,7 @@ public class Superstructure extends Subsystem {
                     }
 
                     // set right arm to full extension from partial height to make contact on traversal bar
-                    if (mGyroOffset > Constants.ClimberConstants.kTraversalBarExtendAngle // check if dt roll is past traversal bar while swinging to extend
+                    if (mRoll > Constants.ClimberConstants.kTraversalBarExtendAngle // check if dt roll is past traversal bar while swinging to extend
                         &&
                         Util.epsilonEquals(mClimber.getClimberPositionRight(), // don't extend unless right arm is at partial height
                                             Constants.ClimberConstants.kRightPartialTravelDistance,
@@ -395,7 +396,7 @@ public class Superstructure extends Subsystem {
                     }
 
                     // climb on the right arm after we are fully extended on traversal bar
-                    if (Util.epsilonEquals(mGyroOffset, // check if dt roll is at the angle necessary 
+                    if (Util.epsilonEquals(mRoll, // check if dt roll is at the angle necessary 
                                             Constants.ClimberConstants.kTraversalBarContactAngle,
                                             2.0)
                         &&
@@ -518,8 +519,13 @@ public class Superstructure extends Subsystem {
             }
 
             // control spit shot
-            if (mControlBoard.operator.getController().getXButtonPressed()) {
+            /*if (mControlBoard.operator.getController().getXButtonPressed()) {
                 mPeriodicIO.SPIT = !mPeriodicIO.SPIT;
+            }*/
+
+            // non-toggle one ball spit shot
+            if (mControlBoard.operator.getController().getXButtonPressed()) {
+                mPeriodicIO.SPIT = true;
             }
 
             // control for adding manual hood adjustment
@@ -571,6 +577,33 @@ public class Superstructure extends Subsystem {
             mBallCount = 1;
         } else {
             mBallCount = 0;
+        }
+    }
+
+    /*** UPDATE SPIT STATE ***/
+    public void updateSpitState() {
+        // when two balls are in the indexer:
+        if (mBallCount == 2) {
+            // check if ball count decreases
+            // additional case for if we see two balls pass beam break continuous
+            if ((mBallCount < 2) || (!mIndexer.getBottomBeamBreak() || !mIndexer.getTopBeamBreak())) {
+                mPeriodicIO.SPIT = false;
+            }
+        }
+        if (mBallCount == 1) {
+            mAssertBallPositionTimer.start();
+
+            // check if ball count decreases
+            if ((mBallCount == 0) && mAssertBallPositionTimer.hasElapsed(Constants.IndexerConstants.kBallAssertionTime)) {
+                mPeriodicIO.SPIT = false;
+
+                mAssertBallPositionTimer.stop();
+                mAssertBallPositionTimer.reset();
+            } 
+        }
+        // if we don't have any balls we should never be in a spitting state
+        if (mBallCount == 0) {
+            mPeriodicIO.SPIT = false;
         }
     }
 
@@ -970,7 +1003,7 @@ public class Superstructure extends Subsystem {
 
         SmartDashboard.putNumber("Robot Roll", mPigeon.getRoll().getDegrees());
         SmartDashboard.putNumber("Gyro Start", mStartingGyroPosition);
-        SmartDashboard.putNumber("Gyro Offset", mGyroOffset);
+        SmartDashboard.putNumber("Gyro Roll", mRoll);
 
         SmartDashboard.putNumber("Distance To Target", mCorrectedDistanceToTarget);
     }
@@ -979,6 +1012,7 @@ public class Superstructure extends Subsystem {
     @Override
     public void readPeriodicInputs() {
         mPeriodicIO.timestamp = Timer.getFPGATimestamp();
+        mRoll = mPigeon.getRoll().getDegrees();
     }
 
     // logger
