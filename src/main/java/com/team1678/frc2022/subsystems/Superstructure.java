@@ -12,6 +12,9 @@ import com.team1678.frc2022.regressions.ShooterRegression;
 import com.team1678.frc2022.subsystems.LEDs.State;
 import com.team254.lib.util.Util;
 import com.team254.lib.vision.AimingParameters;
+
+import org.opencv.features2d.FlannBasedMatcher;
+
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.util.InterpolatingDouble;
 
@@ -54,6 +57,8 @@ public class Superstructure extends Subsystem {
 
     // timer for reversing the intake and then stopping it once we have two correct cargo
     Timer mIntakeRejectTimer = new Timer();
+    // timer for asserting ball position
+    Timer mAssertBallPositionTimer = new Timer();
 
     // PeriodicIO instance and paired csv writer
     public PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -139,6 +144,7 @@ public class Superstructure extends Subsystem {
 
                 if (!mClimbMode) {
                     updateBallCounter();
+                    updateSpitState();
                     updateVisionAimingParameters();
                     updateShootingSetpoints();
                 }
@@ -516,8 +522,13 @@ public class Superstructure extends Subsystem {
             }
 
             // control spit shot
-            if (mControlBoard.operator.getController().getXButtonPressed()) {
+            /*if (mControlBoard.operator.getController().getXButtonPressed()) {
                 mPeriodicIO.SPIT = !mPeriodicIO.SPIT;
+            }*/
+
+            // non-toggle one ball spit shot
+            if (mControlBoard.operator.getController().getXButtonPressed()) {
+                mPeriodicIO.SPIT = true;
             }
 
             // control for adding manual hood adjustment
@@ -569,6 +580,33 @@ public class Superstructure extends Subsystem {
             mBallCount = 1;
         } else {
             mBallCount = 0;
+        }
+    }
+
+    /*** UPDATE SPIT STATE ***/
+    public void updateSpitState() {
+        // when two balls are in the indexer:
+        if (mBallCount == 2) {
+            // check if ball count decreases
+            // additional case for if we see two balls pass beam break continuous
+            if ((mBallCount < 2) || (!mIndexer.getBottomBeamBreak() || !mIndexer.getTopBeamBreak())) {
+                mPeriodicIO.SPIT = false;
+            }
+        }
+        if (mBallCount == 1) {
+            mAssertBallPositionTimer.start();
+
+            // check if ball count decreases
+            if ((mBallCount == 0) && mAssertBallPositionTimer.hasElapsed(Constants.IndexerConstants.kBallAssertionTime)) {
+                mPeriodicIO.SPIT = false;
+
+                mAssertBallPositionTimer.stop();
+                mAssertBallPositionTimer.reset();
+            } 
+        }
+        // if we don't have any balls we should never be in a spitting state
+        if (mBallCount == 0) {
+            mPeriodicIO.SPIT = false;
         }
     }
 
