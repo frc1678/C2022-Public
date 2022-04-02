@@ -6,16 +6,16 @@ import com.team1678.frc2022.subsystems.Limelight.LimelightConstants;
 import com.team1678.frc2022.subsystems.ServoMotorSubsystem.ServoMotorSubsystemConstants;
 import com.team254.lib.geometry.Rotation2d;
 
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.constraint.CentripetalAccelerationConstraint;
+import edu.wpi.first.math.util.Units;
 
 public class Constants {
 
     // toggle constants for comp robot
-    public static final boolean isComp = true;
+    public static final boolean isComp = false;
 	
 	// robot loop time
 	public static final double kLooperDt = 0.02;
@@ -105,8 +105,8 @@ public class Constants {
 
         /* Front Left Module - Module 0 */
         public static final class Mod0 {
-            public static final double epsilonAngleOffset = 58.18;
-            public static final double compAngleOffset = 239; // TODO: Check value
+            public static final double epsilonAngleOffset = 239.06;
+            public static final double compAngleOffset = 58; // TODO: Check value
 
             public static SwerveModuleConstants SwerveModuleConstants() {
                 return new SwerveModuleConstants(Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER,
@@ -115,7 +115,7 @@ public class Constants {
         }
         /* Front Right Module - Module 1 */
         public static final class Mod1 {
-            public static final double epsilonAngleOffset = 162.42;
+            public static final double epsilonAngleOffset = 339.96;
             public static final double compAngleOffset = 76; // TODO: Check value
             
             public static SwerveModuleConstants SwerveModuleConstants() {
@@ -125,8 +125,8 @@ public class Constants {
         }
         /* Back Left Module - Module 2 */
         public static final class Mod2 {
-            public static final double epsilonAngleOffset = 40.07;
-            public static final double compAngleOffset = 319;   // TODO: Check value
+            public static final double epsilonAngleOffset = 317.20;
+            public static final double compAngleOffset = 317;   // TODO: Check value
 
             public static SwerveModuleConstants SwerveModuleConstants() {
                 return new SwerveModuleConstants(Ports.BL_DRIVE, Ports.BL_ROTATION, Ports.BL_CANCODER,
@@ -135,8 +135,8 @@ public class Constants {
         }
         /* Back Right Module - Module 3 */
         public static final class Mod3 {
-            public static final double epsilonAngleOffset = 71.45;
-            public static final double compAngleOffset = 256;   // TODO: Check value
+            public static final double epsilonAngleOffset = 311.22;
+            public static final double compAngleOffset = 251; // TODO: Check value
 
             public static SwerveModuleConstants SwerveModuleConstants() {
                 return new SwerveModuleConstants(Ports.BR_DRIVE, Ports.BR_ROTATION, Ports.BR_CANCODER,
@@ -474,7 +474,7 @@ public class Constants {
     }
 
     public static final class ColorSensorConstants {
-        public static final double kColorSensorThreshold = 160;
+        public static final double kColorSensorThreshold = Constants.isComp ? 160 : 170;
 
         public static final double kBlueFreqScaler = 1.0;
         public static final double kRedFreqScaler = 1.0;
