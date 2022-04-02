@@ -267,6 +267,14 @@ public class Limelight extends Subsystem {
         }
     }
 
+    public synchronized boolean isAutonomousAimed() {
+        if (hasTarget()) {
+            return Util.epsilonEquals(mPeriodicIO.xOffset, 0.0, 1.0);
+        } else {
+            return false;
+        }
+    }
+
     private synchronized List<TargetInfo> getRawTargetInfos() {
         List<double[]> corners = getTopCorners();
         if (corners == null) {

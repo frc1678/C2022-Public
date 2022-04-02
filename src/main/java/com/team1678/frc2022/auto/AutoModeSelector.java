@@ -12,8 +12,7 @@ public class AutoModeSelector {
     enum DesiredMode {
         DO_NOTHING, 
         TEST_PATH_AUTO,
-        TWO_BALL_LEFT_AUTO,
-        TWO_BALL_RIGHT_AUTO,
+        TWO_BALL_AUTO,
         TWO_BY_TWO_AUTO,
         FIVE_PLUS_ONE_AUTO,
         FIVE_BALL_AUTO,
@@ -29,8 +28,7 @@ public class AutoModeSelector {
         mModeChooser = new SendableChooser<>();
         mModeChooser.setDefaultOption("Do Nothing", DesiredMode.DO_NOTHING);
         mModeChooser.addOption("Test Path Mode", DesiredMode.TEST_PATH_AUTO);
-        mModeChooser.addOption("Two Ball Left Mode", DesiredMode.TWO_BALL_LEFT_AUTO);
-        mModeChooser.addOption("Two Ball Right Mode", DesiredMode.TWO_BALL_RIGHT_AUTO);
+        mModeChooser.addOption("Two Ball Mode", DesiredMode.TWO_BALL_AUTO);
         mModeChooser.addOption("Two by Two Mode", DesiredMode.TWO_BY_TWO_AUTO);
         mModeChooser.addOption("Five Plus One Mode", DesiredMode.FIVE_PLUS_ONE_AUTO);
         mModeChooser.addOption("Five Ball Mode", DesiredMode.FIVE_BALL_AUTO);
@@ -54,14 +52,12 @@ public class AutoModeSelector {
         switch (mode) {
         case DO_NOTHING:
             return Optional.of(new DoNothingMode());
+
         case TEST_PATH_AUTO:
             return Optional.of(new TestPathMode());
 
-        case TWO_BALL_LEFT_AUTO:
-            return Optional.of(new TwoBallLeftMode());
-
-        case TWO_BALL_RIGHT_AUTO:
-            return Optional.of(new TwoBallRightMode());
+        case TWO_BALL_AUTO:
+            return Optional.of(new TwoBallMode());
 
         case TWO_BY_TWO_AUTO:
             return Optional.of(new TwobyTwoMode());
