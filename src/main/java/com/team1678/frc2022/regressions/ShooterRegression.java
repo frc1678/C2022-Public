@@ -18,7 +18,7 @@ public class ShooterRegression {
     public static double kDefaultHoodAngle = Math.toRadians(0);
     public static boolean kUseHoodAutoAimPolynomial = false;
 
-    public static boolean kUseSmartdashboard = true;
+    public static boolean kUseSmartdashboard = false;
 
     public static InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> kHoodAutoAimMap = new InterpolatingTreeMap<>();
     public static PolynomialRegression kHoodAutoAimPolynomial;
