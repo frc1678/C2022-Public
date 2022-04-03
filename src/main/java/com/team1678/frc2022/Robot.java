@@ -150,7 +150,6 @@ public class Robot extends TimedRobot {
 	public void robotPeriodic() {
 		mEnabledLooper.outputToSmartDashboard();
 		mShuffleBoardInteractions.update();
-		mLEDs.updateState();
 		mSwerve.outputTelemetry();
 		mClimber.outputTelemetry();
 	}
@@ -171,6 +170,7 @@ public class Robot extends TimedRobot {
 			}
 
 			mAutoModeExecutor.start();
+			mLEDs.updateState();
 
 			mInfrastructure.setIsDuringAuto(true);
 			mLimelight.setPipeline(Constants.VisionConstants.kDefaultPipeline);
@@ -234,6 +234,9 @@ public class Robot extends TimedRobot {
 
 			// call operator commands container from superstructure
 			mSuperstructure.updateOperatorCommands();
+
+			mLEDs.updateState();
+
 			
 			/* SWERVE DRIVE */
 			// hold left bumper
@@ -315,6 +318,7 @@ public class Robot extends TimedRobot {
 
 			// update alliance color from driver station while disabled
 			mColorSensor.updateAllianceColor();
+			mLEDs.updateColor(mColorSensor.getAllianceColor());
 			// update baseline color scaling for accurate rb comparison
 			// mColorSensor.updateBaselineColorScaling();
 

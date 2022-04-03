@@ -6,6 +6,7 @@ import com.ctre.phoenix.led.CANdleConfiguration;
 import com.ctre.phoenix.led.CANdleControlFrame;
 import com.ctre.phoenix.led.CANdleStatusFrame;
 import com.ctre.phoenix.led.ColorFlowAnimation;
+import com.ctre.phoenix.led.RainbowAnimation;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
 import com.ctre.phoenix.led.CANdle.VBatOutputMode;
 import com.ctre.phoenix.led.ColorFlowAnimation.Direction;
@@ -13,6 +14,7 @@ import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
+import com.team1678.frc2022.subsystems.ColorSensor.ColorChoices;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -46,7 +48,10 @@ public class LEDs extends Subsystem {
     private SendableChooser<State> mBottomStateChooser;
 
     // animation to run when disabled
-    private Animation mDisableAnimation = new ColorFlowAnimation(255, 20, 30, 0, 0.7, 68, Direction.Forward);
+    private Animation mRedAllianceAnimation = new ColorFlowAnimation(255, 0, 0, 0, 0.5, 30, Direction.Forward);
+    private Animation mBlueAllianceAnimation = new ColorFlowAnimation(0, 0, 255, 0, 0.5, 30, Direction.Backward);
+    private Animation mNoAllianceAnimation =  new ColorFlowAnimation(185, 64, 255, 0, 0.5, 30, Direction.Backward);
+
 
     // led states
     public enum State{
@@ -86,7 +91,6 @@ public class LEDs extends Subsystem {
 
     public LEDs() {
         configureCandle(); // set CTRE configurations for CANdle
-        mCandle.animate(mDisableAnimation);
 
         // create sendable choosers for shuffleboard
         if (mUseSmartdash) {
@@ -108,8 +112,8 @@ public class LEDs extends Subsystem {
         mEnabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
-                applyStates(State.OFF, State.OFF); 
                 mCandle.clearAnimation(0);
+                applyStates(State.OFF, State.OFF); 
             }
 
             @Override
@@ -122,7 +126,6 @@ public class LEDs extends Subsystem {
                 mTopStatus.reset();
                 mLeftBottomStatus.reset();
                 mRightBottomStatus.reset();
-                mCandle.animate(mDisableAnimation);
             }
         });
     }
@@ -206,6 +209,16 @@ public class LEDs extends Subsystem {
         mCandle.setStatusFramePeriod(CANdleStatusFrame.CANdleStatusFrame_Status_1_General, 255);
         mCandle.setControlFramePeriod(CANdleControlFrame.CANdle_Control_1_General, 10);
         mCandle.setControlFramePeriod(CANdleControlFrame.CANdle_Control_2_ModulatedVBatOut, 255);
+    }
+
+    public void updateColor(ColorChoices allianceColor) {
+        if (allianceColor.equals(ColorChoices.RED)) {
+            mCandle.animate(mRedAllianceAnimation);    
+        } else if (allianceColor.equals(ColorChoices.BLUE)) {
+            mCandle.animate(mBlueAllianceAnimation); 
+        } else {
+            mCandle.animate(mNoAllianceAnimation); 
+        }
     }
 
     @Override
