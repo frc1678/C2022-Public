@@ -193,4 +193,8 @@ public class Rotation2d implements IRotation2d<Rotation2d> {
     public Rotation2d getRotation() {
         return this;
     }
+
+    public edu.wpi.first.math.geometry.Rotation2d getWPIRotation2d() {
+        return edu.wpi.first.math.geometry.Rotation2d.fromDegrees(this.getDegrees());
+    }
 }

@@ -7,13 +7,16 @@ import com.team1678.frc2022.RobotState;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.CustomXboxController;
 import com.team1678.frc2022.controlboard.CustomXboxController.Button;
-import com.team1678.frc2022.lib.drivers.PicoColorSensor;
+import com.team1678.frc2022.drivers.Pigeon;
 import com.team1678.frc2022.logger.LogStorage;
 import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.regressions.ShooterRegression;
 import com.team1678.frc2022.subsystems.LEDs.State;
 import com.team254.lib.util.Util;
 import com.team254.lib.vision.AimingParameters;
+
+import org.opencv.features2d.FlannBasedMatcher;
+
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.util.InterpolatingDouble;
 
@@ -50,12 +53,15 @@ public class Superstructure extends Subsystem {
     private final Climber mClimber = Climber.getInstance();
     private final Limelight mLimelight = Limelight.getInstance();
     private final LEDs mLEDs = LEDs.getInstance();
+    private final Pigeon mPigeon = Pigeon.getInstance();
 
     // robot state
     private final RobotState mRobotState = RobotState.getInstance();
 
     // timer for reversing the intake and then stopping it once we have two correct cargo
     Timer mIntakeRejectTimer = new Timer();
+    // timer for asserting ball position
+    Timer mAssertBallPositionTimer = new Timer();
 
     // PeriodicIO instance and paired csv writer
     public PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -98,8 +104,8 @@ public class Superstructure extends Subsystem {
     private boolean mResetHoodAngleAdjustment = false;
 
     // intake / eject locking status
-    private boolean mLockIntake = false;
-    private boolean mForceIntake = false;
+    private boolean mIntakeReject = false;
+    private boolean mIntakeOverride = false;
     private boolean mForceEject = false;
     private boolean mDisableEjecting = false;
     private boolean mSlowEject = false;
@@ -111,7 +117,7 @@ public class Superstructure extends Subsystem {
     private boolean mAutoTraversalClimb = false;
     private int mClimbStep = 0;
     private double mStartingGyroPosition = 0.0;
-    private double mGyroOffset = 0.0;
+    private double mRoll = 0.0;
 
     // fender shot constants
     private final double kFenderVelocity = 2200;
@@ -137,16 +143,14 @@ public class Superstructure extends Subsystem {
             public void onLoop(double timestamp) {
                 final double start = Timer.getFPGATimestamp();
 
-                if (!mColorSensor.seesBall() && !mPeriodicIO.INTAKE) {
-                    mColorSensor.updateBaselineColorScaling();
-                    System.out.println("updating baseline");
-                }
-
                 if (!mClimbMode) {
                     updateBallCounter();
+                    updateSpitState();
                     updateVisionAimingParameters();
                     updateShootingSetpoints();
                 }
+
+                // updateWantEjection();
                 setGoals();
                 updateLEDs();
                 outputTelemetry();
@@ -202,6 +206,11 @@ public class Superstructure extends Subsystem {
         mPeriodicIO.EJECT = eject;
         mSlowEject = slow_eject;
     }
+
+    public void setSlowEject(boolean slow_eject) {
+        mSlowEject = slow_eject;
+    }
+
     public void setWantPrep(boolean wants_prep) {
         mPeriodicIO.PREP = wants_prep;
     }
@@ -255,7 +264,7 @@ public class Superstructure extends Subsystem {
 
         // update starting gyro position
         if (mClimbStep == 0) {
-            mStartingGyroPosition = mSwerve.getRoll().getDegrees();
+            mPigeon.setRoll(0.0);
         }
           
         // get whether we want to enter climb mode
@@ -265,10 +274,6 @@ public class Superstructure extends Subsystem {
         }
 
         if (mClimbMode) {
-
-            // update gyro offset
-            mGyroOffset = mSwerve.getRoll().getDegrees() - mStartingGyroPosition;
-
             /*** CLIMB MODE CONTROLS ***/
 
             // stop all other superstructure actions
@@ -296,7 +301,6 @@ public class Superstructure extends Subsystem {
             }
 
             if (!mOpenLoopClimbControlMode) {
-
                 if (mControlBoard.operator.getController().getXButtonPressed()) {
                     mClimber.setClimberNone();
                     mClimbStep = 0;
@@ -341,7 +345,7 @@ public class Superstructure extends Subsystem {
                     }
 
                     // set left arm to full extension from partial height to make contact on high bar
-                    if (mGyroOffset < Constants.ClimberConstants.kHighBarExtendAngle // check if dt roll is past high bar while swinging to extend
+                    if (mRoll < Constants.ClimberConstants.kHighBarExtendAngle // check if dt roll is past high bar while swinging to extend
                         &&
                         Util.epsilonEquals(mClimber.getClimberPositionLeft(), // don't extend unless left arm is at partial height
                                             Constants.ClimberConstants.kLeftPartialTravelDistance,
@@ -353,7 +357,7 @@ public class Superstructure extends Subsystem {
                     }
 
                     // pull up with left arm on upper bar while extending right arm to traversal bar
-                    if ((mGyroOffset > Constants.ClimberConstants.kHighBarContactAngle) // check if dt roll is at bar contact angle before climbing to next bar
+                    if ((mRoll > Constants.ClimberConstants.kHighBarContactAngle) // check if dt roll is at bar contact angle before climbing to next bar
                         &&
                         Util.epsilonEquals(mClimber.getClimberPositionLeft(), // don't climb unless left arm is fully extended
                                             Constants.ClimberConstants.kLeftTravelDistance,
@@ -365,7 +369,7 @@ public class Superstructure extends Subsystem {
                     }
 
                     // set right arm to full extension from partial height to make contact on traversal bar
-                    if (mGyroOffset > Constants.ClimberConstants.kTraversalBarExtendAngle // check if dt roll is past traversal bar while swinging to extend
+                    if (mRoll > Constants.ClimberConstants.kTraversalBarExtendAngle // check if dt roll is past traversal bar while swinging to extend
                         &&
                         Util.epsilonEquals(mClimber.getClimberPositionRight(), // don't extend unless right arm is at partial height
                                             Constants.ClimberConstants.kRightPartialTravelDistance,
@@ -377,7 +381,7 @@ public class Superstructure extends Subsystem {
                     }
 
                     // climb on the right arm after we are fully extended on traversal bar
-                    if (Util.epsilonEquals(mGyroOffset, // check if dt roll is at the angle necessary 
+                    if (Util.epsilonEquals(mRoll, // check if dt roll is at the angle necessary 
                                             Constants.ClimberConstants.kTraversalBarContactAngle,
                                             2.0)
                         &&
@@ -419,10 +423,41 @@ public class Superstructure extends Subsystem {
 
             // toggle whether we want to force intake or decide whether we intake based on whether we have two correct cargo
             if (mControlBoard.getDisableIntakeLogic()) {
-                mForceIntake = !mForceIntake;
+                mIntakeOverride = !mIntakeOverride;
             }
+
+            if (mControlBoard.operator.getTrigger(CustomXboxController.Side.RIGHT)) {
+                // start a timer for rejecting balls and then locking the intake when we want to
+                // stop intaking
+                if ((indexerFull() || stopIntaking()) && !mIntakeReject) {
+                    mIntakeReject = true;
+                }
+
+                // if we want to lock the intake, reject incoming cargo for a short time and
+                // then lock the intake
+                if (mIntakeReject) {
+                    setWantReject(true);
+                    if (!(mIndexer.getTopBeamBreak() && mColorSensor.getForwardBeamBreak())
+                            && !indexerFull()
+                            && !stopIntaking()) {
+
+                        mIntakeReject = false;
+                    }
+                } else {
+                    setWantIntake(true);
+                }
+            } else {
+                mIntakeRejectTimer.reset();
+                if (mControlBoard.operator.getTrigger(CustomXboxController.Side.LEFT)) {
+                    setWantReverse(true);
+                } else {
+                    setWantIntakeNone();
+                }
+            }
+
+            /*
             // control intake + reverse actions
-            if (mForceIntake) {
+            if (mIntakeOverride) {
                 normalIntakeControls();
             } else {
                 // start a timer for rejecting balls and then locking the intake when we want to stop intaking
@@ -446,15 +481,17 @@ public class Superstructure extends Subsystem {
                     // - we don't have a ball at either fully indexed position
                     // - we don't want to stop intaking
                     // then unlock the intake
-                    if(!(mIndexer.getTopBeamBreak() && mColorSensor.hasBall()) 
-                            && !indexerFull()) {
+                    if(!(mIndexer.getTopBeamBreak() && mColorSensor.getForwardBeamBreak()) 
+                            && !indexerFull()
+                            && !stopIntaking()) {
                         
                         mLockIntake = false;
                     }
                 } else {
                     normalIntakeControls();
                 }
-            }            
+            }      
+            */      
 
             // toggle ejecting to disable if necessary
             if (mControlBoard.getDisableColorLogic()) {
@@ -462,15 +499,15 @@ public class Superstructure extends Subsystem {
             }
             // control options to filter cargo and eject
             // don't eject if we want it disabled or if we lock the intake because we have two correct cargo
-            if (mControlBoard.getHoldIntake()) {
+            if (mControlBoard.getManualEject()) {
                 mPeriodicIO.EJECT = true;
                 mForceEject = true;
-            } else if (mDisableEjecting || mLockIntake) {
+            } else if (mDisableEjecting || mIntakeReject) {
                 mPeriodicIO.EJECT = false;
             } else {
+                updateWantEjection();
                 mForceEject = false;
                 // when not forcing an eject, passively check whether want to passively eject using color sensor logic
-                mPeriodicIO.EJECT = mColorSensor.wantsEject();
             }
 
             // control shooting
@@ -479,7 +516,7 @@ public class Superstructure extends Subsystem {
             }
 
             // spin up if we aren't already
-            if (mPeriodicIO.SHOOT && !mPeriodicIO.PREP) {
+            if ((mPeriodicIO.SHOOT || mPeriodicIO.SPIT) && !mPeriodicIO.PREP) {
                 mPeriodicIO.PREP = true;
             }
 
@@ -494,8 +531,13 @@ public class Superstructure extends Subsystem {
             }
 
             // control spit shot
-            if (mControlBoard.operator.getController().getXButtonPressed()) {
+            /*if (mControlBoard.operator.getController().getXButtonPressed()) {
                 mPeriodicIO.SPIT = !mPeriodicIO.SPIT;
+            }*/
+
+            // non-toggle one ball spit shot
+            if (mControlBoard.operator.getController().getXButtonPressed()) {
+                mPeriodicIO.SPIT = true;
             }
 
             // control for adding manual hood adjustment
@@ -515,6 +557,10 @@ public class Superstructure extends Subsystem {
                 mResetHoodAngleAdjustment = true;
             }
         }
+    }
+
+    public void updateWantEjection() {
+        mPeriodicIO.EJECT = mColorSensor.wantsEject();
     }
 
     /*** UPDATE BALL COUNTER FOR INDEXING STATUS ***/
@@ -546,6 +592,33 @@ public class Superstructure extends Subsystem {
         }
     }
 
+    /*** UPDATE SPIT STATE ***/
+    public void updateSpitState() {
+        // when two balls are in the indexer:
+        if (mBallCount == 2) {
+            // check if ball count decreases
+            // additional case for if we see two balls pass beam break continuous
+            if ((mBallCount < 2) || (!mIndexer.getBottomBeamBreak() || !mIndexer.getTopBeamBreak())) {
+                mPeriodicIO.SPIT = false;
+            }
+        }
+        if (mBallCount == 1) {
+            mAssertBallPositionTimer.start();
+
+            // check if ball count decreases
+            if ((mBallCount == 0) && mAssertBallPositionTimer.hasElapsed(Constants.IndexerConstants.kBallAssertionTime)) {
+                mPeriodicIO.SPIT = false;
+
+                mAssertBallPositionTimer.stop();
+                mAssertBallPositionTimer.reset();
+            } 
+        }
+        // if we don't have any balls we should never be in a spitting state
+        if (mBallCount == 0) {
+            mPeriodicIO.SPIT = false;
+        }
+    }
+
     /*** GET REAL AIMING PARAMETERS
      * called in updateVisionAimingSetpoints()
     */
@@ -572,10 +645,16 @@ public class Superstructure extends Subsystem {
         // update align delta from target and distance from target
         mTrackId = real_aiming_params_.get().getTrackId();
         mTargetAngle = predicted_vehicle_to_goal.getTranslation().direction().getRadians() + Math.PI;
-        mCorrectedDistanceToTarget = predicted_vehicle_to_goal.getTranslation().norm();
 
         // send vision aligning target delta to swerve
-        mSwerve.acceptLatestVisionAlignGoal(mTargetAngle);
+        mSwerve.acceptLatestGoalTrackVisionAlignGoal(mTargetAngle);
+
+        // update distance to target
+        if (mLimelight.hasTarget() && mLimelight.getLimelightDistanceToTarget().isPresent()) {
+            mCorrectedDistanceToTarget = mLimelight.getLimelightDistanceToTarget().get();
+        } else {
+            mCorrectedDistanceToTarget = predicted_vehicle_to_goal.getTranslation().norm();
+        }
 
         SmartDashboard.putString("Field to Target", real_aiming_params_.get().getFieldToGoal().toString());
         SmartDashboard.putString("Vehicle to Target", real_aiming_params_.get().getVehicleToGoal().toString());
@@ -634,7 +713,15 @@ public class Superstructure extends Subsystem {
         }
 
         // update intake and indexer actions
-        if (mPeriodicIO.SHOOT) {
+        if (mPeriodicIO.SPIT) {
+            if (isSpunUp() /*&& isAimed()*/) {
+                mPeriodicIO.real_trigger = Trigger.WantedAction.FEED;
+                mIndexer.setWantFeeding(true);
+            } else {
+                mPeriodicIO.real_trigger = Trigger.WantedAction.NONE;
+                mIndexer.setWantFeeding(false);
+            }
+        } else if (mPeriodicIO.SHOOT) {
             mPeriodicIO.real_intake = Intake.WantedAction.NONE;
 
             // only feed cargo to shoot when spun up and aimed
@@ -654,16 +741,14 @@ public class Superstructure extends Subsystem {
             mIndexer.setWantFeeding(false);
             mPeriodicIO.real_trigger = Trigger.WantedAction.NONE;
 
-                
-            if (mColorSensor.seesNewBall()) {
-                if (!mColorSensor.hasCorrectColor()) {
-                    mIndexer.queueEject();
-                }  else if (!indexerFull()){
+            if (mColorSensor.seesBall() && !mColorSensor.hasCorrectColor()) {
+                mIndexer.queueEject();;
+            } else if (mColorSensor.seesNewBall()) {
+                if (!indexerFull()) {
                     mIndexer.queueBall(mColorSensor.hasCorrectColor());
-                } 
+                }
             }
-
-            // normal operator manual control for intake
+            
             if (mPeriodicIO.INTAKE) {
                 mPeriodicIO.real_intake = Intake.WantedAction.INTAKE;
             } else if (mPeriodicIO.REVERSE) {
@@ -771,17 +856,10 @@ public class Superstructure extends Subsystem {
         return mTargetAngle;
     }
 
-    // call normal intake controls
-    public void normalIntakeControls() {
-        if (mControlBoard.operator.getTrigger(CustomXboxController.Side.RIGHT)) {
-            setWantIntake(true);
-        } else if (mControlBoard.operator.getTrigger(CustomXboxController.Side.LEFT)) {
-            setWantReverse(true);
-        } else {
-            setWantIntakeNone();
-        }
+    // stop intaking if we have two of the correct cargo
+    public boolean stopIntaking() {
+        return (mIndexer.getTopBeamBreak() && mColorSensor.seesBall() && mColorSensor.hasCorrectColor());
     }
-    
     // get number of correct cargo in indexer
     public double getBallCount() {
         return mBallCount;
@@ -898,15 +976,16 @@ public class Superstructure extends Subsystem {
         // SmartDashboard.putBoolean("Is Vision Aimed", mLimelight.isAimed());
        
         SmartDashboard.putBoolean("Disable Ejecting", mDisableEjecting);
-        SmartDashboard.putBoolean("Force Intake", mForceIntake);
+        SmartDashboard.putBoolean("Stop Intaking", stopIntaking());
+        SmartDashboard.putBoolean("Force Intake", mIntakeOverride);
         SmartDashboard.putBoolean("Force Eject", mForceEject);
 
         SmartDashboard.putBoolean("Auto Traversal Climb", mAutoTraversalClimb);
         SmartDashboard.putNumber("Climb Step Number", mClimbStep);
 
-        SmartDashboard.putNumber("Robot Roll", mSwerve.getRoll().getDegrees());
+        SmartDashboard.putNumber("Robot Roll", mPigeon.getRoll().getDegrees());
         SmartDashboard.putNumber("Gyro Start", mStartingGyroPosition);
-        SmartDashboard.putNumber("Gyro Offset", mGyroOffset);
+        SmartDashboard.putNumber("Gyro Roll", mRoll);
 
         SmartDashboard.putNumber("Distance To Target", mCorrectedDistanceToTarget);
     }
@@ -915,6 +994,7 @@ public class Superstructure extends Subsystem {
     @Override
     public void readPeriodicInputs() {
         mPeriodicIO.timestamp = Timer.getFPGATimestamp();
+        mRoll = mPigeon.getRoll().getDegrees();
     }
 
     // logger
@@ -960,7 +1040,7 @@ public class Superstructure extends Subsystem {
         items.add(mPeriodicIO.FENDER ? 1.0 : 0.0);
         items.add(mPeriodicIO.real_shooter);
         items.add(mPeriodicIO.real_hood);
-        items.add(mSwerve.getRoll().getDegrees());
+        items.add(mPigeon.getRoll().getDegrees());
 
         // send data to logging storage
         mStorage.addData(items);

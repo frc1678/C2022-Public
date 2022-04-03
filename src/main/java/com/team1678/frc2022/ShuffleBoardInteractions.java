@@ -1,7 +1,8 @@
 package com.team1678.frc2022;
 
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
-
+import com.lib.drivers.SwerveModule;
+import com.lib.util.CTREConfigs;
 import com.team1678.frc2022.subsystems.ColorSensor;
 
 import com.team1678.frc2022.subsystems.Climber;
@@ -16,6 +17,7 @@ import com.team1678.frc2022.subsystems.Swerve;
 import com.team1678.frc2022.subsystems.Trigger;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -24,6 +26,8 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.geometry.Pose2d;
 
 public class ShuffleBoardInteractions {
 
@@ -201,11 +205,10 @@ public class ShuffleBoardInteractions {
     private final NetworkTableEntry mRValue;
     private final NetworkTableEntry mGValue;
     private final NetworkTableEntry mBValue;
-    private final NetworkTableEntry mAdjustedRed;
-    private final NetworkTableEntry mAdjustedBlue;
     private final NetworkTableEntry mAllianceColor;
     private final NetworkTableEntry mMatchedColor;
     private final NetworkTableEntry mForwardBreak;
+    private final NetworkTableEntry mProximity;
 
     private final NetworkTableEntry mHasBall;
     private final NetworkTableEntry mEject;
@@ -498,15 +501,6 @@ public class ShuffleBoardInteractions {
             .add("Detected B Value", 0.0)
             .getEntry();
 
-        mAdjustedRed = COLOR_SENSOR
-                .add("Adjusted R Value", 0.0)
-                .withSize(2, 2)
-                .getEntry();
-        mAdjustedBlue = COLOR_SENSOR
-                .add("Adjusted B Value", 0.0)
-                .withSize(2, 2)
-                .getEntry();
-
         mAllianceColor = COLOR_SENSOR
             .add("Alliance Color", "N/A")
             .getEntry();
@@ -515,6 +509,10 @@ public class ShuffleBoardInteractions {
             .getEntry();
         mForwardBreak = COLOR_SENSOR
             .add("Beam Break", false)
+            .getEntry();
+
+        mProximity = COLOR_SENSOR
+            .add("Proximity", 0.0)
             .getEntry();
             
         mHasBall = COLOR_SENSOR
@@ -685,11 +683,14 @@ public class ShuffleBoardInteractions {
                 .withSize(2, 2)
                 .withPosition(8, 2)
                 .getEntry();
+
+        SmartDashboard.putData(mField);
         
-        SmartDashboard.putData("Robot field to vehicle", mField);
     }
 
     public void update() {
+
+        mField.setRobotPose(mSwerve.getPose());
 
         /* OPERATOR */
         mOperatorShooting.setBoolean(mSuperstructure.getShooting());
@@ -786,13 +787,12 @@ public class ShuffleBoardInteractions {
         mGValue.setDouble(mColorSensor.getDetectedGValue());
         mBValue.setDouble(mColorSensor.getDetectedBValue());
         mBValue.setDouble(mColorSensor.getDetectedBValue());
-
-        mAdjustedRed.setDouble(mColorSensor.getAdjustedRed());
-        mAdjustedBlue.setDouble(mColorSensor.getAdjustedBlue());
         
         mAllianceColor.setString(mColorSensor.getAllianceColor().toString());
         mMatchedColor.setString(mColorSensor.getMatchedColor().toString());
         mForwardBreak.setBoolean(mColorSensor.getForwardBeamBreak());
+
+        mProximity.setDouble(mColorSensor.getDistance());
 
         mHasBall.setBoolean(mColorSensor.hasBall());
         mEject.setBoolean(mColorSensor.wantsEject());
@@ -849,7 +849,6 @@ public class ShuffleBoardInteractions {
         mTopLEDState.setString(mLEDs.getTopState().getName());
         mBottomLEDState.setString(mLEDs.getBottomState().getName());
 
-        mField.setRobotPose(RobotState.getInstance().getLatestFieldToVehicle().getValue().getWpilibPose2d());
     }
 
     /* Truncates number to 2 decimal places for cleaner numbers */
@@ -859,6 +858,15 @@ public class ShuffleBoardInteractions {
 
     public ShuffleboardTab getOperatorTab() {
         return OPERATOR_TAB;
+    }
+
+    public void addTrajectory(Trajectory trajectory, String name) {
+        mField.getObject(name).setTrajectory(trajectory);
+    }
+
+    public void clearTrajectories() {
+        mField = new Field2d();
+        SmartDashboard.putData(mField);
     }
 }
  

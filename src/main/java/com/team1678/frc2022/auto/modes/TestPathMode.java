@@ -9,6 +9,7 @@ import com.team1678.frc2022.subsystems.Swerve;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 
@@ -56,4 +57,11 @@ public class TestPathMode extends AutoModeBase {
         
         System.out.println("Finished auto!");
     }
+
+    @Override
+    public Pose2d getStartingPose() {
+        return testTrajectoryAction.getInitialPose();
+    }
 }
+
+

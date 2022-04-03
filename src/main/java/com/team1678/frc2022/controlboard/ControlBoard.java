@@ -150,6 +150,10 @@ public class ControlBoard {
         return driver.getButton(Button.RB);
     }
 
+    public boolean getClimbAlign() {
+        return driver.getTrigger(Side.RIGHT);
+    }
+
     //Locks wheels in X formation
     public boolean getBrake() {
         return driver.getButton(Button.LB);
@@ -168,12 +172,8 @@ public class ControlBoard {
         return operator.getController().getRightBumper();
     }
 
-    public boolean getHoldIntake() {
+    public boolean getManualEject() {
         return operator.getButton(Button.LB);
-    }
-
-    public boolean getForceHoldIntake() {
-        return operator.getButton(Button.RB);
     }
 
     //Indexer Controls

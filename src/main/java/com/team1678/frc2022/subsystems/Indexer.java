@@ -73,8 +73,8 @@ public class Indexer extends Subsystem {
 
         mTunnel.setInverted(true);
 
-        mBottomBeamBreak = new BeamBreak(Ports.BOTTOM_BEAM_BREAK);
-        mTopBeamBreak = new BeamBreak(Ports.TOP_BEAM_BREAK);
+        mBottomBeamBreak = new BeamBreak(Ports.getBottomBeamBreakPort());
+        mTopBeamBreak = new BeamBreak(Ports.getTopBeamBreakPort());
     }
     
     @Override
@@ -119,7 +119,7 @@ public class Indexer extends Subsystem {
                 ejectDelayTimer.reset();
                 ejectDelayTimer.start();
             } 
-        if (ejectDelayTimer.hasElapsed(0.1)) {
+        if (ejectDelayTimer.hasElapsed(0.5)) {
                 System.out.println("stopped ejecting");
                 ejectDelayTimer.stop();
                 ejectDelayTimer.reset();
