@@ -91,11 +91,6 @@ public class TwobyTwoMode extends AutoModeBase {
         System.out.println("Running two by two mode auto!");
         SmartDashboard.putBoolean("Auto Finished", false);
 
-    // reset odometry at the start of the trajectory
-    runAction(new LambdaAction(() -> mSwerve.resetOdometry(new Pose2d(driveToIntakeSecondShotCargo.getInitialPose().getX(),
-                                                                      driveToIntakeSecondShotCargo.getInitialPose().getY(),
-                                                                      Rotation2d.fromDegrees(135)))));
-
     // start intaking
     runAction(new LambdaAction(() -> mSuperstructure.setWantIntake(true)));
 

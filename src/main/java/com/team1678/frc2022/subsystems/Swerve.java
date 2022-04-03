@@ -257,7 +257,7 @@ public class Swerve extends Subsystem {
         zeroGyro(pose.getRotation().getDegrees());
 
         // reset field to vehicle
-        RobotState.getInstance().reset();
+        RobotState.getInstance().reset(new com.team254.lib.geometry.Pose2d(pose));
     }
 
     public void resetAnglesToAbsolute() {

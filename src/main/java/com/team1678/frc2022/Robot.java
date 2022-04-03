@@ -125,7 +125,7 @@ public class Robot extends TimedRobot {
 					mHood,
 					mColorSensor,
 					mClimber,
-					mLimelight,
+					// mLimelight,
 					mLEDs
 			);
 
