@@ -35,7 +35,6 @@ public class LEDs extends Subsystem {
 
     private final boolean mUseSmartdash = false; // if we want to manual control lights using shuffleboard
     private boolean mLastUpdatedTop = false; // alternate updating sections to avoid overrunning the CANdle
-    private boolean mIdle = true; // run animation if disabled
 
     // led sections
     private LEDStatus mTopStatus = new LEDStatus(14, 28);  
@@ -87,6 +86,7 @@ public class LEDs extends Subsystem {
 
     public LEDs() {
         configureCandle(); // set CTRE configurations for CANdle
+        mCandle.animate(mDisableAnimation);
 
         // create sendable choosers for shuffleboard
         if (mUseSmartdash) {
@@ -108,8 +108,8 @@ public class LEDs extends Subsystem {
         mEnabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
-                mIdle = false; // switch to state control
                 applyStates(State.OFF, State.OFF); 
+                mCandle.clearAnimation(0);
             }
 
             @Override
@@ -119,10 +119,10 @@ public class LEDs extends Subsystem {
 
             @Override
             public void onStop(double timestamp) {
-                mIdle = true; // switch to idle animation
                 mTopStatus.reset();
                 mLeftBottomStatus.reset();
                 mRightBottomStatus.reset();
+                mCandle.animate(mDisableAnimation);
             }
         });
     }
@@ -137,19 +137,14 @@ public class LEDs extends Subsystem {
     }
 
     public void updateState() { /// write state to candle
-        if (!mIdle) {
-            // alternate updating each section of leds to avoid overrunning the candle
-            if (mLastUpdatedTop) {
-                updateBottomLeds();
-                mLastUpdatedTop = false;
-            } else {
-                updateTopLeds();
-                mLastUpdatedTop = true;
-            }
+        // alternate updating each section of leds to avoid overrunning the candle
+        if (mLastUpdatedTop) {
+            updateBottomLeds();
+            mLastUpdatedTop = false;
         } else {
-            mCandle.animate(mDisableAnimation);
+            updateTopLeds();
+            mLastUpdatedTop = true;
         }
-
     }
 
     private void updateBottomLeds() {
@@ -163,17 +158,12 @@ public class LEDs extends Subsystem {
 
         Color bottomColor = mLeftBottomStatus.getWantedColor();
 
-        if (mLeftBottomStatus.getLastSetColor() != bottomColor) {
-            mCandle.setLEDs(bottomColor.r, bottomColor.g, bottomColor.b, 0, mLeftBottomStatus.startIDx,
-                    mLeftBottomStatus.LEDCount);
-            mLeftBottomStatus.setLastColor(bottomColor);
+        mCandle.setLEDs(bottomColor.r, bottomColor.g, bottomColor.b, 0, mLeftBottomStatus.startIDx,
+                mLeftBottomStatus.LEDCount);
 
-        } else if (mRightBottomStatus.getLastSetColor() != bottomColor) {
-            mCandle.setLEDs(bottomColor.r,
-                    bottomColor.g, bottomColor.b, 0, mRightBottomStatus.startIDx, mRightBottomStatus.LEDCount);
-            mRightBottomStatus.setLastColor(bottomColor);
-        }
-       
+        mCandle.setLEDs(bottomColor.r,
+                bottomColor.g, bottomColor.b, 0, mRightBottomStatus.startIDx, mRightBottomStatus.LEDCount);
+    
     }
 
     private void updateTopLeds() {
@@ -187,10 +177,7 @@ public class LEDs extends Subsystem {
 
         Color topColor = mTopStatus.getWantedColor();
 
-        if (mTopStatus.getLastSetColor() != topColor) {
-            mCandle.setLEDs(topColor.r, topColor.g, topColor.b, 0, mTopStatus.startIDx, mTopStatus.LEDCount);
-            mTopStatus.setLastColor(topColor);
-        }
+        mCandle.setLEDs(topColor.r, topColor.g, topColor.b, 0, mTopStatus.startIDx, mTopStatus.LEDCount);
     }
 
     // setter functions
@@ -240,10 +227,6 @@ public class LEDs extends Subsystem {
         return mLeftBottomStatus.state;
     }
 
-    public void setIdle(boolean isIdle) {
-        mIdle = isIdle;
-    }
-
     public boolean getUsingSmartdash() {
         return mUseSmartdash;
     }
@@ -253,9 +236,7 @@ public class LEDs extends Subsystem {
         SmartDashboard.putString("Bottom LED Status", getBottomState().name);
 
         SmartDashboard.putString("Top LED Colors", mTopStatus.getWantedColor().toString());
-        SmartDashboard.putString("Bottom LED Colors", mLeftBottomStatus.getWantedColor().toString());
-        
-        SmartDashboard.putBoolean("Idle Animating", mIdle);
+        SmartDashboard.putString("Bottom LED Colors", mLeftBottomStatus.getWantedColor().toString());        
     }
 
     // class for holding information about each section
@@ -264,8 +245,6 @@ public class LEDs extends Subsystem {
         private double lastSwitchTime = 0.0; // timestampe of last color cycle
         private int colorIndex = 0; // tracks current color in array
         private int startIDx, LEDCount; // start and end of section
-
-        private Color lastSetColor = Color.off();
 
         public LEDStatus(int startIndex, int endIndex) {
             startIDx = startIndex;
@@ -282,14 +261,6 @@ public class LEDs extends Subsystem {
 
         public Color getWantedColor() {
             return state.colors[colorIndex];
-        }
-
-        public Color getLastSetColor() {
-            return lastSetColor;
-        }
-
-        public void setLastColor(Color color) {
-            lastSetColor = color;
         }
 
         // cycle to next color in array
