@@ -183,6 +183,9 @@ public class Constants {
         public static final double kMaxSpeedMetersPerSecond = 2.2; 
         public static final double kMaxAccelerationMetersPerSecondSquared = 2.3;
         
+        public static final double kSlowMaxAngularSpeedRadiansPerSecond = 0.8 * Math.PI;
+        public static final double kSlowMaxAngularSpeedRadiansPerSecondSquared = Math.pow(kSlowMaxAngularSpeedRadiansPerSecond, 2);
+
         public static final double kMaxAngularSpeedRadiansPerSecond = 1.2 * Math.PI;
         public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.pow(kMaxAngularSpeedRadiansPerSecond, 2);
 
@@ -194,6 +197,12 @@ public class Constants {
         public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
                 new TrapezoidProfile.Constraints(
                         kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
+
+        // Constraint for the motion profilied robot angle controller
+        public static final TrapezoidProfile.Constraints kSlowThetaControllerConstraints =
+                new TrapezoidProfile.Constraints(
+                        kSlowMaxAngularSpeedRadiansPerSecond, kSlowMaxAngularSpeedRadiansPerSecondSquared);
+
 
         public static TrajectoryConfig createConfig(double maxSpeed, double maxAccel, double startSpeed, double endSpeed) {
             TrajectoryConfig config = new TrajectoryConfig(maxSpeed, maxAccel);

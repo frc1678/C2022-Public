@@ -171,7 +171,7 @@ public class FiveBallMode extends AutoModeBase {
 
         @Override
         protected void routine() throws AutoModeEndedException {
-                System.out.println("Running five ball mode a auto!");
+                System.out.println("Running five ball mode auto!");
                 SmartDashboard.putBoolean("Auto Finished", false);
 
                 runAction(new RaceAction(

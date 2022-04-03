@@ -10,7 +10,6 @@ import com.lib.util.CTREConfigs;
 import com.team1678.frc2022.auto.AutoModeExecutor;
 import com.team1678.frc2022.auto.AutoModeSelector;
 import com.team1678.frc2022.auto.modes.AutoModeBase;
-import com.team1678.frc2022.auto.modes.FiveBallMode;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.ControlBoard.SwerveCardinal;
 import com.team1678.frc2022.logger.LoggingSystem;
@@ -160,6 +159,8 @@ public class Robot extends TimedRobot {
 		CrashTracker.logAutoInit();
 
 		try {
+			// reset states
+			mSuperstructure.stop();
 
 			mDisabledLooper.stop();
 			mEnabledLooper.start();
@@ -273,6 +274,8 @@ public class Robot extends TimedRobot {
 	@Override
 	public void disabledInit() {
 		try {
+			// reset states
+			mSuperstructure.stop();
 
 			CrashTracker.logDisabledInit();
 			mEnabledLooper.stop();
