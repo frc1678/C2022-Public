@@ -921,9 +921,26 @@ public class Superstructure extends Subsystem {
         mPeriodicIO.FENDER = false;
         mPeriodicIO.SPIT = false;
 
+        mClimbMode = false;
+
         mHoodSetpoint = Constants.HoodConstants.kHoodServoConstants.kMinUnitsLimit + 1;
         mShooterSetpoint = 0.0;
     }
+
+    /* Initial states for superstructure for teleop */
+    public void setInitialTeleopStates() {
+        mPeriodicIO.INTAKE = false;
+        mPeriodicIO.REVERSE = false;
+        mPeriodicIO.REJECT = false;
+        mPeriodicIO.EJECT = false;
+        mPeriodicIO.PREP = true; // stay spun up
+        mPeriodicIO.SHOOT = false;
+        mPeriodicIO.FENDER = false;
+        mPeriodicIO.SPIT = false;
+
+        mClimbMode = false;
+    } 
+
 
     /* Superstructure getters for action and goal statuses */
     // get actions

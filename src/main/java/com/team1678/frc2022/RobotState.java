@@ -82,7 +82,7 @@ public class RobotState {
      */
     public synchronized void reset(double start_time, Pose2d initial_field_to_vehicle) {
         field_to_vehicle_ = new InterpolatingTreeMap<>(kObservationBufferSize);
-        field_to_vehicle_.put(new InterpolatingDouble(start_time), kFiveBallStartingLocation);
+        field_to_vehicle_.put(new InterpolatingDouble(start_time), initial_field_to_vehicle);
         vehicle_velocity_predicted_ = Pose2d.identity();
         vehicle_velocity_predicted_filtered_ = new MovingAveragePose2d(50);
         vehicle_velocity_measured_ = Pose2d.identity();

@@ -7,7 +7,6 @@ import com.team1678.frc2022.ShuffleBoardInteractions;
 import com.team1678.frc2022.auto.AutoModeEndedException;
 import com.team1678.frc2022.auto.AutoTrajectoryReader;
 import com.team1678.frc2022.auto.actions.LambdaAction;
-import com.team1678.frc2022.auto.actions.ParallelAction;
 import com.team1678.frc2022.auto.actions.RaceAction;
 import com.team1678.frc2022.auto.actions.SeriesAction;
 import com.team1678.frc2022.auto.actions.SwerveTrajectoryAction;
@@ -197,7 +196,7 @@ public class FivePlusOneMode extends AutoModeBase {
 
     @Override
     protected void routine() throws AutoModeEndedException {
-        System.out.println("Running five ball mode a auto!");
+        System.out.println("Running five ball plus one mode auto!");
         SmartDashboard.putBoolean("Auto Finished", false);
 
         // reset odometry at the start of the trajectory
@@ -254,7 +253,6 @@ public class FivePlusOneMode extends AutoModeBase {
 
         // run trajectory to drive to second shot pose
         runAction(driveToSecondShotPose);
-
 
         // shoot cargo
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
