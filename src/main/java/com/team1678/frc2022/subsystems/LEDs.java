@@ -48,9 +48,9 @@ public class LEDs extends Subsystem {
     private SendableChooser<State> mBottomStateChooser;
 
     // animation to run when disabled
-    private Animation mRedAllianceAnimation = new ColorFlowAnimation(255, 0, 0, 0, 0.5, 30, Direction.Forward);
-    private Animation mBlueAllianceAnimation = new ColorFlowAnimation(0, 0, 255, 0, 0.5, 30, Direction.Backward);
-    private Animation mNoAllianceAnimation =  new ColorFlowAnimation(185, 64, 255, 0, 0.5, 30, Direction.Backward);
+    private Animation mRedAllianceAnimation = new ColorFlowAnimation(255, 0, 0, 0, 0.5, 40, Direction.Forward);
+    private Animation mBlueAllianceAnimation = new ColorFlowAnimation(0, 0, 255, 0, 0.5, 40, Direction.Backward);
+    private Animation mNoAllianceAnimation =  new ColorFlowAnimation(185, 64, 255, 0, 0.5, 40, Direction.Backward);
 
 
     // led states
