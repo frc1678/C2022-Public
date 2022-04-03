@@ -57,7 +57,7 @@ public class TwoBallMode extends AutoModeBase {
 
     @Override
     protected void routine() throws AutoModeEndedException {
-        System.out.println("Running five ball mode auto!");
+        System.out.println("Running two ball mode auto!");
         SmartDashboard.putBoolean("Auto Finished", false);
 
         // start spinning up for shot
@@ -84,6 +84,9 @@ public class TwoBallMode extends AutoModeBase {
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
         runAction(new WaitAction(3.0));
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
+
+        // ready for teleop
+        runAction(new LambdaAction(() -> mSuperstructure.setInitialTeleopStates()));
 
         System.out.println("Finished auto!");
         SmartDashboard.putBoolean("Auto Finished", true);
