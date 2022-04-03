@@ -52,7 +52,7 @@ public class ShooterRegression {
         if (Constants.isComp) {
             kFlywheelRegression = CompRegression.kFlywheelManualRPM;
         } else {
-            kHoodRegression = EpsilonRegression.kFlywheelManualRPM;
+            kFlywheelRegression = EpsilonRegression.kFlywheelManualRPM;
         }
         for (double[] pair : kFlywheelRegression) {
             kFlywheelAutoAimMap.put(new InterpolatingDouble(pair[0]), new InterpolatingDouble(pair[1]));
