@@ -920,9 +920,6 @@ public class Superstructure extends Subsystem {
         mPeriodicIO.SHOOT = false;
         mPeriodicIO.FENDER = false;
         mPeriodicIO.SPIT = false;
-
-        mClimbMode = false;
-
         mHoodSetpoint = Constants.HoodConstants.kHoodServoConstants.kMinUnitsLimit + 1;
         mShooterSetpoint = 0.0;
     }

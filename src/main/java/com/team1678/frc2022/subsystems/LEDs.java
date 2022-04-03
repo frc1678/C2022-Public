@@ -273,11 +273,20 @@ public class LEDs extends Subsystem {
         }
 
         public Color getWantedColor() {
-            return state.colors[colorIndex];
+            Color color;
+            try {
+                color = state.colors[colorIndex];
+            } catch (Exception e) {
+                color = Color.off();
+            }
+            return color;
         }
 
         // cycle to next color in array
         public void nextColor() { 
+            if (state.colors.length == 1) {
+                return;
+            }
             if (colorIndex == state.colors.length - 1) {
                 colorIndex = 0;
             } else {
