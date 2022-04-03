@@ -154,6 +154,8 @@ public class Superstructure extends Subsystem {
                 setGoals();
                 updateLEDs();
                 outputTelemetry();
+
+                updateRumble();
                         
                 // send log data
                 SendLog();
@@ -617,6 +619,16 @@ public class Superstructure extends Subsystem {
         // if we don't have any balls we should never be in a spitting state
         if (mBallCount == 0) {
             mPeriodicIO.SPIT = false;
+        }
+    }
+
+    public void updateRumble() {
+        if (!mClimbMode) {
+            mControlBoard.setOperatorRumble(mPeriodicIO.SHOOT);
+            mControlBoard.setDriverRumble(mPeriodicIO.SHOOT);
+        } else {
+            mControlBoard.setOperatorRumble(false);
+            mControlBoard.setDriverRumble(false);
         }
     }
 

@@ -58,6 +58,15 @@ public class ControlBoard {
         operator = new CustomXboxController(Constants.kButtonGamepadPort);
     }
     
+    public void setDriverRumble(boolean on) {
+        driver.setRumble(on);
+    }
+
+    
+    public void setOperatorRumble(boolean on) {
+        operator.setRumble(on);
+    }
+
     /* DRIVER METHODS */
     public Translation2d getSwerveTranslation() {
         double forwardAxis = driver.getController().getRawAxis(1);
