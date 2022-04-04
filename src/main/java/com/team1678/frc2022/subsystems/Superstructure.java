@@ -272,6 +272,7 @@ public class Superstructure extends Subsystem {
         // get whether we want to enter climb mode
         if (mControlBoard.getClimbMode()) {
             mClimbMode = true;
+            mClimbStep = 0;
             mOpenLoopClimbControlMode = false;
         }
 
@@ -300,6 +301,7 @@ public class Superstructure extends Subsystem {
                 mClimber.resetClimberPosition();
                 mClimber.setClimberNone();
                 mResetClimberPosition = false;
+                mClimbStep = 0;
             }
 
             if (!mOpenLoopClimbControlMode) {
