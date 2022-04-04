@@ -485,7 +485,7 @@ public class Constants {
     }
 
     public static final class ColorSensorConstants {
-        public static final double kColorSensorThreshold = Constants.isComp ? 160 : 170;
+        public static final double kColorSensorThreshold = Constants.isComp ? 200 : 170;
 
         public static final double kBlueFreqScaler = 1.0;
         public static final double kRedFreqScaler = 1.0;
