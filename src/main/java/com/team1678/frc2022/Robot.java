@@ -15,6 +15,7 @@ import com.team1678.frc2022.controlboard.ControlBoard.SwerveCardinal;
 import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.loops.CrashTracker;
 import com.team1678.frc2022.loops.Looper;
+import com.team1678.frc2022.shuffleboard.ShuffleBoardInteractions;
 import com.team1678.frc2022.subsystems.Climber;
 import com.team1678.frc2022.subsystems.ColorSensor;
 import com.team1678.frc2022.subsystems.Hood;
