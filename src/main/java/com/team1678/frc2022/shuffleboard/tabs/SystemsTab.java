@@ -40,14 +40,14 @@ public class SystemsTab extends ShuffleboardTabBase {
 				.withPosition(2, 0)
 				.getEntry();
 		mLimelightTX = mTab
-				.add("tX", 0.0)
-				.withSize(1, 1)
-				.withPosition(3, 0)
-				.getEntry();
-		mLimelightTY = mTab
-				.add("tY", 0.0)
+				.add("tx", 0.0)
 				.withSize(1, 1)
 				.withPosition(4, 0)
+				.getEntry();
+		mLimelightTY = mTab
+				.add("ty", 0.0)
+				.withSize(1, 1)
+				.withPosition(5, 0)
 				.getEntry();
 		mColorSensorProximity = mTab
 				.add("Color Sensor Proximity", 0.0)

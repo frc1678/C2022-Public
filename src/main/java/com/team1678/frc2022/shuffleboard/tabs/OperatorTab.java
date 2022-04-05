@@ -19,6 +19,8 @@ public class OperatorTab extends ShuffleboardTabBase {
     private NetworkTableEntry mOperatorVisionAimed;
     private NetworkTableEntry mOperatorClimbMode;
     private NetworkTableEntry mOperatorAutoClimb;
+    private NetworkTableEntry mOperatorEjectDisable;
+    private NetworkTableEntry mOperatorIntakeOverride;
 
     @Override
     public void createEntries() {
@@ -59,6 +61,16 @@ public class OperatorTab extends ShuffleboardTabBase {
                 .withSize(2, 2)
                 .withPosition(8, 2)
                 .getEntry();
+        mOperatorEjectDisable = mTab
+                .add("Eject Disable", false)
+                .withSize(1, 1)
+                .withPosition(1, 1)
+                .getEntry();
+        mOperatorIntakeOverride = mTab
+                .add("Force Intake", false)
+                .withSize(1, 1)
+                .withPosition(0, 1)
+                .getEntry();
     }
 
     @Override
@@ -70,6 +82,9 @@ public class OperatorTab extends ShuffleboardTabBase {
         mOperatorVisionAimed.setBoolean(mLimelight.isAimed());
         mOperatorClimbMode.setBoolean(mSuperstructure.getInClimbMode());
         mOperatorAutoClimb.setBoolean(mSuperstructure.isAutoClimb());
+
+        mOperatorEjectDisable.setBoolean(mSuperstructure.getEjectDisabled());
+        mOperatorIntakeOverride.setBoolean(mSuperstructure.getIntakeOverride());
     }
 
 }

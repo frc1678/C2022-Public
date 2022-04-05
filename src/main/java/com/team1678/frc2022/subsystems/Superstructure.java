@@ -439,7 +439,7 @@ public class Superstructure extends Subsystem {
 
                 // if we want to lock the intake, reject incoming cargo for a short time and
                 // then lock the intake
-                if (mIntakeReject) {
+                if (mIntakeReject && !mIntakeOverride) {
                     setWantReject(true);
                     if (!(mIndexer.getTopBeamBreak() && mColorSensor.getForwardBeamBreak())
                             && !indexerFull()
@@ -966,6 +966,12 @@ public class Superstructure extends Subsystem {
     }
     public boolean getWantsSpit() {
         return mPeriodicIO.SPIT;
+    }
+    public boolean getEjectDisabled() {
+        return mDisableEjecting;
+    }
+    public boolean getIntakeOverride() {
+        return mIntakeOverride;
     }
 
     // get other statuses
