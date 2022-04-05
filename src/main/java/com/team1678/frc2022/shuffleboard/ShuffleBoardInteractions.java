@@ -34,6 +34,7 @@ public class ShuffleBoardInteractions {
     private List<ShuffleboardTabBase> mTabs;
 
     private OperatorTab mOperatorTab = new OperatorTab();
+    private FieldView mFieldView = new FieldView();
 
     // instantiate subsystems, tabs, and widgets
     public ShuffleBoardInteractions() {
@@ -61,6 +62,7 @@ public class ShuffleBoardInteractions {
         for (ShuffleboardTabBase tab : mTabs) {
             tab.update();
         }
+        mFieldView.update();
     }
 
     public ShuffleboardTab getOperatorTab() {
