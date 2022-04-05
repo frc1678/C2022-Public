@@ -32,7 +32,7 @@ public class SuperstructureTab extends ShuffleboardTabBase {
 
 	@Override
 	public void createEntries() {
-		mTab = Shuffleboard.getTab("Leds");
+		mTab = Shuffleboard.getTab("Superstructure");
 		// actions
 		mIntaking = mTab
 				.add("Intaking", false)

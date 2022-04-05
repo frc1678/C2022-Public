@@ -6,10 +6,6 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 public abstract class ShuffleboardTabBase {
     protected ShuffleboardTab mTab;
 
-    public ShuffleboardTabBase() {
-        createEntries();
-    }
-
     public abstract void createEntries();
 
     protected NetworkTableEntry createNumberEntry(String name) {

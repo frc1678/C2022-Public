@@ -34,7 +34,7 @@ public class ClimberTab extends ShuffleboardTabBase {
 
 	@Override
 	public void createEntries() {
-		mTab = Shuffleboard.getTab("Leds");
+		mTab = Shuffleboard.getTab("Climber");
 		mInClimbMode = mTab
 				.add("Climb Mode", false)
 				.getEntry();

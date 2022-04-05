@@ -17,7 +17,7 @@ public class ManualShooterTab extends ShuffleboardTabBase {
 
 	@Override
 	public void createEntries() {
-		mTab = Shuffleboard.getTab("Leds");
+		mTab = Shuffleboard.getTab("Manual Params");
 		/* CANdle */
         mManualShooterRPM = mTab
             .add("Manual Shooter Goal", 0.0)

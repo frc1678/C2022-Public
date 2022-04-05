@@ -1,5 +1,6 @@
 package com.team1678.frc2022.shuffleboard;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.team1678.frc2022.shuffleboard.tabs.ClimberTab;
@@ -12,6 +13,7 @@ import com.team1678.frc2022.shuffleboard.tabs.OperatorTab;
 import com.team1678.frc2022.shuffleboard.tabs.ShooterTab;
 import com.team1678.frc2022.shuffleboard.tabs.SuperstructureTab;
 import com.team1678.frc2022.shuffleboard.tabs.SwerveTab;
+import com.team1678.frc2022.shuffleboard.tabs.SystemsTab;
 import com.team1678.frc2022.shuffleboard.tabs.VisionTab;
 
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -19,7 +21,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 public class ShuffleBoardInteractions {
 
     // Trims unneccesary tabs when in competition
-    public final boolean mDebug = true;
+    public final boolean mDebug = false;
 
     /* ShuffleBoardInteractions Instance */
     private static ShuffleBoardInteractions mInstance; 
@@ -31,31 +33,37 @@ public class ShuffleBoardInteractions {
         return mInstance;
     }
 
-    private List<ShuffleboardTabBase> mTabs;
+    private ArrayList<ShuffleboardTabBase> mTabs = new ArrayList<ShuffleboardTabBase>();
 
-    private OperatorTab mOperatorTab = new OperatorTab();
+    private OperatorTab mOperatorTab;
     private FieldView mFieldView = new FieldView();
 
     // instantiate subsystems, tabs, and widgets
     public ShuffleBoardInteractions() {
-        mTabs = List.of(
-            mOperatorTab
-            // new ColorSensorTab(),
-            // new SuperstructureTab(),
-            // new SwerveTab(),
-            // new VisionTab()
-        );
+        mOperatorTab = new OperatorTab();
+        mTabs.add(mOperatorTab);
 
-        // if (mDebug) {
-        //     mTabs.addAll(List.of(
-        //         new ClimberTab(),
-        //         new IndexerTab(),
-        //         new IntakeTab(),
-        //         new LedTab(),
-        //         new ManualShooterTab(),
-        //         new ShooterTab()
-        //     ));
-        // }
+        if (mDebug) {
+            List<ShuffleboardTabBase> optionalTabs = List.of(
+                new SwerveTab(),
+                new SuperstructureTab(),
+                new VisionTab(),
+                new ColorSensorTab(),
+                new ShooterTab(),
+                new ClimberTab(),
+                new IndexerTab(),
+                new IntakeTab(),
+                new LedTab(),
+                new ManualShooterTab()
+            );
+            mTabs.addAll(optionalTabs);
+        } else {
+            mTabs.add(new SystemsTab());
+        }
+
+        for(ShuffleboardTabBase tab: mTabs) {
+            tab.createEntries();
+        }
     }
 
     public void update() {
