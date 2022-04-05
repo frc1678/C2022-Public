@@ -39,23 +39,23 @@ public class ShuffleBoardInteractions {
     // instantiate subsystems, tabs, and widgets
     public ShuffleBoardInteractions() {
         mTabs = List.of(
-            mOperatorTab,
-            new ColorSensorTab(),
-            new SuperstructureTab(),
-            new SwerveTab(),
-            new VisionTab()
+            mOperatorTab
+            // new ColorSensorTab(),
+            // new SuperstructureTab(),
+            // new SwerveTab(),
+            // new VisionTab()
         );
 
-        if (mDebug) {
-            mTabs.addAll(List.of(
-                new ClimberTab(),
-                new IndexerTab(),
-                new IntakeTab(),
-                new LedTab(),
-                new ManualShooterTab(),
-                new ShooterTab()
-            ));
-        }
+        // if (mDebug) {
+        //     mTabs.addAll(List.of(
+        //         new ClimberTab(),
+        //         new IndexerTab(),
+        //         new IntakeTab(),
+        //         new LedTab(),
+        //         new ManualShooterTab(),
+        //         new ShooterTab()
+        //     ));
+        // }
     }
 
     public void update() {

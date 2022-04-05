@@ -14,20 +14,21 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class FieldView {
-    private Field2d mField2d;
+    private Field2d mField2d = new Field2d();
     private Swerve mSwerve = Swerve.getInstance();
     private Superstructure mSuperstructure = Superstructure.getInstance();
     private RobotState mRobotState = RobotState.getInstance();
 
     private Pose2d[] mModulePoses = new Pose2d[4];
-    private Pose2d mRobotPose;
+    private Pose2d mRobotPose = new Pose2d();
 
     public FieldView() {
         SmartDashboard.putData(mField2d);
     }
 
     private void updateSwervePoses() {
-        mRobotPose = mSwerve.getPose();
+        if(mSwerve.getPose() != null) mRobotPose = mSwerve.getPose();
+        else mRobotPose = new Pose2d();
         for (int i = 0; i < mModulePoses.length; i++) {
             Translation2d updatedPosition = Constants.SwerveConstants.swerveModuleLocations[i]
                     .rotateBy(mRobotPose.getRotation()).plus(mRobotPose.getTranslation());
@@ -38,7 +39,7 @@ public class FieldView {
     public void update() {
         updateSwervePoses();
 
-        mField2d.setRobotPose(mSwerve.getPose());
+        mField2d.setRobotPose(mRobotPose);
         mField2d.getObject("Swerve Modules").setPoses(mModulePoses);
 
         Optional<AimingParameters> target = mSuperstructure.getRealAimingParameters();
