@@ -9,6 +9,7 @@ import com.team1678.frc2022.subsystems.Swerve;
 import com.team254.lib.vision.AimingParameters;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -32,7 +33,11 @@ public class FieldView {
         for (int i = 0; i < mModulePoses.length; i++) {
             Translation2d updatedPosition = Constants.SwerveConstants.swerveModuleLocations[i]
                     .rotateBy(mRobotPose.getRotation()).plus(mRobotPose.getTranslation());
-            mModulePoses[i] = new Pose2d(updatedPosition, mSwerve.getStates()[i].angle.plus(mRobotPose.getRotation()));
+            Rotation2d updatedRotation = mSwerve.getStates()[i].angle.plus(mRobotPose.getRotation());
+            if(mSwerve.getStates()[i].speedMetersPerSecond < 0.0) {
+                updatedRotation.rotateBy(Rotation2d.fromDegrees(180));
+            }
+            mModulePoses[i] = new Pose2d(updatedPosition, updatedRotation);
         }
     }
 
