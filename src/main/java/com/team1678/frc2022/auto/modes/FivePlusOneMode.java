@@ -3,7 +3,6 @@ package com.team1678.frc2022.auto.modes;
 import java.util.List;
 
 import com.team1678.frc2022.Constants;
-import com.team1678.frc2022.ShuffleBoardInteractions;
 import com.team1678.frc2022.auto.AutoModeEndedException;
 import com.team1678.frc2022.auto.AutoTrajectoryReader;
 import com.team1678.frc2022.auto.actions.LambdaAction;
@@ -11,6 +10,7 @@ import com.team1678.frc2022.auto.actions.RaceAction;
 import com.team1678.frc2022.auto.actions.SeriesAction;
 import com.team1678.frc2022.auto.actions.SwerveTrajectoryAction;
 import com.team1678.frc2022.auto.actions.WaitAction;
+import com.team1678.frc2022.shuffleboard.ShuffleBoardInteractions;
 import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
 
@@ -270,15 +270,6 @@ public class FivePlusOneMode extends AutoModeBase {
 
         System.out.println("Finished auto!");
         SmartDashboard.putBoolean("Auto Finished", true);
-    }
-
-    public void plotTrajectories() {
-        ShuffleBoardInteractions.getInstance().addTrajectory(traj_path_a, "Traj A");
-        ShuffleBoardInteractions.getInstance().addTrajectory(traj_path_b, "Traj B");
-        ShuffleBoardInteractions.getInstance().addTrajectory(traj_path_c, "Traj C");
-        ShuffleBoardInteractions.getInstance().addTrajectory(traj_path_d, "Traj D");
-        ShuffleBoardInteractions.getInstance().addTrajectory(traj_path_f, "Traj E");
-        ShuffleBoardInteractions.getInstance().addTrajectory(traj_path_g, "Traj F");
     }
 
     @Override
