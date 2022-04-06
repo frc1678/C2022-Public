@@ -129,7 +129,6 @@ public class Swerve extends Subsystem {
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Integrated", mod.getState().angle.getDegrees());
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Velocity", mod.getState().speedMetersPerSecond);    
         }
-
         SmartDashboard.putBoolean("Wants Auto Vision Aim", mWantsAutoVisionAim);
         SmartDashboard.putNumber("Vision Align Target Angle", Math.toDegrees(mLimelightVisionAlignGoal));
         SmartDashboard.putNumber("Swerve Heading", MathUtil.inputModulus(mPigeon.getYaw().getDegrees(), 0, 360));
@@ -339,6 +338,8 @@ public class Swerve extends Subsystem {
         mPeriodicIO.robot_pitch = mPigeon.getUnadjustedPitch().getDegrees();
         mPeriodicIO.robot_roll = mPigeon.getRoll().getDegrees();
         mPeriodicIO.snap_target = Math.toDegrees(snapPIDController.getGoal().position);
+        mPeriodicIO.vision_align_target_angle = Math.toDegrees(mLimelightVisionAlignGoal);
+        mPeriodicIO.swerve_heading = MathUtil.inputModulus(mPigeon.getYaw().getDegrees(), 0, 360);
 
         SendLog();
     }
@@ -352,6 +353,13 @@ public class Swerve extends Subsystem {
         public double pigeon_heading;
         public double robot_pitch;
         public double robot_roll;
+        public double vision_align_target_angle;
+        public double swerve_heading;
+
+        public double angular_velocity;
+        public double goal_velocity;
+
+        public double profile_position;
 
         // outputs
         public double snap_target;
@@ -377,6 +385,14 @@ public class Swerve extends Subsystem {
         headers.add("robot_pitch");
         headers.add("robot_roll");
         headers.add("snap_target");
+        headers.add("vision_align_target_angle");
+        headers.add("swerve_heading");
+        for (SwerveModule module : this.mSwerveMods) {
+            headers.add(module.moduleNumber + "_angle");
+            headers.add(module.moduleNumber + "_desired_angle");
+            headers.add(module.moduleNumber + "_velocity");
+            headers.add(module.moduleNumber + "_cancoder");
+        }
 
         mStorage.setHeaders(headers);
     }
@@ -391,9 +407,18 @@ public class Swerve extends Subsystem {
         items.add(mPeriodicIO.robot_pitch);
         items.add(mPeriodicIO.robot_roll);
         items.add(mPeriodicIO.snap_target);
+        items.add(mPeriodicIO.vision_align_target_angle);
+        items.add(mPeriodicIO.swerve_heading);
+        for (SwerveModule module : this.mSwerveMods) {
+            items.add(module.getState().angle.getDegrees());
+            items.add(module.getTargetAngle());
+            items.add(module.getState().speedMetersPerSecond);
+            items.add(MathUtil.inputModulus(module.getCanCoder().getDegrees() - module.angleOffset, 0, 360));
+        }
 
         // send data to logging storage
         mStorage.addData(items);
     }
 
 }
+
