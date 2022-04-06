@@ -35,7 +35,7 @@ public class FieldView {
                     .rotateBy(mRobotPose.getRotation()).plus(mRobotPose.getTranslation());
             Rotation2d updatedRotation = mSwerve.getStates()[i].angle.plus(mRobotPose.getRotation());
             if(mSwerve.getStates()[i].speedMetersPerSecond < 0.0) {
-                updatedRotation.rotateBy(Rotation2d.fromDegrees(180));
+                updatedRotation = updatedRotation.plus(Rotation2d.fromDegrees(180));;
             }
             mModulePoses[i] = new Pose2d(updatedPosition, updatedRotation);
         }
