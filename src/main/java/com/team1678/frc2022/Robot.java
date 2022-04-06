@@ -247,10 +247,11 @@ public class Robot extends TimedRobot {
 				mSwerve.setLocked(true);
 			} else {
 				mSwerve.setLocked(false);
-			}
+		}
 
 			if (mControlBoard.zeroGyro()) {
 				mSwerve.zeroGyro();
+				mSwerve.resetOdometry(new Pose2d(5.5, 5.5, Rotation2d.fromDegrees(0)));
 			}
 
 			if (mControlBoard.getSwerveSnap() != SwerveCardinal.NONE) {

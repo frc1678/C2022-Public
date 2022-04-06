@@ -113,7 +113,7 @@ public class RobotState {
 
     public synchronized Pose2d getPredictedFieldToVehicle(double lookahead_time) {
         Translation2d predictedFieldToVehicle = getLatestFieldToVehicle().getValue().getTranslation()
-                .translateBy(getSmoothedPredictedVelocity().scaled(lookahead_time).getTranslation()
+                .translateBy(getSmoothedPredictedVelocity().scaled(-lookahead_time).getTranslation()
                         .rotateBy(Rotation2d.fromDegrees(180)));
         return new Pose2d(predictedFieldToVehicle, new Rotation2d());
     }
