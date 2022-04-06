@@ -668,7 +668,8 @@ public class Superstructure extends Subsystem {
         // if (mLimelight.hasTarget() && mLimelight.getLimelightDistanceToTarget().isPresent()) {
         //     mCorrectedDistanceToTarget = mLimelight.getLimelightDistanceToTarget().get();
         // } else {
-            mCorrectedDistanceToTarget = predicted_vehicle_to_goal.getTranslation().norm();
+            double current_distance_to_target = real_aiming_params_.get().getRange();
+            mCorrectedDistanceToTarget = current_distance_to_target + ((predicted_vehicle_to_goal.getTranslation().norm() - current_distance_to_target) * Constants.VisionConstants.kDistanceScaler);
         // }
 
         SmartDashboard.putString("Field to Target", real_aiming_params_.get().getFieldToGoal().toString());
