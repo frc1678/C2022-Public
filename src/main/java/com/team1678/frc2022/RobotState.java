@@ -20,6 +20,7 @@ import java.util.*;
 
 public class RobotState {
     private static RobotState mInstance;
+
     public static RobotState getInstance() {
         if (mInstance == null) {
             mInstance = new RobotState();
@@ -82,7 +83,7 @@ public class RobotState {
      */
     public synchronized void reset(double start_time, Pose2d initial_field_to_vehicle) {
         field_to_vehicle_ = new InterpolatingTreeMap<>(kObservationBufferSize);
-        field_to_vehicle_.put(new InterpolatingDouble(start_time), initial_field_to_vehicle);
+        field_to_vehicle_.put(new InterpolatingDouble(start_time), kFiveBallStartingLocation);
         vehicle_velocity_predicted_ = Pose2d.identity();
         vehicle_velocity_predicted_filtered_ = new MovingAveragePose2d(50);
         vehicle_velocity_measured_ = Pose2d.identity();
@@ -111,9 +112,10 @@ public class RobotState {
     }
 
     public synchronized Pose2d getPredictedFieldToVehicle(double lookahead_time) {
-        return new Pose2d(
-            getLatestFieldToVehicle().getValue()
-                .transformBy(getSmoothedPredictedVelocity().scaled(-lookahead_time)).getTranslation(), new Rotation2d());
+        Translation2d predictedFieldToVehicle = getLatestFieldToVehicle().getValue().getTranslation()
+                .translateBy(getSmoothedPredictedVelocity().scaled(lookahead_time).getTranslation()
+                        .rotateBy(Rotation2d.fromDegrees(180)));
+        return new Pose2d(predictedFieldToVehicle, new Rotation2d());
     }
 
     public synchronized void addFieldToVehicleObservation(double timestamp, Pose2d observation) {
@@ -125,8 +127,8 @@ public class RobotState {
 
         distance_driven_ += displacement.getTranslation().norm();
         addFieldToVehicleObservation(timestamp, new Pose2d(
-            getLatestFieldToVehicle().getValue().getTranslation().translateBy(displacement.getTranslation()), 
-            getLatestFieldToVehicle().getValue().getRotation().rotateBy(displacement.getRotation())));
+                getLatestFieldToVehicle().getValue().getTranslation().translateBy(displacement.getTranslation()),
+                getLatestFieldToVehicle().getValue().getRotation().rotateBy(displacement.getRotation())));
 
         vehicle_velocity_measured_ = measured_velocity;
         vehicle_velocity_predicted_ = predicted_velocity;
@@ -167,13 +169,16 @@ public class RobotState {
 
     private Translation2d getCameraToVisionTargetTranslation(TargetInfo target, Limelight source) {
         return getCameraToVisionTargetTranslation(target, source.getLensHeight(), source.getHorizontalPlaneToLens());
-   }
-
-    public static Translation2d getCameraToVisionTargetTranslation(TargetInfo target, double cameraHeight, Rotation2d cameraPitch) {
-        return getCameraToVisionTargetTranslation(target, cameraHeight, cameraPitch, Constants.VisionConstants.kGoalHeight);
     }
 
-    private static Translation2d getCameraToVisionTargetTranslation(TargetInfo target, double cameraHeight, Rotation2d cameraPitch, double targetCornerHeight) {
+    public static Translation2d getCameraToVisionTargetTranslation(TargetInfo target, double cameraHeight,
+            Rotation2d cameraPitch) {
+        return getCameraToVisionTargetTranslation(target, cameraHeight, cameraPitch,
+                Constants.VisionConstants.kGoalHeight);
+    }
+
+    private static Translation2d getCameraToVisionTargetTranslation(TargetInfo target, double cameraHeight,
+            Rotation2d cameraPitch, double targetCornerHeight) {
         // Compensate for camera pitch
         Translation2d xz_plane_translation = new Translation2d(target.getX(), target.getZ()).rotateBy(cameraPitch);
         double x = xz_plane_translation.x();
@@ -186,7 +191,8 @@ public class RobotState {
             double scaling = differential_height / z;
             double distance = Math.hypot(x, y) * scaling;
             Rotation2d angle = new Rotation2d(x, y, true);
-            return new Translation2d(distance * angle.cos() + Constants.VisionConstants.kGoalRadius, distance * angle.sin());
+            return new Translation2d(distance * angle.cos() + Constants.VisionConstants.kGoalRadius,
+                    distance * angle.sin());
         }
         return null;
     }
@@ -263,7 +269,8 @@ public class RobotState {
         double timestamp = Timer.getFPGATimestamp();
 
         Pose2d vehicleToGoal = getFieldToVehicle(timestamp).inverse().transformBy(kDefaultFieldRelativeGoalLocation);
-        vehicleToGoal = new Pose2d(vehicleToGoal.getTranslation().rotateBy(getFieldToVehicle(timestamp).getRotation()), vehicleToGoal.getRotation());
+        vehicleToGoal = new Pose2d(vehicleToGoal.getTranslation().rotateBy(getFieldToVehicle(timestamp).getRotation()),
+                vehicleToGoal.getRotation());
 
         AimingParameters params = new AimingParameters(vehicleToGoal, kDefaultFieldRelativeGoalLocation,
                 kDefaultFieldRelativeGoalLocation.getRotation(), 0, 0, -1);
@@ -288,7 +295,7 @@ public class RobotState {
                 Constants.VisionConstants.kTrackSwitchingWeight,
                 prev_track_id,
                 timestamp);
-                
+
         reports.sort(comparator);
 
         GoalTracker.TrackReport report = null;
@@ -303,7 +310,8 @@ public class RobotState {
         }
 
         Pose2d vehicleToGoal = getFieldToVehicle(timestamp).inverse().transformBy(report.field_to_target);
-        vehicleToGoal = new Pose2d(vehicleToGoal.getTranslation().rotateBy(getFieldToVehicle(timestamp).getRotation()), vehicleToGoal.getRotation());
+        vehicleToGoal = new Pose2d(vehicleToGoal.getTranslation().rotateBy(getFieldToVehicle(timestamp).getRotation()),
+                vehicleToGoal.getRotation());
 
         AimingParameters params = new AimingParameters(vehicleToGoal, report.field_to_target,
                 report.field_to_target.getRotation(), report.latest_timestamp, report.stability, report.id);
@@ -324,7 +332,8 @@ public class RobotState {
         SmartDashboard.putString("Robot Field to Vehicle", getLatestFieldToVehicle().getValue().toString());
         SmartDashboard.putNumber("Robot Field To Vehicle X", getLatestFieldToVehicle().getValue().getTranslation().x());
         SmartDashboard.putNumber("Robot Field To Vehicle Y", getLatestFieldToVehicle().getValue().getTranslation().y());
-        SmartDashboard.putNumber("Robot Field To Vehicle Theta", getLatestFieldToVehicle().getValue().getRotation().getDegrees());
+        SmartDashboard.putNumber("Robot Field To Vehicle Theta",
+                getLatestFieldToVehicle().getValue().getRotation().getDegrees());
         SmartDashboard.putString("Smoothed Predicted Velocity", getSmoothedPredictedVelocity().toString());
 
         Optional<AimingParameters> params = getAimingParameters(-1, Constants.VisionConstants.kMaxGoalTrackAge);

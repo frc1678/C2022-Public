@@ -664,12 +664,12 @@ public class Superstructure extends Subsystem {
         // send vision aligning target delta to swerve
         mSwerve.acceptLatestGoalTrackVisionAlignGoal(mTargetAngle);
 
-        // update distance to target
-        if (mLimelight.hasTarget() && mLimelight.getLimelightDistanceToTarget().isPresent()) {
-            mCorrectedDistanceToTarget = mLimelight.getLimelightDistanceToTarget().get();
-        } else {
+        // // update distance to target
+        // if (mLimelight.hasTarget() && mLimelight.getLimelightDistanceToTarget().isPresent()) {
+        //     mCorrectedDistanceToTarget = mLimelight.getLimelightDistanceToTarget().get();
+        // } else {
             mCorrectedDistanceToTarget = predicted_vehicle_to_goal.getTranslation().norm();
-        }
+        // }
 
         SmartDashboard.putString("Field to Target", real_aiming_params_.get().getFieldToGoal().toString());
         SmartDashboard.putString("Vehicle to Target", real_aiming_params_.get().getVehicleToGoal().toString());

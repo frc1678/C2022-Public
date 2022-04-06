@@ -197,13 +197,13 @@ public class Swerve extends Subsystem {
 
     public void chooseVisionAlignGoal() {
         double currentAngle = mPigeon.getYaw().getRadians();
-        if (mLimelight.hasTarget()) {
-            double targetOffset = Math.toRadians(mLimelight.getOffset()[0]);
-            mLimelightVisionAlignGoal = MathUtil.inputModulus(currentAngle - targetOffset, 0.0, 2 * Math.PI);
-            visionPIDController.setSetpoint(mLimelightVisionAlignGoal);
-        } else {
+        // if (mLimelight.hasTarget()) {
+        //     double targetOffset = Math.toRadians(mLimelight.getOffset()[0]);
+        //     mLimelightVisionAlignGoal = MathUtil.inputModulus(currentAngle - targetOffset, 0.0, 2 * Math.PI);
+        //     visionPIDController.setSetpoint(mLimelightVisionAlignGoal);
+        // } else {
             visionPIDController.setSetpoint(mGoalTrackVisionAlignGoal);
-        }
+        // }
 
         mVisionAlignAdjustment = visionPIDController.calculate(currentAngle);
     }
