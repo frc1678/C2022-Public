@@ -52,6 +52,7 @@ public class Swerve extends Subsystem {
     public boolean isSnapping;
     private double mLimelightVisionAlignGoal;
     private double mGoalTrackVisionAlignGoal;
+    private double mGoalVelocity;
     private double mVisionAlignAdjustment;
 
     public ProfiledPIDController snapPIDController;
@@ -191,21 +192,22 @@ public class Swerve extends Subsystem {
         }
     }
 
-    public void acceptLatestGoalTrackVisionAlignGoal(double vision_goal) {
-        mGoalTrackVisionAlignGoal = vision_goal; 
+    public void acceptLatestGoalTrackVisionAlignGoal(double vision_goal, double goal_velocity) {
+        mGoalTrackVisionAlignGoal = vision_goal;
+        mGoalVelocity = goal_velocity; 
     }
 
     public void chooseVisionAlignGoal() {
         double currentAngle = mPigeon.getYaw().getRadians();
-        if (mLimelight.hasTarget()) {
-            double targetOffset = Math.toRadians(mLimelight.getOffset()[0]);
-            mLimelightVisionAlignGoal = MathUtil.inputModulus(currentAngle - targetOffset, 0.0, 2 * Math.PI);
-            visionPIDController.setSetpoint(mLimelightVisionAlignGoal);
-        } else {
+        // if (mLimelight.hasTarget()) {
+        //     double targetOffset = Math.toRadians(mLimelight.getOffset()[0]);
+        //     mLimelightVisionAlignGoal = MathUtil.inputModulus(currentAngle - targetOffset, 0.0, 2 * Math.PI);
+        //     visionPIDController.setSetpoint(mLimelightVisionAlignGoal);
+        // } else {
             visionPIDController.setSetpoint(mGoalTrackVisionAlignGoal);
-        }
+        // }
 
-        mVisionAlignAdjustment = visionPIDController.calculate(currentAngle);
+        mVisionAlignAdjustment = visionPIDController.calculate(currentAngle)/* + mGoalVelocity*/;
     }
 
     public double calculateSnapValue() {

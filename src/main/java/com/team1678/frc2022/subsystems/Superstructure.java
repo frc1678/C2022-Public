@@ -14,10 +14,9 @@ import com.team1678.frc2022.subsystems.LEDs.State;
 import com.team254.lib.util.Util;
 import com.team254.lib.vision.AimingParameters;
 
-import org.opencv.features2d.FlannBasedMatcher;
-
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.util.InterpolatingDouble;
+import com.team254.lib.util.MovingAverage;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -131,6 +130,14 @@ public class Superstructure extends Subsystem {
     private int mTrackId = -1;
     private double mTargetAngle = 0.0;
     private double mCorrectedDistanceToTarget = 0.0;
+    // vars for calculating goal velocity
+    private double prev_vehicle_to_goal_rotation = 0.0;
+    private double curr_vehicle_to_goal_rotation = 0.0;
+    private double goal_velocity = 0.0;
+    private MovingAverage goal_velocity_filtered_ = new MovingAverage(50);
+
+    // status var for using normal regression in auto or lookahead regression in teleop
+    private boolean mIsInAuto = false;
 
     @Override
     public void registerEnabledLoops(ILooper enabledLooper) {
@@ -172,6 +179,9 @@ public class Superstructure extends Subsystem {
     }
 
     /*** SETTERS FOR SUPERSTRUCTURE ACTIONS OUTSIDE OPERATOR INPUT ***/
+    public void setIsInAuto(boolean auto) {
+        mIsInAuto = auto;
+    }
     public void setWantIntake(boolean intake) {
         mPeriodicIO.INTAKE = intake;
 
@@ -661,15 +671,27 @@ public class Superstructure extends Subsystem {
         mTrackId = real_aiming_params_.get().getTrackId();
         mTargetAngle = predicted_vehicle_to_goal.getTranslation().direction().getRadians() + Math.PI;
 
-        // send vision aligning target delta to swerve
-        mSwerve.acceptLatestGoalTrackVisionAlignGoal(mTargetAngle);
-
-        // update distance to target
-        if (mLimelight.hasTarget() && mLimelight.getLimelightDistanceToTarget().isPresent()) {
-            mCorrectedDistanceToTarget = mLimelight.getLimelightDistanceToTarget().get();
+        // calculate corrected distance to target from lookahead
+        if (mIsInAuto) {
+            if (mLimelight.getLimelightDistanceToTarget().isPresent()) {
+                mCorrectedDistanceToTarget = mLimelight.getLimelightDistanceToTarget().get();
+            }
         } else {
-            mCorrectedDistanceToTarget = predicted_vehicle_to_goal.getTranslation().norm();
+            double current_distance_to_target = real_aiming_params_.get().getRange();
+            mCorrectedDistanceToTarget = current_distance_to_target + ((predicted_vehicle_to_goal.getTranslation().norm() - current_distance_to_target) * Constants.VisionConstants.kDistanceScaler);
         }
+        
+        curr_vehicle_to_goal_rotation = real_aiming_params_.get().getVehicleToGoalRotation().getRadians();
+        if (mPeriodicIO.dt == 0) {
+            goal_velocity = 0;
+        } else {
+            goal_velocity = ((curr_vehicle_to_goal_rotation - prev_vehicle_to_goal_rotation) / mPeriodicIO.dt) * Constants.VisionConstants.kGoalVelocityScaler;
+        }
+        goal_velocity_filtered_.addNumber(goal_velocity);
+        prev_vehicle_to_goal_rotation = curr_vehicle_to_goal_rotation;
+
+        // send vision aligning target delta to swerve
+        mSwerve.acceptLatestGoalTrackVisionAlignGoal(mTargetAngle, goal_velocity_filtered_.getAverage());
 
         SmartDashboard.putString("Field to Target", real_aiming_params_.get().getFieldToGoal().toString());
         SmartDashboard.putString("Vehicle to Target", real_aiming_params_.get().getVehicleToGoal().toString());
@@ -937,6 +959,7 @@ public class Superstructure extends Subsystem {
         mPeriodicIO.FENDER = false;
         mPeriodicIO.SPIT = false;
 
+        mIsInAuto = false;
         mClimbMode = false;
     } 
 
