@@ -52,6 +52,7 @@ public class Swerve extends Subsystem {
     public boolean isSnapping;
     private double mLimelightVisionAlignGoal;
     private double mGoalTrackVisionAlignGoal;
+    private double mGoalVelocity;
     private double mVisionAlignAdjustment;
 
     public ProfiledPIDController snapPIDController;
@@ -191,8 +192,9 @@ public class Swerve extends Subsystem {
         }
     }
 
-    public void acceptLatestGoalTrackVisionAlignGoal(double vision_goal) {
-        mGoalTrackVisionAlignGoal = vision_goal; 
+    public void acceptLatestGoalTrackVisionAlignGoal(double vision_goal, double goal_velocity) {
+        mGoalTrackVisionAlignGoal = vision_goal;
+        mGoalVelocity = goal_velocity; 
     }
 
     public void chooseVisionAlignGoal() {
@@ -205,7 +207,7 @@ public class Swerve extends Subsystem {
             visionPIDController.setSetpoint(mGoalTrackVisionAlignGoal);
         // }
 
-        mVisionAlignAdjustment = visionPIDController.calculate(currentAngle);
+        mVisionAlignAdjustment = visionPIDController.calculate(currentAngle)/* + mGoalVelocity*/;
     }
 
     public double calculateSnapValue() {
