@@ -7,7 +7,9 @@ import com.team254.lib.geometry.Translation2d;
 
 import com.team254.lib.util.InterpolatingDouble;
 import com.team254.lib.util.InterpolatingTreeMap;
+import com.team254.lib.util.MovingAverage;
 import com.team254.lib.util.MovingAveragePose2d;
+import com.team254.lib.util.Util;
 import com.team254.lib.vision.AimingParameters;
 import com.team254.lib.vision.GoalTracker;
 import com.team254.lib.vision.GoalTracker.TrackReportComparator;
@@ -85,9 +87,9 @@ public class RobotState {
         field_to_vehicle_ = new InterpolatingTreeMap<>(kObservationBufferSize);
         field_to_vehicle_.put(new InterpolatingDouble(start_time), initial_field_to_vehicle);
         vehicle_velocity_predicted_ = Pose2d.identity();
-        vehicle_velocity_predicted_filtered_ = new MovingAveragePose2d(50);
+        vehicle_velocity_predicted_filtered_ = new MovingAveragePose2d(20);
         vehicle_velocity_measured_ = Pose2d.identity();
-        vehicle_velocity_measured_filtered_ = new MovingAveragePose2d(50);
+        vehicle_velocity_measured_filtered_ = new MovingAveragePose2d(20);
         distance_driven_ = 0.0;
     }
 
@@ -135,8 +137,22 @@ public class RobotState {
 
         // add measured velocity to moving average array for filter
         vehicle_velocity_measured_filtered_.add(vehicle_velocity_measured_);
+        // clear average if new measurement is radically different
+        if (Util.epsilonEquals(vehicle_velocity_measured_.getTranslation().norm(),
+                               vehicle_velocity_measured_filtered_.getAverage().getTranslation().norm(),
+                               Constants.VisionConstants.kAllowableVelocityDifference)) {
+            vehicle_velocity_measured_filtered_.clear();
+            System.out.println("reset measured velocity moving average!!!");
+        }
         // add predicted velocity to moving average array for filter
         vehicle_velocity_predicted_filtered_.add(vehicle_velocity_predicted_);
+        // clear average if new measurement is radically different
+        if (Util.epsilonEquals(vehicle_velocity_predicted_.getTranslation().norm(),
+                               vehicle_velocity_predicted_filtered_.getAverage().getTranslation().norm(),
+                               Constants.VisionConstants.kAllowableVelocityDifference)) {
+            vehicle_velocity_predicted_filtered_.clear();
+            System.out.println("reset predicted velocity moving average!!!");
+        }
     }
 
     public synchronized double getDistanceDriven() {
