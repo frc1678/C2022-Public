@@ -298,7 +298,7 @@ public class Constants {
         public static final double kGoalRadius = 0.678; // meters
 
         // distance scaler for lookahead
-        public static final double kDistanceScaler = 0.79;
+        public static final double kDistanceScaler = 0.92;
         public static final double kGoalVelocityScaler = 0.25;
 
         // allowable error for difference between current vel and average vel before average is reset
