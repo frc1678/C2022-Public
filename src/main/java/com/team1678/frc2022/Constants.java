@@ -281,7 +281,7 @@ public class Constants {
 		public static final double kImageCaptureLatency = 11.0 / 1000.0; // seconds
         
         // lookahead time
-        public static final double kLookaheadTime = 1.25; // 1.10 as latest
+        public static final double kLookaheadTime = 0.97; // 1.10 as latest
 
         /* Goal Tracker Constants */
         public static final double kMaxTrackerDistance = 8.0;
@@ -298,7 +298,11 @@ public class Constants {
         public static final double kGoalRadius = 0.678; // meters
 
         // distance scaler for lookahead
-        public static final double kDistanceScaler = 0.84;
+        public static final double kDistanceScaler = 0.79;
+        public static final double kGoalVelocityScaler = 0.25;
+
+        // allowable error for difference between current vel and average vel before average is reset
+        public static final double kAllowableVelocityDifference = 0.5;
 	}
 
     /*** SUBSYSTEM CONSTANTS ***/
