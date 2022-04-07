@@ -170,6 +170,9 @@ public class FiveBallMode extends AutoModeBase {
                 System.out.println("Running five ball mode auto!");
                 SmartDashboard.putBoolean("Auto Finished", false);
 
+                // tell superstructure to run auto shooting
+                runAction(new LambdaAction(() -> mSuperstructure.setIsInAuto(true)));
+
                 runAction(new RaceAction(
                                 new SeriesAction(List.of(
                                                 driveToIntakeSecondCargo)),
@@ -219,7 +222,10 @@ public class FiveBallMode extends AutoModeBase {
                 runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
                 runAction(new WaitAction(1.0));
                 runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
-
+                
+                // ready for teleop
+                runAction(new LambdaAction(() -> mSuperstructure.setInitialTeleopStates()));
+                
                 System.out.println("Finished auto!");
                 SmartDashboard.putBoolean("Auto Finished", true);
         }

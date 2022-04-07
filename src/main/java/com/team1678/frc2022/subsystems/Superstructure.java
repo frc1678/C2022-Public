@@ -136,6 +136,9 @@ public class Superstructure extends Subsystem {
     private double goal_velocity = 0.0;
     private MovingAverage goal_velocity_filtered_ = new MovingAverage(50);
 
+    // status var for using normal regression in auto or lookahead regression in teleop
+    private boolean mIsInAuto = false;
+
     @Override
     public void registerEnabledLoops(ILooper enabledLooper) {
         enabledLooper.register(new Loop() {
@@ -176,6 +179,9 @@ public class Superstructure extends Subsystem {
     }
 
     /*** SETTERS FOR SUPERSTRUCTURE ACTIONS OUTSIDE OPERATOR INPUT ***/
+    public void setIsInAuto(boolean auto) {
+        mIsInAuto = auto;
+    }
     public void setWantIntake(boolean intake) {
         mPeriodicIO.INTAKE = intake;
 
@@ -666,9 +672,15 @@ public class Superstructure extends Subsystem {
         mTargetAngle = predicted_vehicle_to_goal.getTranslation().direction().getRadians() + Math.PI;
 
         // calculate corrected distance to target from lookahead
-        double current_distance_to_target = real_aiming_params_.get().getRange();
-        mCorrectedDistanceToTarget = current_distance_to_target + ((predicted_vehicle_to_goal.getTranslation().norm() - current_distance_to_target) * Constants.VisionConstants.kDistanceScaler);
-
+        if (mIsInAuto) {
+            if (mLimelight.getLimelightDistanceToTarget().isPresent()) {
+                mCorrectedDistanceToTarget = mLimelight.getLimelightDistanceToTarget().get();
+            }
+        } else {
+            double current_distance_to_target = real_aiming_params_.get().getRange();
+            mCorrectedDistanceToTarget = current_distance_to_target + ((predicted_vehicle_to_goal.getTranslation().norm() - current_distance_to_target) * Constants.VisionConstants.kDistanceScaler);
+        }
+        
         curr_vehicle_to_goal_rotation = real_aiming_params_.get().getVehicleToGoalRotation().getRadians();
         if (mPeriodicIO.dt == 0) {
             goal_velocity = 0;
@@ -947,6 +959,7 @@ public class Superstructure extends Subsystem {
         mPeriodicIO.FENDER = false;
         mPeriodicIO.SPIT = false;
 
+        mIsInAuto = false;
         mClimbMode = false;
     } 
 

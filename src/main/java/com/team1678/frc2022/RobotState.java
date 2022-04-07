@@ -222,11 +222,7 @@ public class RobotState {
             return;
         Pose2d cameraToVisionTarget = Pose2d.fromTranslation(cameraToVisionTargetPoses.get(0));
 
-        SmartDashboard.putString("camera to vision target", cameraToVisionTarget.toString());
-
         Pose2d fieldToVisionTarget = getFieldToVehicle(timestamp).transformBy(cameraToVisionTarget.inverse());
-
-        SmartDashboard.putString("field to vision target", fieldToVisionTarget.toString());
 
         tracker.update(timestamp, List.of(new Pose2d(fieldToVisionTarget.getTranslation(), Rotation2d.identity())));
     }
