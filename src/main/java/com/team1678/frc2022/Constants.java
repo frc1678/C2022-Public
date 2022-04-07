@@ -302,7 +302,7 @@ public class Constants {
         public static final double kGoalVelocityScaler = 0.25;
 
         // allowable error for difference between current vel and average vel before average is reset
-        public static final double kAllowableVelocityDifference = 0.5;
+        public static final double kAllowableVelocityDifference = 2.5;
 	}
 
     /*** SUBSYSTEM CONSTANTS ***/

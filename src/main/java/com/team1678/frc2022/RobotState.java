@@ -138,7 +138,7 @@ public class RobotState {
         // add measured velocity to moving average array for filter
         vehicle_velocity_measured_filtered_.add(vehicle_velocity_measured_);
         // clear average if new measurement is radically different
-        if (Util.epsilonEquals(vehicle_velocity_measured_.getTranslation().norm(),
+        if (!Util.epsilonEquals(vehicle_velocity_measured_.getTranslation().norm(),
                                vehicle_velocity_measured_filtered_.getAverage().getTranslation().norm(),
                                Constants.VisionConstants.kAllowableVelocityDifference)) {
             vehicle_velocity_measured_filtered_.clear();
@@ -147,7 +147,7 @@ public class RobotState {
         // add predicted velocity to moving average array for filter
         vehicle_velocity_predicted_filtered_.add(vehicle_velocity_predicted_);
         // clear average if new measurement is radically different
-        if (Util.epsilonEquals(vehicle_velocity_predicted_.getTranslation().norm(),
+        if (!Util.epsilonEquals(vehicle_velocity_predicted_.getTranslation().norm(),
                                vehicle_velocity_predicted_filtered_.getAverage().getTranslation().norm(),
                                Constants.VisionConstants.kAllowableVelocityDifference)) {
             vehicle_velocity_predicted_filtered_.clear();
