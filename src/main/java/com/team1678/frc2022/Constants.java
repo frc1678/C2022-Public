@@ -110,7 +110,7 @@ public class Constants {
         /* Front Left Module - Module 0 */
         public static final class Mod0 {
             public static final double epsilonAngleOffset = 239.06;
-            public static final double compAngleOffset = 58.35; 
+            public static final double compAngleOffset = 58.3; 
 
             public static SwerveModuleConstants SwerveModuleConstants() {
                 return new SwerveModuleConstants(Ports.FL_DRIVE, Ports.FL_ROTATION, Ports.FL_CANCODER,
@@ -120,7 +120,7 @@ public class Constants {
         /* Front Right Module - Module 1 */
         public static final class Mod1 {
             public static final double epsilonAngleOffset = 339.96;
-            public static final double compAngleOffset = 76.28; 
+            public static final double compAngleOffset = 76.6; 
             
             public static SwerveModuleConstants SwerveModuleConstants() {
                 return new SwerveModuleConstants(Ports.FR_DRIVE, Ports.FR_ROTATION, Ports.FR_CANCODER,
@@ -130,7 +130,7 @@ public class Constants {
         /* Back Left Module - Module 2 */
         public static final class Mod2 {
             public static final double epsilonAngleOffset = 317.20;
-            public static final double compAngleOffset = 343.12;
+            public static final double compAngleOffset = 340.4;
 
             public static SwerveModuleConstants SwerveModuleConstants() {
                 return new SwerveModuleConstants(Ports.BL_DRIVE, Ports.BL_ROTATION, Ports.BL_CANCODER,
@@ -140,7 +140,7 @@ public class Constants {
         /* Back Right Module - Module 3 */
         public static final class Mod3 {
             public static final double epsilonAngleOffset = 311.22;
-            public static final double compAngleOffset = 250.66;
+            public static final double compAngleOffset = 249.4;
 
             public static SwerveModuleConstants SwerveModuleConstants() {
                 return new SwerveModuleConstants(Ports.BR_DRIVE, Ports.BR_ROTATION, Ports.BR_CANCODER,
@@ -165,7 +165,7 @@ public class Constants {
     }
 
     public static final class VisionAlignConstants {
-        public static final double kP = 6.15;
+        public static final double kP = 6.37;
         public static final double kI = 0.0;
         public static final double kD = 0.10;
 

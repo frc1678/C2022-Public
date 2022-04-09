@@ -63,15 +63,16 @@ public class LEDs extends Subsystem {
         SOLID_GREEN("SOLID_GREEN", Double.POSITIVE_INFINITY, new Color(0, 255, 8)),
         SOLID_PURPLE("SOLID_PURPLE", Double.POSITIVE_INFINITY, new Color(196, 18, 255)),
         SOLID_ORANGE("SOLID_ORANGE", Double.POSITIVE_INFINITY, new Color(255, 53, 13)),
-        SOLID_YELLOW("SOLID_YELLOW", Double.POSITIVE_INFINITY, new Color(243, 255, 18)),
+        SOLID_YELLOW("SOLID_YELLOW", Double.POSITIVE_INFINITY, new Color(255, 150, 5)),
         SOLID_CYAN("SOLID_CYAN", Double.POSITIVE_INFINITY, new Color(18, 239, 255)),
+        SOLID_BLUE("SOLID_BLUE", Double.POSITIVE_INFINITY, new Color(0, 0, 255)),
 
         FLASHING_RED("FLASHING_RED", 0.05, new Color(255, 0, 0), Color.off()),
         FLASHING_PINK("FLASHING_PINK", 0.05, new Color(255, 20, 0), Color.off()),
         FLASHING_GREEN("FLASHING_GREEN", 0.05, new Color(0, 255, 0), Color.off()),
         FLASHING_PURPLE("FLASHING_PURPLE", 0.05, new Color(255, 0, 255), Color.off()),
         FLASHING_ORANGE("FLASHING_ORANGE", 0.05, new Color(255, 53, 0), Color.off()),
-        FLASHING_YELLOW("FLASHING_YELLOW", 0.05, new Color(255, 255, 0), Color.off()),
+        FLASHING_YELLOW("FLASHING_YELLOW", 0.05, new Color(255, 247, 5), Color.off()),
         FLASHING_CYAN("FLASHING_CYAN", 0.05, new Color(0, 255, 255), Color.off());
 
         Color[] colors; // array of colors to iterate over
@@ -113,7 +114,7 @@ public class LEDs extends Subsystem {
             @Override
             public void onStart(double timestamp) {
                 mCandle.clearAnimation(0);
-                applyStates(State.OFF, State.OFF); 
+                applyStates(State.SOLID_BLUE, State.SOLID_YELLOW); 
             }
 
             @Override
