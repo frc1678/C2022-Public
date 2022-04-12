@@ -5,6 +5,7 @@ import com.lib.util.SwerveModuleConstants;
 import com.team1678.frc2022.subsystems.Limelight.LimelightConstants;
 import com.team1678.frc2022.subsystems.ServoMotorSubsystem.ServoMotorSubsystemConstants;
 import com.team254.lib.geometry.Rotation2d;
+import com.team254.lib.geometry.Translation2d;
 
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
@@ -45,12 +46,15 @@ public class Constants {
 
         public static final double driveGearRatio = 6.75;
         public static final double angleGearRatio = 21.43;
+        
+        public static final edu.wpi.first.math.geometry.Translation2d[] swerveModuleLocations = {
+            new edu.wpi.first.math.geometry.Translation2d(wheelBase / 2.0, trackWidth / 2.0),
+            new edu.wpi.first.math.geometry.Translation2d(wheelBase / 2.0, -trackWidth / 2.0),
+            new edu.wpi.first.math.geometry.Translation2d(-wheelBase / 2.0, trackWidth / 2.0),
+            new edu.wpi.first.math.geometry.Translation2d(-wheelBase / 2.0, -trackWidth / 2.0)
+        };
 
-        public static final SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(
-                new edu.wpi.first.math.geometry.Translation2d(wheelBase / 2.0, trackWidth / 2.0),
-                new edu.wpi.first.math.geometry.Translation2d(wheelBase / 2.0, -trackWidth / 2.0),
-                new edu.wpi.first.math.geometry.Translation2d(-wheelBase / 2.0, trackWidth / 2.0),
-                new edu.wpi.first.math.geometry.Translation2d(-wheelBase / 2.0, -trackWidth / 2.0));
+        public static final SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(swerveModuleLocations);
 
         /* Swerve Current Limiting */
         public static final int angleContinuousCurrentLimit = 25;
@@ -183,6 +187,9 @@ public class Constants {
         public static final double kMaxSpeedMetersPerSecond = 2.2; 
         public static final double kMaxAccelerationMetersPerSecondSquared = 2.3;
         
+        public static final double kSlowMaxAngularSpeedRadiansPerSecond = 0.8 * Math.PI;
+        public static final double kSlowMaxAngularSpeedRadiansPerSecondSquared = Math.pow(kSlowMaxAngularSpeedRadiansPerSecond, 2);
+
         public static final double kMaxAngularSpeedRadiansPerSecond = 1.2 * Math.PI;
         public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.pow(kMaxAngularSpeedRadiansPerSecond, 2);
 
@@ -194,6 +201,12 @@ public class Constants {
         public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
                 new TrapezoidProfile.Constraints(
                         kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
+
+        // Constraint for the motion profilied robot angle controller
+        public static final TrapezoidProfile.Constraints kSlowThetaControllerConstraints =
+                new TrapezoidProfile.Constraints(
+                        kSlowMaxAngularSpeedRadiansPerSecond, kSlowMaxAngularSpeedRadiansPerSecondSquared);
+
 
         public static TrajectoryConfig createConfig(double maxSpeed, double maxAccel, double startSpeed, double endSpeed) {
             TrajectoryConfig config = new TrajectoryConfig(maxSpeed, maxAccel);
@@ -476,7 +489,7 @@ public class Constants {
     }
 
     public static final class ColorSensorConstants {
-        public static final double kColorSensorThreshold = Constants.isComp ? 160 : 170;
+        public static final double kColorSensorThreshold = Constants.isComp ? 200 : 170;
 
         public static final double kBlueFreqScaler = 1.0;
         public static final double kRedFreqScaler = 1.0;

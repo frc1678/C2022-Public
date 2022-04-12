@@ -154,6 +154,8 @@ public class Superstructure extends Subsystem {
                 setGoals();
                 updateLEDs();
                 outputTelemetry();
+
+                updateRumble();
                         
                 // send log data
                 SendLog();
@@ -270,6 +272,7 @@ public class Superstructure extends Subsystem {
         // get whether we want to enter climb mode
         if (mControlBoard.getClimbMode()) {
             mClimbMode = true;
+            mClimbStep = 0;
             mOpenLoopClimbControlMode = false;
         }
 
@@ -298,6 +301,7 @@ public class Superstructure extends Subsystem {
                 mClimber.resetClimberPosition();
                 mClimber.setClimberNone();
                 mResetClimberPosition = false;
+                mClimbStep = 0;
             }
 
             if (!mOpenLoopClimbControlMode) {
@@ -435,7 +439,7 @@ public class Superstructure extends Subsystem {
 
                 // if we want to lock the intake, reject incoming cargo for a short time and
                 // then lock the intake
-                if (mIntakeReject) {
+                if (mIntakeReject && !mIntakeOverride) {
                     setWantReject(true);
                     if (!(mIndexer.getTopBeamBreak() && mColorSensor.getForwardBeamBreak())
                             && !indexerFull()
@@ -616,6 +620,16 @@ public class Superstructure extends Subsystem {
         // if we don't have any balls we should never be in a spitting state
         if (mBallCount == 0) {
             mPeriodicIO.SPIT = false;
+        }
+    }
+
+    public void updateRumble() {
+        if (!mClimbMode) {
+            mControlBoard.setOperatorRumble(mPeriodicIO.SHOOT);
+            mControlBoard.setDriverRumble(mPeriodicIO.SHOOT);
+        } else {
+            mControlBoard.setOperatorRumble(false);
+            mControlBoard.setDriverRumble(false);
         }
     }
 
@@ -897,10 +911,24 @@ public class Superstructure extends Subsystem {
         mPeriodicIO.SHOOT = false;
         mPeriodicIO.FENDER = false;
         mPeriodicIO.SPIT = false;
-
         mHoodSetpoint = Constants.HoodConstants.kHoodServoConstants.kMinUnitsLimit + 1;
         mShooterSetpoint = 0.0;
     }
+
+    /* Initial states for superstructure for teleop */
+    public void setInitialTeleopStates() {
+        mPeriodicIO.INTAKE = false;
+        mPeriodicIO.REVERSE = false;
+        mPeriodicIO.REJECT = false;
+        mPeriodicIO.EJECT = false;
+        mPeriodicIO.PREP = true; // stay spun up
+        mPeriodicIO.SHOOT = false;
+        mPeriodicIO.FENDER = false;
+        mPeriodicIO.SPIT = false;
+
+        mClimbMode = false;
+    } 
+
 
     /* Superstructure getters for action and goal statuses */
     // get actions
@@ -927,6 +955,12 @@ public class Superstructure extends Subsystem {
     }
     public boolean getWantsSpit() {
         return mPeriodicIO.SPIT;
+    }
+    public boolean getEjectDisabled() {
+        return mDisableEjecting;
+    }
+    public boolean getIntakeOverride() {
+        return mIntakeOverride;
     }
 
     // get other statuses
@@ -1027,17 +1061,16 @@ public class Superstructure extends Subsystem {
 
     public void SendLog() {
         ArrayList<Number> items = new ArrayList<Number>();
-        items.add(Timer.getFPGATimestamp());
         items.add(mPeriodicIO.timestamp);
         items.add(mPeriodicIO.dt);
-        items.add(mPeriodicIO.SPIT ? 1.0 : 0.0);
+        items.add(mPeriodicIO.INTAKE ? 1.0 : 0.0);
+        items.add(mPeriodicIO.REVERSE ? 1.0 : 0.0);
         items.add(mPeriodicIO.REJECT ? 1.0 : 0.0);
         items.add(mPeriodicIO.EJECT ? 1.0 : 0.0);
-        items.add(mPeriodicIO.REVERSE ? 1.0 : 0.0);
         items.add(mPeriodicIO.PREP ? 1.0 : 0.0);
         items.add(mPeriodicIO.SHOOT ? 1.0 : 0.0);
-        items.add(mPeriodicIO.INTAKE ? 1.0 : 0.0);
         items.add(mPeriodicIO.FENDER ? 1.0 : 0.0);
+        items.add(mPeriodicIO.SPIT ? 1.0 : 0.0);
         items.add(mPeriodicIO.real_shooter);
         items.add(mPeriodicIO.real_hood);
         items.add(mPigeon.getRoll().getDegrees());

@@ -133,6 +133,7 @@ public class ColorSensor extends Subsystem {
                 mAllianceColor = ColorChoices.BLUE;
             }
         } else {
+            mAllianceColor = ColorChoices.NONE;
             DriverStation.reportError("No Alliance Color Detected", true);
         }
     }
@@ -210,8 +211,8 @@ public class ColorSensor extends Subsystem {
         }
         return mPeriodicIO.raw_color.blue;
     }
-    public String getAllianceColor() {
-        return mAllianceColor.toString();
+    public ColorChoices getAllianceColor() {
+        return mAllianceColor;
     }
     public String getMatchedColor() {
         return mMatchedColor.toString();

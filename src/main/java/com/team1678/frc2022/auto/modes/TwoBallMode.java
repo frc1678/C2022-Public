@@ -1,13 +1,13 @@
 package com.team1678.frc2022.auto.modes;
 
 import com.team1678.frc2022.Constants;
-import com.team1678.frc2022.ShuffleBoardInteractions;
 import com.team1678.frc2022.auto.AutoModeEndedException;
 import com.team1678.frc2022.auto.AutoTrajectoryReader;
 import com.team1678.frc2022.auto.actions.LambdaAction;
 import com.team1678.frc2022.auto.actions.SwerveTrajectoryAction;
 import com.team1678.frc2022.auto.actions.VisionAlignAction;
 import com.team1678.frc2022.auto.actions.WaitAction;
+import com.team1678.frc2022.shuffleboard.ShuffleBoardInteractions;
 import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
 
@@ -57,7 +57,7 @@ public class TwoBallMode extends AutoModeBase {
 
     @Override
     protected void routine() throws AutoModeEndedException {
-        System.out.println("Running five ball mode auto!");
+        System.out.println("Running two ball mode auto!");
         SmartDashboard.putBoolean("Auto Finished", false);
 
         // start spinning up for shot
@@ -85,12 +85,11 @@ public class TwoBallMode extends AutoModeBase {
         runAction(new WaitAction(3.0));
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
 
+        // ready for teleop
+        runAction(new LambdaAction(() -> mSuperstructure.setInitialTeleopStates()));
+
         System.out.println("Finished auto!");
         SmartDashboard.putBoolean("Auto Finished", true);
-    }
-
-    public void plotTrajectories() {
-        ShuffleBoardInteractions.getInstance().addTrajectory(traj_path, "Traj");
     }
 
     @Override

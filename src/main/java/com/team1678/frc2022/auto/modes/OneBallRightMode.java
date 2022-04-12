@@ -1,13 +1,13 @@
 package com.team1678.frc2022.auto.modes;
 
 import com.team1678.frc2022.Constants;
-import com.team1678.frc2022.ShuffleBoardInteractions;
 import com.team1678.frc2022.auto.AutoModeEndedException;
 import com.team1678.frc2022.auto.AutoTrajectoryReader;
 import com.team1678.frc2022.auto.actions.LambdaAction;
 import com.team1678.frc2022.auto.actions.SwerveTrajectoryAction;
 import com.team1678.frc2022.auto.actions.VisionAlignAction;
 import com.team1678.frc2022.auto.actions.WaitAction;
+import com.team1678.frc2022.shuffleboard.ShuffleBoardInteractions;
 import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
 
@@ -89,9 +89,6 @@ public class OneBallRightMode extends AutoModeBase {
         SmartDashboard.putBoolean("Auto Finished", true);
     }
 
-    public void plotTrajectories() {
-        ShuffleBoardInteractions.getInstance().addTrajectory(traj_path, "Traj");
-    }    
     @Override
     public Pose2d getStartingPose() {
         return driveOutOfTarmac.getInitialPose();

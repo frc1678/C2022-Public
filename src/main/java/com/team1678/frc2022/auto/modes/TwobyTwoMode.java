@@ -88,13 +88,8 @@ public class TwobyTwoMode extends AutoModeBase {
 
    @Override
     protected void routine() throws AutoModeEndedException {
-        System.out.println("Running two by two left mode auto!");
+        System.out.println("Running two by two mode auto!");
         SmartDashboard.putBoolean("Auto Finished", false);
-
-    // reset odometry at the start of the trajectory
-    runAction(new LambdaAction(() -> mSwerve.resetOdometry(new Pose2d(driveToIntakeSecondShotCargo.getInitialPose().getX(),
-                                                                      driveToIntakeSecondShotCargo.getInitialPose().getY(),
-                                                                      Rotation2d.fromDegrees(135)))));
 
     // start intaking
     runAction(new LambdaAction(() -> mSuperstructure.setWantIntake(true)));
@@ -135,10 +130,13 @@ public class TwobyTwoMode extends AutoModeBase {
     runAction(driveToIntakeThirdEjectCargo);
 
     // wait to outtake third cargo
-    runAction(new WaitAction(0.75));
+    runAction(new WaitAction(2.0));
 
     // stop ejecting cargo
     runAction(new LambdaAction(() -> mSuperstructure.setWantEject(false, false)));
+
+    // ready for teleop
+    runAction(new LambdaAction(() -> mSuperstructure.setInitialTeleopStates()));
 
     System.out.println("Finished auto!");
     SmartDashboard.putBoolean("Auto Finished", true);
