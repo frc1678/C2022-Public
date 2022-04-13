@@ -29,6 +29,7 @@ import com.team1678.frc2022.subsystems.Shooter;
 import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
 import com.team1678.frc2022.subsystems.Trigger;
+import com.team1678.frc2022.subsystems.LEDs.State;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.MjpegServer;
@@ -172,7 +173,6 @@ public class Robot extends TimedRobot {
 			}
 
 			mAutoModeExecutor.start();
-			mLEDs.updateState();
 
 			mInfrastructure.setIsDuringAuto(true);
 			mLimelight.setPipeline(Constants.VisionConstants.kDefaultPipeline);
@@ -188,6 +188,8 @@ public class Robot extends TimedRobot {
 	@Override
 	public void autonomousPeriodic() {
 		mLimelight.setLed(Limelight.LedMode.ON);
+		mLEDs.updateState();
+		mLEDs.applyStates(State.SOLID_BLUE, State.SOLID_YELLOW);
 		// mSuperstructure.updateWantEjection();
 	}
 
@@ -237,6 +239,7 @@ public class Robot extends TimedRobot {
 
 			// call operator commands container from superstructure
 			mSuperstructure.updateOperatorCommands();
+			mSuperstructure.updateLEDs();
 
 			mLEDs.updateState();
 

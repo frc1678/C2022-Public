@@ -152,7 +152,6 @@ public class Superstructure extends Subsystem {
 
                 // updateWantEjection();
                 setGoals();
-                updateLEDs();
                 outputTelemetry();
 
                 updateRumble();
@@ -506,7 +505,7 @@ public class Superstructure extends Subsystem {
             if (mControlBoard.getManualEject()) {
                 mPeriodicIO.EJECT = true;
                 mForceEject = true;
-            } else if (mDisableEjecting || mIntakeReject) {
+            } else if (mDisableEjecting /*|| mIntakeReject*/) {
                 mPeriodicIO.EJECT = false;
             } else {
                 updateWantEjection();
@@ -518,6 +517,9 @@ public class Superstructure extends Subsystem {
             // control shooting
             if (mControlBoard.operator.getController().getYButtonPressed()) {
                 mPeriodicIO.SHOOT = !mPeriodicIO.SHOOT;
+
+                // reset intake actions
+                setWantIntakeNone();
             }
 
             // spin up if we aren't already
@@ -808,7 +810,7 @@ public class Superstructure extends Subsystem {
         }
     }
 
-    private void updateLEDs() {
+    public void updateLEDs() {
         if (mLEDs.getUsingSmartdash()) {
             return;
         }
@@ -842,7 +844,10 @@ public class Superstructure extends Subsystem {
                     topState = State.SOLID_ORANGE;
                 }
             } else {
-                if (mAutoTraversalClimb) {
+                if (mOpenLoopClimbControlMode) {
+                    topState = State.SOLID_YELLOW;
+                    bottomState = State.SOLID_YELLOW;
+                } else if (mAutoTraversalClimb) {
                     topState = State.FLASHING_ORANGE;
                     bottomState = State.FLASHING_ORANGE;
                 } else {

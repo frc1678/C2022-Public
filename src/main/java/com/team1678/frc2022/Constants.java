@@ -165,7 +165,7 @@ public class Constants {
     }
 
     public static final class VisionAlignConstants {
-        public static final double kP = 6.15;
+        public static final double kP = 6.37;
         public static final double kI = 0.0;
         public static final double kD = 0.10;
 
