@@ -28,6 +28,10 @@ public class Indexer extends Subsystem {
         return mInstance;
     }
 
+    private boolean mIndexerPause = false;
+
+    private boolean mEjectorReached = false;
+
     public PeriodicIO mPeriodicIO = new PeriodicIO();
 
     // logger
@@ -40,6 +44,7 @@ public class Indexer extends Subsystem {
     private final BeamBreak mTopBeamBreak;
 
     private Timer ejectDelayTimer = new Timer();
+    private Timer topRollerTimer = new Timer();
 
     public boolean stopTunnel() {
         return ballAtTrigger() && ballInTunnel();
@@ -115,12 +120,19 @@ public class Indexer extends Subsystem {
             mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVelocity;
             mPeriodicIO.ejector_demand = Constants.IndexerConstants.kEjectorVoltage;
 
-            // Stop running indexer when top slot has a ball
-            if (mTopSlot.hasBall()) {
+            // Keep ejecting for X amount of seconds to ensure ball has left the system
+            if (mTopBeamBreak.get()) {
+                topRollerTimer.start();
+            }
+            if (topRollerTimer.hasElapsed(0.1)) {
+                topRollerTimer.stop();
+                topRollerTimer.reset();
                 mIndexingTopBall = false;
             }
 
         } else if (mIndexingBottomBall) { // Indexing second ball
+            mEjecting = false;
+            
             mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVelocity;
             mPeriodicIO.ejector_demand = Constants.IndexerConstants.kEjectorVoltage;
 
@@ -128,13 +140,16 @@ public class Indexer extends Subsystem {
             if (mBottomSlot.hasBall()) {
                 mIndexingBottomBall = false;
             }
+
         } else if (mEjecting) { // Pooping
             mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVelocity;
             mPeriodicIO.ejector_demand = -Constants.IndexerConstants.kEjectorVoltage;
 
+            if (mBottomBeamBreak.get()) {
+                mEjectorReached = true;
+            }
             // Keep ejecting for X amount of seconds to ensure ball has left the system
-            if (mBottomBeamBreak.wasCleared()) {
-                ejectDelayTimer.reset();
+            if (!mBottomBeamBreak.get() && mEjectorReached) {
                 ejectDelayTimer.start();
             }
             if (ejectDelayTimer.hasElapsed(0.1)) {
@@ -142,7 +157,9 @@ public class Indexer extends Subsystem {
                 ejectDelayTimer.stop();
                 ejectDelayTimer.reset();
                 mEjecting = false;
+                mEjectorReached = false;
             }
+            
         } else {
             mPeriodicIO.tunnel_demand = 0.0;
             mPeriodicIO.ejector_demand = 0.0;
@@ -284,6 +301,10 @@ public class Indexer extends Subsystem {
     public boolean indexerFull() {
         return (mTopSlot.hasBall() || mTopSlot.hasQueuedBall())
                 && (mBottomSlot.hasBall() || mBottomSlot.hasQueuedBall());
+    }
+
+    public boolean getIsEjecting() {
+        return mEjecting;
     }
 
     public static class PeriodicIO {

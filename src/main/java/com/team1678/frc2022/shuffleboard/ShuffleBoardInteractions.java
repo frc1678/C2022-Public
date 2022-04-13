@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 public class ShuffleBoardInteractions {
 
     // Trims unneccesary tabs when in competition
-    public final boolean mDebug = false;
+    public final boolean mDebug = true;
 
     /* ShuffleBoardInteractions Instance */
     private static ShuffleBoardInteractions mInstance; 

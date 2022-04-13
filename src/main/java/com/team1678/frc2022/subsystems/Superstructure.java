@@ -759,8 +759,8 @@ public class Superstructure extends Subsystem {
             } else if (mColorSensor.seesNewBall()) {
                 if (!indexerFull()) {
                     mIndexer.queueBall(mColorSensor.hasCorrectColor());
-                } else {
-                    mIntakeReject = true;
+                } else if (!mIndexer.getIsEjecting()){
+                    // mIntakeReject = true;
                 }
             }
             
