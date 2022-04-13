@@ -20,7 +20,6 @@ public class IndexerTab extends ShuffleboardTabBase {
 	private NetworkTableEntry mTunnelDemand;
 	private NetworkTableEntry mTunnelVoltage;
 
-	private NetworkTableEntry mIndexerState;
 
 	private NetworkTableEntry mBallCount;
 
@@ -31,9 +30,6 @@ public class IndexerTab extends ShuffleboardTabBase {
 	public void createEntries() {
 		mTab = Shuffleboard.getTab("Indexer");
 		/* INDEXER */
-		mIndexerState = mTab
-				.add("Indexer State", "N/A")
-				.getEntry();
 		mEjectorCurrent = mTab
 				.add("Outtake Current", 0.0)
 				.getEntry();
@@ -73,7 +69,6 @@ public class IndexerTab extends ShuffleboardTabBase {
 		mTunnelDemand.setDouble(mIndexer.getTunnelDemand());
 		mTunnelVoltage.setDouble(mIndexer.getTunnelVoltage());
 
-		mIndexerState.setString(mIndexer.getState().toString());
 		mBallCount.setDouble(mSuperstructure.getBallCount());
 
 		mTopBeamBreak.setBoolean(mIndexer.getTopBeamBreak());

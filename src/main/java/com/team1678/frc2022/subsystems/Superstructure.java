@@ -751,15 +751,16 @@ public class Superstructure extends Subsystem {
                 mIndexer.setWantFeeding(false);
             }
         } else {
-
             mIndexer.setWantFeeding(false);
             mPeriodicIO.real_trigger = Trigger.WantedAction.NONE;
 
             if (mColorSensor.seesBall() && !mColorSensor.hasCorrectColor()) {
-                mIndexer.queueEject();;
+                mIndexer.queueEject();
             } else if (mColorSensor.seesNewBall()) {
                 if (!indexerFull()) {
                     mIndexer.queueBall(mColorSensor.hasCorrectColor());
+                } else {
+                    mIntakeReject = true;
                 }
             }
             

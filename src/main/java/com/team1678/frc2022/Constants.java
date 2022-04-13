@@ -16,7 +16,7 @@ import edu.wpi.first.math.util.Units;
 public class Constants {
 
     // toggle constants for comp robot
-    public static final boolean isComp = false;
+    public static final boolean isComp = true;
 	
 	// robot loop time
 	public static final double kLooperDt = 0.02;
