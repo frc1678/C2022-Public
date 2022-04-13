@@ -501,9 +501,7 @@ public class Superstructure extends Subsystem {
             }
             // control options to filter cargo and eject
             // don't eject if we want it disabled or if we lock the intake because we have two correct cargo
-            if (mControlBoard.getManualEject()) {
-                mForceEject = true;
-            }
+            mForceEject = mControlBoard.getManualEject();
 
             // control shooting
             if (mControlBoard.operator.getController().getYButtonPressed()) {
