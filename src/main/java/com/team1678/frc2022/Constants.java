@@ -16,7 +16,7 @@ import edu.wpi.first.math.util.Units;
 public class Constants {
 
     // toggle constants for comp robot
-    public static final boolean isComp = true;
+    public static final boolean isComp = false;
 	
 	// robot loop time
 	public static final double kLooperDt = 0.02;
@@ -489,7 +489,8 @@ public class Constants {
     }
 
     public static final class ColorSensorConstants {
-        public static final double kColorSensorThreshold = Constants.isComp ? 200 : 170;
+        public static final double kColorSensorRatioThreshold = 0.35;
+        public static final double kColorSensorDefaultRatio = 0.58;
 
         public static final double kBlueFreqScaler = 1.0;
         public static final double kRedFreqScaler = 1.0;
