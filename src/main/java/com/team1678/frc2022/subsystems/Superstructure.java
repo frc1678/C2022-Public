@@ -272,6 +272,7 @@ public class Superstructure extends Subsystem {
             mClimbMode = true;
             mClimbStep = 0;
             mOpenLoopClimbControlMode = false;
+            mForceEject = false;
         }
 
         if (mClimbMode) {
