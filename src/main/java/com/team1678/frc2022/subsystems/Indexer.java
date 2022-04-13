@@ -28,7 +28,7 @@ public class Indexer extends Subsystem {
         return mInstance;
     }
 
-    private boolean mIndexerPause = false;
+    private boolean mForceEjecting = false;
 
     private boolean mEjectorReached = false;
 
@@ -107,6 +107,12 @@ public class Indexer extends Subsystem {
     }
 
     public void updateSetpoints() {
+
+        if (mForceEjecting) {
+            mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVelocity;
+            mPeriodicIO.ejector_demand = -Constants.IndexerConstants.kEjectorVoltage;
+            return;
+        }
 
         // Update slots according to beam breaks
         mTopSlot.updateHasBall(getTopBeamBreak());
@@ -208,6 +214,10 @@ public class Indexer extends Subsystem {
         mEjecting = true;
     }
 
+    public void setForceEject(boolean enable) {
+        mForceEjecting = enable;
+    }
+
     @Override
     public synchronized void writePeriodicOutputs() {
         mEjector.set(ControlMode.PercentOutput, mPeriodicIO.ejector_demand / 12.0);
@@ -304,7 +314,7 @@ public class Indexer extends Subsystem {
     }
 
     public boolean getIsEjecting() {
-        return mEjecting;
+        return mEjecting || mForceEjecting;
     }
 
     public static class PeriodicIO {
@@ -365,6 +375,14 @@ public class Indexer extends Subsystem {
 
         // send data to logging storage
         mStorage.addData(items);
+    }
+
+    public boolean hasTopBall() {
+        return mTopSlot.hasBall() || mTopSlot.hasQueuedBall();
+    }
+
+    public boolean hasBottomBall() {
+        return mBottomSlot.hasBall() || mBottomSlot.hasQueuedBall();
     }
 
     private class IndexerSlot {

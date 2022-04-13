@@ -73,7 +73,6 @@ public class Superstructure extends Subsystem {
         private boolean INTAKE = false; // run the intake to pick up cargo
         private boolean REVERSE = false; // reverse the intake and singulator
         private boolean REJECT = false; // have the intake reject cargo
-        private boolean EJECT = false; // run ejector to eject balls
         private boolean PREP = false; // spin up and aim with shooting setpoints
         private boolean SHOOT = false; // shoot cargo
         private boolean FENDER = false; // shoot cargo from up against the hub
@@ -204,7 +203,7 @@ public class Superstructure extends Subsystem {
         mPeriodicIO.REJECT = false;
     }
     public void setWantEject(boolean eject, boolean slow_eject) {
-        mPeriodicIO.EJECT = eject;
+        mForceEject = eject;
         mSlowEject = slow_eject;
     }
 
@@ -503,14 +502,7 @@ public class Superstructure extends Subsystem {
             // control options to filter cargo and eject
             // don't eject if we want it disabled or if we lock the intake because we have two correct cargo
             if (mControlBoard.getManualEject()) {
-                mPeriodicIO.EJECT = true;
                 mForceEject = true;
-            } else if (mDisableEjecting /*|| mIntakeReject*/) {
-                mPeriodicIO.EJECT = false;
-            } else {
-                updateWantEjection();
-                mForceEject = false;
-                // when not forcing an eject, passively check whether want to passively eject using color sensor logic
             }
 
             // control shooting
@@ -565,33 +557,11 @@ public class Superstructure extends Subsystem {
         }
     }
 
-    public void updateWantEjection() {
-        mPeriodicIO.EJECT = mColorSensor.wantsEject();
-    }
-
     /*** UPDATE BALL COUNTER FOR INDEXING STATUS ***/
     public void updateBallCounter() {
-        // will always have the top ball if the top beam break is triggering
-        if (mIndexer.getTopBeamBreak()) {
-            mHasTopBall = true;
-        } else {
-            mHasTopBall = false;
-        }
-
-        // we have our bottom ball if:
-        // - we are triggering the bottom beam break
-        // - we don't want to eject the ball we currently see
-        // - we already have our top ball
-        if (mIndexer.getBottomBeamBreak() && !mPeriodicIO.EJECT) {
-            mHasBottomBall = true;
-        } else {
-            mHasBottomBall = false;
-        }
-
-        // update ball counter based off of whether we have our first and second cargo
-        if (mHasTopBall && mHasBottomBall) {
+        if (mIndexer.hasTopBall() && mIndexer.hasBottomBall()) {
             mBallCount = 2;
-        } else if (mHasTopBall || mHasBottomBall) {
+        } else if (mIndexer.hasTopBall() || mIndexer.hasBottomBall()) {
             mBallCount = 1;
         } else {
             mBallCount = 0;
@@ -756,6 +726,8 @@ public class Superstructure extends Subsystem {
             mIndexer.setWantFeeding(false);
             mPeriodicIO.real_trigger = Trigger.WantedAction.NONE;
 
+            mIndexer.setForceEject(mForceEject);
+
             if (mColorSensor.seesBall() && !mColorSensor.hasCorrectColor()) {
                 mIndexer.queueEject();
             } else if (mColorSensor.seesNewBall()) {
@@ -886,7 +858,7 @@ public class Superstructure extends Subsystem {
     }
     // ball at back beam break and top beam break
     public boolean indexerFull() {
-        return (mIndexer.getTopBeamBreak() && mIndexer.getBottomBeamBreak()) && !mPeriodicIO.EJECT;
+        return (mBallCount == 2);
     }
     // check if our flywheel is spun up to the correct velocity
     public boolean isSpunUp() {
@@ -912,7 +884,6 @@ public class Superstructure extends Subsystem {
         mPeriodicIO.INTAKE = false;
         mPeriodicIO.REVERSE = false;
         mPeriodicIO.REJECT = false;
-        mPeriodicIO.EJECT = false;
         mPeriodicIO.PREP = false;
         mPeriodicIO.SHOOT = false;
         mPeriodicIO.FENDER = false;
@@ -926,7 +897,6 @@ public class Superstructure extends Subsystem {
         mPeriodicIO.INTAKE = false;
         mPeriodicIO.REVERSE = false;
         mPeriodicIO.REJECT = false;
-        mPeriodicIO.EJECT = false;
         mPeriodicIO.PREP = true; // stay spun up
         mPeriodicIO.SHOOT = false;
         mPeriodicIO.FENDER = false;
@@ -948,7 +918,7 @@ public class Superstructure extends Subsystem {
         return mPeriodicIO.REJECT;
     }
     public boolean getEjecting() {
-        return mPeriodicIO.EJECT;
+        return mIndexer.getIsEjecting();
     }
     public boolean getPrepping() {
         return mPeriodicIO.PREP;
@@ -1072,7 +1042,7 @@ public class Superstructure extends Subsystem {
         items.add(mPeriodicIO.INTAKE ? 1.0 : 0.0);
         items.add(mPeriodicIO.REVERSE ? 1.0 : 0.0);
         items.add(mPeriodicIO.REJECT ? 1.0 : 0.0);
-        items.add(mPeriodicIO.EJECT ? 1.0 : 0.0);
+        items.add(mIndexer.getIsEjecting() ? 1.0 : 0.0);
         items.add(mPeriodicIO.PREP ? 1.0 : 0.0);
         items.add(mPeriodicIO.SHOOT ? 1.0 : 0.0);
         items.add(mPeriodicIO.FENDER ? 1.0 : 0.0);
