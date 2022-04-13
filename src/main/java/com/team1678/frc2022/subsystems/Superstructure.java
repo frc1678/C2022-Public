@@ -896,7 +896,7 @@ public class Superstructure extends Subsystem {
     }
     // ball at back beam break and top beam break
     public boolean indexerFull() {
-        return (mIndexer.getTopBeamBreak() && mIndexer.getBottomBeamBreak());
+        return (mIndexer.getTopBeamBreak() && mIndexer.getBottomBeamBreak()) && !mPeriodicIO.EJECT;
     }
     // check if our flywheel is spun up to the correct velocity
     public boolean isSpunUp() {

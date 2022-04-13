@@ -180,8 +180,9 @@ public class ColorSensor extends Subsystem {
         mPeriodicIO.sensor0Connected = mPico.isSensor0Connected();
         mPeriodicIO.raw_color = mPico.getRawColor0();
         mPeriodicIO.adjusted_blue = mPeriodicIO.raw_color.blue; // keep blue the same
-        mPeriodicIO.adjusted_red = mPeriodicIO.raw_color.red + mPeriodicIO.color_offset;
+        mPeriodicIO.adjusted_red = mPeriodicIO.raw_color.red + Constants.ColorSensorConstants.kColorOffset;
         mPeriodicIO.color_ratio = (double) mPeriodicIO.adjusted_red / (double) mPeriodicIO.adjusted_blue;
+        // mPeriodicIO.color_ratio = (double) mPeriodicIO.raw_color.red / (double) mPeriodicIO.raw_color.blue;
         mPeriodicIO.proximity = mPico.getProximity0();
 
         mPeriodicIO.timestamp = mPico.getLastReadTimestampSeconds();
@@ -191,9 +192,11 @@ public class ColorSensor extends Subsystem {
         SmartDashboard.putNumber("adjusted_red", mPeriodicIO.adjusted_red);
         SmartDashboard.putNumber("adjusted_blue", mPeriodicIO.adjusted_blue);
 
+        /*
         if (!getForwardBeamBreak()) {
             updateColorOffset();
         }
+        */
         updateHasBall();
         updateMatchedColor();
         updateWantsEject();
