@@ -28,13 +28,14 @@ public class ColorSensor extends Subsystem {
     public PeriodicIO mPeriodicIO = new PeriodicIO();
     private PicoColorSensor mPico;
 
+    private final DigitalInput mForwardBreak;
+    private boolean mSawBall = false;
+
     private Timer mHasBallTimer = new Timer();
     private Timer mEjectorTimer = new Timer();
 
     public ColorChoices mAllianceColor = ColorChoices.NONE;
     public ColorChoices mMatchedColor;
-
-    private final DigitalInput mForwardBreak;
 
     public enum ColorChoices {
         RED, BLUE, OTHER, NONE  
@@ -85,6 +86,15 @@ public class ColorSensor extends Subsystem {
         return !Util.epsilonEquals(mPeriodicIO.color_ratio,
                                   1.0,
                                   Constants.ColorSensorConstants.kColorSensorRatioThreshold);
+    }
+
+    public boolean seesNewBall() {
+        boolean newBall = false;
+        if ((seesBall() && !mSawBall)) {
+            newBall = true;
+        }
+        mSawBall = seesBall();
+        return newBall;
     }
 
     // check if we have the right color

@@ -103,11 +103,11 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void robotInit() {
-		UsbCamera camera = CameraServer.startAutomaticCapture();
-		camera.setVideoMode(VideoMode.PixelFormat.kMJPEG, 320, 240, 15);
-		MjpegServer cameraServer = new MjpegServer("serve_USB Camera 0", 5810);
-		cameraServer.setSource(camera);
-		cameraServer.setCompression(10);
+		// UsbCamera camera = CameraServer.startAutomaticCapture();
+		// camera.setVideoMode(VideoMode.PixelFormat.kMJPEG, 320, 240, 15);
+		// MjpegServer cameraServer = new MjpegServer("serve_USB Camera 0", 5810);
+		// cameraServer.setSource(camera);
+		// cameraServer.setCompression(10);
 		
 		ctreConfigs = new CTREConfigs();
 		mShuffleBoardInteractions = ShuffleBoardInteractions.getInstance();

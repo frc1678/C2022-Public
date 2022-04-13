@@ -6,6 +6,7 @@ import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.RobotState;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.CustomXboxController;
+import com.team1678.frc2022.controlboard.CustomXboxController.Button;
 import com.team1678.frc2022.drivers.Pigeon;
 import com.team1678.frc2022.logger.LogStorage;
 import com.team1678.frc2022.logger.LoggingSystem;
@@ -85,7 +86,6 @@ public class Superstructure extends Subsystem {
         // OUTPUTS
         // (superstructure goals/setpoints)
         private Intake.WantedAction real_intake = Intake.WantedAction.NONE;
-        private Indexer.WantedAction real_indexer = Indexer.WantedAction.NONE;
         private Trigger.WantedAction real_trigger = Trigger.WantedAction.NONE;
         private double real_shooter = 0.0;
         private double real_hood = 0.0;   
@@ -464,7 +464,7 @@ public class Superstructure extends Subsystem {
                 normalIntakeControls();
             } else {
                 // start a timer for rejecting balls and then locking the intake when we want to stop intaking
-                if (stopIntaking()) {
+                if (mIndexer.indexerFull() && mColorSensor.seesBall()) {
                     mLockIntake = true;
                     mIntakeRejectTimer.reset();
                     mIntakeRejectTimer.start();
@@ -512,7 +512,6 @@ public class Superstructure extends Subsystem {
                 mForceEject = false;
                 // when not forcing an eject, passively check whether want to passively eject using color sensor logic
             }
-
 
             // control shooting
             if (mControlBoard.operator.getController().getYButtonPressed()) {
@@ -732,47 +731,39 @@ public class Superstructure extends Subsystem {
         // update intake and indexer actions
         if (mPeriodicIO.SPIT) {
             if (isSpunUp() /*&& isAimed()*/) {
-                mPeriodicIO.real_indexer = Indexer.WantedAction.FEED;
                 mPeriodicIO.real_trigger = Trigger.WantedAction.FEED;
+                mIndexer.setWantFeeding(true);
             } else {
                 mPeriodicIO.real_trigger = Trigger.WantedAction.NONE;
-                mPeriodicIO.real_indexer = Indexer.WantedAction.NONE;
+                mIndexer.setWantFeeding(false);
             }
         } else if (mPeriodicIO.SHOOT) {
             mPeriodicIO.real_intake = Intake.WantedAction.NONE;
 
             // only feed cargo to shoot when spun up and aimed
             if (isSpunUp() /*&& isAimed()*/) {
-                mPeriodicIO.real_indexer = Indexer.WantedAction.FEED;
+                mIndexer.setWantFeeding(true);
                 if (mPeriodicIO.FENDER) {
                     mPeriodicIO.real_trigger = Trigger.WantedAction.SLOW_FEED;
                 } else {
                     mPeriodicIO.real_trigger = Trigger.WantedAction.FEED;
                 }
             } else {
-                mPeriodicIO.real_indexer = Indexer.WantedAction.NONE;
                 mPeriodicIO.real_trigger = Trigger.WantedAction.NONE;
+                mIndexer.setWantFeeding(false);
             }
         } else {
-            // force eject
-            if (mPeriodicIO.EJECT && mForceEject) {
-                mPeriodicIO.real_indexer = Indexer.WantedAction.EJECT;
-                mPeriodicIO.real_trigger = Trigger.WantedAction.PASSIVE_REVERSE;
-            // only do any indexing action if we detect a ball
-            } else if (mColorSensor.hasBall()) {
-                mPeriodicIO.real_trigger = Trigger.WantedAction.PASSIVE_REVERSE;
-                if (mPeriodicIO.EJECT) {
-                    if (mSlowEject) {
-                        mPeriodicIO.real_indexer = Indexer.WantedAction.SLOW_EJECT;
-                    } else {
-                        mPeriodicIO.real_indexer = Indexer.WantedAction.EJECT;
-                    }
-                } else {
-                    mPeriodicIO.real_indexer = Indexer.WantedAction.INDEX;
+            mIndexer.setWantFeeding(false);
+            mPeriodicIO.real_trigger = Trigger.WantedAction.NONE;
+
+            if (mColorSensor.seesBall() && !mColorSensor.hasCorrectColor()) {
+                mIndexer.queueEject();
+            } else if (mColorSensor.seesNewBall()) {
+                if (!indexerFull()) {
+                    mIndexer.queueBall(mColorSensor.hasCorrectColor());
+                } else if (!mIndexer.getIsEjecting()){
+                    // mIntakeReject = true;
                 }
-            } else {
-                mPeriodicIO.real_trigger = Trigger.WantedAction.NONE;
-                mPeriodicIO.real_indexer = Indexer.WantedAction.NONE;
             }
             
             if (mPeriodicIO.INTAKE) {
@@ -790,7 +781,6 @@ public class Superstructure extends Subsystem {
 
         // set intake and indexer states
         mIntake.setState(mPeriodicIO.real_intake);
-        mIndexer.setState(mPeriodicIO.real_indexer);
         // set shooter subsystem setpoint
         if (Math.abs(mPeriodicIO.real_shooter) < Util.kEpsilon) {
             mShooter.setOpenLoop(0.0); // open loop if rpm goal is 0, to smooth spin down and stop belt skipping
@@ -995,9 +985,6 @@ public class Superstructure extends Subsystem {
     // get goals
     public String getIntakeGoal() {
         return mPeriodicIO.real_intake.toString();
-    }
-    public String getIndexerGoal() {
-        return mPeriodicIO.real_indexer.toString();
     }
     public double getShooterGoal() {
         return mPeriodicIO.real_shooter;
