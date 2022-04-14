@@ -91,6 +91,9 @@ public class TwobyTwoMode extends AutoModeBase {
         System.out.println("Running two by two mode auto!");
         SmartDashboard.putBoolean("Auto Finished", false);
 
+    // disable auto ejecting
+    // runAction(new LambdaAction(() -> mSuperstructure.setEjectDisable(true)));
+
     // start intaking
     runAction(new LambdaAction(() -> mSuperstructure.setWantIntake(true)));
 
@@ -118,7 +121,7 @@ public class TwobyTwoMode extends AutoModeBase {
     runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(false)));
 
     // start ejecting cargo
-    runAction(new LambdaAction(() -> mSuperstructure.setWantEject(true, true)));
+    runAction(new LambdaAction(() -> mSuperstructure.setWantEject(false, true)));
 
     // run trajectory to drive to second cargo
     runAction(driveToIntakeSecondEjectCargo);

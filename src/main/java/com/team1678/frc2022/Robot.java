@@ -174,6 +174,8 @@ public class Robot extends TimedRobot {
 
 			mAutoModeExecutor.start();
 
+			// mSuperstructure.setEjectDisable(true);
+
 			mInfrastructure.setIsDuringAuto(true);
 			mLimelight.setPipeline(Constants.VisionConstants.kDefaultPipeline);
 			
@@ -214,6 +216,8 @@ public class Robot extends TimedRobot {
 			mSuperstructure.setWantEject(false, false);
 
 			mClimber.setBrakeMode(true);
+
+			mSuperstructure.setEjectDisable(false);
 
 			mInfrastructure.setIsDuringAuto(false);
 		

@@ -211,6 +211,10 @@ public class Superstructure extends Subsystem {
         mSlowEject = slow_eject;
     }
 
+    public void setEjectDisable(boolean enable) {
+        mDisableEjecting = enable;
+    }
+
     public void setWantPrep(boolean wants_prep) {
         mPeriodicIO.PREP = wants_prep;
     }
@@ -726,14 +730,14 @@ public class Superstructure extends Subsystem {
             mPeriodicIO.real_trigger = Trigger.WantedAction.NONE;
 
             mIndexer.setForceEject(mForceEject);
+            mIndexer.setWantSlowEject(mSlowEject);
+            
 
-            if (mColorSensor.seesBall() && !mColorSensor.hasCorrectColor()) {
+            if (mColorSensor.seesBall() && !mColorSensor.hasCorrectColor() && !mDisableEjecting) {
                 mIndexer.queueEject();
             } else if (mColorSensor.seesNewBall()) {
                 if (!indexerFull()) {
                     mIndexer.queueBall(mColorSensor.hasCorrectColor());
-                } else if (!mIndexer.getIsEjecting()){
-                    // mIntakeReject = true;
                 }
             }
             
@@ -889,6 +893,7 @@ public class Superstructure extends Subsystem {
         mPeriodicIO.SPIT = false;
         mHoodSetpoint = Constants.HoodConstants.kHoodServoConstants.kMinUnitsLimit + 1;
         mShooterSetpoint = 0.0;
+        mForceEject = false;
     }
 
     /* Initial states for superstructure for teleop */

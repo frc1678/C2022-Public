@@ -170,6 +170,9 @@ public class FiveBallMode extends AutoModeBase {
                 System.out.println("Running five ball mode auto!");
                 SmartDashboard.putBoolean("Auto Finished", false);
 
+                // disable auto ejecting
+                runAction(new LambdaAction(() -> mSuperstructure.setEjectDisable(false)));
+
                 runAction(new RaceAction(
                                 new SeriesAction(List.of(
                                                 driveToIntakeSecondCargo)),

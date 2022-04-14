@@ -29,6 +29,7 @@ public class Indexer extends Subsystem {
     }
 
     private boolean mForceEjecting = false;
+    private boolean mSlowEject = false;
 
     private boolean mEjectorReached = false;
 
@@ -109,8 +110,13 @@ public class Indexer extends Subsystem {
     public void updateSetpoints() {
 
         if (mForceEjecting) {
-            mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVelocity;
-            mPeriodicIO.ejector_demand = -Constants.IndexerConstants.kEjectorVoltage;
+            if (mSlowEject) {
+                mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVelocity;
+                mPeriodicIO.ejector_demand = -Constants.IndexerConstants.kSlowEjectorVoltage;
+            } else {
+                mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVelocity;
+                mPeriodicIO.ejector_demand = -Constants.IndexerConstants.kEjectorVoltage;
+            }
             return;
         }
 
@@ -122,6 +128,7 @@ public class Indexer extends Subsystem {
         if (mFeeding) { // Feeding to the shooter
             mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelFeedingVelocity;
             mPeriodicIO.ejector_demand = Constants.IndexerConstants.kEjectorFeedingVoltage;
+            clearQueue();
         } else if (mIndexingTopBall) { // Indexing first ball
             mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVelocity;
             mPeriodicIO.ejector_demand = Constants.IndexerConstants.kEjectorVoltage;
@@ -130,7 +137,7 @@ public class Indexer extends Subsystem {
             if (mTopBeamBreak.get()) {
                 topRollerTimer.start();
             }
-            if (topRollerTimer.hasElapsed(0.1)) {
+            if (topRollerTimer.hasElapsed(0.01)) {
                 topRollerTimer.stop();
                 topRollerTimer.reset();
                 mIndexingTopBall = false;
@@ -148,8 +155,13 @@ public class Indexer extends Subsystem {
             }
 
         } else if (mEjecting) { // Pooping
-            mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVelocity;
-            mPeriodicIO.ejector_demand = -Constants.IndexerConstants.kEjectorVoltage;
+            if (mSlowEject) {
+                mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVelocity;
+                mPeriodicIO.ejector_demand = -Constants.IndexerConstants.kSlowEjectorVoltage;
+            } else {
+                mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVelocity;
+                mPeriodicIO.ejector_demand = -Constants.IndexerConstants.kEjectorVoltage;
+            }
 
             if (mBottomBeamBreak.get()) {
                 mEjectorReached = true;
@@ -185,6 +197,13 @@ public class Indexer extends Subsystem {
         mBottomSlot = new IndexerSlot();
     }
 
+    public void clearQueue() {
+        mTopSlot.clearQueue();
+        mBottomSlot.clearQueue();
+        mIndexingTopBall = false;
+        mIndexingBottomBall = false;
+    }
+
     // Queue a ball for indexing
     public void queueBall(boolean color) {
         if (!mTopSlot.hasBall() && !mTopSlot.hasQueuedBall()) {
@@ -216,6 +235,10 @@ public class Indexer extends Subsystem {
 
     public void setForceEject(boolean enable) {
         mForceEjecting = enable;
+    }
+
+    public void setWantSlowEject(boolean enable) {
+        mSlowEject = enable;
     }
 
     @Override
@@ -427,6 +450,10 @@ public class Indexer extends Subsystem {
 
         public boolean hasQueuedBall() {
             return hasQueuedBall;
+        }
+
+        public void clearQueue() {
+            hasQueuedBall = false;
         }
 
         public void outputToSmartdash(String name) {
