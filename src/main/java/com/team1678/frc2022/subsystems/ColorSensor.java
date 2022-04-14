@@ -110,7 +110,9 @@ public class ColorSensor extends Subsystem {
     }
 
     public void updateColorOffset() {
-        mPeriodicIO.color_offset = mPeriodicIO.raw_color.blue - mPeriodicIO.raw_color.red;
+        if (mPeriodicIO.raw_color != null) {
+            mPeriodicIO.color_offset = mPeriodicIO.raw_color.blue - mPeriodicIO.raw_color.red;
+        }
     }
 
     // check if we have a ball
@@ -190,7 +192,7 @@ public class ColorSensor extends Subsystem {
         mPeriodicIO.sensor0Connected = mPico.isSensor0Connected();
         mPeriodicIO.raw_color = mPico.getRawColor0();
         mPeriodicIO.adjusted_blue = mPeriodicIO.raw_color.blue; // keep blue the same
-        mPeriodicIO.adjusted_red = mPeriodicIO.raw_color.red + Constants.ColorSensorConstants.kColorOffset;
+        mPeriodicIO.adjusted_red = mPeriodicIO.raw_color.red + mPeriodicIO.color_offset /*Constants.ColorSensorConstants.kColorOffset*/;
         mPeriodicIO.color_ratio = (double) mPeriodicIO.adjusted_red / (double) mPeriodicIO.adjusted_blue;
         // mPeriodicIO.color_ratio = (double) mPeriodicIO.raw_color.red / (double) mPeriodicIO.raw_color.blue;
         mPeriodicIO.proximity = mPico.getProximity0();

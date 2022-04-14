@@ -326,9 +326,10 @@ public class Robot extends TimedRobot {
 
 			// update alliance color from driver station while disabled
 			mColorSensor.updateAllianceColor();
+			// update linear offset for rb ratio
+			mColorSensor.updateColorOffset();
+
 			mLEDs.updateColor(mColorSensor.getAllianceColor());
-			// update baseline color scaling for accurate rb comparison
-			// mColorSensor.updateBaselineColorScaling();
 
 			mLimelight.setLed(Limelight.LedMode.ON);
 			mLimelight.writePeriodicOutputs();
