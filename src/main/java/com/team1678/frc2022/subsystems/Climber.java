@@ -243,7 +243,7 @@ public class Climber extends Subsystem {
 
     // use only for auto high bar climb
     public void setHighBarPartialClimb() {
-        setLeftClimberPosition(Constants.ClimberConstants.kLeftPartialTravelDistance);
+        setLeftClimberPosition(Constants.ClimberConstants.kLeftPartialTravelDistance - 10000);
         setRightClimberPosition(0);
     }
 
