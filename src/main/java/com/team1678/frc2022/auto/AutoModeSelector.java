@@ -15,6 +15,7 @@ public class AutoModeSelector {
         ONE_BALL_LEFT_AUTO,
         ONE_BALL_RIGHT_AUTO,
         TWO_BALL_AUTO,
+        TWO_BY_ONE_AUTO,
         TWO_BY_TWO_AUTO,
         FIVE_BALL_AUTO,
         FIVE_PLUS_ONE_AUTO,
@@ -33,6 +34,7 @@ public class AutoModeSelector {
         mModeChooser.addOption("One Ball Left Mode", DesiredMode.ONE_BALL_LEFT_AUTO);
         mModeChooser.addOption("One Ball Right Mode", DesiredMode.ONE_BALL_RIGHT_AUTO);
         mModeChooser.addOption("Two Ball Mode", DesiredMode.TWO_BALL_AUTO);
+        mModeChooser.addOption("Two by One Mode", DesiredMode.TWO_BY_ONE_AUTO);
         mModeChooser.addOption("Two by Two Mode", DesiredMode.TWO_BY_TWO_AUTO);
         mModeChooser.addOption("Five Ball Mode", DesiredMode.FIVE_BALL_AUTO);
         mModeChooser.addOption("Five Plus One Mode", DesiredMode.FIVE_PLUS_ONE_AUTO);
@@ -69,6 +71,9 @@ public class AutoModeSelector {
 
         case TWO_BALL_AUTO:
             return Optional.of(new TwoBallMode());
+
+        case TWO_BY_ONE_AUTO:
+            return Optional.of(new TwobyOneMode());
 
         case TWO_BY_TWO_AUTO:
             return Optional.of(new TwobyTwoMode());

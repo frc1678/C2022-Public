@@ -16,7 +16,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class TwobyTwoMode extends AutoModeBase {
+public class TwobyOneMode extends AutoModeBase {
 
    // Swerve instance 
    private final Swerve mSwerve = Swerve.getInstance();
@@ -25,16 +25,14 @@ public class TwobyTwoMode extends AutoModeBase {
    // required PathWeaver file paths
    String file_path_a = "paths/TwoBallPaths/2 by 2 A.path";
    String file_path_b = "paths/TwoBallPaths/2 by 2 B.path";
-   String file_path_c = "paths/TwoBallPaths/2 by 2 C.path";
-   String file_path_d = "paths/TwoBallPaths/2 by 2 D.path";
+   String file_path_c = "paths/TwoBallPaths/2 by 1 C.path";
 
    //trajectory actions
    SwerveTrajectoryAction driveToIntakeSecondShotCargo;
    SwerveTrajectoryAction driveToShotPose;
-   SwerveTrajectoryAction driveToIntakeFirstEjectCargo;
-   SwerveTrajectoryAction driveToIntakeSecondEjectCargo;
+   SwerveTrajectoryAction driveToIntakeLeftEjectCargo;
    
-   public TwobyTwoMode() {
+   public TwobyOneMode() {
 
        SmartDashboard.putBoolean("Auto Finished", false);
 
@@ -66,17 +64,7 @@ public class TwobyTwoMode extends AutoModeBase {
                                                            mSwerve::setModuleStates);
 
        Trajectory traj_path_c = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_c, Constants.AutoConstants.defaultSpeedConfig);
-       driveToIntakeFirstEjectCargo = new SwerveTrajectoryAction(traj_path_c,
-                                                           mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
-                                                           new PIDController(Constants.AutoConstants.kPXController, 0, 0),
-                                                           new PIDController(Constants.AutoConstants.kPYController, 0, 0),
-                                                           thetaController,
-                                                           () -> Rotation2d.fromDegrees(320.0),
-                                                           mSwerve::getWantAutoVisionAim,
-                                                           mSwerve::setModuleStates);
-
-       Trajectory traj_path_d = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_d, Constants.AutoConstants.defaultSpeedConfig);
-       driveToIntakeFirstEjectCargo = new SwerveTrajectoryAction(traj_path_d,
+       driveToIntakeLeftEjectCargo = new SwerveTrajectoryAction(traj_path_c,
                                                            mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
                                                            new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                            new PIDController(Constants.AutoConstants.kPYController, 0, 0),
@@ -120,14 +108,8 @@ public class TwobyTwoMode extends AutoModeBase {
     // start ejecting cargo
     runAction(new LambdaAction(() -> mSuperstructure.setWantEject(true, true)));
 
-    // run trajectory to drive to second cargo
-    runAction(driveToIntakeFirstEjectCargo);
-    
-    // wait to outtake second cargo    
-    runAction(new WaitAction(0.75));
-
     // run trajectory to drive to third cargo
-    runAction(driveToIntakeFirstEjectCargo);
+    runAction(driveToIntakeLeftEjectCargo);
 
     // wait to outtake third cargo
     runAction(new WaitAction(2.0));
