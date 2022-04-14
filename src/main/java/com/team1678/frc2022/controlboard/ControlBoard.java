@@ -218,5 +218,9 @@ public class ControlBoard {
         return operator.getButton(Button.LB) && operator.getController().getYButtonPressed();
     }
     
+    public boolean getHighBarClimb() {
+        return operator.getButton(Button.LB) && operator.getController().getBButtonPressed();
+    }
+    
 }
 
