@@ -241,6 +241,12 @@ public class Climber extends Subsystem {
         setRightClimberPosition(Constants.ClimberConstants.kSafetyMinimum);
     }
 
+    // use only for auto high bar climb
+    public void setHighBarPartialClimb() {
+        setLeftClimberPosition(Constants.ClimberConstants.kLeftPartialTravelDistance);
+        setRightClimberPosition(0);
+    }
+
     // second step for traversal
     public void setClimbMidBarAndExtend() {
         setLeftClimberPosition(Constants.ClimberConstants.kLeftPartialTravelDistance);
@@ -250,7 +256,7 @@ public class Climber extends Subsystem {
     public void setHighBarExtend() {
         setLeftClimberPosition(Constants.ClimberConstants.kLeftTravelDistance);
     }
-    // third step for traversal
+    // fourth step for traversal
     public void setClimbHighBarAndExtend() {
         setLeftClimberPosition(Constants.ClimberConstants.kSafetyMinimum);
         setRightClimberPosition(Constants.ClimberConstants.kRightPartialTravelDistance);
