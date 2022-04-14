@@ -322,9 +322,11 @@ public class Superstructure extends Subsystem {
 
                 }  else if (mControlBoard.getTraversalClimb()) {
                     mAutoTraversalClimb = true;
+                    mAutoHighBarClimb = false;
 
                 } else if (mControlBoard.getHighBarClimb()) {
                     mAutoHighBarClimb = true;
+                    mAutoTraversalClimb = false;
                 
                 } else if (mControlBoard.operator.getController().getBButtonPressed()) {
                     mClimber.setClimbMidBarAndExtend();
