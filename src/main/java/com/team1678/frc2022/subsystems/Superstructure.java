@@ -114,6 +114,7 @@ public class Superstructure extends Subsystem {
 	private boolean mOpenLoopClimbControlMode = false;
 	private boolean mResetClimberPosition = false;
     private boolean mAutoTraversalClimb = false;
+    private boolean mAutoHighBarClimb = false;
     private int mClimbStep = 0;
     private double mStartingGyroPosition = 0.0;
     private double mRoll = 0.0;
@@ -288,12 +289,14 @@ public class Superstructure extends Subsystem {
             if (mControlBoard.getExitClimbMode()) {
                 mClimbMode = false;
                 mAutoTraversalClimb = false;
+                mAutoHighBarClimb = false;
             }
 
             if (mControlBoard.operator.getController().getLeftStickButtonPressed()) {
                 mOpenLoopClimbControlMode = !mOpenLoopClimbControlMode;
                 mClimber.setClimberNone();
                 mAutoTraversalClimb = false;
+                mAutoHighBarClimb = false;
             }
 
             if (mControlBoard.operator.getController().getRightStickButtonPressed()) {
@@ -312,36 +315,38 @@ public class Superstructure extends Subsystem {
                     mClimber.setClimberNone();
                     mClimbStep = 0;
                     mAutoTraversalClimb = false;
+                    mAutoHighBarClimb = false;
 
                 } else if (mControlBoard.operator.getController().getAButtonPressed()) {
                     // climb step 1
                     mClimber.setExtendForClimb();
                     mAutoTraversalClimb = false;
+                    mAutoHighBarClimb = false;
                     mClimbStep = 1;
 
+                }  else if (mControlBoard.getTraversalClimb()) {
+                    mAutoTraversalClimb = true;
+                    mAutoHighBarClimb = false;
+
+                } else if (mControlBoard.getHighBarClimb()) {
+                    mAutoHighBarClimb = true;
+                    mAutoTraversalClimb = false;
+                
                 } else if (mControlBoard.operator.getController().getBButtonPressed()) {
                     mClimber.setClimbMidBarAndExtend();
-                    mAutoTraversalClimb = false;
 
                 } else if (mControlBoard.operator.getController().getPOV() == 180) {
                     mClimber.setHighBarExtend();
-                    mAutoTraversalClimb = false;
 
                 } else if (mControlBoard.operator.getController().getPOV() == 90) {
                     mClimber.setClimbHighBarAndExtend();
-                    mAutoTraversalClimb = false;
 
                 } else if (mControlBoard.operator.getController().getPOV() == 0) {
                     mClimber.setTraversalBarExtend();
-                    mAutoTraversalClimb = false;
 
                 } else if (mControlBoard.operator.getController().getPOV() == 270) {
                     mClimber.setClimbTraversalBar();
-                    mAutoTraversalClimb = false;
-
-                } else if (mControlBoard.getTraversalClimb()) {
-                    mAutoTraversalClimb = true;
-                }             
+                }       
                 
                 if (mAutoTraversalClimb) {
 
@@ -399,6 +404,38 @@ public class Superstructure extends Subsystem {
 
                         mClimber.setClimbTraversalBar();
                         mClimbStep++; // climb step 6
+                    }
+            
+                } else if (mAutoHighBarClimb) {
+
+                    // climb mid bar and extend to high bar
+                    if (mClimbStep == 1) {
+                        mClimber.setClimbMidBarAndExtend();
+                        mClimbStep++; // climb step 2
+                    }
+
+                    // set left arm to full extension from partial height to make contact on high bar
+                    if (mRoll < Constants.ClimberConstants.kHighBarExtendAngle // check if dt roll is past high bar while swinging to extend
+                        &&
+                        Util.epsilonEquals(mClimber.getClimberPositionLeft(), // don't extend unless left arm is at partial height
+                                            Constants.ClimberConstants.kLeftPartialTravelDistance,
+                                            Constants.ClimberConstants.kTravelDistanceEpsilon)
+                        && (mClimbStep == 2)) {
+
+                        mClimber.setHighBarExtend();
+                        mClimbStep++; // climb step 3
+                    }
+
+                    // pull up partially with left arm on high bar and end
+                    if ((mRoll > Constants.ClimberConstants.kHighBarContactAngle) // check if dt roll is at bar contact angle before climbing to next bar
+                        &&
+                        Util.epsilonEquals(mClimber.getClimberPositionLeft(), // don't climb unless left arm is fully extended
+                                            Constants.ClimberConstants.kLeftTravelDistance,
+                                            Constants.ClimberConstants.kTravelDistanceEpsilon)
+                        && (mClimbStep == 3)) {
+
+                        mClimber.setHighBarPartialClimb();
+                        mClimbStep++; // climb step 4
                     }
                 }
 
@@ -815,6 +852,9 @@ public class Superstructure extends Subsystem {
                 } else if (mAutoTraversalClimb) {
                     topState = State.FLASHING_ORANGE;
                     bottomState = State.FLASHING_ORANGE;
+                } else if (mAutoHighBarClimb) {
+                    topState = State.FLASHING_CYAN;
+                    bottomState = State.FLASHING_CYAN;
                 } else {
                     topState = State.SOLID_PINK;
                     bottomState = State.SOLID_PINK;
@@ -953,7 +993,7 @@ public class Superstructure extends Subsystem {
     }
 
     public boolean isAutoClimb() {
-        return mAutoTraversalClimb;
+        return mAutoTraversalClimb || mAutoHighBarClimb;
     }
 
     // get goals
@@ -995,6 +1035,7 @@ public class Superstructure extends Subsystem {
         SmartDashboard.putBoolean("Force Eject", mForceEject);
 
         SmartDashboard.putBoolean("Auto Traversal Climb", mAutoTraversalClimb);
+        SmartDashboard.putBoolean("Auto High Bar Climb", mAutoHighBarClimb);
         SmartDashboard.putNumber("Climb Step Number", mClimbStep);
 
         SmartDashboard.putNumber("Robot Roll", mPigeon.getRoll().getDegrees());
