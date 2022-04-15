@@ -103,11 +103,11 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void robotInit() {
-		UsbCamera camera = CameraServer.startAutomaticCapture();
-		camera.setVideoMode(VideoMode.PixelFormat.kMJPEG, 320, 240, 15);
-		MjpegServer cameraServer = new MjpegServer("serve_USB Camera 0", 5810);
-		cameraServer.setSource(camera);
-		cameraServer.setCompression(10);
+		// UsbCamera camera = CameraServer.startAutomaticCapture();
+		// camera.setVideoMode(VideoMode.PixelFormat.kMJPEG, 320, 240, 15);
+		// MjpegServer cameraServer = new MjpegServer("serve_USB Camera 0", 5810);
+		// cameraServer.setSource(camera);
+		// cameraServer.setCompression(10);
 		
 		ctreConfigs = new CTREConfigs();
 		mShuffleBoardInteractions = ShuffleBoardInteractions.getInstance();
@@ -174,6 +174,8 @@ public class Robot extends TimedRobot {
 
 			mAutoModeExecutor.start();
 
+			// mSuperstructure.setEjectDisable(true);
+
 			mInfrastructure.setIsDuringAuto(true);
 			mLimelight.setPipeline(Constants.VisionConstants.kDefaultPipeline);
 			
@@ -214,6 +216,8 @@ public class Robot extends TimedRobot {
 			mSuperstructure.setWantEject(false, false);
 
 			mClimber.setBrakeMode(true);
+
+			mSuperstructure.setEjectDisable(false);
 
 			mInfrastructure.setIsDuringAuto(false);
 		
@@ -326,9 +330,10 @@ public class Robot extends TimedRobot {
 
 			// update alliance color from driver station while disabled
 			mColorSensor.updateAllianceColor();
+			// update linear offset for rb ratio
+			mColorSensor.updateColorOffset();
+
 			mLEDs.updateColor(mColorSensor.getAllianceColor());
-			// update baseline color scaling for accurate rb comparison
-			// mColorSensor.updateBaselineColorScaling();
 
 			mLimelight.setLed(Limelight.LedMode.ON);
 			mLimelight.writePeriodicOutputs();

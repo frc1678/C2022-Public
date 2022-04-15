@@ -19,7 +19,7 @@ public class ColorSensorTab extends ShuffleboardTabBase {
 	private NetworkTableEntry mForwardBreak;
 	private NetworkTableEntry mProximity;
 
-	private NetworkTableEntry mHasBall;
+	private NetworkTableEntry mSeesBall;
 	private NetworkTableEntry mEject;
 
 	private NetworkTableEntry mTimestamp;
@@ -54,8 +54,8 @@ public class ColorSensorTab extends ShuffleboardTabBase {
 				.add("Proximity", 0.0)
 				.getEntry();
 
-		mHasBall = mTab
-				.add("Has Ball", false)
+		mSeesBall = mTab
+				.add("Sees Ball", false)
 				.getEntry();
 		mEject = mTab
 				.add("Eject", false)
@@ -81,7 +81,7 @@ public class ColorSensorTab extends ShuffleboardTabBase {
 
         mProximity.setDouble(mColorSensor.getDistance());
 
-        mHasBall.setBoolean(mColorSensor.hasBall());
+        mSeesBall.setBoolean(mColorSensor.seesBall());
         mEject.setBoolean(mColorSensor.wantsEject());
 
         mTimestamp.setDouble(mColorSensor.getTimestamp());

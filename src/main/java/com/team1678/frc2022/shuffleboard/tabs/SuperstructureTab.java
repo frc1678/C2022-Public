@@ -21,7 +21,6 @@ public class SuperstructureTab extends ShuffleboardTabBase {
 
 	// goals
 	private NetworkTableEntry mIntakeGoal;
-	private NetworkTableEntry mIndexerGoal;
 	private NetworkTableEntry mShooterGoal;
 	private NetworkTableEntry mHoodGoal;
 
@@ -72,10 +71,6 @@ public class SuperstructureTab extends ShuffleboardTabBase {
 				.add("Intake Goal", "N/A")
 				.withSize(2, 1)
 				.getEntry();
-		mIndexerGoal = mTab
-				.add("Indexer Goal", "N/A")
-				.withSize(2, 1)
-				.getEntry();
 		mShooterGoal = mTab
 				.add("Shooter Goal", 0.0)
 				.withSize(2, 1)
@@ -114,7 +109,6 @@ public class SuperstructureTab extends ShuffleboardTabBase {
 
         // update superstructure goal statuses
         mIntakeGoal.setString(mSuperstructure.getIntakeGoal());
-        mIndexerGoal.setString(mSuperstructure.getIndexerGoal());
         mShooterGoal.setDouble(mSuperstructure.getShooterGoal());
         mHoodGoal.setDouble(mSuperstructure.getHoodGoal());
 

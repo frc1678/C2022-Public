@@ -489,7 +489,9 @@ public class Constants {
     }
 
     public static final class ColorSensorConstants {
-        public static final double kColorSensorThreshold = Constants.isComp ? 200 : 170;
+        public static final double kColorSensorRatioThreshold = 0.35;
+        public static final double kColorSensorDefaultRatio = 0.58;
+        public static final double kColorOffset = 140.0; // difference of blue - red
 
         public static final double kBlueFreqScaler = 1.0;
         public static final double kRedFreqScaler = 1.0;

@@ -4,11 +4,14 @@ import com.lib.drivers.PicoColorSensor;
 import com.lib.drivers.PicoColorSensor.RawColor;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
+import com.team1678.frc2022.Constants.ColorSensorConstants;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
+import com.team254.lib.util.Util;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 
@@ -25,13 +28,14 @@ public class ColorSensor extends Subsystem {
     public PeriodicIO mPeriodicIO = new PeriodicIO();
     private PicoColorSensor mPico;
 
+    private final DigitalInput mForwardBreak;
+    private boolean mSawBall = false;
+
     private Timer mHasBallTimer = new Timer();
     private Timer mEjectorTimer = new Timer();
 
     public ColorChoices mAllianceColor = ColorChoices.NONE;
     public ColorChoices mMatchedColor;
-
-    private final DigitalInput mForwardBreak;
 
     public enum ColorChoices {
         RED, BLUE, OTHER, NONE  
@@ -79,7 +83,18 @@ public class ColorSensor extends Subsystem {
 
     // check if we see a ball
     public boolean seesBall() {
-        return mPeriodicIO.proximity > Constants.ColorSensorConstants.kColorSensorThreshold;
+        return !Util.epsilonEquals(mPeriodicIO.color_ratio,
+                                  1.0,
+                                  Constants.ColorSensorConstants.kColorSensorRatioThreshold);
+    }
+
+    public boolean seesNewBall() {
+        boolean newBall = false;
+        if ((seesBall() && !mSawBall)) {
+            newBall = true;
+        }
+        mSawBall = seesBall();
+        return newBall;
     }
 
     // check if we have the right color
@@ -92,6 +107,12 @@ public class ColorSensor extends Subsystem {
         return !hasCorrectColor()
                     && (mMatchedColor != ColorChoices.OTHER)
                     && (mMatchedColor != ColorChoices.NONE);
+    }
+
+    public void updateColorOffset() {
+        if (mPeriodicIO.raw_color != null) {
+            mPeriodicIO.color_offset = mPeriodicIO.raw_color.blue - mPeriodicIO.raw_color.red;
+        }
     }
 
     // check if we have a ball
@@ -130,12 +151,14 @@ public class ColorSensor extends Subsystem {
 
     // update the color of the cargo we see
     public void updateMatchedColor() {
-        if (mPeriodicIO.proximity < Constants.ColorSensorConstants.kColorSensorThreshold) { 
+        if (Util.epsilonEquals(mPeriodicIO.color_ratio,
+                               1.0,
+                               Constants.ColorSensorConstants.kColorSensorRatioThreshold)) { 
             mMatchedColor = ColorChoices.NONE;
         } else {
-            if (mPeriodicIO.raw_color.red > mPeriodicIO.raw_color.blue) {
+            if (mPeriodicIO.color_ratio > 1.0) {
                 mMatchedColor = ColorChoices.RED;
-            } else if (mPeriodicIO.raw_color.blue > mPeriodicIO.raw_color.red) {
+            } else if (mPeriodicIO.color_ratio < 1.0) {
                 mMatchedColor = ColorChoices.BLUE;
             } else {
                 mMatchedColor = ColorChoices.OTHER;
@@ -168,10 +191,24 @@ public class ColorSensor extends Subsystem {
     public synchronized void readPeriodicInputs() {
         mPeriodicIO.sensor0Connected = mPico.isSensor0Connected();
         mPeriodicIO.raw_color = mPico.getRawColor0();
+        mPeriodicIO.adjusted_blue = mPeriodicIO.raw_color.blue; // keep blue the same
+        mPeriodicIO.adjusted_red = mPeriodicIO.raw_color.red + mPeriodicIO.color_offset /*Constants.ColorSensorConstants.kColorOffset*/;
+        mPeriodicIO.color_ratio = (double) mPeriodicIO.adjusted_red / (double) mPeriodicIO.adjusted_blue;
+        // mPeriodicIO.color_ratio = (double) mPeriodicIO.raw_color.red / (double) mPeriodicIO.raw_color.blue;
         mPeriodicIO.proximity = mPico.getProximity0();
 
         mPeriodicIO.timestamp = mPico.getLastReadTimestampSeconds();
 
+        SmartDashboard.putNumber("color_ratio", mPeriodicIO.color_ratio);
+        SmartDashboard.putNumber("color_offset", mPeriodicIO.color_offset);
+        SmartDashboard.putNumber("adjusted_red", mPeriodicIO.adjusted_red);
+        SmartDashboard.putNumber("adjusted_blue", mPeriodicIO.adjusted_blue);
+
+        /*
+        if (!getForwardBeamBreak()) {
+            updateColorOffset();
+        }
+        */
         updateHasBall();
         updateMatchedColor();
         updateWantsEject();
@@ -225,6 +262,10 @@ public class ColorSensor extends Subsystem {
     public static class PeriodicIO {
         // INPUTS
         public RawColor raw_color;
+        public double color_offset; // offset of blue - red
+        public double adjusted_red;
+        public double adjusted_blue;
+        public double color_ratio; // ratio of red to blue color
         public int proximity;
         public boolean sensor0Connected;
 
