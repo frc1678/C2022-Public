@@ -984,14 +984,15 @@ public class Superstructure extends Subsystem {
     }
 
     // get other statuses
+    public int getClimbStep() {
+        return mClimbStep;
+    }
     public boolean getInClimbMode() {
         return mClimbMode;
     }
-
     public boolean isOpenLoopClimbControl() {
         return mOpenLoopClimbControlMode;
     }
-
     public boolean isAutoClimb() {
         return mAutoTraversalClimb || mAutoHighBarClimb;
     }
