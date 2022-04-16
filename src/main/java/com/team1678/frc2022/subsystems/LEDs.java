@@ -51,6 +51,7 @@ public class LEDs extends Subsystem {
     private Animation mRedAllianceAnimation = new ColorFlowAnimation(255, 0, 0, 0, 0.5, 40, Direction.Forward);
     private Animation mBlueAllianceAnimation = new ColorFlowAnimation(0, 0, 255, 0, 0.5, 40, Direction.Backward);
     private Animation mNoAllianceAnimation =  new ColorFlowAnimation(185, 64, 255, 0, 0.5, 40, Direction.Backward);
+    private Animation mChampsRainbowAutoAnimation = new RainbowAnimation(1.0, 1.0, 40);
 
 
     // led states
@@ -113,13 +114,12 @@ public class LEDs extends Subsystem {
         mEnabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
-                mCandle.clearAnimation(0);
-                applyStates(State.SOLID_BLUE, State.SOLID_YELLOW); 
+                // empty
             }
 
             @Override
             public void onLoop(double timestamp) {
-                
+                // empty
             }
 
             @Override
@@ -220,6 +220,14 @@ public class LEDs extends Subsystem {
         } else {
             mCandle.animate(mNoAllianceAnimation); 
         }
+    }
+
+    public void setChampsAutoAnimation() {
+        mCandle.animate(mChampsRainbowAutoAnimation, 0);
+    }
+
+    public void clearAnimation() {
+        mCandle.clearAnimation(0);
     }
 
     @Override
