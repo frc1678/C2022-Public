@@ -151,7 +151,7 @@ public class FiveBallMode extends AutoModeBase {
                 traj_path_f = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_f,
                                 Constants.AutoConstants.createConfig(
                                                 5.0,
-                                                Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared,
+                                                4.0,
                                                 0.0,
                                                 0.0));
 
