@@ -6,7 +6,6 @@ import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.RobotState;
 import com.team1678.frc2022.controlboard.ControlBoard;
 import com.team1678.frc2022.controlboard.CustomXboxController;
-import com.team1678.frc2022.controlboard.CustomXboxController.Button;
 import com.team1678.frc2022.drivers.Pigeon;
 import com.team1678.frc2022.logger.LogStorage;
 import com.team1678.frc2022.logger.LoggingSystem;
@@ -14,8 +13,6 @@ import com.team1678.frc2022.regressions.ShooterRegression;
 import com.team1678.frc2022.subsystems.LEDs.State;
 import com.team254.lib.util.Util;
 import com.team254.lib.vision.AimingParameters;
-
-import org.opencv.features2d.FlannBasedMatcher;
 
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.util.InterpolatingDouble;
@@ -30,6 +27,7 @@ public class Superstructure extends Subsystem {
 
     // superstructure instance
     private static Superstructure mInstance;
+
     public synchronized static Superstructure getInstance() {
         if (mInstance == null) {
             mInstance = new Superstructure();
@@ -58,14 +56,15 @@ public class Superstructure extends Subsystem {
     // robot state
     private final RobotState mRobotState = RobotState.getInstance();
 
-    // timer for reversing the intake and then stopping it once we have two correct cargo
+    // timer for reversing the intake and then stopping it once we have two correct
+    // cargo
     Timer mIntakeRejectTimer = new Timer();
     // timer for asserting ball position
     Timer mAssertBallPositionTimer = new Timer();
 
     // PeriodicIO instance and paired csv writer
     public PeriodicIO mPeriodicIO = new PeriodicIO();
-    
+
     /*** CONTAINER FOR SUPERSTRUCTURE ACTIONS AND GOALS ***/
     public static class PeriodicIO {
         // INPUTS
@@ -87,7 +86,7 @@ public class Superstructure extends Subsystem {
         private Intake.WantedAction real_intake = Intake.WantedAction.NONE;
         private Trigger.WantedAction real_trigger = Trigger.WantedAction.NONE;
         private double real_shooter = 0.0;
-        private double real_hood = 0.0;   
+        private double real_hood = 0.0;
     }
 
     /* Setpoint Tracker Variables */
@@ -111,8 +110,8 @@ public class Superstructure extends Subsystem {
 
     // climb mode tracker variables
     private boolean mClimbMode = false;
-	private boolean mOpenLoopClimbControlMode = false;
-	private boolean mResetClimberPosition = false;
+    private boolean mOpenLoopClimbControlMode = false;
+    private boolean mResetClimberPosition = false;
     private boolean mAutoTraversalClimb = false;
     private boolean mAutoHighBarClimb = false;
     private int mClimbStep = 0;
@@ -125,7 +124,7 @@ public class Superstructure extends Subsystem {
 
     private final double kSpitVelocity = 1000;
     private final double kSpitAngle = 20.0;
-    
+
     // aiming parameter vars
     private Optional<AimingParameters> real_aiming_params_ = Optional.empty();
     private int mTrackId = -1;
@@ -155,7 +154,7 @@ public class Superstructure extends Subsystem {
                 outputTelemetry();
 
                 updateRumble();
-                        
+
                 // send log data
                 SendLog();
 
@@ -180,6 +179,7 @@ public class Superstructure extends Subsystem {
             mPeriodicIO.REJECT = false;
         }
     }
+
     public void setWantReverse(boolean reverse) {
         mPeriodicIO.REVERSE = reverse;
 
@@ -189,6 +189,7 @@ public class Superstructure extends Subsystem {
             mPeriodicIO.REJECT = false;
         }
     }
+
     public void setWantReject(boolean reject) {
         mPeriodicIO.REJECT = reject;
 
@@ -198,11 +199,13 @@ public class Superstructure extends Subsystem {
             mPeriodicIO.REVERSE = false;
         }
     }
+
     public void setWantIntakeNone() {
         mPeriodicIO.INTAKE = false;
         mPeriodicIO.REVERSE = false;
         mPeriodicIO.REJECT = false;
     }
+
     public void setWantEject(boolean eject, boolean slow_eject) {
         mForceEject = eject;
         mSlowEject = slow_eject;
@@ -219,15 +222,18 @@ public class Superstructure extends Subsystem {
     public void setWantPrep(boolean wants_prep) {
         mPeriodicIO.PREP = wants_prep;
     }
+
     public void setWantShoot(boolean wants_shoot) {
         mPeriodicIO.SHOOT = wants_shoot;
     }
+
     public void setShootingParameters(double flywheel, double hood) {
         mShooterSetpoint = flywheel;
         mHoodSetpoint = hood;
     }
 
-    /*** CONTAINER FOR OPERATOR COMMANDS CALLING SUPERSTRUCTURE ACTIONS
+    /***
+     * CONTAINER FOR OPERATOR COMMANDS CALLING SUPERSTRUCTURE ACTIONS
      * 
      * Intaking
      * - hold right trigger to intake
@@ -241,8 +247,8 @@ public class Superstructure extends Subsystem {
      * 
      * Manual Hood Adjustment
      * - Use dpad to manually adjust hood with offset
-     *   --> 0 to move hood up
-     *   --> 180 to move hood down
+     * --> 0 to move hood up
+     * --> 180 to move hood down
      * - press START button to reset adjustment
      * 
      * Other Manual Sets
@@ -251,11 +257,12 @@ public class Superstructure extends Subsystem {
      * - hold left bumper to eject balls manuallyo
      * 
      * Climb Controls
-     * - press left bumper, right bumper, left trigger, right trigger to enter climb mode
+     * - press left bumper, right bumper, left trigger, right trigger to enter climb
+     * mode
      * - press center "back" and "start" buttons to exit climb mode
      * - press down on left joystick to toggle open loop control of climber arms
      * - press down on right joystick to zero position on climber motors
-     *  
+     * 
      * - press A to prep for climb and extend right arm
      * - press B to only climb to mid bar
      * - press Y to complete full automated climb to traversal bar
@@ -264,14 +271,14 @@ public class Superstructure extends Subsystem {
      * - DPad right (POV 90) to climb high bar and extend for traversal bar
      * - DPad up (POV 0) to climb traversal bar
      * 
-     * */
+     */
     public void updateOperatorCommands() {
 
         // update starting gyro position
         if (mClimbStep == 0) {
             mPigeon.setRoll(0.0);
         }
-          
+
         // get whether we want to enter climb mode
         if (mControlBoard.getClimbMode()) {
             mClimbMode = true;
@@ -324,14 +331,14 @@ public class Superstructure extends Subsystem {
                     mAutoHighBarClimb = false;
                     mClimbStep = 1;
 
-                }  else if (mControlBoard.getTraversalClimb()) {
+                } else if (mControlBoard.getTraversalClimb()) {
                     mAutoTraversalClimb = true;
                     mAutoHighBarClimb = false;
 
                 } else if (mControlBoard.getHighBarClimb()) {
                     mAutoHighBarClimb = true;
                     mAutoTraversalClimb = false;
-                
+
                 } else if (mControlBoard.operator.getController().getBButtonPressed()) {
                     mClimber.setClimbMidBarAndExtend();
 
@@ -346,8 +353,8 @@ public class Superstructure extends Subsystem {
 
                 } else if (mControlBoard.operator.getController().getPOV() == 270) {
                     mClimber.setClimbTraversalBar();
-                }       
-                
+                }
+
                 if (mAutoTraversalClimb) {
 
                     // climb mid bar and extend to high bar
@@ -356,56 +363,66 @@ public class Superstructure extends Subsystem {
                         mClimbStep++; // climb step 2
                     }
 
-                    // set left arm to full extension from partial height to make contact on high bar
-                    if (mRoll < Constants.ClimberConstants.kHighBarExtendAngle // check if dt roll is past high bar while swinging to extend
-                        &&
-                        Util.epsilonEquals(mClimber.getClimberPositionLeft(), // don't extend unless left arm is at partial height
-                                            Constants.ClimberConstants.kLeftPartialTravelDistance,
-                                            Constants.ClimberConstants.kTravelDistanceEpsilon)
-                        && (mClimbStep == 2)) {
+                    // set left arm to full extension from partial height to make contact on high
+                    // bar
+                    if (mRoll < Constants.ClimberConstants.kHighBarExtendAngle // check if dt roll is past high bar
+                                                                               // while swinging to extend
+                            &&
+                            Util.epsilonEquals(mClimber.getClimberPositionLeft(), // don't extend unless left arm is at
+                                                                                  // partial height
+                                    Constants.ClimberConstants.kLeftPartialTravelDistance,
+                                    Constants.ClimberConstants.kTravelDistanceEpsilon)
+                            && (mClimbStep == 2)) {
 
                         mClimber.setHighBarExtend();
                         mClimbStep++; // climb step 3
                     }
 
                     // pull up with left arm on upper bar while extending right arm to traversal bar
-                    if ((mRoll > Constants.ClimberConstants.kHighBarContactAngle) // check if dt roll is at bar contact angle before climbing to next bar
-                        &&
-                        Util.epsilonEquals(mClimber.getClimberPositionLeft(), // don't climb unless left arm is fully extended
-                                            Constants.ClimberConstants.kLeftTravelDistance,
-                                            Constants.ClimberConstants.kTravelDistanceEpsilon)
-                        && (mClimbStep == 3)) {
+                    if ((mRoll > Constants.ClimberConstants.kHighBarContactAngle) // check if dt roll is at bar contact
+                                                                                  // angle before climbing to next bar
+                            &&
+                            Util.epsilonEquals(mClimber.getClimberPositionLeft(), // don't climb unless left arm is
+                                                                                  // fully extended
+                                    Constants.ClimberConstants.kLeftTravelDistance,
+                                    Constants.ClimberConstants.kTravelDistanceEpsilon)
+                            && (mClimbStep == 3)) {
 
                         mClimber.setClimbHighBarAndExtend();
                         mClimbStep++; // climb step 4
                     }
 
-                    // set right arm to full extension from partial height to make contact on traversal bar
-                    if (mRoll > Constants.ClimberConstants.kTraversalBarExtendAngle // check if dt roll is past traversal bar while swinging to extend
-                        &&
-                        Util.epsilonEquals(mClimber.getClimberPositionRight(), // don't extend unless right arm is at partial height
-                                            Constants.ClimberConstants.kRightPartialTravelDistance,
-                                            Constants.ClimberConstants.kTravelDistanceEpsilon)
-                        && (mClimbStep == 4)) {
+                    // set right arm to full extension from partial height to make contact on
+                    // traversal bar
+                    if (mRoll > Constants.ClimberConstants.kTraversalBarExtendAngle // check if dt roll is past
+                                                                                    // traversal bar while swinging to
+                                                                                    // extend
+                            &&
+                            Util.epsilonEquals(mClimber.getClimberPositionRight(), // don't extend unless right arm is
+                                                                                   // at partial height
+                                    Constants.ClimberConstants.kRightPartialTravelDistance,
+                                    Constants.ClimberConstants.kTravelDistanceEpsilon)
+                            && (mClimbStep == 4)) {
 
                         mClimber.setTraversalBarExtend();
                         mClimbStep++; // climb step 5
                     }
 
                     // climb on the right arm after we are fully extended on traversal bar
-                    if (Util.epsilonEquals(mRoll, // check if dt roll is at the angle necessary 
-                                            Constants.ClimberConstants.kTraversalBarContactAngle,
-                                            2.0)
-                        &&
-                        Util.epsilonEquals(mClimber.getClimberPositionRight(), // don't extend unless right arm is at full height
-                                            Constants.ClimberConstants.kRightTravelDistance,
-                                            Constants.ClimberConstants.kTravelDistanceEpsilon)
-                        && (mClimbStep == 5)) {
+                    if (Util.epsilonEquals(mRoll, // check if dt roll is at the angle necessary
+                            Constants.ClimberConstants.kTraversalBarContactAngle,
+                            2.0)
+                            &&
+                            Util.epsilonEquals(mClimber.getClimberPositionRight(), // don't extend unless right arm is
+                                                                                   // at full height
+                                    Constants.ClimberConstants.kRightTravelDistance,
+                                    Constants.ClimberConstants.kTravelDistanceEpsilon)
+                            && (mClimbStep == 5)) {
 
                         mClimber.setClimbTraversalBar();
                         mClimbStep++; // climb step 6
                     }
-            
+
                 } else if (mAutoHighBarClimb) {
 
                     // climb mid bar and extend to high bar
@@ -414,25 +431,30 @@ public class Superstructure extends Subsystem {
                         mClimbStep++; // climb step 2
                     }
 
-                    // set left arm to full extension from partial height to make contact on high bar
-                    if (mRoll < Constants.ClimberConstants.kHighBarExtendAngle // check if dt roll is past high bar while swinging to extend
-                        &&
-                        Util.epsilonEquals(mClimber.getClimberPositionLeft(), // don't extend unless left arm is at partial height
-                                            Constants.ClimberConstants.kLeftPartialTravelDistance,
-                                            Constants.ClimberConstants.kTravelDistanceEpsilon)
-                        && (mClimbStep == 2)) {
+                    // set left arm to full extension from partial height to make contact on high
+                    // bar
+                    if (mRoll < Constants.ClimberConstants.kHighBarExtendAngle // check if dt roll is past high bar
+                                                                               // while swinging to extend
+                            &&
+                            Util.epsilonEquals(mClimber.getClimberPositionLeft(), // don't extend unless left arm is at
+                                                                                  // partial height
+                                    Constants.ClimberConstants.kLeftPartialTravelDistance,
+                                    Constants.ClimberConstants.kTravelDistanceEpsilon)
+                            && (mClimbStep == 2)) {
 
                         mClimber.setHighBarExtend();
                         mClimbStep++; // climb step 3
                     }
 
                     // pull up partially with left arm on high bar and end
-                    if ((mRoll > Constants.ClimberConstants.kHighBarContactAngle) // check if dt roll is at bar contact angle before climbing to next bar
-                        &&
-                        Util.epsilonEquals(mClimber.getClimberPositionLeft(), // don't climb unless left arm is fully extended
-                                            Constants.ClimberConstants.kLeftTravelDistance,
-                                            Constants.ClimberConstants.kTravelDistanceEpsilon)
-                        && (mClimbStep == 3)) {
+                    if ((mRoll > Constants.ClimberConstants.kHighBarContactAngle) // check if dt roll is at bar contact
+                                                                                  // angle before climbing to next bar
+                            &&
+                            Util.epsilonEquals(mClimber.getClimberPositionLeft(), // don't climb unless left arm is
+                                                                                  // fully extended
+                                    Constants.ClimberConstants.kLeftTravelDistance,
+                                    Constants.ClimberConstants.kTravelDistanceEpsilon)
+                            && (mClimbStep == 3)) {
 
                         mClimber.setHighBarPartialClimb();
                         mClimbStep++; // climb step 4
@@ -460,12 +482,13 @@ public class Superstructure extends Subsystem {
                 }
 
             }
-        
+
         } else {
 
             /*** NORMAL TELEOP CONTROLS ***/
 
-            // toggle whether we want to force intake or decide whether we intake based on whether we have two correct cargo
+            // toggle whether we want to force intake or decide whether we intake based on
+            // whether we have two correct cargo
             if (mControlBoard.getDisableIntakeLogic()) {
                 mIntakeOverride = !mIntakeOverride;
             }
@@ -500,49 +523,54 @@ public class Superstructure extends Subsystem {
             }
 
             /*
-            // control intake + reverse actions
-            if (mIntakeOverride) {
-                normalIntakeControls();
-            } else {
-                // start a timer for rejecting balls and then locking the intake when we want to stop intaking
-                if (mIndexer.indexerFull() && mColorSensor.seesBall()) {
-                    mLockIntake = true;
-                    mIntakeRejectTimer.reset();
-                    mIntakeRejectTimer.start();
-                }
-
-                // if we want to lock the intake, reject incoming cargo for a short time and then lock the intake
-                if (mLockIntake) {
-                    if (mIntakeRejectTimer.hasElapsed(Constants.IntakeConstants.kIntakeRejectTime)) {
-                        mIntakeRejectTimer.stop();
-                        setWantIntakeNone();
-                    } else {
-                        setWantReject(true);
-                    }
-
-                    // if:
-                    // - we don't have a ball indexed and a ball in our system
-                    // - we don't have a ball at either fully indexed position
-                    // - we don't want to stop intaking
-                    // then unlock the intake
-                    if(!(mIndexer.getTopBeamBreak() && mColorSensor.getForwardBeamBreak()) 
-                            && !indexerFull()
-                            && !stopIntaking()) {
-                        
-                        mLockIntake = false;
-                    }
-                } else {
-                    normalIntakeControls();
-                }
-            }      
-            */      
+             * // control intake + reverse actions
+             * if (mIntakeOverride) {
+             * normalIntakeControls();
+             * } else {
+             * // start a timer for rejecting balls and then locking the intake when we want
+             * to stop intaking
+             * if (mIndexer.indexerFull() && mColorSensor.seesBall()) {
+             * mLockIntake = true;
+             * mIntakeRejectTimer.reset();
+             * mIntakeRejectTimer.start();
+             * }
+             * 
+             * // if we want to lock the intake, reject incoming cargo for a short time and
+             * then lock the intake
+             * if (mLockIntake) {
+             * if
+             * (mIntakeRejectTimer.hasElapsed(Constants.IntakeConstants.kIntakeRejectTime))
+             * {
+             * mIntakeRejectTimer.stop();
+             * setWantIntakeNone();
+             * } else {
+             * setWantReject(true);
+             * }
+             * 
+             * // if:
+             * // - we don't have a ball indexed and a ball in our system
+             * // - we don't have a ball at either fully indexed position
+             * // - we don't want to stop intaking
+             * // then unlock the intake
+             * if(!(mIndexer.getTopBeamBreak() && mColorSensor.getForwardBeamBreak())
+             * && !indexerFull()
+             * && !stopIntaking()) {
+             * 
+             * mLockIntake = false;
+             * }
+             * } else {
+             * normalIntakeControls();
+             * }
+             * }
+             */
 
             // toggle ejecting to disable if necessary
             if (mControlBoard.getDisableColorLogic()) {
                 mDisableEjecting = !mDisableEjecting;
             }
             // control options to filter cargo and eject
-            // don't eject if we want it disabled or if we lock the intake because we have two correct cargo
+            // don't eject if we want it disabled or if we lock the intake because we have
+            // two correct cargo
             mForceEject = mControlBoard.getManualEject();
 
             // control shooting
@@ -569,9 +597,11 @@ public class Superstructure extends Subsystem {
             }
 
             // control spit shot
-            /*if (mControlBoard.operator.getController().getXButtonPressed()) {
-                mPeriodicIO.SPIT = !mPeriodicIO.SPIT;
-            }*/
+            /*
+             * if (mControlBoard.operator.getController().getXButtonPressed()) {
+             * mPeriodicIO.SPIT = !mPeriodicIO.SPIT;
+             * }
+             */
 
             // non-toggle one ball spit shot
             if (mControlBoard.operator.getController().getXButtonPressed()) {
@@ -579,7 +609,7 @@ public class Superstructure extends Subsystem {
             }
 
             // control for adding manual hood adjustment
-            switch(mControlBoard.getHoodManualAdjustment()) {
+            switch (mControlBoard.getHoodManualAdjustment()) {
                 case 1:
                     mHoodAngleAdjustment += 1;
                     break;
@@ -622,12 +652,13 @@ public class Superstructure extends Subsystem {
             mAssertBallPositionTimer.start();
 
             // check if ball count decreases
-            if ((mBallCount == 0) && mAssertBallPositionTimer.hasElapsed(Constants.IndexerConstants.kBallAssertionTime)) {
+            if ((mBallCount == 0)
+                    && mAssertBallPositionTimer.hasElapsed(Constants.IndexerConstants.kBallAssertionTime)) {
                 mPeriodicIO.SPIT = false;
 
                 mAssertBallPositionTimer.stop();
                 mAssertBallPositionTimer.reset();
-            } 
+            }
         }
         // if we don't have any balls we should never be in a spitting state
         if (mBallCount == 0) {
@@ -645,11 +676,13 @@ public class Superstructure extends Subsystem {
         }
     }
 
-    /*** GET REAL AIMING PARAMETERS
+    /***
+     * GET REAL AIMING PARAMETERS
      * called in updateVisionAimingSetpoints()
-    */
+     */
     public Optional<AimingParameters> getRealAimingParameters() {
-        Optional<AimingParameters> aiming_params = RobotState.getInstance().getAimingParameters(mTrackId, Constants.VisionConstants.kMaxGoalTrackAge);
+        Optional<AimingParameters> aiming_params = RobotState.getInstance().getAimingParameters(mTrackId,
+                Constants.VisionConstants.kMaxGoalTrackAge);
         if (aiming_params.isPresent()) {
             return aiming_params;
         } else {
@@ -660,11 +693,13 @@ public class Superstructure extends Subsystem {
 
     /*** UPDATE VISION AIMING PARAMETERS FROM GOAL TRACKING ***/
     public void updateVisionAimingParameters() {
-        // get aiming parameters from either vision-assisted goal tracking or odometry-only tracking
+        // get aiming parameters from either vision-assisted goal tracking or
+        // odometry-only tracking
         real_aiming_params_ = getRealAimingParameters();
 
         // predicted pose and target
-        Pose2d predicted_field_to_vehicle = mRobotState.getPredictedFieldToVehicle(Constants.VisionConstants.kLookaheadTime);
+        Pose2d predicted_field_to_vehicle = mRobotState
+                .getPredictedFieldToVehicle(Constants.VisionConstants.kLookaheadTime);
         Pose2d predicted_vehicle_to_goal = predicted_field_to_vehicle.inverse()
                 .transformBy(real_aiming_params_.get().getFieldToGoal());
 
@@ -687,7 +722,8 @@ public class Superstructure extends Subsystem {
         SmartDashboard.putNumber("Vision Target Angle", Math.toDegrees(mTargetAngle));
 
         // lookahead angle offset
-        SmartDashboard.putNumber("Lookahead Offset", Math.toDegrees(mTargetAngle) - (real_aiming_params_.get().getVehicleToGoalRotation().getDegrees() + 180));
+        SmartDashboard.putNumber("Lookahead Offset", Math.toDegrees(mTargetAngle)
+                - (real_aiming_params_.get().getVehicleToGoalRotation().getDegrees() + 180));
         SmartDashboard.putNumber("Distance Offset", mCorrectedDistanceToTarget - real_aiming_params_.get().getRange());
     }
 
@@ -699,29 +735,35 @@ public class Superstructure extends Subsystem {
         } else if (mPeriodicIO.FENDER) {
             mShooterSetpoint = kFenderVelocity;
             mHoodSetpoint = kFenderAngle;
-        /*
-        } else if (mLimelight.getLimelightDistanceToTarget().isPresent()) {
-            mShooterSetpoint = getShooterSetpointFromRegression(mLimelight.getLimelightDistanceToTarget().get());
-            mHoodSetpoint = getHoodSetpointFromRegression(mLimelight.getLimelightDistanceToTarget().get());
-        }
-        */
-        
+            /*
+             * } else if (mLimelight.getLimelightDistanceToTarget().isPresent()) {
+             * mShooterSetpoint =
+             * getShooterSetpointFromRegression(mLimelight.getLimelightDistanceToTarget().
+             * get());
+             * mHoodSetpoint =
+             * getHoodSetpointFromRegression(mLimelight.getLimelightDistanceToTarget().get()
+             * );
+             * }
+             */
+
         } else if (real_aiming_params_.isPresent()) {
             mShooterSetpoint = getShooterSetpointFromRegression(mCorrectedDistanceToTarget);
             mHoodSetpoint = getHoodSetpointFromRegression(mCorrectedDistanceToTarget);
         }
-        
+
     }
 
-    /*** UPDATE SUBSYSTEM STATES + SETPOINTS AND SET GOALS
+    /***
+     * UPDATE SUBSYSTEM STATES + SETPOINTS AND SET GOALS
      * 
-     * 1. updates wanted actions for intake and indexer subsystems based on requested superstructure action
+     * 1. updates wanted actions for intake and indexer subsystems based on
+     * requested superstructure action
      * 2. updates shooter and hood setpoint goals from tracked vars
      * 3. set subsystem states and shooting setpoints within subsystems
      * 
-     * */
+     */
     public void setGoals() {
-        /* Update subsystem wanted actions and setpoints*/
+        /* Update subsystem wanted actions and setpoints */
 
         // reset hood angle adjustment if called
         if (mResetHoodAngleAdjustment) {
@@ -740,7 +782,7 @@ public class Superstructure extends Subsystem {
 
         // update intake and indexer actions
         if (mPeriodicIO.SPIT) {
-            if (isSpunUp() /*&& isAimed()*/) {
+            if (isSpunUp() /* && isAimed() */) {
                 mPeriodicIO.real_trigger = Trigger.WantedAction.FEED;
                 mIndexer.setWantFeeding(true);
             } else {
@@ -751,7 +793,7 @@ public class Superstructure extends Subsystem {
             mPeriodicIO.real_intake = Intake.WantedAction.NONE;
 
             // only feed cargo to shoot when spun up and aimed
-            if (isSpunUp() /*&& isAimed()*/) {
+            if (isSpunUp() /* && isAimed() */) {
                 mIndexer.setWantFeeding(true);
                 if (mPeriodicIO.FENDER) {
                     mPeriodicIO.real_trigger = Trigger.WantedAction.SLOW_FEED;
@@ -768,16 +810,17 @@ public class Superstructure extends Subsystem {
 
             mIndexer.setForceEject(mForceEject);
             mIndexer.setWantSlowEject(mSlowEject);
-            
 
-            if (mColorSensor.seesBall() && !mColorSensor.hasCorrectColor() && !mDisableEjecting) {
+            if (mColorSensor.seesBall()
+                    && !mColorSensor.hasCorrectColor()
+                    && !indexerFull() && !mDisableEjecting) {
                 mIndexer.queueEject();
             } else if (mColorSensor.seesNewBall()) {
                 if (!indexerFull()) {
                     mIndexer.queueBall(mColorSensor.hasCorrectColor());
                 }
             }
-            
+
             if (mPeriodicIO.INTAKE) {
                 mPeriodicIO.real_intake = Intake.WantedAction.INTAKE;
             } else if (mPeriodicIO.REVERSE) {
@@ -797,7 +840,8 @@ public class Superstructure extends Subsystem {
         if (Math.abs(mPeriodicIO.real_shooter) < Util.kEpsilon) {
             mShooter.setOpenLoop(0.0); // open loop if rpm goal is 0, to smooth spin down and stop belt skipping
         } else {
-            mShooter.setVelocity(mShooterSetpoint, mShooterSetpoint * Constants.ShooterConstants.kAcceleratorMultiplier);
+            mShooter.setVelocity(mShooterSetpoint,
+                    mShooterSetpoint * Constants.ShooterConstants.kAcceleratorMultiplier);
         }
         mTrigger.setState(mPeriodicIO.real_trigger);
 
@@ -805,8 +849,8 @@ public class Superstructure extends Subsystem {
         // safety clamp the hood goal between min and max hard stops for hood angle
         mPeriodicIO.real_hood = Util.clamp(mPeriodicIO.real_hood,
                 Constants.HoodConstants.kHoodServoConstants.kMinUnitsLimit,
-                Constants.HoodConstants.kHoodServoConstants.kMaxUnitsLimit); 
-        
+                Constants.HoodConstants.kHoodServoConstants.kMaxUnitsLimit);
+
         if (mHood.mControlState != ServoMotorSubsystem.ControlState.OPEN_LOOP) {
             mHood.setSetpointMotionMagic(mPeriodicIO.real_hood);
         }
@@ -824,7 +868,7 @@ public class Superstructure extends Subsystem {
             topState = State.EMERGENCY;
             bottomState = State.EMERGENCY;
         } else {
-           if (!mClimbMode) {
+            if (!mClimbMode) {
                 if (getBallCount() == 2) {
                     bottomState = State.SOLID_GREEN;
                 } else if (getBallCount() == 1) {
@@ -865,7 +909,9 @@ public class Superstructure extends Subsystem {
         mLEDs.applyStates(topState, bottomState);
     }
 
-    /*** GET SHOOTER AND HOOD SETPOINTS FROM SUPERSTRUCTURE CONSTANTS REGRESSION ***/
+    /***
+     * GET SHOOTER AND HOOD SETPOINTS FROM SUPERSTRUCTURE CONSTANTS REGRESSION
+     ***/
     // interpolates distance to target for shooter setpoint along regression
     private double getShooterSetpointFromRegression(double range) {
         if (ShooterRegression.kUseSmartdashboard) {
@@ -876,6 +922,7 @@ public class Superstructure extends Subsystem {
             return ShooterRegression.kFlywheelAutoAimMap.getInterpolated(new InterpolatingDouble(range)).value;
         }
     }
+
     // interpolates distance to target for hood setpoint along regression
     private double getHoodSetpointFromRegression(double range) {
         if (ShooterRegression.kUseSmartdashboard) {
@@ -886,6 +933,7 @@ public class Superstructure extends Subsystem {
             return ShooterRegression.kHoodAutoAimMap.getInterpolated(new InterpolatingDouble(range)).value;
         }
     }
+
     // get vision align delta from goal
     public double getVisionAlignGoal() {
         return mTargetAngle;
@@ -895,23 +943,29 @@ public class Superstructure extends Subsystem {
     public boolean stopIntaking() {
         return (mIndexer.getTopBeamBreak() && mColorSensor.seesBall() && mColorSensor.hasCorrectColor());
     }
+
     // get number of correct cargo in indexer
     public double getBallCount() {
         return mBallCount;
     }
+
     // ball at back beam break and top beam break
     public boolean indexerFull() {
         return (mBallCount == 2);
     }
+
     // check if our flywheel is spun up to the correct velocity
     public boolean isSpunUp() {
         return mShooter.spunUp();
     }
+
     // check if our limelight sees a vision target
     public boolean hasTarget() {
         return mLimelight.hasTarget();
     }
-    // checked if we are vision aligned to the target within an acceptable horiz. error
+
+    // checked if we are vision aligned to the target within an acceptable horiz.
+    // error
     public boolean isAimed() {
         return mLimelight.isAimed();
     }
@@ -947,43 +1001,57 @@ public class Superstructure extends Subsystem {
         mPeriodicIO.SPIT = false;
 
         mClimbMode = false;
-    } 
 
+        System.out.println("Set initial teleop states!");
+    }
 
     /* Superstructure getters for action and goal statuses */
     // get actions
     public boolean getIntaking() {
         return mPeriodicIO.INTAKE;
     }
+
     public boolean getReversing() {
         return mPeriodicIO.REVERSE;
     }
+
     public boolean getRejecting() {
         return mPeriodicIO.REJECT;
     }
+
     public boolean getEjecting() {
         return mIndexer.getIsEjecting();
     }
+
     public boolean getPrepping() {
         return mPeriodicIO.PREP;
     }
+
     public boolean getShooting() {
         return mPeriodicIO.SHOOT;
     }
+
     public boolean getWantsFender() {
         return mPeriodicIO.FENDER;
     }
+
     public boolean getWantsSpit() {
         return mPeriodicIO.SPIT;
     }
+
     public boolean getEjectDisabled() {
         return mDisableEjecting;
     }
+
     public boolean getIntakeOverride() {
         return mIntakeOverride;
     }
 
     // get other statuses
+    public int getClimbStep() {
+        return mClimbStep;
+    }
+
     public boolean getInClimbMode() {
         return mClimbMode;
     }
@@ -1000,9 +1068,11 @@ public class Superstructure extends Subsystem {
     public String getIntakeGoal() {
         return mPeriodicIO.real_intake.toString();
     }
+
     public double getShooterGoal() {
         return mPeriodicIO.real_shooter;
     }
+
     public double getHoodGoal() {
         return mPeriodicIO.real_hood;
     }
@@ -1019,7 +1089,8 @@ public class Superstructure extends Subsystem {
 
         // // superstructure goals being set
         // SmartDashboard.putString("Intake Goal", mPeriodicIO.real_intake.toString());
-        // SmartDashboard.putString("Indexer Goal", mPeriodicIO.real_indexer.toString());
+        // SmartDashboard.putString("Indexer Goal",
+        // mPeriodicIO.real_indexer.toString());
         // SmartDashboard.putNumber("Shooter Goal", mPeriodicIO.real_shooter);
         // SmartDashboard.putNumber("Hood Goal", mPeriodicIO.real_hood);
 
@@ -1028,7 +1099,7 @@ public class Superstructure extends Subsystem {
         // SmartDashboard.putBoolean("Is Spun Up", isSpunUp());
         // SmartDashboard.putBoolean("Has Vision Target", mLimelight.hasTarget());
         // SmartDashboard.putBoolean("Is Vision Aimed", mLimelight.isAimed());
-       
+
         SmartDashboard.putBoolean("Disable Ejecting", mDisableEjecting);
         SmartDashboard.putBoolean("Stop Intaking", stopIntaking());
         SmartDashboard.putBoolean("Force Intake", mIntakeOverride);
@@ -1099,5 +1170,5 @@ public class Superstructure extends Subsystem {
         // send data to logging storage
         mStorage.addData(items);
     }
-    
+
 }

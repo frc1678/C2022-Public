@@ -119,7 +119,6 @@ public class Robot extends TimedRobot {
 					mRobotStateEstimator,
 					mSwerve,
 					mSuperstructure,
-					mInfrastructure,
 					mIntake,
 					mIndexer,
 					mShooter,
@@ -174,11 +173,11 @@ public class Robot extends TimedRobot {
 
 			mAutoModeExecutor.start();
 
-			// mSuperstructure.setEjectDisable(true);
-
 			mInfrastructure.setIsDuringAuto(true);
 			mLimelight.setPipeline(Constants.VisionConstants.kDefaultPipeline);
-			
+
+			// set champs pride automation
+			mLEDs.setChampsAutoAnimation();	
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
@@ -223,6 +222,12 @@ public class Robot extends TimedRobot {
 		
 			mLimelight.setLed(Limelight.LedMode.ON);
             mLimelight.setPipeline(Constants.VisionConstants.kDefaultPipeline);
+
+			// clear any previous automation from auto
+			mLEDs.clearAnimation();
+
+			// set states for teleop init
+			mSuperstructure.setInitialTeleopStates();
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
