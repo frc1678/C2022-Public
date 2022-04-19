@@ -492,9 +492,6 @@ public class Indexer extends Subsystem {
         items.add(mIndexingBottomBall ? 1.0 : 0.0);
         items.add(mEjecting ? 1.0 : 0.0);
 
-
-
-
         // send data to logging storage
         mStorage.addData(items);
     }
