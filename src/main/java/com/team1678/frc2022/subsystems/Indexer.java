@@ -340,66 +340,6 @@ public class Indexer extends Subsystem {
         return mEjecting || mForceEjecting;
     }
 
-    public static class PeriodicIO {
-        // INPUTS
-        public boolean top_break;
-        public boolean bottom_break;
-
-        public double tunnel_velocity;
-        public double ejector_velocity;
-
-        public double ejector_current;
-        public double tunnel_current;
-
-        public double ejector_voltage;
-        public double tunnel_voltage;
-
-        // OUTPUTS
-        public double ejector_demand;
-        public double tunnel_demand;
-    }
-
-    @Override
-    public void registerLogger(LoggingSystem LS) {
-        SetupLog();
-        LS.register(mStorage, "INDEXER_LOGS.csv");
-    }
-
-    public void SetupLog() {
-        mStorage = new LogStorage<PeriodicIO>();
-
-        ArrayList<String> headers = new ArrayList<String>();
-        headers.add("timestamp");
-        headers.add("bottom_break");
-        headers.add("top_break");
-        headers.add("ejector_current");
-        headers.add("ejector_voltage");
-        headers.add("tunnel_voltage");
-        headers.add("tunnel_demand");
-        headers.add("ejector_demand");
-        headers.add("tunnel_current");
-        headers.add("tunnel_velocity");
-
-        mStorage.setHeaders(headers);
-    }
-
-    public void SendLog() {
-        ArrayList<Number> items = new ArrayList<Number>();
-        items.add(Timer.getFPGATimestamp());
-        items.add(mPeriodicIO.bottom_break ? 1.0 : 0.0);
-        items.add(mPeriodicIO.top_break ? 1.0 : 0.0);
-        items.add(mPeriodicIO.ejector_current);
-        items.add(mPeriodicIO.ejector_voltage);
-        items.add(mPeriodicIO.tunnel_voltage);
-        items.add(mPeriodicIO.tunnel_demand);
-        items.add(mPeriodicIO.ejector_demand);
-        items.add(mPeriodicIO.tunnel_current);
-        items.add(mPeriodicIO.tunnel_velocity);
-
-        // send data to logging storage
-        mStorage.addData(items);
-    }
-
     public boolean hasTopBall() {
         return mTopSlot.hasBall() || mTopSlot.hasQueuedBall();
     }
@@ -463,5 +403,101 @@ public class Indexer extends Subsystem {
             SmartDashboard.putBoolean(name + " queued ball color", queuedBallColor);
         }
     }
+ 
+    public static class PeriodicIO {
+        // INPUTS
+        public boolean top_break;
+        public boolean bottom_break;
+
+        public double tunnel_velocity;
+        public double ejector_velocity;
+
+        public double ejector_current;
+        public double tunnel_current;
+
+        public double ejector_voltage;
+        public double tunnel_voltage;
+
+        // OUTPUTS
+        public double ejector_demand;
+        public double tunnel_demand;
+    }
+
+    @Override
+    public void registerLogger(LoggingSystem LS) {
+        SetupLog();
+        LS.register(mStorage, "INDEXER_LOGS.csv");
+    }
+
+    public void SetupLog() {
+        mStorage = new LogStorage<PeriodicIO>();
+
+        ArrayList<String> headers = new ArrayList<String>();
+        headers.add("timestamp");
+
+        headers.add("tunnel_velocity");
+
+        headers.add("tunnel_demand");
+        headers.add("ejector_demand");
+
+        headers.add("tunnel_voltage");
+        headers.add("ejector_voltage");
+
+        headers.add("tunnel_current");
+        headers.add("ejector_current");
+
+        headers.add("top_break");
+        headers.add("bottom_break");
+
+        // indexer logic variables
+        headers.add("top_slot_ball");
+        headers.add("top_slot_queued");
+        headers.add("bottom_slot_ball");
+        headers.add("bottom_slot_queued");
+
+        headers.add("feeding");
+        headers.add("indexing_top_ball");
+        headers.add("indexing_bottom_ball");
+        headers.add("ejecting");
+
+        mStorage.setHeaders(headers);
+    }
+
+    public void SendLog() {
+        ArrayList<Number> items = new ArrayList<Number>();
+        items.add(Timer.getFPGATimestamp());
+
+        items.add(mPeriodicIO.tunnel_velocity);
+        
+        items.add(mPeriodicIO.tunnel_demand);
+        items.add(mPeriodicIO.ejector_demand);
+
+        items.add(mPeriodicIO.tunnel_voltage);
+        items.add(mPeriodicIO.ejector_voltage);
+
+        items.add(mPeriodicIO.ejector_current);
+        items.add(mPeriodicIO.tunnel_current);
+        
+        items.add(mPeriodicIO.top_break ? 1.0 : 0.0);
+        items.add(mPeriodicIO.bottom_break ? 1.0 : 0.0);
+
+        // indexer logic variables
+        items.add(mTopSlot.hasBall() ? 1.0 : 0.0);
+        items.add(mTopSlot.hasQueuedBall() ? 1.0 : 0.0);
+        items.add(mBottomSlot.hasBall() ? 1.0 : 0.0);
+        items.add(mBottomSlot.hasQueuedBall() ? 1.0 : 0.0);
+
+        items.add(mFeeding ? 1.0 : 0.0);
+        items.add(mIndexingTopBall ? 1.0 : 0.0);
+        items.add(mIndexingBottomBall ? 1.0 : 0.0);
+        items.add(mEjecting ? 1.0 : 0.0);
+
+
+
+
+        // send data to logging storage
+        mStorage.addData(items);
+    }
+
 
 }
