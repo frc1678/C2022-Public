@@ -186,9 +186,10 @@ public class Trigger extends Subsystem {
 
         ArrayList<String> headers = new ArrayList<String>();
         headers.add("timestamp");
-        headers.add("trigger_current");
-        headers.add("trigger_voltage");
+
         headers.add("trigger_demand");
+        headers.add("trigger_voltage");
+        headers.add("trigger_current");
         
         mStorage.setHeaders(headers);
     }
@@ -197,13 +198,10 @@ public class Trigger extends Subsystem {
         ArrayList<Number> items = new ArrayList<Number>();
         items.add(Timer.getFPGATimestamp());
 
-        // add inputs
-        items.add(mPeriodicIO.current);
-        items.add(mPeriodicIO.voltage);
-        
-        // add outputs
         items.add(mPeriodicIO.demand);
-
+        items.add(mPeriodicIO.voltage);
+        items.add(mPeriodicIO.current);
+        
         // send data to logging storage
         mStorage.addData(items);
     }
