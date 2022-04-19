@@ -204,13 +204,17 @@ public class Shooter extends Subsystem {
 
         ArrayList<String> headers = new ArrayList<String>();
         headers.add("timestamp");
-        headers.add("flywheel_velocity");
+
         headers.add("flywheel_demand");
+
+        headers.add("flywheel_velocity");
+        headers.add("slave_velocity");
+
+        headers.add("flywheel_voltage");
         headers.add("slave_voltage");
+
         headers.add("flywheel_current");
         headers.add("slave_current");
-        headers.add("flywheel_voltage");
-        headers.add("slave_velocity");
 
         mStorage.setHeaders(headers);
     }
@@ -218,13 +222,17 @@ public class Shooter extends Subsystem {
     public void SendLog() {
         ArrayList<Number> items = new ArrayList<Number>();
         items.add(mPeriodicIO.timestamp);
-        items.add(mPeriodicIO.flywheel_velocity);
+
         items.add(mPeriodicIO.flywheel_demand);
+
+        items.add(mPeriodicIO.flywheel_velocity);
+        items.add(mPeriodicIO.slave_velocity);
+
+        items.add(mPeriodicIO.flywheel_voltage);
         items.add(mPeriodicIO.slave_voltage);
+
         items.add(mPeriodicIO.flywheel_current);
         items.add(mPeriodicIO.slave_current);
-        items.add(mPeriodicIO.flywheel_voltage);
-        items.add(mPeriodicIO.slave_velocity);
 
         // send data to logging storage
         mStorage.addData(items);
