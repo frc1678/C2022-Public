@@ -151,7 +151,7 @@ public class FiveBallMode extends AutoModeBase {
                 traj_path_f = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_f,
                                 Constants.AutoConstants.createConfig(
                                                 5.0,
-                                                Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared,
+                                                4.0,
                                                 0.0,
                                                 0.0));
 
@@ -220,8 +220,6 @@ public class FiveBallMode extends AutoModeBase {
 
                 // shoot cargo
                 runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
-                runAction(new WaitAction(1.0));
-                runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
 
                 System.out.println("Finished auto!");
                 SmartDashboard.putBoolean("Auto Finished", true);

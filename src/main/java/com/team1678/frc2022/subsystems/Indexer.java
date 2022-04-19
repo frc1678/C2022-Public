@@ -342,11 +342,11 @@ public class Indexer extends Subsystem {
     }
 
     public boolean hasTopBall() {
-        return mTopSlot.hasBall() || mTopSlot.hasQueuedBall();
+        return mTopSlot.hasBall();
     }
 
     public boolean hasBottomBall() {
-        return mBottomSlot.hasBall() || mBottomSlot.hasQueuedBall();
+        return mBottomSlot.hasBall();
     }
 
     private class IndexerSlot {

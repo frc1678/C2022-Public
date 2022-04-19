@@ -259,11 +259,12 @@ public class ColorSensor extends Subsystem {
     public double getDistance() {
         return mPeriodicIO.proximity;
     }
-
+    public double getColorRatio() {
+        return mPeriodicIO.color_ratio;
+    }
     public boolean getSensor0() {
         return mPeriodicIO.sensor0Connected;
     }
-
     public double getTimestamp() {
         return mPeriodicIO.timestamp;
     }

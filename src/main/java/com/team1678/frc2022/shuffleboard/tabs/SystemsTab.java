@@ -1,15 +1,19 @@
 package com.team1678.frc2022.shuffleboard.tabs;
 
+import javax.swing.plaf.multi.MultiSpinnerUI;
+
 import com.team1678.frc2022.shuffleboard.ShuffleboardTabBase;
 import com.team1678.frc2022.subsystems.ColorSensor;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Limelight;
+import com.team1678.frc2022.subsystems.Superstructure;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 
 public class SystemsTab extends ShuffleboardTabBase {
 
+	private Superstructure mSuperstructure = Superstructure.getInstance();
 	private Limelight mLimelight = Limelight.getInstance();
 	private Indexer mIndexer = Indexer.getInstance();
 	private ColorSensor mColorSensor = ColorSensor.getInstance();
@@ -18,12 +22,17 @@ public class SystemsTab extends ShuffleboardTabBase {
 	private NetworkTableEntry mLimelightLatency;
 	private NetworkTableEntry mLimelightTX;
 	private NetworkTableEntry mLimelightTY;
+
 	private NetworkTableEntry mColorSensorProximity;
+	private NetworkTableEntry mColorSensorRatio;
 	private NetworkTableEntry mColorSensorBallColor;
 	private NetworkTableEntry mColorSensorHasBall;
+
 	private NetworkTableEntry mForwardBreak;
 	private NetworkTableEntry mBottomBreak;
 	private NetworkTableEntry mTopBreak;
+
+	private NetworkTableEntry mClimbStep;
 
 	@Override
 	public void createEntries() {
@@ -54,15 +63,20 @@ public class SystemsTab extends ShuffleboardTabBase {
 				.withSize(2, 1)
 				.withPosition(0, 1)
 				.getEntry();
+		mColorSensorRatio = mTab
+				.add("Color Sensor Ratio", 0.0)
+				.withSize(2, 1)
+				.withPosition(2, 1)
+				.getEntry();
 		mColorSensorBallColor = mTab
 				.add("Color Sensor Ball Color", "N/A")
 				.withSize(2, 1)
-				.withPosition(2, 1)
+				.withPosition(4, 1)
 				.getEntry();
 		mColorSensorHasBall = mTab
 				.add("Color Sensor Has Ball", false)
 				.withSize(2, 1)
-				.withPosition(4, 1)
+				.withPosition(6, 1)
 				.getEntry();
 		mForwardBreak = mTab
 				.add("Forward Beam Break", false)
@@ -79,6 +93,11 @@ public class SystemsTab extends ShuffleboardTabBase {
 				.withSize(2, 1)
 				.withPosition(4, 2)
 				.getEntry();
+		mClimbStep = mTab
+				.add("Climb Step", 0.0)
+				.withSize(2, 1)
+				.withPosition(7, 0)
+				.getEntry();
 	}
 
 	@Override
@@ -89,12 +108,15 @@ public class SystemsTab extends ShuffleboardTabBase {
 		mLimelightTY.setDouble(mLimelight.getOffset()[1]);
 
 		mColorSensorProximity.setDouble(mColorSensor.getDistance());
+		mColorSensorRatio.setDouble(mColorSensor.getColorRatio());
 		mColorSensorBallColor.setString(mColorSensor.getMatchedColor());
 		mColorSensorHasBall.setBoolean(mColorSensor.hasBall());
 
 		mForwardBreak.setBoolean(mColorSensor.getForwardBeamBreak());
 		mBottomBreak.setBoolean(mIndexer.getBottomBeamBreak());
 		mTopBreak.setBoolean(mIndexer.getTopBeamBreak());
+
+		mClimbStep.setDouble(mSuperstructure.getClimbStep());
 
 	}
 
