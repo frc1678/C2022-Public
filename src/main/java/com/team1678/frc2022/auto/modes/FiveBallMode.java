@@ -220,8 +220,6 @@ public class FiveBallMode extends AutoModeBase {
 
                 // shoot cargo
                 runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
-                runAction(new WaitAction(1.0));
-                runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
 
                 System.out.println("Finished auto!");
                 SmartDashboard.putBoolean("Auto Finished", true);
