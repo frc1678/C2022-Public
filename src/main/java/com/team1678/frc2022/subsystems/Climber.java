@@ -443,16 +443,21 @@ public class Climber extends Subsystem {
 
         ArrayList<String> headers = new ArrayList<String>();
         headers.add("timestamp");
-        headers.add("climber_stator_current_right");
-        headers.add("climber_motor_position_right");
-        headers.add("climber_voltage_left");
-        headers.add("climber_motor_velocity_right");
-        headers.add("climber_stator_current_left");
+        
         headers.add("climber_demand_right");
-        headers.add("climber_motor_position_left");
         headers.add("climber_demand_left");
-        headers.add("climber_voltage_right");
+
+        headers.add("climber_motor_position_right");
+        headers.add("climber_motor_position_left");
+        
+        headers.add("climber_motor_velocity_right");
         headers.add("climber_motor_velocity_left");
+
+        headers.add("climber_voltage_right");
+        headers.add("climber_voltage_left");
+
+        headers.add("climber_stator_current_right");
+        headers.add("climber_stator_current_left");
 
         mStorage.setHeaders(headers);
     }
@@ -460,16 +465,21 @@ public class Climber extends Subsystem {
     public void SendLog() {
         ArrayList<Number> items = new ArrayList<Number>();
         items.add(Timer.getFPGATimestamp());
-        items.add(mPeriodicIO.climber_stator_current_right);
-        items.add(mPeriodicIO.climber_motor_position_right);
-        items.add(mPeriodicIO.climber_voltage_left);
-        items.add(mPeriodicIO.climber_motor_velocity_right);
-        items.add(mPeriodicIO.climber_stator_current_left);
+
         items.add(mPeriodicIO.climber_demand_right);
-        items.add(mPeriodicIO.climber_motor_position_left);
         items.add(mPeriodicIO.climber_demand_left);
-        items.add(mPeriodicIO.climber_voltage_right);
+
+        items.add(mPeriodicIO.climber_motor_position_right);
+        items.add(mPeriodicIO.climber_motor_position_left);
+
+        items.add(mPeriodicIO.climber_motor_velocity_right);
         items.add(mPeriodicIO.climber_motor_velocity_left);
+
+        items.add(mPeriodicIO.climber_voltage_right);
+        items.add(mPeriodicIO.climber_voltage_left);
+
+        items.add(mPeriodicIO.climber_stator_current_right);
+        items.add(mPeriodicIO.climber_stator_current_left);
 
         // send data to logging storage
         mStorage.addData(items);
