@@ -2,6 +2,8 @@ package com.team1678.frc2022.subsystems;
 
 import java.util.ArrayList;
 
+import javax.sound.midi.MidiChannel;
+
 import com.lib.drivers.SwerveModule;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.RobotState;
@@ -32,6 +34,9 @@ public class Swerve extends Subsystem {
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
 
+    // status variable for being enabled
+    public boolean mIsEnabled = false;
+
     // limelight instance for raw aiming
     Limelight mLimelight = Limelight.getInstance();
 
@@ -59,6 +64,7 @@ public class Swerve extends Subsystem {
     
     // Private boolean to lock Swerve wheels
     private boolean mLocked = false;
+
     // Getter
     public boolean getLocked() {
         return mLocked;
@@ -105,11 +111,13 @@ public class Swerve extends Subsystem {
         mEnabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
-
+                mIsEnabled = true;
             }
 
             @Override
             public void onLoop(double timestamp) {
+                mIsEnabled = false;
+
                 chooseVisionAlignGoal();
                 updateSwerveOdometry();
                 outputTelemetry();
@@ -320,8 +328,7 @@ public class Swerve extends Subsystem {
 
     @Override
     public void stop() {
-        // TODO Auto-generated method stub
-        
+        mIsEnabled = false;
     }
 
     @Override
@@ -378,6 +385,7 @@ public class Swerve extends Subsystem {
 
         ArrayList<String> headers = new ArrayList<String>();
         headers.add("timestamp");
+        headers.add("is_enabled");
         headers.add("odometry_pose_x");
         headers.add("odometry_pose_y");
         headers.add("odometry_pose_rot");
@@ -400,6 +408,7 @@ public class Swerve extends Subsystem {
     public void SendLog() {
         ArrayList<Number> items = new ArrayList<Number>();
         items.add(Timer.getFPGATimestamp());
+        items.add(mIsEnabled ? 1.0 : 0.0);
         items.add(mPeriodicIO.odometry_pose_x);
         items.add(mPeriodicIO.odometry_pose_y);
         items.add(mPeriodicIO.odometry_pose_rot);

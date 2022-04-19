@@ -36,9 +36,11 @@ public class Climber extends Subsystem {
 
     public boolean mHomed;
 
-
     // logger
     LogStorage<PeriodicIO> mStorage = null;
+    
+    // status variable for is enabled
+    public boolean mIsEnabled = false;
 
     public RightControlState mRightControlState = RightControlState.OPEN_LOOP;
     public LeftControlState mLeftControlState = LeftControlState.OPEN_LOOP;
@@ -127,6 +129,8 @@ public class Climber extends Subsystem {
 
     @Override
     public void writePeriodicOutputs() {
+        // set status variable for being enabled to true
+        mIsEnabled = true;
 
         switch (mRightControlState) {
             case OPEN_LOOP:
@@ -306,6 +310,7 @@ public class Climber extends Subsystem {
     }
     
     public void stop() {
+        mIsEnabled = false;
         mClimberRight.set(ControlMode.PercentOutput, 0.0);
         mClimberLeft.set(ControlMode.PercentOutput, 0.0);
     }
@@ -443,6 +448,8 @@ public class Climber extends Subsystem {
 
         ArrayList<String> headers = new ArrayList<String>();
         headers.add("timestamp");
+
+        headers.add("is_enabled");
         
         headers.add("climber_demand_right");
         headers.add("climber_demand_left");
@@ -465,6 +472,8 @@ public class Climber extends Subsystem {
     public void SendLog() {
         ArrayList<Number> items = new ArrayList<Number>();
         items.add(Timer.getFPGATimestamp());
+
+        items.add(mIsEnabled ? 1.0 : 0.0);
 
         items.add(mPeriodicIO.climber_demand_right);
         items.add(mPeriodicIO.climber_demand_left);
