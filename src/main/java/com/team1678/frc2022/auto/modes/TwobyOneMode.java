@@ -102,6 +102,9 @@ public class TwobyOneMode extends AutoModeBase {
     runAction(new WaitAction(1.0));
     runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
 
+    // start ejecting cargo
+    runAction(new LambdaAction(() -> mSuperstructure.setWantEject(false, true)));
+
     // stop vision aiming to control robot heading
     runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(false)));
 
@@ -110,6 +113,9 @@ public class TwobyOneMode extends AutoModeBase {
 
     // wait to outtake third cargo
     runAction(new WaitAction(2.0));
+    
+    // stop ejecting cargo
+    runAction(new LambdaAction(() -> mSuperstructure.setWantEject(false, false)));
 
     // ready for teleop
     runAction(new LambdaAction(() -> mSuperstructure.setInitialTeleopStates()));
