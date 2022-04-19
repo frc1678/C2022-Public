@@ -95,6 +95,7 @@ public class Indexer extends Subsystem {
             public void onLoop(double timestamp) {
                 synchronized (Indexer.this) {
                     updateSetpoints();
+                    
                     // send log data
                     SendLog();
                 }
@@ -495,6 +496,5 @@ public class Indexer extends Subsystem {
         // send data to logging storage
         mStorage.addData(items);
     }
-
 
 }

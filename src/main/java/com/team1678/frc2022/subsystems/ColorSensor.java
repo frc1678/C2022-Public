@@ -1,10 +1,14 @@
 package com.team1678.frc2022.subsystems;
 
+import java.util.ArrayList;
+
 import com.lib.drivers.PicoColorSensor;
 import com.lib.drivers.PicoColorSensor.RawColor;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
 import com.team1678.frc2022.Constants.ColorSensorConstants;
+import com.team1678.frc2022.logger.LogStorage;
+import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.loops.Loop;
 import com.team254.lib.util.Util;
@@ -24,6 +28,9 @@ public class ColorSensor extends Subsystem {
         }
         return mInstance;
     }
+    
+    // logger
+    LogStorage<PeriodicIO> mStorage = null;
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
     private PicoColorSensor mPico;
@@ -58,6 +65,8 @@ public class ColorSensor extends Subsystem {
  
             @Override
             public void onLoop(double timestamp) {
+                // send log data
+                SendLog();
             }
  
             @Override
@@ -261,6 +270,8 @@ public class ColorSensor extends Subsystem {
 
     public static class PeriodicIO {
         // INPUTS
+        public double timestamp;
+
         public RawColor raw_color;
         public double color_offset; // offset of blue - red
         public double adjusted_red;
@@ -272,7 +283,59 @@ public class ColorSensor extends Subsystem {
         // OUTPUTS
         public boolean has_ball;
         public boolean eject;
-        public double timestamp;
+    }
+
+    @Override
+    public void registerLogger(LoggingSystem LS) {
+        SetupLog();
+        LS.register(mStorage, "COLOR_SENSOR_LOGS.csv");
+    }
+
+    public void SetupLog() {
+        mStorage = new LogStorage<PeriodicIO>();
+
+        ArrayList<String> headers = new ArrayList<String>();
+        headers.add("timestamp");
+
+        headers.add("sensor_connected");
+
+        headers.add("raw_red");
+        headers.add("raw_blue");
+
+        headers.add("adjusted_red");
+        headers.add("adjusted_blue");
+        headers.add("color_offset");
+
+        headers.add("color_ratio");
+        headers.add("proximity");
+
+        headers.add("has_ball");
+        headers.add("eject");
+
+        mStorage.setHeaders(headers);
+    }
+
+    public void SendLog() {
+        ArrayList<Number> items = new ArrayList<Number>();
+        items.add(Timer.getFPGATimestamp());
+
+        items.add(mPeriodicIO.sensor0Connected ? 1.0 : 0.0);
+
+        items.add(mPeriodicIO.raw_color.red);
+        items.add(mPeriodicIO.raw_color.blue);
+
+        items.add(mPeriodicIO.adjusted_red);
+        items.add(mPeriodicIO.adjusted_blue);
+        items.add(mPeriodicIO.color_offset);
+
+        items.add(mPeriodicIO.color_ratio);
+        items.add(mPeriodicIO.proximity);
+
+        items.add(mPeriodicIO.has_ball ? 1.0 : 0.0);
+        items.add(mPeriodicIO.eject ? 1.0 : 0.0);
+
+        // send data to logging storage
+        mStorage.addData(items);
     }
     
 }
