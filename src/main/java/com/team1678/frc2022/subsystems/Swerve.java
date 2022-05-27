@@ -2,12 +2,10 @@ package com.team1678.frc2022.subsystems;
 
 import java.util.ArrayList;
 
-import javax.sound.midi.MidiChannel;
-
-import com.lib.drivers.SwerveModule;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.RobotState;
 import com.team1678.frc2022.drivers.Pigeon;
+import com.team1678.frc2022.drivers.SwerveModule;
 import com.team1678.frc2022.logger.LogStorage;
 import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.loops.ILooper;
@@ -117,10 +115,8 @@ public class Swerve extends Subsystem {
             @Override
             public void onLoop(double timestamp) {
                 mIsEnabled = false;
-
                 chooseVisionAlignGoal();
                 updateSwerveOdometry();
-                outputTelemetry();
             }
 
             @Override
@@ -130,18 +126,6 @@ public class Swerve extends Subsystem {
         });
     }
     
-    public void outputTelemetry() {
-        SmartDashboard.putBoolean("Is Snapping", isSnapping);
-        for(SwerveModule mod : mSwerveMods){
-            //SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Cancoder", MathUtil.inputModulus(mod.getCanCoder().getDegrees() - mod.angleOffset, 0, 360));
-            SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Integrated", mod.getState().angle.getDegrees());
-            SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Velocity", mod.getState().speedMetersPerSecond);    
-        }
-        SmartDashboard.putBoolean("Wants Auto Vision Aim", mWantsAutoVisionAim);
-        SmartDashboard.putNumber("Vision Align Target Angle", Math.toDegrees(mLimelightVisionAlignGoal));
-        SmartDashboard.putNumber("Swerve Heading", MathUtil.inputModulus(mPigeon.getYaw().getDegrees(), 0, 360));
-    }
-
     public void setWantAutoVisionAim(boolean aim) {
         mWantsAutoVisionAim = aim;
     } 
@@ -230,8 +214,7 @@ public class Swerve extends Subsystem {
 
     private boolean snapComplete() {
         double error = snapPIDController.getGoal().position - mPigeon.getYaw().getRadians();
-        return delayedBoolean.update(Math.abs(error) < Math.toRadians(Constants.SnapConstants.snapEpsilon), Constants.SnapConstants.snapTimeout);
-        //return Math.abs(error) < Math.toRadians(Constants.SnapConstants.snapEpsilon);
+        return delayedBoolean.update(Math.abs(error) < Math.toRadians(Constants.SnapConstants.kEpsilon), Constants.SnapConstants.kTimeout);
     }
 
     public void maybeStopSnap(boolean force){
@@ -303,11 +286,11 @@ public class Swerve extends Subsystem {
 
     @Override
     public void zeroSensors(){
-        zeroGyro();
+        zeroGyro(0.0);
     }
     
     public void zeroGyro(){
-        zeroGyro(0);
+        zeroGyro(0.0);
     }
 
     public void zeroGyro(double reset){

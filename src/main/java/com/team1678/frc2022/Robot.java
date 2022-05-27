@@ -20,7 +20,6 @@ import com.team1678.frc2022.subsystems.Climber;
 import com.team1678.frc2022.subsystems.ColorSensor;
 import com.team1678.frc2022.subsystems.Hood;
 import com.team1678.frc2022.subsystems.Indexer;
-import com.team1678.frc2022.subsystems.Infrastructure;
 import com.team1678.frc2022.subsystems.Intake;
 import com.team1678.frc2022.subsystems.LEDs;
 import com.team1678.frc2022.subsystems.Limelight;
@@ -31,14 +30,8 @@ import com.team1678.frc2022.subsystems.Swerve;
 import com.team1678.frc2022.subsystems.Trigger;
 import com.team1678.frc2022.subsystems.LEDs.State;
 
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.MjpegServer;
-import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.cscore.VideoMode;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 import edu.wpi.first.wpilibj.Timer;
 import com.team254.lib.wpilib.TimedRobot;
@@ -76,7 +69,6 @@ public class Robot extends TimedRobot {
 	private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
 	private final Superstructure mSuperstructure = Superstructure.getInstance();
 	private final Swerve mSwerve = Swerve.getInstance();
-	private final Infrastructure mInfrastructure = Infrastructure.getInstance();
 	private final Intake mIntake = Intake.getInstance();
 	private final Indexer mIndexer = Indexer.getInstance();
 	private final Shooter mShooter = Shooter.getInstance();
@@ -103,12 +95,7 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void robotInit() {
-		// UsbCamera camera = CameraServer.startAutomaticCapture();
-		// camera.setVideoMode(VideoMode.PixelFormat.kMJPEG, 320, 240, 15);
-		// MjpegServer cameraServer = new MjpegServer("serve_USB Camera 0", 5810);
-		// cameraServer.setSource(camera);
-		// cameraServer.setCompression(10);
-		
+
 		ctreConfigs = new CTREConfigs();
 		mShuffleBoardInteractions = ShuffleBoardInteractions.getInstance();
 
@@ -150,7 +137,6 @@ public class Robot extends TimedRobot {
 	public void robotPeriodic() {
 		mEnabledLooper.outputToSmartDashboard();
 		mShuffleBoardInteractions.update();
-		mSwerve.outputTelemetry();
 		mClimber.outputTelemetry();
 	}
 
@@ -173,7 +159,6 @@ public class Robot extends TimedRobot {
 
 			mAutoModeExecutor.start();
 
-			mInfrastructure.setIsDuringAuto(true);
 			mLimelight.setPipeline(Constants.VisionConstants.kDefaultPipeline);
 
 			// set champs pride automation
@@ -191,7 +176,6 @@ public class Robot extends TimedRobot {
 		mLimelight.setLed(Limelight.LedMode.ON);
 		mLEDs.updateState();
 		mLEDs.applyStates(State.SOLID_BLUE, State.SOLID_YELLOW);
-		// mSuperstructure.updateWantEjection();
 	}
 
 	@Override
@@ -202,15 +186,9 @@ public class Robot extends TimedRobot {
                 mAutoModeExecutor.stop();
             }
 
-			// mSwerve.setModuleStates(
-			// 	Constants.SwerveConstants.swerveKinematics.toSwerveModuleStates((
-			// 		ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, 0, Rotation2d.fromDegrees(0)))));
-
 			mDisabledLooper.stop();
 			mEnabledLooper.start();
 			mLoggingLooper.start();
-
-			// mInfrastructure.setIsDuringAuto(false);
 
 			mSuperstructure.setWantEject(false, false);
 
@@ -218,8 +196,6 @@ public class Robot extends TimedRobot {
 
 			mSuperstructure.setEjectDisable(false);
 
-			mInfrastructure.setIsDuringAuto(false);
-		
 			mLimelight.setLed(Limelight.LedMode.ON);
             mLimelight.setPipeline(Constants.VisionConstants.kDefaultPipeline);
 
@@ -301,11 +277,6 @@ public class Robot extends TimedRobot {
 
 			mLimelight.setLed(Limelight.LedMode.ON);
             mLimelight.triggerOutputs();
-
-			// mSwerve.setModuleStates(
-			// 	Constants.SwerveConstants.swerveKinematics.toSwerveModuleStates((
-			// 		ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, 0, Rotation2d.fromDegrees(0)))));
-
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);

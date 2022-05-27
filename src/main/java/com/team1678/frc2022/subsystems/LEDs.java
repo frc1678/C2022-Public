@@ -39,7 +39,7 @@ public class LEDs extends Subsystem {
     private boolean mLastUpdatedTop = false; // alternate updating sections to avoid overrunning the CANdle
 
     // led sections
-    private LEDStatus mTopStatus = new LEDStatus(14, 28);  
+    private LEDStatus mTopStatus = new LEDStatus(14, 28);
     private LEDStatus mLeftBottomStatus = new LEDStatus(28, 40);
     private LEDStatus mRightBottomStatus = new LEDStatus(0, 14);
 
@@ -50,12 +50,11 @@ public class LEDs extends Subsystem {
     // animation to run when disabled
     private Animation mRedAllianceAnimation = new ColorFlowAnimation(255, 0, 0, 0, 0.5, 40, Direction.Forward);
     private Animation mBlueAllianceAnimation = new ColorFlowAnimation(0, 0, 255, 0, 0.5, 40, Direction.Backward);
-    private Animation mNoAllianceAnimation =  new ColorFlowAnimation(185, 64, 255, 0, 0.5, 40, Direction.Backward);
+    private Animation mNoAllianceAnimation = new ColorFlowAnimation(185, 64, 255, 0, 0.5, 40, Direction.Backward);
     private Animation mChampsRainbowAutoAnimation = new RainbowAnimation(1.0, 1.0, 40);
 
-
     // led states
-    public enum State{
+    public enum State {
         OFF("OFF", Double.POSITIVE_INFINITY, Color.off()),
         EMERGENCY("EMERGENCY", 0.05, new Color(255, 0, 0), Color.off()),
 
@@ -99,8 +98,8 @@ public class LEDs extends Subsystem {
             mTopStateChooser = new SendableChooser<>();
             mBottomStateChooser = new SendableChooser<>();
             for (State state : State.values()) {
-                mTopStateChooser.addOption(state.getName(),  state);
-                mBottomStateChooser.addOption(state.getName(),  state);
+                mTopStateChooser.addOption(state.getName(), state);
+                mBottomStateChooser.addOption(state.getName(), state);
             }
             mTopStateChooser.setDefaultOption("OFF", State.OFF);
             mBottomStateChooser.setDefaultOption("OFF", State.OFF);
@@ -136,7 +135,7 @@ public class LEDs extends Subsystem {
         outputTelemtry();
         timestamp = Timer.getFPGATimestamp(); // update timestamp for color cycling
         if (mUseSmartdash) { // pull states from smartdash
-            applyStates(mTopStateChooser.getSelected(), mBottomStateChooser.getSelected()); 
+            applyStates(mTopStateChooser.getSelected(), mBottomStateChooser.getSelected());
         }
     }
 
@@ -167,7 +166,7 @@ public class LEDs extends Subsystem {
 
         mCandle.setLEDs(bottomColor.r,
                 bottomColor.g, bottomColor.b, 0, mRightBottomStatus.startIDx, mRightBottomStatus.LEDCount);
-    
+
     }
 
     private void updateTopLeds() {
@@ -214,11 +213,11 @@ public class LEDs extends Subsystem {
 
     public void updateColor(ColorChoices allianceColor) {
         if (allianceColor.equals(ColorChoices.RED)) {
-            mCandle.animate(mRedAllianceAnimation);    
+            mCandle.animate(mRedAllianceAnimation);
         } else if (allianceColor.equals(ColorChoices.BLUE)) {
-            mCandle.animate(mBlueAllianceAnimation); 
+            mCandle.animate(mBlueAllianceAnimation);
         } else {
-            mCandle.animate(mNoAllianceAnimation); 
+            mCandle.animate(mNoAllianceAnimation);
         }
     }
 
@@ -239,7 +238,7 @@ public class LEDs extends Subsystem {
     public boolean checkSystem() {
         return false;
     }
-    
+
     // getter functions
     public State getTopState() {
         return mTopStatus.state;
@@ -258,7 +257,7 @@ public class LEDs extends Subsystem {
         SmartDashboard.putString("Bottom LED Status", getBottomState().name);
 
         SmartDashboard.putString("Top LED Colors", mTopStatus.getWantedColor().toString());
-        SmartDashboard.putString("Bottom LED Colors", mLeftBottomStatus.getWantedColor().toString());        
+        SmartDashboard.putString("Bottom LED Colors", mLeftBottomStatus.getWantedColor().toString());
     }
 
     // class for holding information about each section
@@ -292,7 +291,7 @@ public class LEDs extends Subsystem {
         }
 
         // cycle to next color in array
-        public void nextColor() { 
+        public void nextColor() {
             if (state.colors.length == 1) {
                 return;
             }

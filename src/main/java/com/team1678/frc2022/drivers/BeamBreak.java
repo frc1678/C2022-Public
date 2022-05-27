@@ -1,7 +1,6 @@
-package com.team1678.frc2022.lib.drivers;
+package com.team1678.frc2022.drivers;
 
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class BeamBreak {
 

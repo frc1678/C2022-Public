@@ -18,8 +18,7 @@ public class AutoModeSelector {
         TWO_BY_ONE_AUTO,
         TWO_BY_TWO_AUTO,
         FIVE_BALL_AUTO,
-        FIVE_PLUS_ONE_AUTO,
-        SIX_BALL_AUTO,    }
+    }
 
     private DesiredMode mCachedDesiredMode = DesiredMode.DO_NOTHING;
 
@@ -37,8 +36,6 @@ public class AutoModeSelector {
         mModeChooser.addOption("Two by One Mode", DesiredMode.TWO_BY_ONE_AUTO);
         mModeChooser.addOption("Two by Two Mode", DesiredMode.TWO_BY_TWO_AUTO);
         mModeChooser.addOption("Five Ball Mode", DesiredMode.FIVE_BALL_AUTO);
-        mModeChooser.addOption("Five Plus One Mode", DesiredMode.FIVE_PLUS_ONE_AUTO);
-        mModeChooser.addOption("Six Ball Mode", DesiredMode.SIX_BALL_AUTO);
         
         ShuffleBoardInteractions.getInstance().getOperatorTab().add("Auto Mode", mModeChooser).withSize(2, 1);
     }
@@ -80,12 +77,6 @@ public class AutoModeSelector {
 
         case FIVE_BALL_AUTO:
             return Optional.of(new FiveBallMode());
-
-        case FIVE_PLUS_ONE_AUTO:
-            return Optional.of(new FivePlusOneMode());
-
-        case SIX_BALL_AUTO:
-            return Optional.of(new SixBallMode());
             
         default:
             System.out.println("ERROR: unexpected auto mode: " + mode);

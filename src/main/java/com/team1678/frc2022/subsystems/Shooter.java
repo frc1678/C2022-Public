@@ -18,7 +18,6 @@ import com.team254.lib.drivers.TalonFXFactory;
 import com.team254.lib.util.Util;
 
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Shooter extends Subsystem {
 
@@ -74,10 +73,6 @@ public class Shooter extends Subsystem {
         setOpenLoop(0.0);
 
         // reduce can util
-
-        // mMaster.changeMotionControlFramePeriod(255);
-        // mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
-        // mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
         mSlave.changeMotionControlFramePeriod(255);
         mSlave.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
         mSlave.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
@@ -119,10 +114,9 @@ public class Shooter extends Subsystem {
     @Override
     public void writePeriodicOutputs() {
         if (mIsOpenLoop) {
+            // set shooter to open loop to avoid hard slowdown
             mMaster.set(ControlMode.PercentOutput, mPeriodicIO.flywheel_demand);
         } else {
-            SmartDashboard.putNumber("Flywheel Input Demand",
-                    mPeriodicIO.flywheel_demand / Constants.ShooterConstants.kFlywheelVelocityConversion);
             mMaster.set(ControlMode.Velocity,
                     mPeriodicIO.flywheel_demand / Constants.ShooterConstants.kFlywheelVelocityConversion);
         }
@@ -137,7 +131,7 @@ public class Shooter extends Subsystem {
         mPeriodicIO.flywheel_demand = flywheelDemand <= 12.0 ? flywheelDemand : 12.0;
     }
 
-    public void setVelocity(double demand, double accleratorDemand) {
+    public void setVelocity(double demand) {
         if (mIsOpenLoop != false) {
             mIsOpenLoop = false;
         }
@@ -184,7 +178,7 @@ public class Shooter extends Subsystem {
 
     @Override
     public void stop() {
-        /* Set motor to open loop to avoid hard slowdown */
+        // set shooter to open loop to avoid hard slowdown
         setOpenLoop(0.0);
     }
 

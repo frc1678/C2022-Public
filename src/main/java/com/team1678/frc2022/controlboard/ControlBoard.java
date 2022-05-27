@@ -7,8 +7,6 @@ import com.team1678.frc2022.controlboard.CustomXboxController.Side;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 public class ControlBoard {
     private final double kSwerveDeadband = Constants.stickDeadband;
 
@@ -54,8 +52,8 @@ public class ControlBoard {
     public final CustomXboxController operator;
 
     private ControlBoard() {
-        driver = new CustomXboxController(0);
-        operator = new CustomXboxController(Constants.kButtonGamepadPort);
+        driver = new CustomXboxController(Constants.kDriveControllerPort);
+        operator = new CustomXboxController(Constants.kOperatorControllerPort);
     }
     
     public void setDriverRumble(boolean on) {
@@ -69,12 +67,8 @@ public class ControlBoard {
 
     /* DRIVER METHODS */
     public Translation2d getSwerveTranslation() {
-        double forwardAxis = driver.getController().getRawAxis(1);
-        double strafeAxis = driver.getController().getRawAxis(0);
-
-        SmartDashboard.putNumber("Raw Y", forwardAxis);
-        SmartDashboard.putNumber("Raw X", strafeAxis);
-
+        double forwardAxis = driver.getAxis(Side.LEFT, Axis.Y);
+        double strafeAxis = driver.getAxis(Side.LEFT, Axis.X);
 
         forwardAxis = Constants.SwerveConstants.invertYAxis ? forwardAxis : -forwardAxis;
         strafeAxis = Constants.SwerveConstants.invertXAxis ? strafeAxis :-strafeAxis;
@@ -139,9 +133,9 @@ public class ControlBoard {
                 return SwerveCardinal.NONE;
         }
             
-        
     }
 
+    // hood adjustment
     public int getHoodManualAdjustment() {
         int pov_read = operator.getController().getPOV();
         switch(pov_read){
@@ -154,6 +148,10 @@ public class ControlBoard {
         }
     }
 
+    public boolean getResetHoodAdjust() {
+        return operator.getButton(CustomXboxController.Button.START);
+    }
+
     // Align swerve drive with target
     public boolean getVisionAlign() {
         return driver.getButton(Button.RB);
@@ -163,36 +161,37 @@ public class ControlBoard {
         return driver.getTrigger(Side.RIGHT);
     }
 
-    //Locks wheels in X formation
+    // Locks wheels in X formation
     public boolean getBrake() {
         return driver.getButton(Button.LB);
     }
 
-    //Intake Controls
+    // Intake Controls
     public boolean getIntake() {
-        return operator.getTrigger(Side.RIGHT);
+        return operator.getTrigger(CustomXboxController.Side.RIGHT);
     }
 
-    public boolean getOuttake() {
-        return operator.getTrigger(Side.LEFT);
+    public boolean getReject() {
+        return operator.getTrigger(CustomXboxController.Side.LEFT);
     }
 
-    public boolean getSpitting() {
-        return operator.getController().getRightBumper();
+    // Superstructure Controls
+    public boolean getShoot() {
+        return operator.getController().getYButtonPressed();
     }
 
-    public boolean getManualEject() {
-        return operator.getButton(Button.LB);
+    public boolean getPrep() {
+        return operator.getController().getAButtonPressed();
+    }
+ 
+    public boolean getFender() {
+        return operator.getController().getBButtonPressed();
     }
 
-    //Indexer Controls
-    public boolean getElevating() {
-        return operator.getButton(Button.B);
+    public boolean getSpit() {
+        return operator.getController().getXButtonPressed();
     }
 
-    public boolean getIndexing() {
-        return operator.getButton(Button.Y);
-    }
     public boolean getDisableColorLogic() {
         boolean wasPressed = operator.getController().getPOV() == kDpadRight && mLastDpadRight != kDpadRight;
         mLastDpadRight = operator.getController().getPOV();
@@ -205,8 +204,12 @@ public class ControlBoard {
         return wasPressed;
     }
 
+    public boolean getManualEject() {
+        return operator.getButton(Button.LB);
+    }
+
     // Climber Controls
-    public boolean getClimbMode() {
+    public boolean getEnterClimbMode() {
         return operator.getButton(Button.LB) && operator.getButton(Button.RB) && operator.getTrigger(Side.LEFT) && operator.getTrigger(Side.RIGHT);
     }
 
@@ -214,6 +217,22 @@ public class ControlBoard {
         return operator.getButton(Button.BACK) && operator.getButton(Button.START);
     }
     
+    public boolean getToggleOpenLoopClimbMode() {
+        return operator.getController().getLeftStickButtonPressed();
+    }
+
+    public boolean getClimberRezero() {
+        return operator.getController().getRightStickButtonPressed();
+    }
+
+    public boolean getClimberRetract() {
+        return operator.getController().getXButtonPressed();
+    }
+
+    public boolean getClimberExtend() {
+        return operator.getController().getAButtonPressed();
+    }
+
     public boolean getTraversalClimb() {
         return operator.getButton(Button.LB) && operator.getController().getYButtonPressed();
     }

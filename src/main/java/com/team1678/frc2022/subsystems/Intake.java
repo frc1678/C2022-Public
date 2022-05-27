@@ -1,7 +1,6 @@
 package com.team1678.frc2022.subsystems;
 
 import com.team1678.frc2022.Ports;
-import com.team1678.frc2022.Constants.IntakeConstants;
 import com.team1678.frc2022.logger.LogStorage;
 import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.loops.ILooper;
@@ -18,16 +17,15 @@ import com.team1678.frc2022.loops.Loop;
 import com.team254.lib.drivers.TalonFXFactory;
 
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Intake extends Subsystem {
 
     public enum WantedAction {
-        NONE, INTAKE, REVERSE, REJECT, FORCE_HOLD
+        NONE, INTAKE, REVERSE, REJECT
     }
 
     public enum State {
-        IDLE, INTAKING, REVERSING, REJECTING, FORCE_HOLDING
+        IDLE, INTAKING, REVERSING, REJECTING
     }
 
     public PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -61,7 +59,7 @@ public class Intake extends Subsystem {
         mSingulator.config_IntegralZone(0, (int) (200.0 / Constants.IntakeConstants.kSingulatorVelocityConversion));
         mSingulator.selectProfileSlot(0, 0);
         mSingulator.configClosedloopRamp(0.1);
-        
+
         SupplyCurrentLimitConfiguration main_curr_lim = new SupplyCurrentLimitConfiguration(true, 40, 40, 0.02);
         mDeploy.configSupplyCurrentLimit(main_curr_lim);
 
@@ -69,9 +67,6 @@ public class Intake extends Subsystem {
         mRoller.changeMotionControlFramePeriod(255);
         mRoller.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
         mRoller.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
-        // mSingulator.changeMotionControlFramePeriod(255);
-        // mSingulator.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255);
-        // mSingulator.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
     }
 
     public static synchronized Intake getInstance() {
@@ -92,7 +87,7 @@ public class Intake extends Subsystem {
             @Override
             public void onLoop(double timestamp) {
                 runStateMachine();
-                
+
                 // send log data
                 SendLog();
             }
@@ -101,8 +96,8 @@ public class Intake extends Subsystem {
             public void onStop(double timestamp) {
                 // empty
             }
-       });
-   }
+        });
+    }
 
     @Override
     public synchronized void readPeriodicInputs() {
@@ -112,25 +107,19 @@ public class Intake extends Subsystem {
         mPeriodicIO.deploy_current = mDeploy.getStatorCurrent();
         mPeriodicIO.deploy_voltage = mDeploy.getMotorOutputVoltage();
 
-        mPeriodicIO.singulator_velocity = mSingulator.getSelectedSensorVelocity() * Constants.IntakeConstants.kSingulatorVelocityConversion;
-        
+        mPeriodicIO.singulator_velocity = mSingulator.getSelectedSensorVelocity()
+                * Constants.IntakeConstants.kSingulatorVelocityConversion;
+
         if (mPeriodicIO.deploy_current > Constants.IntakeConstants.kDeployCurrentLimit) {
             mPeriodicIO.hold_intake = true;
         }
-
-        SmartDashboard.putBoolean("Force Hold Intake", mPeriodicIO.force_hold_intake);
-        SmartDashboard.putBoolean("Hold Intake", mPeriodicIO.hold_intake);
-        SmartDashboard.putNumber("Deploy Demand", mPeriodicIO.deploy_demand);
-        SmartDashboard.putNumber("Deploy Voltage", mPeriodicIO.deploy_voltage);
-        SmartDashboard.putNumber("Deploy Current", mPeriodicIO.deploy_current);
-        SmartDashboard.putNumber("Singulator Velocity", mPeriodicIO.singulator_velocity);
     }
 
     @Override
     public void writePeriodicOutputs() {
-
         mRoller.set(ControlMode.PercentOutput, mPeriodicIO.intake_demand / 12.0);
         if (mPeriodicIO.singulator_demand == 0.0) {
+            // set singulator to open loop to avoid hard slowdown
             mSingulator.set(ControlMode.PercentOutput, 0.0);
         } else {
             mSingulator.set(ControlMode.Velocity,
@@ -138,21 +127,13 @@ public class Intake extends Subsystem {
         }
         mDeploy.set(ControlMode.PercentOutput, mPeriodicIO.deploy_demand / 12.0);
     }
-    
-    public void setState(State state) {
-        if (this.mState != state) {
-            mPeriodicIO.hold_intake = false;
-        }
-
-        this.mState = state;
-    }
 
     public void setState(WantedAction wanted_state) {
         switch (wanted_state) {
             case NONE:
                 if (mState != State.IDLE) {
                     mPeriodicIO.hold_intake = false;
-                    mState = State.IDLE;                    
+                    mState = State.IDLE;
                 }
                 break;
             case INTAKE:
@@ -173,13 +154,6 @@ public class Intake extends Subsystem {
                     mIntakeRejectionTimer.reset();
                     mIntakeRejectionTimer.start();
                     mState = State.REJECTING;
-                }
-                break;
-            case FORCE_HOLD:
-                if (mState != State.FORCE_HOLDING) {
-                    mPeriodicIO.hold_intake = false;
-                    mPeriodicIO.force_hold_intake = true;
-                    mState = State.FORCE_HOLDING;
                 }
                 break;
         }
@@ -210,7 +184,7 @@ public class Intake extends Subsystem {
             case REVERSING:
                 mPeriodicIO.intake_demand = -Constants.IntakeConstants.kIntakingVoltage;
                 mPeriodicIO.singulator_demand = -Constants.IntakeConstants.kSingulatorVelocity;
-                
+
                 if (mPeriodicIO.hold_intake) {
                     mPeriodicIO.deploy_demand = Constants.IntakeConstants.kOutHoldingVoltage;
                 } else {
@@ -233,50 +207,46 @@ public class Intake extends Subsystem {
                     mPeriodicIO.deploy_demand = Constants.IntakeConstants.kDeployVoltage;
                 }
                 break;
-            case FORCE_HOLDING:
-                if (mPeriodicIO.hold_intake) {
-                    mPeriodicIO.deploy_demand = -Constants.IntakeConstants.kInHoldingVoltage;
-                } else if (mPeriodicIO.force_hold_intake) {
-                    mPeriodicIO.deploy_demand = -Constants.IntakeConstants.kDeployVoltage;
-                    mPeriodicIO.intake_demand = 0.0;
-                } else {
-                    setState(WantedAction.NONE);
-                }
-            }
-       }
-
-    public void setForceHold(boolean force_hold) {
-        mPeriodicIO.force_hold_intake = force_hold;
+        }
     }
 
     /* Subsystem Getters */
     public synchronized State getState() {
         return mState;
     }
+
     public double getRollerCurrent() {
         return mPeriodicIO.intake_current;
     }
+
     public double getRollerVoltage() {
         return mPeriodicIO.intake_voltage;
     }
+
     public double getRollerDemand() {
         return mPeriodicIO.intake_demand;
     }
+
     public double getDeployCurrent() {
         return mPeriodicIO.deploy_current;
     }
+
     public double getDeployVoltage() {
         return mPeriodicIO.deploy_voltage;
     }
+
     public double getDeployDemand() {
         return mPeriodicIO.deploy_demand;
     }
+
     public double getSingulatorCurrent() {
         return mPeriodicIO.intake_current;
     }
+
     public double getSingulatorVoltage() {
         return mPeriodicIO.singulator_voltage;
     }
+
     public double getSingulatorDemand() {
         return mPeriodicIO.singulator_demand;
     }
@@ -325,7 +295,7 @@ public class Intake extends Subsystem {
         SetupLog();
         LS.register(mStorage, "INTAKE_LOGS.csv");
     }
-    
+
     public void SetupLog() {
         mStorage = new LogStorage<PeriodicIO>();
 
@@ -335,7 +305,7 @@ public class Intake extends Subsystem {
         headers.add("intake_demand");
         headers.add("deploy_demand");
         headers.add("singulator_demand");
-        
+
         headers.add("intake_voltage");
         headers.add("deploy_voltage");
         headers.add("singulator_voltage");
@@ -365,7 +335,7 @@ public class Intake extends Subsystem {
         items.add(mPeriodicIO.intake_current);
         items.add(mPeriodicIO.deploy_current);
         items.add(mPeriodicIO.singulator_current);
-        
+
         items.add(mPeriodicIO.singulator_velocity);
         items.add(mPeriodicIO.hold_intake ? 1.0 : 0.0);
 

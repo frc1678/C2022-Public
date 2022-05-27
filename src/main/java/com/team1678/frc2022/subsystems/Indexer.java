@@ -2,7 +2,7 @@ package com.team1678.frc2022.subsystems;
 
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.Ports;
-import com.team1678.frc2022.lib.drivers.BeamBreak;
+import com.team1678.frc2022.drivers.BeamBreak;
 import com.team1678.frc2022.logger.LogStorage;
 import com.team1678.frc2022.logger.LoggingSystem;
 import com.team1678.frc2022.loops.ILooper;
@@ -15,7 +15,6 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Indexer extends Subsystem {
 
@@ -46,18 +45,6 @@ public class Indexer extends Subsystem {
 
     private Timer ejectDelayTimer = new Timer();
     private Timer topRollerTimer = new Timer();
-
-    public boolean stopTunnel() {
-        return ballAtTrigger() && ballInTunnel();
-    }
-
-    public boolean ballAtTrigger() {
-        return mPeriodicIO.top_break;
-    }
-
-    public boolean ballInTunnel() {
-        return mPeriodicIO.bottom_break;
-    }
 
     private IndexerSlot mTopSlot = new IndexerSlot();
     private IndexerSlot mBottomSlot = new IndexerSlot();
@@ -95,7 +82,7 @@ public class Indexer extends Subsystem {
             public void onLoop(double timestamp) {
                 synchronized (Indexer.this) {
                     updateSetpoints();
-                    
+
                     // send log data
                     SendLog();
                 }
@@ -109,7 +96,6 @@ public class Indexer extends Subsystem {
     }
 
     public void updateSetpoints() {
-
         if (mForceEjecting) {
             if (mSlowEject) {
                 mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVelocity;
@@ -134,7 +120,7 @@ public class Indexer extends Subsystem {
             mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVelocity;
             mPeriodicIO.ejector_demand = Constants.IndexerConstants.kEjectorVoltage;
 
-            // Keep ejecting for X amount of seconds to ensure ball has left the system
+            // Ensure top ball is clear of indexer and is resting at the trigger
             if (mTopBeamBreak.get()) {
                 topRollerTimer.start();
             }
@@ -146,7 +132,7 @@ public class Indexer extends Subsystem {
 
         } else if (mIndexingBottomBall) { // Indexing second ball
             mEjecting = false;
-            
+
             mPeriodicIO.tunnel_demand = Constants.IndexerConstants.kTunnelIndexingVelocity;
             mPeriodicIO.ejector_demand = Constants.IndexerConstants.kEjectorVoltage;
 
@@ -178,7 +164,7 @@ public class Indexer extends Subsystem {
                 mEjecting = false;
                 mEjectorReached = false;
             }
-            
+
         } else {
             mPeriodicIO.tunnel_demand = 0.0;
             mPeriodicIO.ejector_demand = 0.0;
@@ -255,13 +241,6 @@ public class Indexer extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        mTopSlot.outputToSmartdash("Top");
-        mBottomSlot.outputToSmartdash("Bottom");
-        SmartDashboard.putBoolean("Indexing Top Ball", mIndexingTopBall);
-        SmartDashboard.putBoolean("Indexing Bottom Ball", mIndexingBottomBall);
-        SmartDashboard.putBoolean("Indexing Feeding", mFeeding);
-        SmartDashboard.putBoolean("Indexing Ejecting", mEjecting);
-        SmartDashboard.putBoolean("Back Break Cleared", mBottomBeamBreak.wasCleared());
 
         mTopBeamBreak.update();
         mBottomBeamBreak.update();
@@ -291,14 +270,6 @@ public class Indexer extends Subsystem {
     }
 
     // subsystem setters
-
-    public void setOuttakeDemand(double demand) {
-        mPeriodicIO.ejector_demand = demand;
-    }
-
-    public void setIndexerDemand(double demand) {
-        mPeriodicIO.tunnel_demand = demand;
-    }
 
     public double getEjectorDemand() {
         return mPeriodicIO.ejector_demand;
@@ -330,11 +301,6 @@ public class Indexer extends Subsystem {
 
     public boolean getBottomBeamBreak() {
         return mPeriodicIO.bottom_break;
-    }
-
-    public boolean indexerFull() {
-        return (mTopSlot.hasBall() || mTopSlot.hasQueuedBall())
-                && (mBottomSlot.hasBall() || mBottomSlot.hasQueuedBall());
     }
 
     public boolean getIsEjecting() {
@@ -396,15 +362,8 @@ public class Indexer extends Subsystem {
         public void clearQueue() {
             hasQueuedBall = false;
         }
-
-        public void outputToSmartdash(String name) {
-            SmartDashboard.putBoolean(name + " has ball", hasBall);
-            SmartDashboard.putBoolean(name + " has correct color", correctColor);
-            SmartDashboard.putBoolean(name + " has queued ball", hasQueuedBall);
-            SmartDashboard.putBoolean(name + " queued ball color", queuedBallColor);
-        }
     }
- 
+
     public static class PeriodicIO {
         // INPUTS
         public boolean top_break;
@@ -469,7 +428,7 @@ public class Indexer extends Subsystem {
         items.add(Timer.getFPGATimestamp());
 
         items.add(mPeriodicIO.tunnel_velocity);
-        
+
         items.add(mPeriodicIO.tunnel_demand);
         items.add(mPeriodicIO.ejector_demand);
 
@@ -478,7 +437,7 @@ public class Indexer extends Subsystem {
 
         items.add(mPeriodicIO.ejector_current);
         items.add(mPeriodicIO.tunnel_current);
-        
+
         items.add(mPeriodicIO.top_break ? 1.0 : 0.0);
         items.add(mPeriodicIO.bottom_break ? 1.0 : 0.0);
 

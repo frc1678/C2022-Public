@@ -5,7 +5,6 @@ import com.lib.util.SwerveModuleConstants;
 import com.team1678.frc2022.subsystems.Limelight.LimelightConstants;
 import com.team1678.frc2022.subsystems.ServoMotorSubsystem.ServoMotorSubsystemConstants;
 import com.team254.lib.geometry.Rotation2d;
-import com.team254.lib.geometry.Translation2d;
 
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
@@ -15,20 +14,18 @@ import edu.wpi.first.math.util.Units;
 
 public class Constants {
 
-    // toggle constants for comp robot
+    // toggle constants between comp bot and practice bot ("epsilon")
     public static final boolean isComp = true;
 	
 	// robot loop time
 	public static final double kLooperDt = 0.02;
     
-    // alliance color
-    public static final boolean isRedAlliance = true;
-
 	/* Control Board */
-	public static final double kJoystickThreshold = 0.2;
-	public static final int kButtonGamepadPort = 1;
-	
-	/* 364 IMPORTED CONSTANTS */
+	public static final double kTriggerThreshold = 0.2;
+
+	public static final int kDriveControllerPort = 0;
+	public static final int kOperatorControllerPort = 1;
+
 	public static final double stickDeadband = 0.15;
 
 	public static final class SwerveConstants {
@@ -68,20 +65,20 @@ public class Constants {
         public static final boolean driveEnableCurrentLimit = true;
 
         /* Angle Motor PID Values */
-        public static final double angleKP = 0.3; // TODO: Check value
+        public static final double angleKP = 0.3;
         public static final double angleKI = 0.0;
         public static final double angleKD = 0.0;
         public static final double angleKF = 0.0;
 
         /* Drive Motor PID Values */
-        public static final double driveKP = 0.05; // TODO: Check value
+        public static final double driveKP = 0.05;
         public static final double driveKI = 0.0;
         public static final double driveKD = 0.0;
         public static final double driveKF = 0.0;
 
         /* Drive Motor Characterization Values */
-        public static final double driveKS = (0.32 / 12); // divide by 12 to convert from volts to percent output for CTRE
-        public static final double driveKV = (1.51 / 12); // 2.44 previously
+        public static final double driveKS = (0.32 / 12);
+        public static final double driveKV = (1.51 / 12);
         public static final double driveKA = (0.27 / 12);
 
         /* Swerve Profiling Values */
@@ -150,11 +147,11 @@ public class Constants {
     }
 	
 	public static final class SnapConstants {
-        public static final double kP = 5.0; // TODO: tune value
-        public static final double kI = 0; // TODO: tune value
-        public static final double kD = 0.0; // TODO: tune value
-        public static final double snapTimeout = 0.25;
-        public static final double snapEpsilon = 1.0;
+        public static final double kP = 5.0; 
+        public static final double kI = 0;
+        public static final double kD = 0.0;
+        public static final double kTimeout = 0.25;
+        public static final double kEpsilon = 1.0;
 
         // Constraints for the profiled angle controller
         public static final double kMaxAngularSpeedRadiansPerSecond = 2.0 * Math.PI;
@@ -168,6 +165,8 @@ public class Constants {
         public static final double kP = 6.37;
         public static final double kI = 0.0;
         public static final double kD = 0.10;
+        public static final double kTimeout = 0.25;
+        public static final double kEpsilon = 5.0;
 
         // Constraints for the profiled angle controller
         public static final double kMaxAngularSpeedRadiansPerSecond = 2.0 * Math.PI;
@@ -175,9 +174,6 @@ public class Constants {
         
         public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
                 new TrapezoidProfile.Constraints(kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
-
-        public static final double kTimeout = 0.25;
-        public static final double kEpsilon = 5.0;
     }
 
     public static final class AutoConstants {
@@ -223,40 +219,8 @@ public class Constants {
                         kMaxSpeedMetersPerSecond,
                         kMaxAccelerationMetersPerSecondSquared)
                         .setKinematics(Constants.SwerveConstants.swerveKinematics);
+
         public static final TrajectoryConfig slowSpeedConfig =
-                new TrajectoryConfig(
-                        kSlowSpeedMetersPerSecond,
-                        kSlowAccelerationMetersPerSecondSquared)
-                        .setKinematics(Constants.SwerveConstants.swerveKinematics);
-        public static final TrajectoryConfig zeroToDefaultSpeedConfig =
-                new TrajectoryConfig(
-                        kMaxSpeedMetersPerSecond,
-                        kMaxAccelerationMetersPerSecondSquared)
-                        .setKinematics(Constants.SwerveConstants.swerveKinematics)
-                        .setStartVelocity(0)
-                        .setEndVelocity(kMaxSpeedMetersPerSecond);
-        public static final TrajectoryConfig defaultToZeroSpeedConfig =
-                new TrajectoryConfig(
-                        kMaxSpeedMetersPerSecond,
-                        kMaxAccelerationMetersPerSecondSquared)
-                        .setKinematics(Constants.SwerveConstants.swerveKinematics)
-                        .setStartVelocity(kMaxSpeedMetersPerSecond)
-                        .setEndVelocity(0);
-        public static final TrajectoryConfig slowToZeroSpeedConfig =
-                new TrajectoryConfig(
-                        kSlowSpeedMetersPerSecond,
-                        kSlowAccelerationMetersPerSecondSquared)
-                        .setKinematics(Constants.SwerveConstants.swerveKinematics)
-                        .setStartVelocity(kSlowSpeedMetersPerSecond)
-                        .setEndVelocity(0);
-        public static final TrajectoryConfig constantSpeedConfig =
-                new TrajectoryConfig(
-                        kMaxSpeedMetersPerSecond,
-                        kMaxAccelerationMetersPerSecondSquared)
-                        .setKinematics(Constants.SwerveConstants.swerveKinematics)
-                        .setStartVelocity(kMaxSpeedMetersPerSecond)
-                        .setEndVelocity(kMaxSpeedMetersPerSecond);
-        public static final TrajectoryConfig zeroToZeroSpeedConfig =
                 new TrajectoryConfig(
                 kSlowSpeedMetersPerSecond,
                 kSlowAccelerationMetersPerSecondSquared)    
@@ -276,8 +240,6 @@ public class Constants {
 
 		public static final double kHorizontalFOV = 59.6; // degrees
 		public static final double kVerticalFOV = 49.7; // degrees
-		public static final double kVPW = 2.0 * Math.tan(Math.toRadians(kHorizontalFOV / 2.0));
-		public static final double kVPH = 2.0 * Math.tan(Math.toRadians(kVerticalFOV / 2.0));
 		public static final double kImageCaptureLatency = 11.0 / 1000.0; // seconds
         
         // lookahead time
@@ -313,13 +275,13 @@ public class Constants {
         public static final double kSpittingVoltage = -8;
         public static final double kRejectingVoltage = -5;
 
-        public static final double kSingulatorVelocity = 2300.0; // 2386
+        public static final double kSingulatorVelocity = 2300.0;
 
         public static final double kDeployVoltage = 4.0;
         public static final double kInHoldingVoltage = 1.2;
         public static final double kOutHoldingVoltage = 1.5;
 
-        public static final double kDeployCurrentLimit = 60; // amps
+        public static final double kDeployCurrentLimit = 60; 
 
         public static final double kIntakeRejectTime = 1.0;
         public static final double kSingulatorReverseDelay = 0.5;
@@ -327,11 +289,7 @@ public class Constants {
 
     public static final class ShooterConstants {
 
-        public static final double kFlywheelVelocityConversion = 600.0 / 2048.0; 
-        public static final double kAccleratorVelocityConversion = 600.0 / 2048.0 * (1.3 / 1.0);
-
-        public static final double kAcceleratorMultiplier = 0.72;
-        
+        public static final double kFlywheelVelocityConversion = 600.0 / 2048.0;         
         public static final double kFlywheelTolerance = 500;
         public static final double kShooterP = 0.1; 
         public static final double kShooterI = 0.0;
@@ -358,7 +316,7 @@ public class Constants {
         public static final double kCalibratingVoltage = -0.5;
         public static final double kCalibrationCurrentThreshold = 15.0;
 
-        public static final double kHoodRadius = 11.904; // radius of hood // TODO: check this value
+        public static final double kHoodRadius = 11.904; // radius of hood
 
         public static final ServoMotorSubsystemConstants kHoodServoConstants = new ServoMotorSubsystemConstants();
         static {
@@ -409,9 +367,7 @@ public class Constants {
         public static final double kTunnelD = 0.0;
         public static final double kTunnelF = 0.045;
 
-        public static final double kIdleVoltage = 0.0;
-
-        public static final double kTunnelIndexingVelocity = 640.0; // 642
+        public static final double kTunnelIndexingVelocity = 640.0; 
         public static final double kTunnelFeedingVelocity = 500.0;
 
         public static final double kEjectorVoltage = 12.0;
@@ -419,9 +375,6 @@ public class Constants {
         public static final double kEjectorFeedingVoltage = 8.0;
 
         public static final double kReversingVoltage = -5.0;
-        
-        public static final int kBottomBeamBreak = 1;
-        public static final int kTopBeamBreak = 0;
 
         public static final double kEjectDelay = 5.0;
 
@@ -430,13 +383,8 @@ public class Constants {
     }
     
     public static final class ClimberConstants {
-        public static final double kCalibratingVoltage = 5.0;
         public static final double kStatorCurrentLimit = 80.0;
-        public static final double kCalibrationTimeoutSeconds = 10.0;
-        
-        public static final double kClimbingVoltageRight = 8.0;
-        public static final double kClimbingVoltageLeft =  8.0;
-        
+                
         // comp-specific climber constants
         public static final int kCompLeftMinHeight = 0; // ticks
         public static final int kCompLeftMaxHeight = 244984; // ticks
@@ -490,13 +438,6 @@ public class Constants {
 
     public static final class ColorSensorConstants {
         public static final double kColorSensorRatioThreshold = 0.35;
-        public static final double kColorSensorDefaultRatio = 0.58;
-        public static final double kColorOffset = 140.0; // difference of blue - red
-
-        public static final double kBlueFreqScaler = 1.0;
-        public static final double kRedFreqScaler = 1.0;
-
-        public static final double kUpdateBaselineDelay = 1.0;
         public static final double kTimeWithBall = 1.2;
     }
 

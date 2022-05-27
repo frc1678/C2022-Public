@@ -162,14 +162,12 @@ public class Trigger extends Subsystem {
 
     @Override
     public void stop() {
-        // TODO Auto-generated method stub
-        
+        // no op        
     }
 
     @Override
     public boolean checkSystem() {
-        // TODO Auto-generated method stub
-        return false;
+        return true;
     }
 
     // Logging

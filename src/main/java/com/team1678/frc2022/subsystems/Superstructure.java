@@ -5,7 +5,6 @@ import com.team1678.frc2022.loops.ILooper;
 import com.team1678.frc2022.Constants;
 import com.team1678.frc2022.RobotState;
 import com.team1678.frc2022.controlboard.ControlBoard;
-import com.team1678.frc2022.controlboard.CustomXboxController;
 import com.team1678.frc2022.drivers.Pigeon;
 import com.team1678.frc2022.logger.LogStorage;
 import com.team1678.frc2022.logger.LoggingSystem;
@@ -18,7 +17,6 @@ import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.util.InterpolatingDouble;
 
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -90,38 +88,35 @@ public class Superstructure extends Subsystem {
     }
 
     /* Setpoint Tracker Variables */
-    // ball counting tracker variables
-    public double mBallCount = 0.0;
-    private boolean mHasTopBall = false;
-    private boolean mHasBottomBall = false;
+    public int mBallCount = 0; // number of balls in robot
 
     // shooting system setpoints
     public double mShooterSetpoint = 1000.0;
-    public double mHoodSetpoint = 20.0; // TODO: arbitrary value, change4
-    private double mHoodAngleAdjustment = 0.0;
-    private boolean mResetHoodAngleAdjustment = false;
+    public double mHoodSetpoint = 20.0;
+    private double mHoodAngleAdjustment = 0.0; // on the fly shot angle adjustments
+    private boolean mResetHoodAngleAdjustment = false; // reset hood angle adjustment
 
     // intake / eject locking status
-    private boolean mIntakeReject = false;
-    private boolean mIntakeOverride = false;
-    private boolean mForceEject = false;
-    private boolean mDisableEjecting = false;
-    private boolean mSlowEject = false;
+    private boolean mIntakeReject = false; // reject third ball from entering intake
+    private boolean mIntakeOverride = false; // backup override for intake locking logic
+    private boolean mForceEject = false; // manually run the ejector
+    private boolean mDisableEjecting = false; // backup override for ejecting logic
+    private boolean mSlowEject = false; // eject at lower velocity for aimed ejection during auto
 
     // climb mode tracker variables
-    private boolean mClimbMode = false;
-    private boolean mOpenLoopClimbControlMode = false;
-    private boolean mResetClimberPosition = false;
-    private boolean mAutoTraversalClimb = false;
-    private boolean mAutoHighBarClimb = false;
-    private int mClimbStep = 0;
-    private double mStartingGyroPosition = 0.0;
-    private double mRoll = 0.0;
+    private boolean mClimbMode = false; // if we are in climb mode (lock out other functions when climbing)
+    private boolean mOpenLoopClimbControlMode = false; // open loop climber control for manual jogging
+    private boolean mResetClimberPosition = false; // re-zeroing climber arms
+    private boolean mAutoTraversalClimb = false; // if we are running auto-traverse
+    private boolean mAutoHighBarClimb = false; // if we are running auto-high
+    private int mClimbStep = 0; // step of auto-climb we are currently on
+    private double mRoll = 0.0; // roll of the robot
 
     // fender shot constants
     private final double kFenderVelocity = 2200;
     private final double kFenderAngle = 14.0;
 
+    // spit shot constants
     private final double kSpitVelocity = 1000;
     private final double kSpitAngle = 20.0;
 
@@ -149,10 +144,7 @@ public class Superstructure extends Subsystem {
                     updateShootingSetpoints();
                 }
 
-                // updateWantEjection();
                 setGoals();
-                outputTelemetry();
-
                 updateRumble();
 
                 // send log data
@@ -274,13 +266,13 @@ public class Superstructure extends Subsystem {
      */
     public void updateOperatorCommands() {
 
-        // update starting gyro position
+        // reset gyro yaw when not climbing to eliminate drift
         if (mClimbStep == 0) {
             mPigeon.setRoll(0.0);
         }
 
-        // get whether we want to enter climb mode
-        if (mControlBoard.getClimbMode()) {
+        // reset climb tracker variables when entering climb mode
+        if (mControlBoard.getEnterClimbMode()) {
             mClimbMode = true;
             mClimbStep = 0;
             mOpenLoopClimbControlMode = false;
@@ -299,14 +291,14 @@ public class Superstructure extends Subsystem {
                 mAutoHighBarClimb = false;
             }
 
-            if (mControlBoard.operator.getController().getLeftStickButtonPressed()) {
+            if (mControlBoard.getToggleOpenLoopClimbMode()) {
                 mOpenLoopClimbControlMode = !mOpenLoopClimbControlMode;
                 mClimber.setClimberNone();
                 mAutoTraversalClimb = false;
                 mAutoHighBarClimb = false;
             }
 
-            if (mControlBoard.operator.getController().getRightStickButtonPressed()) {
+            if (mControlBoard.getClimberRezero()) {
                 mResetClimberPosition = true;
             }
 
@@ -318,13 +310,13 @@ public class Superstructure extends Subsystem {
             }
 
             if (!mOpenLoopClimbControlMode) {
-                if (mControlBoard.operator.getController().getXButtonPressed()) {
+                if (mControlBoard.getClimberRetract()) {
                     mClimber.setClimberNone();
                     mClimbStep = 0;
                     mAutoTraversalClimb = false;
                     mAutoHighBarClimb = false;
 
-                } else if (mControlBoard.operator.getController().getAButtonPressed()) {
+                } else if (mControlBoard.getClimberExtend()) {
                     // climb step 1
                     mClimber.setExtendForClimb();
                     mAutoTraversalClimb = false;
@@ -339,20 +331,23 @@ public class Superstructure extends Subsystem {
                     mAutoHighBarClimb = true;
                     mAutoTraversalClimb = false;
 
-                } else if (mControlBoard.operator.getController().getBButtonPressed()) {
-                    mClimber.setClimbMidBarAndExtend();
+                } else {
+                    // backup manual climb controls
+                    if (mControlBoard.operator.getController().getBButtonPressed()) {
+                        mClimber.setClimbMidBarAndExtend();
 
-                } else if (mControlBoard.operator.getController().getPOV() == 180) {
-                    mClimber.setHighBarExtend();
+                    } else if (mControlBoard.operator.getController().getPOV() == 180) {
+                        mClimber.setHighBarExtend();
 
-                } else if (mControlBoard.operator.getController().getPOV() == 90) {
-                    mClimber.setClimbHighBarAndExtend();
+                    } else if (mControlBoard.operator.getController().getPOV() == 90) {
+                        mClimber.setClimbHighBarAndExtend();
 
-                } else if (mControlBoard.operator.getController().getPOV() == 0) {
-                    mClimber.setTraversalBarExtend();
+                    } else if (mControlBoard.operator.getController().getPOV() == 0) {
+                        mClimber.setTraversalBarExtend();
 
-                } else if (mControlBoard.operator.getController().getPOV() == 270) {
-                    mClimber.setClimbTraversalBar();
+                    } else if (mControlBoard.operator.getController().getPOV() == 270) {
+                        mClimber.setClimbTraversalBar();
+                    }
                 }
 
                 if (mAutoTraversalClimb) {
@@ -463,7 +458,7 @@ public class Superstructure extends Subsystem {
 
             } else {
 
-                // set left climber motor open loop
+                // open loop climb jog
                 if (mControlBoard.operator.getController().getPOV() == 0) {
                     mClimber.setLeftClimberOpenLoop(8.0);
                 } else if (mControlBoard.operator.getController().getPOV() == 180) {
@@ -472,7 +467,6 @@ public class Superstructure extends Subsystem {
                     mClimber.setLeftClimberOpenLoop(0.0);
                 }
 
-                // set right climber motor open loop
                 if (mControlBoard.operator.getController().getYButton()) {
                     mClimber.setRightClimberOpenLoop(8.0);
                 } else if (mControlBoard.operator.getController().getAButton()) {
@@ -487,21 +481,19 @@ public class Superstructure extends Subsystem {
 
             /*** NORMAL TELEOP CONTROLS ***/
 
-            // toggle whether we want to force intake or decide whether we intake based on
-            // whether we have two correct cargo
+            // disable toggle for intake locking
             if (mControlBoard.getDisableIntakeLogic()) {
                 mIntakeOverride = !mIntakeOverride;
             }
 
-            if (mControlBoard.operator.getTrigger(CustomXboxController.Side.RIGHT)) {
-                // start a timer for rejecting balls and then locking the intake when we want to
-                // stop intaking
+            if (mControlBoard.getIntake()) {
+
+                // lock intake control and start a rejection sequence if when intaking a third ball
                 if ((indexerFull() || stopIntaking()) && !mIntakeReject) {
                     mIntakeReject = true;
                 }
 
-                // if we want to lock the intake, reject incoming cargo for a short time and
-                // then lock the intake
+                // reverse intake for X seconds to ensure third ball has left system
                 if (mIntakeReject && !mIntakeOverride) {
                     setWantReject(true);
                     if (!(mIndexer.getTopBeamBreak() && mColorSensor.getForwardBeamBreak())
@@ -510,101 +502,51 @@ public class Superstructure extends Subsystem {
 
                         mIntakeReject = false;
                     }
-                } else {
+                } else { // if we aren't rejecting
                     setWantIntake(true);
                 }
             } else {
                 mIntakeRejectTimer.reset();
-                if (mControlBoard.operator.getTrigger(CustomXboxController.Side.LEFT)) {
+                if (mControlBoard.getReject()) {
                     setWantReverse(true);
                 } else {
                     setWantIntakeNone();
                 }
             }
 
-            /*
-             * // control intake + reverse actions
-             * if (mIntakeOverride) {
-             * normalIntakeControls();
-             * } else {
-             * // start a timer for rejecting balls and then locking the intake when we want
-             * to stop intaking
-             * if (mIndexer.indexerFull() && mColorSensor.seesBall()) {
-             * mLockIntake = true;
-             * mIntakeRejectTimer.reset();
-             * mIntakeRejectTimer.start();
-             * }
-             * 
-             * // if we want to lock the intake, reject incoming cargo for a short time and
-             * then lock the intake
-             * if (mLockIntake) {
-             * if
-             * (mIntakeRejectTimer.hasElapsed(Constants.IntakeConstants.kIntakeRejectTime))
-             * {
-             * mIntakeRejectTimer.stop();
-             * setWantIntakeNone();
-             * } else {
-             * setWantReject(true);
-             * }
-             * 
-             * // if:
-             * // - we don't have a ball indexed and a ball in our system
-             * // - we don't have a ball at either fully indexed position
-             * // - we don't want to stop intaking
-             * // then unlock the intake
-             * if(!(mIndexer.getTopBeamBreak() && mColorSensor.getForwardBeamBreak())
-             * && !indexerFull()
-             * && !stopIntaking()) {
-             * 
-             * mLockIntake = false;
-             * }
-             * } else {
-             * normalIntakeControls();
-             * }
-             * }
-             */
-
             // toggle ejecting to disable if necessary
             if (mControlBoard.getDisableColorLogic()) {
                 mDisableEjecting = !mDisableEjecting;
             }
-            // control options to filter cargo and eject
-            // don't eject if we want it disabled or if we lock the intake because we have
-            // two correct cargo
+
+            // if we want to manual eject
             mForceEject = mControlBoard.getManualEject();
 
             // control shooting
-            if (mControlBoard.operator.getController().getYButtonPressed()) {
+            if (mControlBoard.getShoot()) {
                 mPeriodicIO.SHOOT = !mPeriodicIO.SHOOT;
 
                 // reset intake actions
                 setWantIntakeNone();
             }
 
-            // spin up if we aren't already
+            // spin up to shoot if we aren't already
             if ((mPeriodicIO.SHOOT || mPeriodicIO.SPIT) && !mPeriodicIO.PREP) {
                 mPeriodicIO.PREP = true;
             }
 
-            // control prepping
-            if (mControlBoard.operator.getController().getAButtonPressed()) {
+            // control prep
+            if (mControlBoard.getPrep()) {
                 mPeriodicIO.PREP = !mPeriodicIO.PREP;
             }
 
             // control fender shot
-            if (mControlBoard.operator.getController().getBButtonPressed()) {
+            if (mControlBoard.getFender()) {
                 mPeriodicIO.FENDER = !mPeriodicIO.FENDER;
             }
 
-            // control spit shot
-            /*
-             * if (mControlBoard.operator.getController().getXButtonPressed()) {
-             * mPeriodicIO.SPIT = !mPeriodicIO.SPIT;
-             * }
-             */
-
             // non-toggle one ball spit shot
-            if (mControlBoard.operator.getController().getXButtonPressed()) {
+            if (mControlBoard.getSpit()) {
                 mPeriodicIO.SPIT = true;
             }
 
@@ -621,7 +563,7 @@ public class Superstructure extends Subsystem {
                     break;
             }
             // reset manual hood adjustment if necessary
-            if (mControlBoard.operator.getButton(CustomXboxController.Button.START)) {
+            if (mControlBoard.getResetHoodAdjust()) {
                 mResetHoodAngleAdjustment = true;
             }
         }
@@ -638,7 +580,10 @@ public class Superstructure extends Subsystem {
         }
     }
 
-    /*** UPDATE SPIT STATE ***/
+    /***
+     * UPDATE SPIT STATE 
+     * Controls sequence to spit out one ball at a time
+     **/
     public void updateSpitState() {
         // when two balls are in the indexer:
         if (mBallCount == 2) {
@@ -666,6 +611,7 @@ public class Superstructure extends Subsystem {
         }
     }
 
+    /*** RUMBLE OPERATOR CONTROLLERS WHILE SHOOTING ***/
     public void updateRumble() {
         if (!mClimbMode) {
             mControlBoard.setOperatorRumble(mPeriodicIO.SHOOT);
@@ -716,18 +662,9 @@ public class Superstructure extends Subsystem {
         } else {
             mCorrectedDistanceToTarget = predicted_vehicle_to_goal.getTranslation().norm();
         }
-
-        SmartDashboard.putString("Field to Target", real_aiming_params_.get().getFieldToGoal().toString());
-        SmartDashboard.putString("Vehicle to Target", real_aiming_params_.get().getVehicleToGoal().toString());
-        SmartDashboard.putNumber("Vision Target Angle", Math.toDegrees(mTargetAngle));
-
-        // lookahead angle offset
-        SmartDashboard.putNumber("Lookahead Offset", Math.toDegrees(mTargetAngle)
-                - (real_aiming_params_.get().getVehicleToGoalRotation().getDegrees() + 180));
-        SmartDashboard.putNumber("Distance Offset", mCorrectedDistanceToTarget - real_aiming_params_.get().getRange());
     }
 
-    /*** SEND VISION ALIGN GOAL TO SWERVE ***/
+    /*** UPDATE SHOOTER AND HOOD GOALS FROM DISTANCE ***/
     public synchronized void updateShootingSetpoints() {
         if (mPeriodicIO.SPIT) {
             mShooterSetpoint = kSpitVelocity;
@@ -735,17 +672,6 @@ public class Superstructure extends Subsystem {
         } else if (mPeriodicIO.FENDER) {
             mShooterSetpoint = kFenderVelocity;
             mHoodSetpoint = kFenderAngle;
-            /*
-             * } else if (mLimelight.getLimelightDistanceToTarget().isPresent()) {
-             * mShooterSetpoint =
-             * getShooterSetpointFromRegression(mLimelight.getLimelightDistanceToTarget().
-             * get());
-             * mHoodSetpoint =
-             * getHoodSetpointFromRegression(mLimelight.getLimelightDistanceToTarget().get()
-             * );
-             * }
-             */
-
         } else if (real_aiming_params_.isPresent()) {
             mShooterSetpoint = getShooterSetpointFromRegression(mCorrectedDistanceToTarget);
             mHoodSetpoint = getHoodSetpointFromRegression(mCorrectedDistanceToTarget);
@@ -782,7 +708,9 @@ public class Superstructure extends Subsystem {
 
         // update intake and indexer actions
         if (mPeriodicIO.SPIT) {
-            if (isSpunUp() /* && isAimed() */) {
+
+            // only feed cargo to shooter when spun up
+            if (isSpunUp()) {
                 mPeriodicIO.real_trigger = Trigger.WantedAction.FEED;
                 mIndexer.setWantFeeding(true);
             } else {
@@ -792,8 +720,8 @@ public class Superstructure extends Subsystem {
         } else if (mPeriodicIO.SHOOT) {
             mPeriodicIO.real_intake = Intake.WantedAction.NONE;
 
-            // only feed cargo to shoot when spun up and aimed
-            if (isSpunUp() /* && isAimed() */) {
+            // only feed cargo to shooter when spun up
+            if (isSpunUp()) {
                 mIndexer.setWantFeeding(true);
                 if (mPeriodicIO.FENDER) {
                     mPeriodicIO.real_trigger = Trigger.WantedAction.SLOW_FEED;
@@ -811,11 +739,12 @@ public class Superstructure extends Subsystem {
             mIndexer.setForceEject(mForceEject);
             mIndexer.setWantSlowEject(mSlowEject);
 
-            if (mColorSensor.seesBall()
-                    && !mColorSensor.hasCorrectColor()
-                    && !indexerFull() && !mDisableEjecting) {
+            // eject ball if we see a wrong color
+            if (mColorSensor.seesBall() && !mColorSensor.hasCorrectColor()
+                        && !indexerFull() && !mDisableEjecting) {
                 mIndexer.queueEject();
             } else if (mColorSensor.seesNewBall()) {
+                // otherwise just queue a ball for indexing
                 if (!indexerFull()) {
                     mIndexer.queueBall(mColorSensor.hasCorrectColor());
                 }
@@ -832,21 +761,19 @@ public class Superstructure extends Subsystem {
             }
         }
 
-        /* Set subsystem states + setpoints based on wanted actions */
-
-        // set intake and indexer states
+        // set intake state
         mIntake.setState(mPeriodicIO.real_intake);
-        // set shooter subsystem setpoint
+
+        // set shooter subsystem setpoints
         if (Math.abs(mPeriodicIO.real_shooter) < Util.kEpsilon) {
             mShooter.setOpenLoop(0.0); // open loop if rpm goal is 0, to smooth spin down and stop belt skipping
         } else {
-            mShooter.setVelocity(mShooterSetpoint,
-                    mShooterSetpoint * Constants.ShooterConstants.kAcceleratorMultiplier);
+            mShooter.setVelocity(mShooterSetpoint);
         }
         mTrigger.setState(mPeriodicIO.real_trigger);
 
         // set hood subsystem setpoint
-        // safety clamp the hood goal between min and max hard stops for hood angle
+        // safety clamp the hood goal between min and max soft limits for hood angle
         mPeriodicIO.real_hood = Util.clamp(mPeriodicIO.real_hood,
                 Constants.HoodConstants.kHoodServoConstants.kMinUnitsLimit,
                 Constants.HoodConstants.kHoodServoConstants.kMaxUnitsLimit);
@@ -856,6 +783,7 @@ public class Superstructure extends Subsystem {
         }
     }
 
+    /*** UPDATE STATUS LEDS ON ROBOT ***/
     public void updateLEDs() {
         if (mLEDs.getUsingSmartdash()) {
             return;
@@ -909,14 +837,9 @@ public class Superstructure extends Subsystem {
         mLEDs.applyStates(topState, bottomState);
     }
 
-    /***
-     * GET SHOOTER AND HOOD SETPOINTS FROM SUPERSTRUCTURE CONSTANTS REGRESSION
-     ***/
     // interpolates distance to target for shooter setpoint along regression
     private double getShooterSetpointFromRegression(double range) {
-        if (ShooterRegression.kUseSmartdashboard) {
-            return SmartDashboard.getNumber("Shooting RPM", 0);
-        } else if (ShooterRegression.kUseFlywheelAutoAimPolynomial) {
+        if (ShooterRegression.kUseFlywheelAutoAimPolynomial) {
             return ShooterRegression.kFlywheelAutoAimPolynomial.predict(range);
         } else {
             return ShooterRegression.kFlywheelAutoAimMap.getInterpolated(new InterpolatingDouble(range)).value;
@@ -925,9 +848,7 @@ public class Superstructure extends Subsystem {
 
     // interpolates distance to target for hood setpoint along regression
     private double getHoodSetpointFromRegression(double range) {
-        if (ShooterRegression.kUseSmartdashboard) {
-            return SmartDashboard.getNumber("Hood Angle", 0);
-        } else if (ShooterRegression.kUseHoodAutoAimPolynomial) {
+        if (ShooterRegression.kUseHoodAutoAimPolynomial) {
             return ShooterRegression.kHoodAutoAimPolynomial.predict(range);
         } else {
             return ShooterRegression.kHoodAutoAimMap.getInterpolated(new InterpolatingDouble(range)).value;
@@ -964,15 +885,13 @@ public class Superstructure extends Subsystem {
         return mLimelight.hasTarget();
     }
 
-    // checked if we are vision aligned to the target within an acceptable horiz.
-    // error
+    // checked if we are vision aligned to the target within an acceptable horiz. error
     public boolean isAimed() {
         return mLimelight.isAimed();
     }
 
     @Override
     public boolean checkSystem() {
-        // TODO Auto-generated method stub
         return false;
     }
 
@@ -1075,45 +994,6 @@ public class Superstructure extends Subsystem {
 
     public double getHoodGoal() {
         return mPeriodicIO.real_hood;
-    }
-
-    /* Output superstructure actions and other related statuses */
-    public void outputTelemetry() {
-        // // superstructure actions requested
-        // SmartDashboard.putBoolean("Intaking", mPeriodicIO.INTAKE);
-        // SmartDashboard.putBoolean("Reversing", mPeriodicIO.REVERSE);
-        // SmartDashboard.putBoolean("Ejecting", mPeriodicIO.EJECT);
-        // SmartDashboard.putBoolean("Prepping", mPeriodicIO.PREP);
-        // SmartDashboard.putBoolean("Shooting", mPeriodicIO.SHOOT);
-        // SmartDashboard.putBoolean("Fender Shooting", mPeriodicIO.FENDER);
-
-        // // superstructure goals being set
-        // SmartDashboard.putString("Intake Goal", mPeriodicIO.real_intake.toString());
-        // SmartDashboard.putString("Indexer Goal",
-        // mPeriodicIO.real_indexer.toString());
-        // SmartDashboard.putNumber("Shooter Goal", mPeriodicIO.real_shooter);
-        // SmartDashboard.putNumber("Hood Goal", mPeriodicIO.real_hood);
-
-        // // other status variables
-        // SmartDashboard.putNumber("Superstructure dt", mPeriodicIO.dt);
-        // SmartDashboard.putBoolean("Is Spun Up", isSpunUp());
-        // SmartDashboard.putBoolean("Has Vision Target", mLimelight.hasTarget());
-        // SmartDashboard.putBoolean("Is Vision Aimed", mLimelight.isAimed());
-
-        SmartDashboard.putBoolean("Disable Ejecting", mDisableEjecting);
-        SmartDashboard.putBoolean("Stop Intaking", stopIntaking());
-        SmartDashboard.putBoolean("Force Intake", mIntakeOverride);
-        SmartDashboard.putBoolean("Force Eject", mForceEject);
-
-        SmartDashboard.putBoolean("Auto Traversal Climb", mAutoTraversalClimb);
-        SmartDashboard.putBoolean("Auto High Bar Climb", mAutoHighBarClimb);
-        SmartDashboard.putNumber("Climb Step Number", mClimbStep);
-
-        SmartDashboard.putNumber("Robot Roll", mPigeon.getRoll().getDegrees());
-        SmartDashboard.putNumber("Gyro Start", mStartingGyroPosition);
-        SmartDashboard.putNumber("Gyro Roll", mRoll);
-
-        SmartDashboard.putNumber("Distance To Target", mCorrectedDistanceToTarget);
     }
 
     // included to continue logging while disabled

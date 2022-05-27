@@ -1,7 +1,5 @@
 package com.team1678.frc2022.shuffleboard.tabs;
 
-import javax.swing.plaf.multi.MultiSpinnerUI;
-
 import com.team1678.frc2022.shuffleboard.ShuffleboardTabBase;
 import com.team1678.frc2022.subsystems.ColorSensor;
 import com.team1678.frc2022.subsystems.Indexer;
@@ -110,7 +108,7 @@ public class SystemsTab extends ShuffleboardTabBase {
 		mColorSensorProximity.setDouble(mColorSensor.getDistance());
 		mColorSensorRatio.setDouble(mColorSensor.getColorRatio());
 		mColorSensorBallColor.setString(mColorSensor.getMatchedColor());
-		mColorSensorHasBall.setBoolean(mColorSensor.hasBall());
+		mColorSensorHasBall.setBoolean(mColorSensor.seesBall());
 
 		mForwardBreak.setBoolean(mColorSensor.getForwardBeamBreak());
 		mBottomBreak.setBoolean(mIndexer.getBottomBeamBreak());

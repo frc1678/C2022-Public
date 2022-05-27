@@ -1,6 +1,6 @@
 package com.team1678.frc2022.shuffleboard.tabs;
 
-import com.lib.drivers.SwerveModule;
+import com.team1678.frc2022.drivers.SwerveModule;
 import com.team1678.frc2022.shuffleboard.ShuffleboardTabBase;
 import com.team1678.frc2022.subsystems.Swerve;
 

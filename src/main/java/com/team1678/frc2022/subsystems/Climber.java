@@ -30,10 +30,6 @@ public class Climber extends Subsystem {
     private final TalonFX mClimberRight;
     private final TalonFX mClimberLeft;
 
-    public enum ClimberChecks {
-        
-    }
-
     public boolean mHomed;
 
     // logger
@@ -101,12 +97,6 @@ public class Climber extends Subsystem {
         mClimberLeft.configStatorCurrentLimit(STATOR_CURRENT_LIMIT);
     }
 
-    private void zeroEncoders() {
-        mClimberLeft.setSelectedSensorPosition(0.0);
-        mClimberRight.setSelectedSensorPosition(0.0);
-        mHomed = true;
-    }
-
     @Override
     public void readPeriodicInputs() {
         
@@ -172,25 +162,20 @@ public class Climber extends Subsystem {
         if (mRightControlState != RightControlState.OPEN_LOOP) {
             mRightControlState = RightControlState.OPEN_LOOP;
         }
-
         mPeriodicIO.climber_demand_right = (wantedDemand > 12 ? 12 : wantedDemand);
-
     }
 
     public void setLeftClimberOpenLoop(double wantedDemand) {
         if (mLeftControlState != LeftControlState.OPEN_LOOP) {
             mLeftControlState = LeftControlState.OPEN_LOOP;
         }
-
         mPeriodicIO.climber_demand_left = (wantedDemand > 12 ? 12 : wantedDemand);
-
     }
 
     public void setRightClimberPosition(double wantedPositionTicks) {
         if (mRightControlState != RightControlState.MOTION_MAGIC) {
             mRightControlState = RightControlState.MOTION_MAGIC;
         }
-        
         mPeriodicIO.climber_demand_right = wantedPositionTicks;
     }
 
@@ -198,7 +183,6 @@ public class Climber extends Subsystem {
         if (mLeftControlState != LeftControlState.MOTION_MAGIC) {
             mLeftControlState = LeftControlState.MOTION_MAGIC;
         }
-
         mPeriodicIO.climber_demand_left = wantedPositionTicks;
     }
 
@@ -207,7 +191,6 @@ public class Climber extends Subsystem {
             mRightControlState = RightControlState.MOTION_MAGIC;
             mPeriodicIO.climber_demand_right = mPeriodicIO.climber_motor_position_right;
         }
-
         mPeriodicIO.climber_demand_right = mPeriodicIO.climber_demand_right + wantedPositionDelta;
     }
 
@@ -216,7 +199,6 @@ public class Climber extends Subsystem {
             mLeftControlState = LeftControlState.MOTION_MAGIC;
             mPeriodicIO.climber_demand_left = mPeriodicIO.climber_motor_position_left;
         }
-
         mPeriodicIO.climber_demand_left = mPeriodicIO.climber_demand_left + wantedPositionDelta;
     }
 
@@ -256,18 +238,22 @@ public class Climber extends Subsystem {
         setLeftClimberPosition(Constants.ClimberConstants.kLeftPartialTravelDistance);
         setRightClimberPosition(Constants.ClimberConstants.kSafetyMinimum);
     }
+
     // third step for traversal
     public void setHighBarExtend() {
         setLeftClimberPosition(Constants.ClimberConstants.kLeftTravelDistance);
     }
+
     // fourth step for traversal
     public void setClimbHighBarAndExtend() {
         setLeftClimberPosition(Constants.ClimberConstants.kSafetyMinimum);
         setRightClimberPosition(Constants.ClimberConstants.kRightPartialTravelDistance);
     }
+
     public void setTraversalBarExtend() {
         setRightClimberPosition(Constants.ClimberConstants.kRightTravelDistance);
     }
+
     // final step for traversal
     public void setClimbTraversalBar() {
         setLeftClimberPosition(0);
@@ -277,12 +263,10 @@ public class Climber extends Subsystem {
     public void setClimberNone() {
         setRightClimberPosition(10); // ticks
         setLeftClimberPosition(10); // ticks
-
     }
 
     // hold current position on arm
     public void maybeHoldCurrentPosition() {
-        
         if (Util.epsilonEquals(mPeriodicIO.climber_motor_velocity_left, 0, 0.5)
                 && (mPeriodicIO.climber_stator_current_left > Constants.ClimberConstants.kStatorCurrentLimit)) {
             setLeftClimberPosition(mPeriodicIO.climber_motor_position_left + 2000);
@@ -294,7 +278,6 @@ public class Climber extends Subsystem {
             setRightClimberPosition(mPeriodicIO.climber_motor_position_right + 2000);
             System.out.println("triggered right");
         }
-        
     }
 
     public enum RightControlState {

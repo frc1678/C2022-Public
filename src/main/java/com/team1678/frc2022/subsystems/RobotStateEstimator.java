@@ -60,9 +60,6 @@ public class RobotStateEstimator extends Subsystem {
             final Translation2d latest_translational_displacement = new Translation2d(prev_swerve_pose_.getTranslation(), swerve_pose_.getTranslation());
             final Rotation2d latest_rotational_displacement = prev_swerve_pose_.getRotation().inverse().rotateBy(swerve_pose_.getRotation());
 
-            SmartDashboard.putString("translation delta", latest_translational_displacement.toString());
-            SmartDashboard.putString("rotation delta", latest_rotational_displacement.toString());
-
             Pose2d odometry_delta = new Pose2d(latest_translational_displacement, latest_rotational_displacement);
 
             final Pose2d measured_velocity = odometry_delta.scaled(1.0 / dt);

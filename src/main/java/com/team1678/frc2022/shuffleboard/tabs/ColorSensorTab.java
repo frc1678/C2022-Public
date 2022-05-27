@@ -82,7 +82,7 @@ public class ColorSensorTab extends ShuffleboardTabBase {
         mProximity.setDouble(mColorSensor.getDistance());
 
         mSeesBall.setBoolean(mColorSensor.seesBall());
-        mEject.setBoolean(mColorSensor.wantsEject());
+        mEject.setBoolean(mColorSensor.hasOppositeColor());
 
         mTimestamp.setDouble(mColorSensor.getTimestamp());
 

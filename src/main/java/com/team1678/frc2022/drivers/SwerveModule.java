@@ -1,4 +1,4 @@
-package com.lib.drivers;
+package com.team1678.frc2022.drivers;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
@@ -9,7 +9,6 @@ import com.lib.util.CTREConfigs;
 import com.lib.util.CTREModuleState;
 import com.lib.util.SwerveModuleConstants;
 import com.team1678.frc2022.Constants;
-import com.team1678.frc2022.Constants.SwerveConstants;
 import com.team254.lib.drivers.TalonFXFactory;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
