@@ -91,7 +91,7 @@ public class ChezySixBallMode extends AutoModeBase {
                                 new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                 new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                 thetaController,
-                                () -> Rotation2d.fromDegrees(200.0),
+                                () -> Rotation2d.fromDegrees(270.0),
                                 mSwerve::getWantAutoVisionAim,
                                 mSwerve::setModuleStates);
 
@@ -189,10 +189,14 @@ public class ChezySixBallMode extends AutoModeBase {
                 runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(false)));
 
                 // start run intake
-                new LambdaAction(() -> mSuperstructure.setWantIntake(true));
+                runAction(new LambdaAction(() -> mSuperstructure.setWantIntake(true)));
+
+                runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(false)));
 
                 // run trajectory to intake third cargo
                 runAction(driveToIntakeThirdCargo);
+
+                runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));
 
                 // run trajectory to intake fourth cargo
                 runAction(driveToIntakeFourthCargo);
