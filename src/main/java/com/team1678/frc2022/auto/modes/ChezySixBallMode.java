@@ -9,6 +9,7 @@ import com.team1678.frc2022.auto.actions.LambdaAction;
 import com.team1678.frc2022.auto.actions.RaceAction;
 import com.team1678.frc2022.auto.actions.SeriesAction;
 import com.team1678.frc2022.auto.actions.SwerveTrajectoryAction;
+import com.team1678.frc2022.auto.actions.VisionAlignAction;
 import com.team1678.frc2022.auto.actions.WaitAction;
 import com.team1678.frc2022.subsystems.Superstructure;
 import com.team1678.frc2022.subsystems.Swerve;
@@ -98,7 +99,7 @@ public class ChezySixBallMode extends AutoModeBase {
                 // Intake third cargo
                 traj_path_c = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_c,
                                 Constants.AutoConstants.createConfig(
-                                                Constants.AutoConstants.kSlowSpeedMetersPerSecond,
+                                                Constants.AutoConstants.kMaxSpeedMetersPerSecond,
                                                 1.7,
                                                 0.0,
                                                 0.0));
@@ -108,7 +109,7 @@ public class ChezySixBallMode extends AutoModeBase {
                                 new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                 new PIDController(Constants.AutoConstants.kPYController, 0, 0),
                                 thetaController,
-                                () -> Rotation2d.fromDegrees(218.0),
+                                () -> Rotation2d.fromDegrees(200.0),
                                 mSwerve::getWantAutoVisionAim,
                                 mSwerve::setModuleStates);
 
@@ -200,6 +201,8 @@ public class ChezySixBallMode extends AutoModeBase {
                 runAction(driveToIntakeFourthCargo);
 
                 // aim for shot
+                runAction(new VisionAlignAction(Constants.SwerveConstants.swerveKinematics));
+                
                 runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));
 
                 // shoot third and fourth cargo
