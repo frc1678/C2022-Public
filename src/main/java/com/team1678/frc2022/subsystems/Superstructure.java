@@ -800,22 +800,20 @@ public class Superstructure extends Subsystem {
                 if (getBallCount() == 2) {
                     bottomState = State.SOLID_GREEN;
                 } else if (getBallCount() == 1) {
-                    bottomState = State.SOLID_CYAN;
-                } else {
                     bottomState = State.SOLID_ORANGE;
+                } else {
+                    bottomState = State.OFF;
                 }
                 if (getWantsSpit()) {
-                    topState = State.SOLID_ORANGE;
+                    topState = State.SOLID_RED;
                 } else if (getWantsFender()) {
-                    topState = State.SOLID_CYAN;
-                } else if (mPeriodicIO.SHOOT) {
-                    topState = State.FLASHING_PINK;
+                    topState = State.SOLID_YELLOW;
                 } else if (isAimed()) {
-                    topState = State.FLASHING_GREEN;
+                    topState = State.SOLID_GREEN;
                 } else if (hasTarget()) {
-                    topState = State.SOLID_PURPLE;
-                } else {
                     topState = State.SOLID_ORANGE;
+                } else {
+                    topState = State.OFF;
                 }
             } else {
                 if (mOpenLoopClimbControlMode) {
