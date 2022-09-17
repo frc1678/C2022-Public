@@ -42,7 +42,7 @@ public class Ports {
     }
 
     public static int getBottomBeamBreakPort() {
-        return Constants.isComp ? 3 : 1;
+        return Constants.isComp ? 3 : 2;
     }
 
     public static int getTopBeamBreakPort() {
