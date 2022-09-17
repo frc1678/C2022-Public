@@ -76,7 +76,7 @@ public class TwobyTwoMode extends AutoModeBase {
                                                            mSwerve::setModuleStates);
 
        Trajectory traj_path_d = AutoTrajectoryReader.generateTrajectoryFromFile(file_path_d, Constants.AutoConstants.defaultSpeedConfig);
-       driveToIntakeFirstEjectCargo = new SwerveTrajectoryAction(traj_path_d,
+       driveToIntakeSecondEjectCargo = new SwerveTrajectoryAction(traj_path_d,
                                                            mSwerve::getPose, Constants.SwerveConstants.swerveKinematics,
                                                            new PIDController(Constants.AutoConstants.kPXController, 0, 0),
                                                            new PIDController(Constants.AutoConstants.kPYController, 0, 0),
@@ -130,7 +130,7 @@ public class TwobyTwoMode extends AutoModeBase {
     runAction(new WaitAction(0.75));
 
     // run trajectory to drive to third cargo
-    runAction(driveToIntakeFirstEjectCargo);
+    runAction(driveToIntakeSecondEjectCargo);
 
     // wait to outtake third cargo
     runAction(new WaitAction(2.0));
