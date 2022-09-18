@@ -116,7 +116,7 @@ public class Limelight extends Subsystem {
         public int ledMode = 1; // 0 - use pipeline mode, 1 - off, 2 - blink, 3 - on
         public int camMode = 0; // 0 - vision processing, 1 - driver camera
         public int pipeline = 0; // 0 - 9
-        public int stream = 2; // sets stream layout if another webcam is attached
+        public int stream = 1; // sets stream layout if another webcam is attached
         public int snapshot = 0; // 0 - stop snapshots, 1 - 2 Hz
     }
     
