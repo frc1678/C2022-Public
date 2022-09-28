@@ -100,8 +100,12 @@ public class TwobyOneMode extends AutoModeBase {
         // drive to intake first cargo
         runAction(driveToIntakeCargo);
 
+        runAction(new LambdaAction(() -> mSwerve.setWantAutoVisionAim(true)));
+
         // drive to closer shot pose
         runAction(driveToShotPose);
+
+        runAction(new VisionAlignAction(Constants.SwerveConstants.swerveKinematics));
 
         // shoot one cargo
         runAction(new LambdaAction(() -> mSuperstructure.setWantShoot(true)));
