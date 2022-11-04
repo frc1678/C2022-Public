@@ -65,6 +65,12 @@ public class Limelight extends Subsystem {
             public void onStart(double timestamp) {
               RobotState.getInstance().resetVision();
               setLed(LedMode.ON);
+
+              if (!Constants.isComp) {
+                  mPeriodicIO.stream = 0;
+              } else {
+                  mPeriodicIO.stream = 2;
+              }
             }
 
             @Override
