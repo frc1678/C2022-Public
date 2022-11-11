@@ -49,6 +49,12 @@ public class Limelight extends Subsystem {
     private Limelight() {
         mConstants = Constants.VisionConstants.kLimelightConstants;
         mNetworkTable = NetworkTableInstance.getDefault().getTable(mConstants.kTableName);
+
+        if (!Constants.isComp) {
+            mPeriodicIO.stream = 0;
+        } else {
+            mPeriodicIO.stream = 2;
+        }
     }
 
     public static Limelight getInstance() {
