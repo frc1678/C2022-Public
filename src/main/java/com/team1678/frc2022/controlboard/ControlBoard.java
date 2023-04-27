@@ -78,12 +78,10 @@ public class ControlBoard {
         if (Math.abs(tAxes.norm()) < kSwerveDeadband) {
             return new Translation2d();
         } else {
-            Rotation2d deadband_direction = new Rotation2d(tAxes.x(), tAxes.y(), true);
-            Translation2d deadband_vector = Translation2d.fromPolar(deadband_direction, kSwerveDeadband);
-
-            double scaled_x = tAxes.x() - (deadband_vector.x()) / (1 - deadband_vector.x());
-            double scaled_y = tAxes.y() - (deadband_vector.y()) / (1 - deadband_vector.y());
-            return new Translation2d(scaled_x, scaled_y).scale(Constants.SwerveConstants.maxSpeed);
+            return Translation2d.fromPolar(
+                new Rotation2d(tAxes.x(), tAxes.y(), true),
+                tAxes.norm() >= kSwerveDeadband ? (tAxes.norm() - kSwerveDeadband) / (1.0 - kSwerveDeadband) : 0.0
+            );
         }
     }
 
