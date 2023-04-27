@@ -78,7 +78,10 @@ public class ControlBoard {
         if (Math.abs(tAxes.norm()) < kSwerveDeadband) {
             return new Translation2d();
         } else {
-            return Translation2d.fromPolar(new Rotation2d(tAxes.x(), tAxes.y(), true), (tAxes.norm() - kSwerveDeadband) / (1.0 - kSwerveDeadband));
+            return Translation2d.fromPolar(
+                new Rotation2d(tAxes.x(), tAxes.y(), true),
+                tAxes.norm() >= kSwerveDeadband ? (tAxes.norm() - kSwerveDeadband) / (1.0 - kSwerveDeadband) : 0.0
+            );
         }
     }
 
