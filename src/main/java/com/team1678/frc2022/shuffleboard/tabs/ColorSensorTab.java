@@ -3,26 +3,24 @@ package com.team1678.frc2022.shuffleboard.tabs;
 import com.team1678.frc2022.shuffleboard.ShuffleboardTabBase;
 import com.team1678.frc2022.subsystems.ColorSensor;
 
-import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 
 public class ColorSensorTab extends ShuffleboardTabBase {
 
 	private ColorSensor mColorSensor = ColorSensor.getInstance();
 
-	private NetworkTableEntry mSensor0;
-	private NetworkTableEntry mRValue;
-	private NetworkTableEntry mGValue;
-	private NetworkTableEntry mBValue;
-	private NetworkTableEntry mAllianceColor;
-	private NetworkTableEntry mMatchedColor;
-	private NetworkTableEntry mForwardBreak;
-	private NetworkTableEntry mProximity;
-
-	private NetworkTableEntry mSeesBall;
-	private NetworkTableEntry mEject;
-
-	private NetworkTableEntry mTimestamp;
+	private GenericEntry mSensor0;
+	private GenericEntry mRValue;
+	private GenericEntry mGValue;
+	private GenericEntry mBValue;
+	private GenericEntry mAllianceColor;
+	private GenericEntry mMatchedColor;
+	private GenericEntry mForwardBreak;
+	private GenericEntry mProximity;
+	private GenericEntry mSeesBall;
+	private GenericEntry mEject;
+	private GenericEntry mTimestamp;
 
 	@Override
 	public void createEntries() {

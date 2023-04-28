@@ -4,7 +4,7 @@ import com.team1678.frc2022.shuffleboard.ShuffleboardTabBase;
 import com.team1678.frc2022.subsystems.Limelight;
 import com.team1678.frc2022.subsystems.Superstructure;
 
-import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 
 public class OperatorTab extends ShuffleboardTabBase {
@@ -12,15 +12,15 @@ public class OperatorTab extends ShuffleboardTabBase {
     private Superstructure mSuperstructure = Superstructure.getInstance();
     private Limelight mLimelight = Limelight.getInstance();
 
-    private NetworkTableEntry mOperatorShooting;
-    private NetworkTableEntry mOperatorSpunup;
-    private NetworkTableEntry mOperatorFender;
-    private NetworkTableEntry mOperatorSpit;
-    private NetworkTableEntry mOperatorVisionAimed;
-    private NetworkTableEntry mOperatorClimbMode;
-    private NetworkTableEntry mOperatorAutoClimb;
-    private NetworkTableEntry mOperatorEjectDisable;
-    private NetworkTableEntry mOperatorIntakeOverride;
+    private GenericEntry mOperatorShooting;
+    private GenericEntry mOperatorSpunup;
+    private GenericEntry mOperatorFender;
+    private GenericEntry mOperatorSpit;
+    private GenericEntry mOperatorVisionAimed;
+    private GenericEntry mOperatorClimbMode;
+    private GenericEntry mOperatorAutoClimb;
+    private GenericEntry mOperatorEjectDisable;
+    private GenericEntry mOperatorIntakeOverride;
 
     @Override
     public void createEntries() {

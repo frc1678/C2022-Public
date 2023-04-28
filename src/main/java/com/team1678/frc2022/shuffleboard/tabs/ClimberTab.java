@@ -4,7 +4,7 @@ import com.team1678.frc2022.shuffleboard.ShuffleboardTabBase;
 import com.team1678.frc2022.subsystems.Climber;
 import com.team1678.frc2022.subsystems.Superstructure;
 
-import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 
 public class ClimberTab extends ShuffleboardTabBase {
@@ -12,25 +12,19 @@ public class ClimberTab extends ShuffleboardTabBase {
 	private Climber mClimber = Climber.getInstance();
 	private Superstructure mSuperstructure = Superstructure.getInstance();
 
-	private NetworkTableEntry mClimberVelocityRight;
-	private NetworkTableEntry mClimberVelocityLeft;
-
-	private NetworkTableEntry mClimberDemandRight;
-	private NetworkTableEntry mClimberDemandLeft;
-
-	private NetworkTableEntry mClimberPositionRight;
-	private NetworkTableEntry mClimberPositionLeft;
-
-	private NetworkTableEntry mClimberCurrentRight;
-	private NetworkTableEntry mClimberCurrentLeft;
-
-	private NetworkTableEntry mClimberHomed;
-
-	private NetworkTableEntry mClimberLeftControlState;
-	private NetworkTableEntry mClimberRightControlState;
-
-	private NetworkTableEntry mInClimbMode;
-	private NetworkTableEntry mOpenLoopClimbControl;
+	private GenericEntry mClimberVelocityRight;
+	private GenericEntry mClimberVelocityLeft;
+	private GenericEntry mClimberDemandRight;
+	private GenericEntry mClimberDemandLeft;
+	private GenericEntry mClimberPositionRight;
+	private GenericEntry mClimberPositionLeft;
+	private GenericEntry mClimberCurrentRight;
+	private GenericEntry mClimberCurrentLeft;
+	private GenericEntry mClimberHomed;
+	private GenericEntry mClimberLeftControlState;
+	private GenericEntry mClimberRightControlState;
+	private GenericEntry mInClimbMode;
+	private GenericEntry mOpenLoopClimbControl;
 
 	@Override
 	public void createEntries() {
