@@ -3,7 +3,7 @@ package com.team1678.frc2022.shuffleboard.tabs;
 import com.team1678.frc2022.shuffleboard.ShuffleboardTabBase;
 import com.team1678.frc2022.subsystems.Limelight;
 
-import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 
@@ -11,12 +11,12 @@ public class VisionTab extends ShuffleboardTabBase {
 
 	private Limelight mLimelight = Limelight.getInstance();
 
-	private NetworkTableEntry mSeesTarget;
-	private NetworkTableEntry mLimelightOk;
-	private NetworkTableEntry mLimelightLatency;
-	private NetworkTableEntry mLimelightDt;
-	private NetworkTableEntry mLimelightTx;
-	private NetworkTableEntry mLimelightTy;
+	private GenericEntry mSeesTarget;
+	private GenericEntry mLimelightOk;
+	private GenericEntry mLimelightLatency;
+	private GenericEntry mLimelightDt;
+	private GenericEntry mLimelightTx;
+	private GenericEntry mLimelightTy;
 
 	@Override
 	public void createEntries() {

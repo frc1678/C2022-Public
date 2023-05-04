@@ -5,7 +5,7 @@ import com.team1678.frc2022.shuffleboard.ShuffleboardTabBase;
 import com.team1678.frc2022.subsystems.Swerve;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
@@ -18,13 +18,12 @@ public class SwerveTab extends ShuffleboardTabBase {
 
     private String[] kSwervePlacements = {"Front Left", "Front Right", "Back Left", "Back Right"};
     private ShuffleboardLayout[] mSwerveLayouts = new ShuffleboardLayout[4];
-    private NetworkTableEntry[] mSwerveCancoders = new NetworkTableEntry[4];
-    private NetworkTableEntry[] mSwerveIntegrated = new NetworkTableEntry[4];
-    private NetworkTableEntry[] mSwerveDrivePercent = new NetworkTableEntry[4];
-
-    private NetworkTableEntry mSwerveOdometryX;
-    private NetworkTableEntry mSwerveOdometryY;
-    private NetworkTableEntry mSwerveOdometryRot;
+    private GenericEntry[] mSwerveCancoders = new GenericEntry[4];
+    private GenericEntry[] mSwerveIntegrated = new GenericEntry[4];
+    private GenericEntry[] mSwerveDrivePercent = new GenericEntry[4];
+    private GenericEntry mSwerveOdometryX;
+    private GenericEntry mSwerveOdometryY;
+    private GenericEntry mSwerveOdometryRot;
 
     public SwerveTab() {
         super();
@@ -92,5 +91,6 @@ public class SwerveTab extends ShuffleboardTabBase {
         mSwerveOdometryRot.setDouble(truncate(MathUtil.inputModulus(mSwerve.getPose().getRotation().getDegrees(), 0, 360)));
 
     }
-
 }
+
+
