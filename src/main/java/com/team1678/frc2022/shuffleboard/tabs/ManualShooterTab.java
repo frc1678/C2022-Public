@@ -4,7 +4,6 @@ import com.team1678.frc2022.shuffleboard.ShuffleboardTabBase;
 import com.team1678.frc2022.subsystems.Superstructure;
 
 import edu.wpi.first.networktables.GenericEntry;
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 
@@ -38,7 +37,7 @@ public class ManualShooterTab extends ShuffleboardTabBase {
 
 	@Override
 	public void update() {
-        if(mShootingSetpointsEnableToggle.getValue().getBoolean()) {
+        if(mShootingSetpointsEnableToggle.get().getBoolean()) {
             mSuperstructure.setShootingParameters(mManualShooterRPM.getDouble(0.0), mManualHoodAngle.getDouble(0.0));
         }
 	}
