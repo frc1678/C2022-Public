@@ -4,8 +4,6 @@ package com.team1678.frc2022.auto.actions;
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-import static edu.wpi.first.wpilibj.util.ErrorMessages.requireNonNullParam;
-
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
@@ -96,20 +94,19 @@ public class SwerveTrajectoryAction implements Action {
             Supplier<Rotation2d> desiredRotation,
             Supplier<Boolean> wantsVisionAlign,
             Consumer<SwerveModuleState[]> outputModuleStates) {
-        m_trajectory = requireNonNullParam(trajectory, "trajectory", "SwerveTrajectoryAction");
-        m_pose = requireNonNullParam(pose, "pose", "SwerveTrajectoryAction");
-        m_kinematics = requireNonNullParam(kinematics, "kinematics", "SwerveTrajectoryAction");
-
+        m_trajectory = trajectory;
+        m_pose = pose;
+        m_kinematics = kinematics;
         m_controller = new HolonomicDriveController(
-                requireNonNullParam(xController, "xController", "SwerveTrajectoryAction"),
-                requireNonNullParam(yController, "xController", "SwerveTrajectoryAction"),
-                requireNonNullParam(thetaController, "thetaController", "SwerveTrajectoryAction"));
+                xController, 
+                yController,
+                thetaController);
 
-        m_outputModuleStates = requireNonNullParam(outputModuleStates, "frontLeftOutput", "SwerveTrajectoryAction");
+        m_outputModuleStates = outputModuleStates;
 
-        m_desiredRotation = requireNonNullParam(desiredRotation, "desiredRotation", "SwerveTrajectoryAction");
+        m_desiredRotation = desiredRotation;
 
-        m_wantsVisionAlign = requireNonNullParam(wantsVisionAlign, "wantsVisionAlign", "SwerveTrajectoryAction");
+        m_wantsVisionAlign = wantsVisionAlign;
     }
 
     /**
