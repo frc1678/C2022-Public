@@ -15,6 +15,7 @@ import com.team254.lib.util.TimeDelayedBoolean;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.MathUtil;
@@ -46,6 +47,7 @@ public class Swerve extends Subsystem {
 
     public SwerveDriveOdometry swerveOdometry;
     public SwerveModule[] mSwerveMods;
+    public SwerveModulePosition[] mSwerveModPos;
 
     public Pigeon mPigeon = Pigeon.getInstance();
 
@@ -80,7 +82,7 @@ public class Swerve extends Subsystem {
     }
 
     public Swerve() {        
-        swerveOdometry = new SwerveDriveOdometry(Constants.SwerveConstants.swerveKinematics, mPigeon.getYaw().getWPIRotation2d());
+        swerveOdometry = new SwerveDriveOdometry(Constants.SwerveConstants.swerveKinematics, mPigeon.getYaw().getWPIRotation2d(), mSwerveModPos, getPose());
         
         snapPIDController = new ProfiledPIDController(Constants.SnapConstants.kP,
                                                       Constants.SnapConstants.kI, 
@@ -102,6 +104,10 @@ public class Swerve extends Subsystem {
             new SwerveModule(2, Constants.SwerveConstants.Mod2.SwerveModuleConstants()),
             new SwerveModule(3, Constants.SwerveConstants.Mod3.SwerveModuleConstants())
         };
+         mSwerveModPos = new SwerveModulePosition[]{
+            // put something in here 
+            //something here
+        }; 
     }
 
     @Override
@@ -243,7 +249,7 @@ public class Swerve extends Subsystem {
     }
 
     public void resetOdometry(Pose2d pose) {
-        swerveOdometry.resetPosition(pose, pose.getRotation());
+        swerveOdometry.resetPosition(pose.getRotation(), mSwerveModPos, pose);
         zeroGyro(pose.getRotation().getDegrees());
 
         // reset field to vehicle
@@ -299,7 +305,7 @@ public class Swerve extends Subsystem {
     }
 
     public void updateSwerveOdometry(){
-        swerveOdometry.update(mPigeon.getYaw().getWPIRotation2d(), getStates());
+        swerveOdometry.update(mPigeon.getYaw().getWPIRotation2d(), mSwerveModPos);
 
         chassisVelocity = Constants.SwerveConstants.swerveKinematics.toChassisSpeeds(
                     mInstance.mSwerveMods[0].getState(),

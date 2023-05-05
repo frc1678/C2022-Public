@@ -4,7 +4,7 @@ import com.team1678.frc2022.shuffleboard.ShuffleboardTabBase;
 import com.team1678.frc2022.subsystems.Shooter;
 import com.team1678.frc2022.subsystems.Trigger;
 
-import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 
 public class ShooterTab extends ShuffleboardTabBase {
@@ -12,13 +12,13 @@ public class ShooterTab extends ShuffleboardTabBase {
 	private Shooter mShooter = Shooter.getInstance();
 	private Trigger mTrigger = Trigger.getInstance();
 
-    private NetworkTableEntry mFlywheelRPM;
-    private NetworkTableEntry mShooterOpenLoop;
-    private NetworkTableEntry mFlywheelDemand;
-    private NetworkTableEntry mTriggerVelocity;
-    private NetworkTableEntry mTriggerCurrent;
-    private NetworkTableEntry mTriggerDemand;
-    private NetworkTableEntry mTriggerVoltage;
+    private GenericEntry mFlywheelRPM;
+    private GenericEntry mShooterOpenLoop;
+    private GenericEntry mFlywheelDemand;
+    private GenericEntry mTriggerVelocity;
+    private GenericEntry mTriggerCurrent;
+    private GenericEntry mTriggerDemand;
+    private GenericEntry mTriggerVoltage;
 
 	@Override
 	public void createEntries() {

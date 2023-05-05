@@ -1,6 +1,6 @@
 package com.team1678.frc2022.shuffleboard;
 
-import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 public abstract class ShuffleboardTabBase {
@@ -8,11 +8,11 @@ public abstract class ShuffleboardTabBase {
 
     public abstract void createEntries();
 
-    protected NetworkTableEntry createNumberEntry(String name) {
+    protected GenericEntry createNumberEntry(String name) {
         return mTab.add(name, 0.0).withSize(2, 1).getEntry();
     }
 
-    protected NetworkTableEntry createStringEntry(String name) {
+    protected GenericEntry createStringEntry(String name) {
         return mTab.add(name, "").withSize(2, 1).getEntry();
     }
 

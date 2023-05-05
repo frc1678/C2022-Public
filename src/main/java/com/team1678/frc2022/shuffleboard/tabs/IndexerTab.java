@@ -4,7 +4,7 @@ import com.team1678.frc2022.shuffleboard.ShuffleboardTabBase;
 import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Superstructure;
 
-import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 
 public class IndexerTab extends ShuffleboardTabBase {
@@ -12,19 +12,15 @@ public class IndexerTab extends ShuffleboardTabBase {
 	private Indexer mIndexer = Indexer.getInstance();
 	private Superstructure mSuperstructure = Superstructure.getInstance();
 
-	private NetworkTableEntry mEjectorCurrent;
-	private NetworkTableEntry mEjectorDemand;
-	private NetworkTableEntry mEjectorVoltage;
-
-	private NetworkTableEntry mTunnelCurrent;
-	private NetworkTableEntry mTunnelDemand;
-	private NetworkTableEntry mTunnelVoltage;
-
-
-	private NetworkTableEntry mBallCount;
-
-	private NetworkTableEntry mTopBeamBreak;
-	private NetworkTableEntry mBottomBeamBreak;
+	private GenericEntry mEjectorCurrent;
+	private GenericEntry mEjectorDemand;
+	private GenericEntry mEjectorVoltage;
+	private GenericEntry mTunnelCurrent;
+	private GenericEntry mTunnelDemand;
+	private GenericEntry mTunnelVoltage;
+	private GenericEntry mBallCount;
+	private GenericEntry mTopBeamBreak;
+	private GenericEntry mBottomBeamBreak;
 
 	@Override
 	public void createEntries() {

@@ -6,6 +6,7 @@ import com.team1678.frc2022.subsystems.Indexer;
 import com.team1678.frc2022.subsystems.Limelight;
 import com.team1678.frc2022.subsystems.Superstructure;
 
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 
@@ -16,21 +17,21 @@ public class SystemsTab extends ShuffleboardTabBase {
 	private Indexer mIndexer = Indexer.getInstance();
 	private ColorSensor mColorSensor = ColorSensor.getInstance();
 
-	private NetworkTableEntry mLimelightHasTarget;
-	private NetworkTableEntry mLimelightLatency;
-	private NetworkTableEntry mLimelightTX;
-	private NetworkTableEntry mLimelightTY;
+	private GenericEntry mLimelightHasTarget;
+	private GenericEntry mLimelightLatency;
+	private GenericEntry mLimelightTX;
+	private GenericEntry mLimelightTY;
 
-	private NetworkTableEntry mColorSensorProximity;
-	private NetworkTableEntry mColorSensorRatio;
-	private NetworkTableEntry mColorSensorBallColor;
-	private NetworkTableEntry mColorSensorHasBall;
+	private GenericEntry mColorSensorProximity;
+	private GenericEntry mColorSensorRatio;
+	private GenericEntry mColorSensorBallColor;
+	private GenericEntry mColorSensorHasBall;
 
-	private NetworkTableEntry mForwardBreak;
-	private NetworkTableEntry mBottomBreak;
-	private NetworkTableEntry mTopBreak;
+	private GenericEntry mForwardBreak;
+	private GenericEntry mBottomBreak;
+	private GenericEntry mTopBreak;
 
-	private NetworkTableEntry mClimbStep;
+	private GenericEntry mClimbStep;
 
 	@Override
 	public void createEntries() {

@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 /**
  * Small class filled with static util methods for the SmartDashboard.
  */
-public class SmartDashboardUtil {
+/*public class SmartDashboardUtil {
 
     public static void deletePersistentKeys() {
         for (String key : SmartDashboard.getKeys()) {
@@ -20,4 +20,4 @@ public class SmartDashboardUtil {
             SmartDashboard.delete(key);
         }
     }
-}
+}*/

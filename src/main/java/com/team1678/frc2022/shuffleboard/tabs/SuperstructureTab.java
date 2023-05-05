@@ -3,31 +3,31 @@ package com.team1678.frc2022.shuffleboard.tabs;
 import com.team1678.frc2022.shuffleboard.ShuffleboardTabBase;
 import com.team1678.frc2022.subsystems.Superstructure;
 
-import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 
 public class SuperstructureTab extends ShuffleboardTabBase {
 
 	private Superstructure mSuperstructure = Superstructure.getInstance();
 
-	private NetworkTableEntry mIntaking;
-	private NetworkTableEntry mReversing;
-	private NetworkTableEntry mRejecting;
-	private NetworkTableEntry mEjecting;
-	private NetworkTableEntry mPrepping;
-	private NetworkTableEntry mShooting;
-	private NetworkTableEntry mFenderShot;
-	private NetworkTableEntry mSpitShot;
+	private GenericEntry mIntaking;
+	private GenericEntry mReversing;
+	private GenericEntry mRejecting;
+	private GenericEntry mEjecting;
+	private GenericEntry mPrepping;
+	private GenericEntry mShooting;
+	private GenericEntry mFenderShot;
+	private GenericEntry mSpitShot;
 
 	// goals
-	private NetworkTableEntry mIntakeGoal;
-	private NetworkTableEntry mShooterGoal;
-	private NetworkTableEntry mHoodGoal;
+	private GenericEntry mIntakeGoal;
+	private GenericEntry mShooterGoal;
+	private GenericEntry mHoodGoal;
 
 	// additional status vars
-	private NetworkTableEntry mSpunUp;
-	private NetworkTableEntry mHasTarget;
-	private NetworkTableEntry mIsAimed;
+	private GenericEntry mSpunUp;
+	private GenericEntry mHasTarget;
+	private GenericEntry mIsAimed;
 
 	@Override
 	public void createEntries() {

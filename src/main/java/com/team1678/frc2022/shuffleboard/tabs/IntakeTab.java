@@ -3,21 +3,21 @@ package com.team1678.frc2022.shuffleboard.tabs;
 import com.team1678.frc2022.shuffleboard.ShuffleboardTabBase;
 import com.team1678.frc2022.subsystems.Intake;
 
-import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 
 public class IntakeTab extends ShuffleboardTabBase {
 
 	private Intake mIntake = Intake.getInstance();
 
-    private NetworkTableEntry mIntakeState;
-    private NetworkTableEntry mIntakeRollerCurrent;
-    private NetworkTableEntry mIntakeRollerVoltage;
-    private NetworkTableEntry mIntakeRollerDemand;
-    private NetworkTableEntry mIntakeDeployCurrent;
-    private NetworkTableEntry mIntakeDeployVoltage;
-    private NetworkTableEntry mIntakeDeployDemand;
-    private NetworkTableEntry mIsForceHolding;
+    private GenericEntry mIntakeState;
+    private GenericEntry mIntakeRollerCurrent;
+    private GenericEntry mIntakeRollerVoltage;
+    private GenericEntry mIntakeRollerDemand;
+    private GenericEntry mIntakeDeployCurrent;
+    private GenericEntry mIntakeDeployVoltage;
+    private GenericEntry mIntakeDeployDemand;
+    private GenericEntry mIsForceHolding;
 
 	@Override
 	public void createEntries() {
